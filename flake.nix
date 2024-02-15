@@ -5,9 +5,13 @@
       url = "github:nix-community/home-manager";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    disko = {
+      url = "github:nix-community/disko";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
-  outputs = { self, nixpkgs, home-manager, ... }@attrs: {
+  outputs = { self, nixpkgs, home-manager, disko, ... }@attrs: {
     nixosConfigurations = {
       t15g = nixpkgs.lib.nixosSystem {
         system = "x86_64-linux";
@@ -15,6 +19,25 @@
         modules = [
           home-manager.nixosModules.home-manager
           ./machines/t15g
+        ];
+      };
+
+      kashenblade = nixpkgs.lib.nixosSystem {
+        system = "aarch64-linux";
+        specialArgs = attrs;
+        modules = [
+          home-manager.nixosModules.home-manager
+          ./machines/kashenblade
+        ];
+      };
+
+      hetzner-template = nixpkgs.lib.nixosSystem {
+        system = "aarch64-linux";
+        # specialArgs = attrs;
+        modules = [
+          disko.nixosModules.disko
+          # home-manager.nixosModules.home-manager
+          ./machines/hetzner-template
         ];
       };
     };

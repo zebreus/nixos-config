@@ -20,5 +20,5 @@
 
     ];
 
-  users.users.lennart.extraGroups = [ "lp" ];
+  users.users.lennart.extraGroups = [ "lp" "scanner" ];
 }

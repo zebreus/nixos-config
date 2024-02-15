@@ -2,7 +2,6 @@
 # Various editors and other tools
 { pkgs, ... }:
 {
-  # List packages installed in system profile. To search, run:
   environment.systemPackages = with pkgs;
     [
       nixpkgs-fmt
@@ -10,7 +9,6 @@
       killall
       htop
       btop
-      git
       curl
       usbutils
       pciutils

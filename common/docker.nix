@@ -20,4 +20,6 @@ with lib;
       docker
       docker-compose
     ];
+
+  users.extraGroups.docker.members = [ "lennart" ];
 }

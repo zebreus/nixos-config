@@ -1,6 +1,9 @@
 {
   imports = [
-    ../../common.nix
+    ../../common/common
+    ../../common/desktop
+    ../../common/docker.nix
+    ../../common/libvirt.nix
     ./hardware-configuration.nix
     ./nvidia.nix
     ./webcam.nix

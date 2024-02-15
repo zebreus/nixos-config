@@ -6,4 +6,6 @@
     [
       piper
     ];
+
+  users.users.lennart.extraGroups = [ "input" ];
 }

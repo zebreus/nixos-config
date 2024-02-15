@@ -15,4 +15,6 @@
   environment.systemPackages = with pkgs; [
     qemu
   ];
+
+  users.extraGroups.libvirtd.members = [ "lennart" ];
 }
