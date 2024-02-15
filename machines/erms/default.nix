@@ -10,7 +10,7 @@
   ];
 
   networking = {
-    hostName = "t15g";
+    hostName = "erms";
   };
 
   system.stateVersion = "22.05";

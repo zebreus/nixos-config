@@ -13,12 +13,12 @@
 
   outputs = { self, nixpkgs, home-manager, disko, ... }@attrs: {
     nixosConfigurations = {
-      t15g = nixpkgs.lib.nixosSystem {
+      erms = nixpkgs.lib.nixosSystem {
         system = "x86_64-linux";
         specialArgs = attrs;
         modules = [
           home-manager.nixosModules.home-manager
-          ./machines/t15g
+          ./machines/erms
         ];
       };
 
