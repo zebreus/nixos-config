@@ -1,15 +1,18 @@
 { pkgs, ... }:
 {
-  boot.kernelPackages = pkgs.linuxPackages_6_7;
+  boot = {
+    kernelPackages = pkgs.linuxPackages_6_7;
 
-  # Bootloader.
-  boot.loader.systemd-boot.enable = true;
+    loader = {
+      systemd-boot.enable = true;
 
-  boot.loader.grub = {
-    efiSupport = true;
-    efiInstallAsRemovable = true;
+      grub = {
+        efiSupport = true;
+        efiInstallAsRemovable = true;
+      };
+
+      efi.canTouchEfiVariables = true;
+      efi.efiSysMountPoint = "/boot/efi";
+    };
   };
-
-  boot.loader.efi.canTouchEfiVariables = true;
-  boot.loader.efi.efiSysMountPoint = "/boot/efi";
 }

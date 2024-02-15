@@ -9,30 +9,32 @@
       (modulesPath + "/installer/scan/not-detected.nix")
     ];
 
-  boot.initrd.availableKernelModules = [ "xhci_pci" "thunderbolt" "nvme" "usb_storage" "sd_mod" "rtsx_pci_sdmmc" ];
-  boot.initrd.kernelModules = [ ];
-  boot.kernelModules = [ "kvm-intel" ];
-  boot.extraModulePackages = [ ];
-
-  fileSystems."/" = {
-    device = "/dev/disk/by-uuid/ea1654a1-ffe8-4e09-8144-447742153719";
-    fsType = "ext4";
+  boot = {
+    initrd = {
+      availableKernelModules = [ "xhci_pci" "thunderbolt" "nvme" "usb_storage" "sd_mod" "rtsx_pci_sdmmc" ];
+      kernelModules = [ ];
+    };
+    kernelModules = [ "kvm-intel" ];
+    extraModulePackages = [ ];
   };
 
-  fileSystems."/mnt/toast" = {
-    device = "/dev/disk/by-uuid/0eebe9bf-c476-4701-9d22-28eabfe79690";
-    fsType = "ext4";
-  };
-
-
-  fileSystems."/boot/efi" = {
-    device = "/dev/disk/by-uuid/557D-EE3B";
-    fsType = "vfat";
-  };
-
-  fileSystems."/winefi" = {
-    device = "/dev/disk/by-uuid/5EC8-3F73";
-    fsType = "vfat";
+  fileSystems = {
+    "/" = {
+      device = "/dev/disk/by-uuid/ea1654a1-ffe8-4e09-8144-447742153719";
+      fsType = "ext4";
+    };
+    "/mnt/toast" = {
+      device = "/dev/disk/by-uuid/0eebe9bf-c476-4701-9d22-28eabfe79690";
+      fsType = "ext4";
+    };
+    "/boot/efi" = {
+      device = "/dev/disk/by-uuid/557D-EE3B";
+      fsType = "vfat";
+    };
+    "/winefi" = {
+      device = "/dev/disk/by-uuid/5EC8-3F73";
+      fsType = "vfat";
+    };
   };
 
   swapDevices = [ ];

@@ -1,5 +1,4 @@
 # Configuration of locales and keymaps
-{ ... }:
 {
   # Set your time zone.
   time.timeZone = "Europe/Berlin";
