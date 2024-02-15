@@ -1,3 +1,4 @@
+# Setup support for printers and scanners
 { pkgs, ... }:
 {
 
@@ -18,4 +19,6 @@
       xsane
 
     ];
+
+  users.users.lennart.extraGroups = [ "lp" ];
 }

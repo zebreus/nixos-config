@@ -1,7 +1,7 @@
 { pkgs, ... }:
 {
   fonts = {
-    enableDefaultFonts = true;
+    enableDefaultPackages = true;
     packages = with pkgs; [
       noto-fonts
       noto-fonts-cjk

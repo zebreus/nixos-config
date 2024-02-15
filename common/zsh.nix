@@ -19,7 +19,6 @@ in
 
     shellAliases = {
       update = "sudo nixos-rebuild switch";
-      # cd = "z";
       cat = "bat";
     };
     histSize = 50000;
@@ -28,7 +27,6 @@ in
       enable = true;
       plugins = [
         "git"
-        #     "thefuck"
         "history-substring-search"
         "web-search"
         "zoxide"
@@ -39,7 +37,6 @@ in
 
   users.defaultUserShell = pkgs.zsh;
   environment.binsh = "${pkgs.zsh}/bin/zsh";
-
 
   home-manager.users.lennart = { pkgs, ... }: {
     programs.zsh = {

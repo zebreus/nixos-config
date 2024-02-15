@@ -29,5 +29,6 @@
       rsync
       ffmpeg
       nil
+      imagemagick
     ];
 }

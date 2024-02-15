@@ -4,6 +4,6 @@
   users.users.lennart = {
     isNormalUser = true;
     description = "Lennart";
-    extraGroups = [ "networkmanager" "wheel" "audio" "docker" "input" "scanner" "lp" "plugdev" "libvirtd" ];
+    extraGroups = [ "networkmanager" "wheel" "audio" "docker" "input" "scanner" "libvirtd" ];
   };
 }

@@ -6,9 +6,13 @@ let
   #     allowUnfree = true;
   #   };
   # };
-  unstable = pkgs;
+  # unstable = pkgs;
+  wayland-chrome = pkgs.google-chrome.override {
+    commandLineArgs = "--ozone-platform=wayland --enable-features=UseOzonePlatform,WebRTCPipeWireCapturer,TouchpadOverscrollHistoryNavigation";
+  };
 in
 {
+
   # google-chrome.commandLineArgs = "--ozone-platform=wayland --enable-features=UseOzonePlatform,WebRTCPipeWireCapturer,TouchpadOverscrollHistoryNavigation";
   # List packages installed in system profile. To search, run:
   environment.systemPackages = with pkgs;
@@ -16,7 +20,7 @@ in
       vscode
       slack
       spotify
-      unstable.google-chrome
+      wayland-chrome
       firefox
       gnome-secrets
       inkscape
