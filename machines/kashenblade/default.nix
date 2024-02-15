@@ -5,8 +5,8 @@
     (modulesPath + "/profiles/qemu-guest.nix")
     ./networking.nix
     ./hardware-configuration.nix
-    ../../common/common
-    ../../common/matrix.nix
+    ../../modules/common
+    ../../modules/matrix.nix
   ];
 
   system.stateVersion = "23.11";
