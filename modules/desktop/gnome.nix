@@ -1,5 +1,5 @@
 # Enable the GNOME Desktop Environment.
-{ pkgs, ... }:
+{ pkgs, lib, config, ... }:
 {
   services.xserver = {
     enable = true;
@@ -22,4 +22,7 @@
     ];
 
   environment.sessionVariables.NIXOS_OZONE_WL = "1";
+
+  # GDMs does not work well
+  security.pam.services.login.showMotd = lib.mkForce false;
 }
