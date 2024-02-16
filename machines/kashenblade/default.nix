@@ -23,6 +23,8 @@
     };
 
 
-  networking.hostName = "kashenblade";
-  networking.domain = "kashenblade.zebre.us";
+  networking = {
+    hostName = "kashenblade";
+    domain = "zebre.us";
+  };
 }

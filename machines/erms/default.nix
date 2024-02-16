@@ -11,6 +11,7 @@
 
   networking = {
     hostName = "erms";
+    domain = "zebre.us";
   };
 
   system.stateVersion = "22.05";
