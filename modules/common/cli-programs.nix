@@ -28,5 +28,7 @@
       ffmpeg
       nil
       imagemagick
+      agenix
+      age
     ];
 }
