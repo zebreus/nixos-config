@@ -37,7 +37,7 @@ with pkgs; writeScriptBin "gen-wireguard-keys" ''
   PUBLIC_KEY=$(echo $PRIVATE_KEY | ${wireguard-tools}/bin/wg pubkey)
   PRESHARED_KEY=$(${wireguard-tools}/bin/wg genpsk)
 
-  ${perl}/bin/perl -pi -e '$_ = q(  '$TARGET_HOSTNAME'_wireguard = "'"$PUBLIC_KEY"'";) . qq(\n) . $_ if /MARKER_WIREGUARD_PUBLIC_KEYS/' secrets.nix
+  ${perl}/bin/perl -pi -e '$_ = q(  '$TARGET_HOSTNAME'_wireguard = "'"$PUBLIC_KEY"'";) . qq(\n) . $_ if /MARKER_WIREGUARD_PUBLIC_KEYS/' public-keys.nix
   ${perl}/bin/perl -pi -e '$_ = q(  "'$TARGET_HOSTNAME'_wireguard.age".publicKeys = [ recovery '$TARGET_HOSTNAME' ];) . qq(\n) . $_ if /MARKER_WIREGUARD_KEYS/' secrets.nix
   ${perl}/bin/perl -pi -e '$_ = q(  "'$TARGET_HOSTNAME'_wireguard_psk.age".publicKeys = [ recovery '$TARGET_HOSTNAME' ];) . qq(\n) . $_ if /MARKER_WIREGUARD_KEYS/' secrets.nix
   ${perl}/bin/perl -pi -e '$_ = q(  "'$TARGET_HOSTNAME'_wireguard_pub.age".publicKeys = [ recovery '$TARGET_HOSTNAME' ];) . qq(\n) . $_ if /MARKER_WIREGUARD_KEYS/' secrets.nix

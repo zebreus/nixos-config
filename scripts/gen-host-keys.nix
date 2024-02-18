@@ -35,11 +35,12 @@ with pkgs; writeScriptBin "gen-host-keys" ''
 
   PUBLIC_KEY=$(cat $KEYDIR/''${TARGET_HOSTNAME}_ed25519.pub)
 
-  ${perl}/bin/perl -pi -e '$_ = q(  '$TARGET_HOSTNAME' = "'"$PUBLIC_KEY"'";) . qq(\n) . $_ if /MARKER_PUBLIC_HOST_KEYS/' secrets.nix
+  ${perl}/bin/perl -pi -e '$_ = q(  '$TARGET_HOSTNAME' = "'"$PUBLIC_KEY"'";) . qq(\n) . $_ if /MARKER_PUBLIC_HOST_KEYS/' public-keys.nix
   ${perl}/bin/perl -pi -e '$_ = q(  "'$TARGET_HOSTNAME'_ed25519.age".publicKeys = [ recovery '$TARGET_HOSTNAME' ];) . qq(\n) . $_ if /MARKER_HOST_KEYS/' secrets.nix
   ${perl}/bin/perl -pi -e '$_ = q(  "'$TARGET_HOSTNAME'_ed25519_pub.age".publicKeys = [ recovery '$TARGET_HOSTNAME' ];) . qq(\n) . $_ if /MARKER_HOST_KEYS/' secrets.nix
   ${perl}/bin/perl -pi -e '$_ = q(  "'$TARGET_HOSTNAME'_rsa.age".publicKeys = [ recovery '$TARGET_HOSTNAME' ];) . qq(\n) . $_ if /MARKER_HOST_KEYS/' secrets.nix
   ${perl}/bin/perl -pi -e '$_ = q(  "'$TARGET_HOSTNAME'_rsa_pub.age".publicKeys = [ recovery '$TARGET_HOSTNAME' ];) . qq(\n) . $_ if /MARKER_HOST_KEYS/' secrets.nix
+  ${perl}/bin/perl -pi -e 's/\QallMachines = [\E/allMachines = [ '"$TARGET_HOSTNAME"'/' public-keys.nix 
         
   cat $KEYDIR/''${TARGET_HOSTNAME}_ed25519 | ${pkgs.agenix}/bin/agenix -e "''${TARGET_HOSTNAME}_ed25519.age"
   cat $KEYDIR/''${TARGET_HOSTNAME}_ed25519.pub | ${pkgs.agenix}/bin/agenix -e "''${TARGET_HOSTNAME}_ed25519_pub.age"

@@ -22,15 +22,41 @@
           agenix = agenix.packages.${prev.system}.default;
         })
       ];
-
-      overlayNixpkgs = ({ config, pkgs, ... }: {
-        nixpkgs.overlays = overlays;
-      });
-
       pkgs = import nixpkgs {
         inherit overlays;
         system = "x86_64-linux";
       };
+      publicKeys = import secrets/public-keys.nix;
+
+      # Sets config options with information about other machines.
+      # Only contains the information that is relevant for all machines.
+      informationAboutOtherMachines = {
+        imports = [
+          modules/machines.nix
+        ];
+        machines = {
+          erms = {
+            name = "erms";
+            address = 1;
+            wireguardPublicKey = publicKeys.erms_wireguard;
+          };
+          kashenblade = {
+            name = "kashenblade";
+            address = 2;
+            wireguardPublicKey = publicKeys.kashenblade_wireguard;
+            staticIp4 = "65.109.236.106";
+          };
+          kappril = {
+            name = "kappril";
+            address = 3;
+            wireguardPublicKey = publicKeys.kappril_wireguard;
+          };
+        };
+      };
+      # Add some extra packages to nixpkgs
+      overlayNixpkgs = ({ config, pkgs, ... }: {
+        nixpkgs.overlays = overlays;
+      });
     in
     rec   {
       nixosConfigurations =
@@ -40,6 +66,7 @@
             specialArgs = attrs;
             modules = [
               overlayNixpkgs
+              informationAboutOtherMachines
               agenix.nixosModules.default
               home-manager.nixosModules.home-manager
               ./machines/erms
@@ -51,6 +78,7 @@
             specialArgs = attrs;
             modules = [
               overlayNixpkgs
+              informationAboutOtherMachines
               agenix.nixosModules.default
               home-manager.nixosModules.home-manager
               ./machines/kashenblade
@@ -62,6 +90,7 @@
             specialArgs = attrs;
             modules = [
               overlayNixpkgs
+              informationAboutOtherMachines
               home-manager.nixosModules.home-manager
               agenix.nixosModules.default
               ./machines/kappril
