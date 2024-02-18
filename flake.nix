@@ -17,48 +17,62 @@
 
   outputs = { self, nixpkgs, home-manager, disko, agenix, ... }@attrs:
     let
-      pkgs = ({ pkgs, ... }: {
+      overlayNixpkgs = ({ config, pkgs, ... }: {
         nixpkgs.overlays = [
-          # ... stuff here ...
+          (final: prev: {
+            agenix = agenix.packages.${prev.system}.default;
+          })
         ];
       });
-      flakesOverlay = final: prev: {
-        agenix = agenix.packages.${prev.system}.default;
-      };
     in
-    {
-      nixosConfigurations = {
-        erms = nixpkgs.lib.nixosSystem {
-          system = "x86_64-linux";
-          specialArgs = attrs // { nixpkgs = pkgs; };
-          modules = [
-            ({ config, pkgs, ... }: { nixpkgs.overlays = [ flakesOverlay ]; })
-            agenix.nixosModules.default
-            home-manager.nixosModules.home-manager
-            ./machines/erms
-          ];
+    rec   {
+      nixosConfigurations =
+        {
+          erms = nixpkgs.lib.nixosSystem {
+            system = "x86_64-linux";
+            specialArgs = attrs;
+            modules = [
+              overlayNixpkgs
+              agenix.nixosModules.default
+              home-manager.nixosModules.home-manager
+              ./machines/erms
+            ];
+          };
+
+          kashenblade = nixpkgs.lib.nixosSystem {
+            system = "aarch64-linux";
+            specialArgs = attrs;
+            modules = [
+              overlayNixpkgs
+              agenix.nixosModules.default
+              home-manager.nixosModules.home-manager
+              ./machines/kashenblade
+            ];
+          };
+
+          kappril = nixpkgs.lib.nixosSystem {
+            system = "aarch64-linux";
+            specialArgs = attrs;
+            modules = [
+              overlayNixpkgs
+              home-manager.nixosModules.home-manager
+              agenix.nixosModules.default
+              ./machines/kappril
+            ];
+          };
+
+          hetzner-template = nixpkgs.lib.nixosSystem {
+            system = "aarch64-linux";
+            # specialArgs = attrs;
+            modules = [
+              agenix.nixosModules.default
+              disko.nixosModules.disko
+              # home-manager.nixosModules.home-manager
+              ./machines/hetzner-template
+            ];
+          };
         };
 
-        kashenblade = nixpkgs.lib.nixosSystem {
-          system = "aarch64-linux";
-          specialArgs = attrs;
-          modules = [
-            agenix.nixosModules.default
-            home-manager.nixosModules.home-manager
-            ./machines/kashenblade
-          ];
-        };
-
-        hetzner-template = nixpkgs.lib.nixosSystem {
-          system = "aarch64-linux";
-          # specialArgs = attrs;
-          modules = [
-            agenix.nixosModules.default
-            disko.nixosModules.disko
-            # home-manager.nixosModules.home-manager
-            ./machines/hetzner-template
-          ];
-        };
-      };
+      image.kappril = nixosConfigurations.kappril.config.system.build.sdImage;
     };
 }

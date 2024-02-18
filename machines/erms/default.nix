@@ -14,5 +14,7 @@
     hostName = "erms";
     domain = "zebre.us";
   };
+
+  boot.binfmt.emulatedSystems = [ "aarch64-linux" ];
 }
 
