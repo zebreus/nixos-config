@@ -14,6 +14,12 @@ let
   # Used to login into machines and services
   # These keys are only present on the machines I use interactively and have a passphrase
   lennart = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIBTHzLm8QMhHIo7kFAvtAFnqpspeR3L3gM8kLoG1137";
+
+  # Wireguard public keys
+  # Generated with `agenix -d kashenblade_wireguard.age -i ~/.ssh/kashenblade_ed25519 | wg pubkey `
+  kashenblade_wireguard = "68AYtSIPLMgVchysyEjjxkA/9iKwvhNExmxd1oIHTxw=";
+  erms_wireguard = "u3a0TMHdpaao0OLrZ4wjwMLW2d8nSgZbZkyfhSau/xY=";
+  kappril_wireguard = "Rrx4C/a4lDC7Wc+9IPSA/efor1KzDzGRFzqVbi546kI=";
 in
 {
   # Private machine keys
@@ -25,4 +31,11 @@ in
   # Private user keys
   # Can be decrypted by recovery key and self
   "lennart_ed25519.age".publicKeys = [ recovery lennart ];
+
+  # Wireguard keys
+  # Can be decrypted by recovery key or the respective machine key
+  # Generated with `wg genkey | agenix -e kashenblade_wireguard.age`
+  "kashenblade_wireguard.age".publicKeys = [ recovery kashenblade ];
+  "erms_wireguard.age".publicKeys = [ recovery erms ];
+  "kappril_wireguard.age".publicKeys = [ recovery kappril ];
 }
