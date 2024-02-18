@@ -33,8 +33,14 @@ in
 
   config = mkIf cfg.enable {
     # Define the files with the secrets
-    age.secrets.coturn_static_auth_secret.file = ../secrets/coturn_static_auth_secret.age;
-    age.secrets.coturn_static_auth_secret_matrix_config.file = ../secrets/coturn_static_auth_secret_matrix_config.age;
+    age.secrets.coturn_static_auth_secret = {
+      file = ../secrets/coturn_static_auth_secret.age;
+      owner = "turnserver";
+    };
+    age.secrets.coturn_static_auth_secret_matrix_config = {
+      file = ../secrets/coturn_static_auth_secret_matrix_config.age;
+      owner = "matrix-synapse";
+    };
 
     # Get certs
     security.acme = {
