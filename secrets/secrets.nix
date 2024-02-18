@@ -8,6 +8,7 @@ let
   # They are present on their machine and have no passphrase
   kashenblade = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIr9j8v8PrnxqxtZuUV9KAK3PGioV70ab3Fax38k8e+L";
   erms = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIF+G8YkQ9dQiG85BYIHY4H0D8nn/Ho2m9hSuzD28tRs+";
+  kappril = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIBgScOMCkR/ILw5uqBUKHyIIO7Id2Io993HbltiuSIR2";
 
   # User keys
   # Used to login into machines and services
@@ -19,6 +20,7 @@ in
   # Can be decrypted by recovery key and self
   "kashenblade_ed25519.age".publicKeys = [ recovery kashenblade ];
   "erms_ed25519.age".publicKeys = [ recovery erms ];
+  "kappril_ed25519.age".publicKeys = [ recovery kappril ];
 
   # Private user keys
   # Can be decrypted by recovery key and self
