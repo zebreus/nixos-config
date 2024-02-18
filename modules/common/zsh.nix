@@ -18,8 +18,7 @@ in
     syntaxHighlighting.enable = true;
 
     shellAliases = {
-      update = "sudo nixos-rebuild switch";
-      cat = "bat";
+      # cat = "bat";
     };
     histSize = 50000;
 
