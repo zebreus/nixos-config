@@ -1,3 +1,15 @@
 = nixos-config
 
-NixOS configs for various machines
+NixOS configs for various machines.
+
+NOTE: This document is more of a unstructured notepad for me than an actual readme.
+
+== Usage
+
+The flake exports configurations for all my machines.
+
+== Secrets
+
+Secrets are managed with `agenix`. They are stored in the secrets directory.
+
+Each machine uses its ed25519 SSH host key to decrypt its secrets. That SSH host key is also stored as a secret. Before deploying a machine for the first time the ed25519 SSH host key must be on it. For now I just copied the key over manually, but nixos-anywhere has a option to copy files to a machine, I think.

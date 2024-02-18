@@ -17,11 +17,6 @@ let
   email = cfg.certEmail;
 in
 {
-  # coturn secret is imported from /root/secrets.nix
-  imports = [
-    /root/secrets.nix
-  ];
-
   options.modules.matrix = {
     enable = mkEnableOption "Enable matrix server";
 
@@ -34,14 +29,13 @@ in
       type = types.str;
       description = "Email address to use for Let's Encrypt certificates.";
     };
-
-    coturn-static-auth-secret = mkOption {
-      type = types.str;
-      description = "Shared coturn secret for matrix. Should not end up in the git repo";
-    };
   };
 
   config = mkIf cfg.enable {
+    # Define the files with the secrets
+    age.secrets.coturn_static_auth_secret.file = ../secrets/coturn_static_auth_secret.age;
+    age.secrets.coturn_static_auth_secret_matrix_config.file = ../secrets/coturn_static_auth_secret_matrix_config.age;
+
     # Get certs
     security.acme = {
       acceptTerms = true;
@@ -158,7 +152,7 @@ in
         min-port = 49000;
         max-port = 50000;
         use-auth-secret = true;
-        static-auth-secret = config.modules.matrix.coturn-static-auth-secret;
+        static-auth-secret-file = config.age.secrets.coturn_static_auth_secret.path;
         realm = turnDomain;
         cert = "${config.security.acme.certs.${turnDomain}.directory}/full.pem";
         pkey = "${config.security.acme.certs.${turnDomain}.directory}/key.pem";
@@ -217,9 +211,12 @@ in
           max_upload_size = "500M";
 
           turn_uris = [ "turn:${config.services.coturn.realm}:3478?transport=udp" "turn:${config.services.coturn.realm}:3478?transport=tcp" ];
-          turn_shared_secret = config.services.coturn.static-auth-secret;
           turn_user_lifetime = "1h";
         };
+        # There is no file option for the coturn static auth secret, so we need to add it via extraConfigFiles
+        extraConfigFiles = [
+          config.age.secrets.coturn_static_auth_secret_matrix_config.path
+        ];
       };
     };
   };

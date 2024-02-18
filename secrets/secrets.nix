@@ -65,4 +65,9 @@ in
   "kappril_wireguard_psk.age".publicKeys = [ recovery kappril ];
   "kappril_wireguard_pub.age".publicKeys = [ recovery kappril ];
   # MARKER_WIREGUARD_KEYS
+
+  # Shared secret for coturn.
+  # Matrix does not support a file option, but can load extra config files, so we use a config file that only sets the secret
+  "coturn_static_auth_secret.age".publicKeys = [ recovery kashenblade ];
+  "coturn_static_auth_secret_matrix_config.age".publicKeys = [ recovery kashenblade ];
 }
