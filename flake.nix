@@ -17,13 +17,20 @@
 
   outputs = { self, nixpkgs, home-manager, disko, agenix, ... }@attrs:
     let
+      overlays = [
+        (final: prev: {
+          agenix = agenix.packages.${prev.system}.default;
+        })
+      ];
+
       overlayNixpkgs = ({ config, pkgs, ... }: {
-        nixpkgs.overlays = [
-          (final: prev: {
-            agenix = agenix.packages.${prev.system}.default;
-          })
-        ];
+        nixpkgs.overlays = overlays;
       });
+
+      pkgs = import nixpkgs {
+        inherit overlays;
+        system = "x86_64-linux";
+      };
     in
     rec   {
       nixosConfigurations =
@@ -73,6 +80,11 @@
           };
         };
 
+      # Helper scripts
+      gen-host-keys = pkgs.callPackage ./scripts/gen-host-keys.nix { };
+      gen-wireguard-keys = pkgs.callPackage ./scripts/gen-wireguard-keys.nix { };
+
+      # Raspi SD card image
       image.kappril = nixosConfigurations.kappril.config.system.build.sdImage;
     };
 }

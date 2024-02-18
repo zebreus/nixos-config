@@ -24,4 +24,9 @@ in
       PermitRootLogin = lib.mkForce "prohibit-password";
     };
   };
+
+  programs.ssh.hostKeyAlgorithms = [
+    "ssh-ed25519"
+    # "ssh-rsa"
+  ];
 }
