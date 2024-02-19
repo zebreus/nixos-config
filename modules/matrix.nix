@@ -228,6 +228,9 @@ in
         ];
       };
 
+      # Restore backup: 
+      # borgmatic extract --archive latest --path var/lib/matrix-synapse --destination /var/lib/matrix-synapse
+      # borgmatic restore --archive latest
       borgmatic = {
         enable = true;
         settings = {
@@ -253,5 +256,34 @@ in
         };
       };
     };
+
+    environment.systemPackages = with pkgs; [
+      (with pkgs;
+      writeScriptBin "restore-matrix-from-backup" ''
+        #!${bash}/bin/bash
+
+        read -r -p "Are you sure you want to restore from the latest backup? This will destroy the current data. [y/N]" -n 1
+        echo # (optional) move to a new line
+        if [[ "$REPLY" =~ ^[Yy]$ ]]; then
+            echo "Operation continues"
+        else
+            echo "Operation aborted"
+            exit 1
+        fi
+
+        set -e
+        set -x
+        
+        systemctl stop matrix-synapse
+
+        rm -rf /var/lib/matrix-synapse
+
+        borgmatic extract --archive latest --path var/lib/matrix-synapse --destination /var/lib/matrix-synapse
+        borgmatic restore --archive latest
+
+        echo Backup restored. To start the server again run:
+        echo systemctl start matrix-synapse
+      '')
+    ];
   };
 }
