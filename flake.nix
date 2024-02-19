@@ -44,7 +44,7 @@
             name = "kashenblade";
             address = 2;
             wireguardPublicKey = publicKeys.kashenblade_wireguard;
-            staticIp4 = "65.109.236.106";
+            staticIp4 = "167.235.154.30";
           };
           kappril = {
             name = "kappril";

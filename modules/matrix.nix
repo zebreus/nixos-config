@@ -253,6 +253,8 @@ in
           ssh_command = "ssh -i ${config.age.secrets.ssh_host_key_ed25519.path}";
           encryption_passcommand = "cat ${config.age.secrets.matrix_backup_passphrase.path}";
           keep_daily = 7;
+          keep_within = "24H";
+          skip_actions = [ "prune" ];
         };
       };
     };

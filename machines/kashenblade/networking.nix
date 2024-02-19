@@ -9,10 +9,10 @@
 
   modules.hetzner.wan = {
     enable = true;
-    macAddress = "96:00:02:da:0e:63";
+    macAddress = "96:00:03:09:09:66";
     ipAddresses = [
-      "65.109.236.106/32"
-      "2a01:4f9:c010:9ee1::1/64"
+      "167.235.154.30/32"
+      "2a01:4f8:c0c:d91f::1/64"
     ];
   };
 }
