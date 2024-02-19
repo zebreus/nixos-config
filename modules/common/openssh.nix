@@ -15,9 +15,7 @@ let
   };
 in
 {
-
   users.motdFile = "${motd}/etc/motd";
-  services.fail2ban.enable = true;
   services.openssh = {
     enable = true;
     settings = {
