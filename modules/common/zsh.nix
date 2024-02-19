@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ pkgs, config, ... }:
 let
   new-any-nix-shell = pkgs.any-nix-shell.overrideAttrs (old: {
     version = "gitt"; # usually harmless to omit
@@ -37,15 +37,30 @@ in
   users.defaultUserShell = pkgs.zsh;
   environment.binsh = "${pkgs.zsh}/bin/zsh";
 
-  home-manager.users.lennart = { pkgs, ... }: {
-    programs.zsh = {
-      enable = true;
-      initExtra = ''
-        any-nix-shell zsh --info-right | source /dev/stdin
-      '';
+  home-manager.users = {
+    root = { pkgs, ... }: {
+      programs.zsh = {
+        enable = true;
+        initExtra = ''
+          any-nix-shell zsh --info-right | source /dev/stdin
+        '';
+      };
+      home.stateVersion = "22.11";
     };
-    home.stateVersion = "22.11";
-  };
+
+  } // (if builtins.hasAttr "lennart" config.users.users then
+    {
+      lennart = { pkgs, ... }: {
+        programs.zsh = {
+          enable = true;
+          initExtra = ''
+            any-nix-shell zsh --info-right | source /dev/stdin
+          '';
+        };
+        home.stateVersion = "22.11";
+      };
+    } else { });
+
 
   environment.systemPackages = with pkgs; [
     new-any-nix-shell

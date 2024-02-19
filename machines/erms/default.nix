@@ -2,6 +2,7 @@
   imports = [
     ../../modules/common
     ../../modules/desktop
+    ../../modules/workstation
     ../../modules/docker.nix
     ../../modules/libvirt.nix
     ./hardware-configuration.nix

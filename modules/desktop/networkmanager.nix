@@ -2,5 +2,5 @@
 {
   networking.networkmanager.enable = true;
 
-  users.users.lennart.extraGroups = [ "networkmanager" ];
+  users.extraGroups.networkmanager.members = [ "lennart" ];
 }

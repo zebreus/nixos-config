@@ -15,6 +15,7 @@ let
   };
 in
 {
+
   users.motdFile = "${motd}/etc/motd";
   services.fail2ban.enable = true;
   services.openssh = {
@@ -27,6 +28,6 @@ in
 
   programs.ssh.hostKeyAlgorithms = [
     "ssh-ed25519"
-    # "ssh-rsa"
+    "ssh-rsa"
   ];
 }

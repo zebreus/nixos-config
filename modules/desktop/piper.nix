@@ -7,5 +7,5 @@
       piper
     ];
 
-  users.users.lennart.extraGroups = [ "input" ];
+  users.extraGroups.input.members = [ "lennart" ];
 }

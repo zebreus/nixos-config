@@ -12,5 +12,4 @@
       email = "lennarteichhorn@googlemail.com";
     };
   };
-
 }

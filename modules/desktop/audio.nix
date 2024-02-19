@@ -10,5 +10,6 @@
     pulse.enable = true;
   };
 
-  users.users.lennart.extraGroups = [ "audio" ];
+  users.extraGroups.audio.members = [ "lennart" ];
+
 }

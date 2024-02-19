@@ -4,5 +4,5 @@
     wheelNeedsPassword = false;
   };
 
-  users.users.lennart.extraGroups = [ "wheel" ];
+  users.extraGroups.wheel.members = [ "lennart" ];
 }
