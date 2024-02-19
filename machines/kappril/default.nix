@@ -4,6 +4,7 @@
     ./networking.nix
     ../../modules/common
     ./hardware-configuration.nix
+    # ../../modules/borg-repo.nix
   ];
 
 
