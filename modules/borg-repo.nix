@@ -4,8 +4,8 @@ in
 {
   services.borgbackup.repos = {
     main = {
-      quota = "6T";
-      path = "/storage/borg/main";
+      quota = "3T";
+      path = "/storage/borg/erms/home";
       authorizedKeys = [
         publicKeys.lennart
       ];

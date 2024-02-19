@@ -39,6 +39,11 @@ with import ./public-keys.nix;
 
   "shared_wireguard_psk.age".publicKeys = [ recovery erms kashenblade kappril ];
 
+  # Backup secrets
+  # For now this is keyed to the machine where the backup is initiated from, but it would make more sense to key it to lennart
+  # Generated with `tr -dc A-Za-z0-9 </dev/urandom | head -c 64; echo`
+  "erms_backup_home_passphrase.age".publicKeys = [ recovery erms ];
+
   # Shared secret for coturn.
   # Matrix does not support a file option, but can load extra config files, so we use a config file that only sets the secret
   "coturn_static_auth_secret.age".publicKeys = [ recovery kashenblade ];
