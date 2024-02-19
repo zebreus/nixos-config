@@ -3,5 +3,6 @@
   imports = [
     ./lennart.nix
     ./sudo.nix
+    ./user-keys.nix
   ];
 }

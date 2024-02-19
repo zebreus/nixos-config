@@ -1,5 +1,7 @@
 { config, ... }:
 {
+  age.identityPaths = [ config.age.secrets.ssh_host_key_ed25519.path ];
+
   age.secrets.ssh_host_key_ed25519 = {
     file = ../../secrets + "/${config.networking.hostName}_ed25519.age";
     owner = "root";
