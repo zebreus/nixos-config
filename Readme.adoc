@@ -13,3 +13,8 @@ The flake exports configurations for all my machines.
 Secrets are managed with `agenix`. They are stored in the secrets directory.
 
 Each machine uses its ed25519 SSH host key to decrypt its secrets. That SSH host key is also stored as a secret. Before deploying a machine for the first time the ed25519 SSH host key must be on it. For now I just copied the key over manually, but nixos-anywhere has a option to copy files to a machine, I think.
+
+== TODO
+
+- Manage SSH config
+- Manage account passwords

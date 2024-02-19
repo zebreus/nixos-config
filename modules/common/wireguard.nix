@@ -24,6 +24,7 @@ in
     # Open firewall port for WireGuard.
     firewall = {
       allowedUDPPorts = [ 51820 ];
+      interfaces."antibuilding".allowedTCPPorts = [ 22 ];
     };
 
     # Add all machines to the hosts file.
