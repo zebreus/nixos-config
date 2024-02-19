@@ -1,12 +1,11 @@
-{ modulesPath, ... }:
+{ ... }:
 {
   imports = [
-    (modulesPath + "/installer/scan/not-detected.nix")
-    (modulesPath + "/profiles/qemu-guest.nix")
     ./networking.nix
     ./hardware-configuration.nix
     ../../modules/common
     ../../modules/matrix.nix
+    ../../modules/auto-maintenance.nix
   ];
 
   system.stateVersion = "23.11";

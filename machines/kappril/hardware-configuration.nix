@@ -19,10 +19,10 @@
     fsType = "ext4";
   };
 
-  # fileSystems."/storage" = {
-  #   device = "/dev/disk/by-id/9cb27da6-d189-4f8d-8070-6ea445d0cd50";
-  #   fsType = "bcachefs";
-  # };
+  fileSystems."/storage" = {
+    device = "/dev/disk/by-uuid/9cb27da6-d189-4f8d-8070-6ea445d0cd50";
+    fsType = "bcachefs";
+  };
 
   swapDevices = [ ];
 
