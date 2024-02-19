@@ -13,5 +13,15 @@ in
         publicKeys.lennart
       ];
     };
+    matrix = {
+      quota = "1T";
+      path = "/storage/borg/matrix";
+      authorizedKeysAppendOnly = [
+        publicKeys.kashenblade
+      ];
+      authorizedKeys = [
+        publicKeys.lennart
+      ];
+    };
   };
 }

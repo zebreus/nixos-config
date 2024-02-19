@@ -17,6 +17,8 @@ let
     "*/venv"
     "*/.venv"
     ".local/share/Steam/steamapps"
+    ".local/share/containers"
+    ".config/Code/Service Worker/CacheStorage"
     ".ssh"
     ".npm"
     ".conda"

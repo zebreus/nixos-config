@@ -41,6 +41,9 @@ in
       file = ../secrets/coturn_static_auth_secret_matrix_config.age;
       owner = "matrix-synapse";
     };
+    age.secrets.matrix_backup_passphrase = {
+      file = ../secrets/matrix_backup_passphrase.age;
+    };
 
     # Get certs
     security.acme = {
@@ -223,6 +226,31 @@ in
         extraConfigFiles = [
           config.age.secrets.coturn_static_auth_secret_matrix_config.path
         ];
+      };
+
+      borgmatic = {
+        enable = true;
+        settings = {
+          source_directories = [ "/var/lib/matrix-synapse" ];
+          postgresql_databases = [
+            {
+              name = "matrix-synapse";
+              username = "matrix-synapse";
+              password = "synapse";
+              hostname = "127.0.0.1";
+            }
+          ];
+          repositories = [
+            {
+              path = "ssh://borg@kappril//storage/borg/matrix";
+              label = "kappril";
+            }
+          ];
+          archive_name_format = "matrix-{now}";
+          ssh_command = "ssh -i ${config.age.secrets.ssh_host_key_ed25519.path}";
+          encryption_passcommand = "cat ${config.age.secrets.matrix_backup_passphrase.path}";
+          keep_daily = 7;
+        };
       };
     };
   };
