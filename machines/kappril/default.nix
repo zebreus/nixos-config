@@ -3,6 +3,7 @@
   imports = [
     ./networking.nix
     ../../modules/common
+    ../../modules/workstation
     ./hardware-configuration.nix
     # ../../modules/borg-repo.nix
   ];
