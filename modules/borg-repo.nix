@@ -6,6 +6,9 @@ in
     main = {
       quota = "3T";
       path = "/storage/borg/erms/home";
+      authorizedKeysAppendOnly = [
+        publicKeys.lennart_borg_backup
+      ];
       authorizedKeys = [
         publicKeys.lennart
       ];

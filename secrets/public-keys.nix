@@ -17,6 +17,7 @@ rec {
   # Used to login into machines and services
   # These keys are only present on the machines I use interactively and have a passphrase
   lennart = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIBTHzLm8QMhHIo7kFAvtAFnqpspeR3L3gM8kLoG1137";
+  lennart_borg_backup = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIEEAbjLP/4tC4+UQCytbISY+ezfEd2NhohU7a33s0XTz";
 
   # Wireguard public keys
   # Generated with `nix run .#gen-wireguard-keys`

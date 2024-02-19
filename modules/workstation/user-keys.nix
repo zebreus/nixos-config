@@ -18,4 +18,19 @@
     path = "/home/lennart/.ssh/id_ed25519.pub";
     symlink = false;
   };
+
+  age.secrets.lennart_borg_backup_ed25519 = {
+    file = ../../secrets/lennart_borg_backup_ed25519.age;
+    owner = "lennart";
+    group = config.users.users.lennart.group;
+    mode = "0400";
+    path = "/home/lennart/.ssh/borg_backup_ed25519";
+  };
+  age.secrets.lennart_borg_backup_ed25519_pub = {
+    file = ../../secrets/lennart_borg_backup_ed25519_pub.age;
+    owner = "lennart";
+    group = config.users.users.lennart.group;
+    mode = "0444";
+    path = "/home/lennart/.ssh/borg_backup_ed25519.pub";
+  };
 }

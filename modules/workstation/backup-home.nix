@@ -36,7 +36,7 @@ in
         mode = "repokey";
         passCommand = "cat ${config.age.secrets.erms_backup_home_passphrase.path}";
       };
-      environment.BORG_RSH = "ssh -i ${config.age.secrets.lennart_ed25519.path}";
+      environment.BORG_RSH = "ssh -i ${config.age.secrets.lennart_borg_backup_ed25519.path}";
       extraCreateArgs = "--stats --checkpoint-interval 600";
       repo = "ssh://borg@kappril//storage/borg/${config.networking.hostName}/home";
       startAt = "daily";

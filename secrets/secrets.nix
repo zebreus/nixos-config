@@ -26,6 +26,7 @@ with import ./public-keys.nix;
   "lennart_ed25519.age".publicKeys = [ recovery lennart ];
   "lennart_ed25519_pub.age".publicKeys = [ recovery lennart ];
 
+
   # Wireguard keys
   # Can be decrypted by recovery key or the respective machine key
   # Generated with `nix run .#gen-wireguard-keys`
@@ -43,6 +44,13 @@ with import ./public-keys.nix;
   # For now this is keyed to the machine where the backup is initiated from, but it would make more sense to key it to lennart
   # Generated with `tr -dc A-Za-z0-9 </dev/urandom | head -c 64; echo`
   "erms_backup_home_passphrase.age".publicKeys = [ recovery erms ];
+
+  # Backup keys
+  # These keys are used to connect to borg instances
+  # They dont have a passphrase, but can only access the backup repository in append-only mode
+  "lennart_borg_backup_ed25519.age".publicKeys = [ recovery lennart ];
+  "lennart_borg_backup_ed25519_pub.age".publicKeys = [ recovery lennart ];
+
 
   # Shared secret for coturn.
   # Matrix does not support a file option, but can load extra config files, so we use a config file that only sets the secret
