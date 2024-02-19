@@ -254,7 +254,6 @@ in
           encryption_passcommand = "cat ${config.age.secrets.matrix_backup_passphrase.path}";
           keep_daily = 7;
           keep_within = "24H";
-          skip_actions = [ "prune" ];
         };
       };
     };
@@ -266,25 +265,34 @@ in
 
         read -r -p "Are you sure you want to restore from the latest backup? This will destroy the current data. [y/N]" -n 1
         echo # (optional) move to a new line
-        if [[ "$REPLY" =~ ^[Yy]$ ]]; then
-            echo "Operation continues"
-        else
+        if [[ "$REPLY" =~ ^[^Yy]$ ]]; then
             echo "Operation aborted"
             exit 1
         fi
-
-        set -e
-        set -x
+        set -ex
         
         systemctl stop matrix-synapse
 
+        echo "Dropping old database"
+        sudo -u postgres psql -c "DROP DATABASE \"matrix-synapse\" WITH (FORCE);" || true
+        echo "Restoring database"
+        sudo -u postgres psql -c 'CREATE DATABASE "matrix-synapse" WITH OWNER "matrix-synapse" TEMPLATE template0 LC_COLLATE = "C" LC_CTYPE = "C";'
+        TEMPDIR=$(mktemp -d)
+        borgmatic extract --archive latest --path root/.borgmatic/postgresql_databases/127.0.0.1/matrix-synapse --strip-components all --progress --destination $TEMPDIR
+        chmod a+rx $TEMPDIR
+        chmod a+rx $TEMPDIR/matrix-synapse
+        sudo -u postgres pg_restore -d matrix-synapse $TEMPDIR/matrix-synapse
+        rm -rf $TEMPDIR
+        echo "Database restored"
+
+        echo "Deleting old media"
         rm -rf /var/lib/matrix-synapse
+        echo "Restoring media"
+        borgmatic extract --archive latest --path var/lib/matrix-synapse --destination / --progress
+        echo "Restored media"
 
-        borgmatic extract --archive latest --path var/lib/matrix-synapse --destination /var/lib/matrix-synapse
-        borgmatic restore --archive latest
-
-        echo Backup restored. To start the server again run:
-        echo systemctl start matrix-synapse
+        echo Backup restored. Restarting matrix-synapse
+        systemctl start matrix-synapse
       '')
     ];
   };
