@@ -228,35 +228,30 @@ in
         ];
       };
 
-      # Restore backup: 
-      # borgmatic extract --archive latest --path var/lib/matrix-synapse --destination /var/lib/matrix-synapse
-      # borgmatic restore --archive latest
-      borgmatic = {
-        enable = true;
-        settings = {
-          source_directories = [ "/var/lib/matrix-synapse" ];
-          postgresql_databases = [
-            {
-              name = "matrix-synapse";
-              username = "matrix-synapse";
-              password = "synapse";
-              hostname = "127.0.0.1";
-            }
+      borgbackup.jobs = {
+        matrix = {
+          archiveBaseName = "matrix";
+          encryption = {
+            mode = "repokey";
+            passCommand = "cat ${config.age.secrets.matrix_backup_passphrase.path}";
+          };
+          environment.BORG_RSH = "ssh -i ${config.age.secrets.ssh_host_key_ed25519.path}";
+          extraCreateArgs = "--stats --checkpoint-interval 600";
+          repo = "ssh://borg@kappril//storage/borg/matrix";
+          startAt = "*-*-* 00/1:00:00";
+          user = "root";
+          preHook = ''
+            mkdir -p /root/.dump-db
+            PGPASSWORD=synapse ${pkgs.postgresql}/bin/pg_dump -h 127.0.0.1 -U matrix-synapse --clean --format=custom matrix-synapse --no-password --file /root/.dump-db/matrix-synapse
+          '';
+          paths = [
+            "/var/lib/matrix-synapse"
+            "/root/.dump-db/matrix-synapse"
           ];
-          repositories = [
-            {
-              path = "ssh://borg@kappril//storage/borg/matrix";
-              label = "kappril";
-            }
-          ];
-          archive_name_format = "matrix-{now}";
-          ssh_command = "ssh -i ${config.age.secrets.ssh_host_key_ed25519.path}";
-          encryption_passcommand = "cat ${config.age.secrets.matrix_backup_passphrase.path}";
-          keep_daily = 7;
-          keep_within = "24H";
         };
       };
     };
+
 
     environment.systemPackages = with pkgs; [
       (with pkgs;
@@ -273,22 +268,31 @@ in
         
         systemctl stop matrix-synapse
 
+        function cleanup {
+          umount /mnt || true
+        }
+        trap cleanup EXIT
+
+        export BORG_RSH="ssh -i ${config.age.secrets.ssh_host_key_ed25519.path}"
+        export BORG_PASSCOMMAND="cat ${config.age.secrets.matrix_backup_passphrase.path}"
+        export BORG_REPO='ssh://borg@kappril//storage/borg/matrix'
+        export ARCHIVE=$(borg list --last 1 | cut -d" " -f1)
+
         echo "Dropping old database"
         sudo -u postgres psql -c "DROP DATABASE \"matrix-synapse\" WITH (FORCE);" || true
         echo "Restoring database"
         sudo -u postgres psql -c 'CREATE DATABASE "matrix-synapse" WITH OWNER "matrix-synapse" TEMPLATE template0 LC_COLLATE = "C" LC_CTYPE = "C";'
-        TEMPDIR=$(mktemp -d)
-        borgmatic extract --archive latest --path root/.borgmatic/postgresql_databases/127.0.0.1/matrix-synapse --strip-components all --progress --destination $TEMPDIR
-        chmod a+rx $TEMPDIR
-        chmod a+rx $TEMPDIR/matrix-synapse
-        sudo -u postgres pg_restore -d matrix-synapse $TEMPDIR/matrix-synapse
-        rm -rf $TEMPDIR
+        borg mount $BORG_REPO::$ARCHIVE /mnt
+        PGPASSWORD=synapse pg_restore -h 127.0.0.1 -U matrix-synapse -d matrix-synapse /mnt/root/.dump-db/matrix-synapse
+        borg umount /mnt || true
         echo "Database restored"
+
 
         echo "Deleting old media"
         rm -rf /var/lib/matrix-synapse
         echo "Restoring media"
-        borgmatic extract --archive latest --path var/lib/matrix-synapse --destination / --progress
+        cd /
+        borg extract $BORG_REPO::$ARCHIVE var/lib/matrix-synapse --progress
         echo "Restored media"
 
         echo Backup restored. Restarting matrix-synapse
