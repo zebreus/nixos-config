@@ -18,7 +18,7 @@ in
     syntaxHighlighting.enable = true;
 
     shellAliases = {
-      # cat = "bat";
+      sl = "sl -w -5 -e";
     };
     histSize = 50000;
 
@@ -69,5 +69,6 @@ in
     bat
     zsh
     zsh-autosuggestions
+    sl
   ];
 }
