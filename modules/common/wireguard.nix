@@ -1,4 +1,4 @@
-{ config, lib, ... }:
+{ pkgs, config, lib, ... }:
 let
   thisMachine = config.machines."${config.networking.hostName}";
   isServer = thisMachine.staticIp4 != null;
@@ -44,12 +44,35 @@ in
     # Configure the WireGuard interface.
     wireguard.interfaces = {
       # "antibuilding" is the network interface name.
-      antibuilding = {
+      antibuilding = rec {
         ips = [ "10.20.30.${builtins.toString thisMachine.address}/24" ];
         listenPort = 51820;
 
         # Path to the private key file.
         privateKeyFile = config.age.secrets.wireguard_private_key.path;
+
+        # This allows the wireguard server to route your traffic to the internet and hence be like a VPN
+        postSetup = builtins.concatStringsSep "\n" (
+          (if isServer then
+            ((builtins.concatMap
+              (machine:
+                (if machine.trusted then
+                  [
+                    "${pkgs.iptables}/bin/iptables -A FORWARD -i antibuilding -s 10.20.30.${builtins.toString machine.address} -j ACCEPT"
+                  ] else [ ]) ++
+                (if machine.public then
+                  [
+                    "${pkgs.iptables}/bin/iptables -A FORWARD -i antibuilding -d 10.20.30.${builtins.toString machine.address} -j ACCEPT"
+                  ] else [ ]))
+              otherMachines) ++
+            [
+              "${pkgs.iptables}/bin/iptables -A FORWARD -i antibuilding -m state --state RELATED,ESTABLISHED -j ACCEPT"
+              "${pkgs.iptables}/bin/iptables -A FORWARD -i antibuilding -j DROP"
+            ]) else [ ])
+          ++ [ ]
+        );
+
+        postShutdown = builtins.replaceStrings [ "-A" ] [ "-D" ] postSetup;
 
         peers = builtins.map
           (machine: (

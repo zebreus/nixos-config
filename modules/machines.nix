@@ -28,6 +28,20 @@ let
         description = lib.mdDoc ''A static ipv4 address where this machine can be reached.'';
         default = null;
       };
+
+      trusted = mkOption {
+        example = true;
+        type = types.bool;
+        description = lib.mdDoc ''Whether this machine is allowed to access all other machines in the VPN.'';
+        default = false;
+      };
+
+      public = mkOption {
+        example = true;
+        type = types.bool;
+        description = lib.mdDoc ''Whether this machine can be accessed by untrusted machines in the VPN.'';
+        default = false;
+      };
     };
 
   };

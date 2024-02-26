@@ -39,6 +39,7 @@
             name = "erms";
             address = 1;
             wireguardPublicKey = publicKeys.erms_wireguard;
+            trusted = true;
           };
           kashenblade = {
             name = "kashenblade";
@@ -50,6 +51,7 @@
             name = "kappril";
             address = 3;
             wireguardPublicKey = publicKeys.kappril_wireguard;
+            public = true;
           };
         };
       };
