@@ -56,10 +56,16 @@ in
           (if isServer then
             ((builtins.concatMap
               (machine:
+                # Trusted machines are allowed to connect to all other machines.
                 (if machine.trusted then
                   [
                     "${pkgs.iptables}/bin/iptables -A FORWARD -i antibuilding -s 10.20.30.${builtins.toString machine.address} -j ACCEPT"
                   ] else [ ]) ++
+                # Block connections from untrusted machines, if this machine is not public.
+                (if machine.trusted || thisMachine.public then [ ] else [
+                  "${pkgs.iptables}/bin/iptables -I INPUT 1 -i antibuilding -s 10.20.30.${builtins.toString machine.address} -j DROP"
+                ]) ++
+                # Connections to public machines are allowed from all other machines.
                 (if machine.public then
                   [
                     "${pkgs.iptables}/bin/iptables -A FORWARD -i antibuilding -d 10.20.30.${builtins.toString machine.address} -j ACCEPT"
@@ -72,7 +78,7 @@ in
           ++ [ ]
         );
 
-        postShutdown = builtins.replaceStrings [ "-A" ] [ "-D" ] postSetup;
+        postShutdown = builtins.replaceStrings [ "-A" "-I INPUT 1" ] [ "-D" "-D" ] postSetup;
 
         peers = builtins.map
           (machine: (
