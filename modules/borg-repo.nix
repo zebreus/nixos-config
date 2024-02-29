@@ -24,7 +24,7 @@ in
       ];
     };
     janek = {
-      quota = "4T";
+      quota = "2T";
       path = "/storage/borg/janek";
       authorizedKeysAppendOnly = [
         publicKeys.janek_borg_backup_append_only
@@ -32,7 +32,26 @@ in
       authorizedKeys = [
         publicKeys.janek_borg_backup
       ];
-      allowSubRepos = true;
+    };
+    nele = {
+      quota = "2T";
+      path = "/storage/borg/nele";
+      authorizedKeysAppendOnly = [
+        publicKeys.nele_borg_backup_append_only
+      ];
+      authorizedKeys = [
+        publicKeys.janek_borg_backup
+      ];
+    };
+    simone = {
+      quota = "2T";
+      path = "/storage/borg/simone";
+      authorizedKeysAppendOnly = [
+        publicKeys.simone_borg_backup_append_only
+      ];
+      authorizedKeys = [
+        publicKeys.janek_borg_backup
+      ];
     };
   };
 }
