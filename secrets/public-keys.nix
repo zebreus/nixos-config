@@ -28,7 +28,7 @@ rec {
   erms_wireguard = "RWL8tHmZmfw70WIjx92MVWuSn/rNCz+XlMMuGAV1uAs=";
   kashenblade_wireguard = "LOTNMmJxIFJ6J+QFXX8v0VPGGf5oCfDeYBcLuwi5FQE=";
   kappril_wireguard = "7U4VLHgsJhEyWWiPyRcG6vuqeGd2tjNxScAH0OndCyA=";
-  janek_wireguard = "o5Bk0O/x2UI3FS+GAMZhW40ER/o3uBbPeiw0vJPJyiY=";
+  tick_wireguard = "o5Bk0O/x2UI3FS+GAMZhW40ER/o3uBbPeiw0vJPJyiY=";
   nele_wireguard = "x/96EtoKnx/Dtgv1+aX61BXvuYYAy89p7T/MbrU7uB8=";
   simone_wireguard = "1HAWq9gjD+VR6sJv5smN+u20n7lcUzu6FSqzpMXqMzQ=";
   dolt_wireguard = "nO8I7m43IW9EttaKnU1v8HhRhFbFPCeTmmm7jvnM0CI=";

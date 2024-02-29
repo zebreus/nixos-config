@@ -54,32 +54,29 @@
             public = true;
           };
           # Janeks laptop
-          janek = {
-            name = "janek";
+          tick = {
+            name = "tick";
             address = 4;
-            wireguardPublicKey = publicKeys.janek_wireguard;
-            public = true;
+            wireguardPublicKey = publicKeys.tick_wireguard;
+            trusted = true;
           };
           # Neles machine
           nele = {
             name = "nele";
             address = 5;
             wireguardPublicKey = publicKeys.nele_wireguard;
-            public = true;
           };
           # Simones machine
           simone = {
             name = "simone";
             address = 6;
             wireguardPublicKey = publicKeys.simone_wireguard;
-            public = true;
           };
           # Janeks server
           dolt = {
             name = "dolt";
             address = 7;
             wireguardPublicKey = publicKeys.dolt_wireguard;
-            public = true;
           };
         };
       };
