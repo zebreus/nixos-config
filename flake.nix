@@ -139,6 +139,15 @@
           };
         };
 
+      nixosModules = {
+        tick = {
+          imports = [
+            informationAboutOtherMachines
+            ./machines/tick
+          ];
+        };
+      };
+
       # Helper scripts
       gen-host-keys = pkgs.callPackage ./scripts/gen-host-keys.nix { };
       gen-wireguard-keys = pkgs.callPackage ./scripts/gen-wireguard-keys.nix { };
