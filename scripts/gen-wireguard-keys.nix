@@ -23,10 +23,10 @@ with pkgs; writeScriptBin "gen-wireguard-keys" ''
     fi
   fi
 
-  if ! grep -F "$TARGET_HOSTNAME"_ed25519 secrets.nix >/dev/null; then
-    echo "Your secrets.nix does not mention ''${TARGET_HOSTNAME}_ed25519 . Run gen-host-keys first."
-    exit 1
-  fi
+  # if ! grep -F "$TARGET_HOSTNAME"_ed25519 secrets.nix >/dev/null; then
+  #   echo "Your secrets.nix does not mention ''${TARGET_HOSTNAME}_ed25519 . Run gen-host-keys first."
+  #   exit 1
+  # fi
 
   if grep -F "$TARGET_HOSTNAME"_wireguard secrets.nix >/dev/null; then
     echo "Your secrets.nix already contains ''${TARGET_HOSTNAME}_wireguard. Maybe remove that or just dont run this command."
@@ -39,12 +39,10 @@ with pkgs; writeScriptBin "gen-wireguard-keys" ''
 
   ${perl}/bin/perl -pi -e '$_ = q(  '$TARGET_HOSTNAME'_wireguard = "'"$PUBLIC_KEY"'";) . qq(\n) . $_ if /MARKER_WIREGUARD_PUBLIC_KEYS/' public-keys.nix
   ${perl}/bin/perl -pi -e '$_ = q(  "'$TARGET_HOSTNAME'_wireguard.age".publicKeys = [ recovery '$TARGET_HOSTNAME' ];) . qq(\n) . $_ if /MARKER_WIREGUARD_KEYS/' secrets.nix
-  ${perl}/bin/perl -pi -e '$_ = q(  "'$TARGET_HOSTNAME'_wireguard_psk.age".publicKeys = [ recovery '$TARGET_HOSTNAME' ];) . qq(\n) . $_ if /MARKER_WIREGUARD_KEYS/' secrets.nix
   ${perl}/bin/perl -pi -e '$_ = q(  "'$TARGET_HOSTNAME'_wireguard_pub.age".publicKeys = [ recovery '$TARGET_HOSTNAME' ];) . qq(\n) . $_ if /MARKER_WIREGUARD_KEYS/' secrets.nix
         
   echo $PRIVATE_KEY | ${pkgs.agenix}/bin/agenix -e "''${TARGET_HOSTNAME}_wireguard.age"
   echo $PUBLIC_KEY | ${pkgs.agenix}/bin/agenix -e "''${TARGET_HOSTNAME}_wireguard_pub.age"
-  echo $PRESHARED_KEY | ${pkgs.agenix}/bin/agenix -e "''${TARGET_HOSTNAME}_wireguard_psk.age"
 
   echo "Successfully generated wireguard keys for ''${TARGET_HOSTNAME}"
 ''
