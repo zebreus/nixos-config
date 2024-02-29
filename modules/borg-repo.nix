@@ -23,5 +23,16 @@ in
         publicKeys.lennart
       ];
     };
+    janek = {
+      quota = "4T";
+      path = "/storage/borg/janek";
+      authorizedKeysAppendOnly = [
+        publicKeys.janek_borg_backup_append_only
+      ];
+      authorizedKeys = [
+        publicKeys.janek_borg_backup
+      ];
+      allowSubRepos = true;
+    };
   };
 }

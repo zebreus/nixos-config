@@ -18,12 +18,15 @@ rec {
   # These keys are only present on the machines I use interactively and have a passphrase
   lennart = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIBTHzLm8QMhHIo7kFAvtAFnqpspeR3L3gM8kLoG1137";
   lennart_borg_backup = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIEEAbjLP/4tC4+UQCytbISY+ezfEd2NhohU7a33s0XTz";
+  janek_borg_backup_append_only = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIBg+saphG0duv0TPObtX9GRQzcz/K6nxHVkuHetMedFp";
+  janek_borg_backup = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIBFuAR34VlHKrKSFysyHHvlZgkDobF72Az4iyAIqm1E6";
 
   # Wireguard public keys
   # Generated with `nix run .#gen-wireguard-keys`
   erms_wireguard = "RWL8tHmZmfw70WIjx92MVWuSn/rNCz+XlMMuGAV1uAs=";
   kashenblade_wireguard = "LOTNMmJxIFJ6J+QFXX8v0VPGGf5oCfDeYBcLuwi5FQE=";
   kappril_wireguard = "7U4VLHgsJhEyWWiPyRcG6vuqeGd2tjNxScAH0OndCyA=";
+  janek_wireguard = "nO8I7m43IW9EttaKnU1v8HhRhFbFPCeTmmm7jvnM0CI=";
   # MARKER_WIREGUARD_PUBLIC_KEYS
 
   allMachines = [ erms kashenblade kappril ];

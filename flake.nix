@@ -53,6 +53,12 @@
             wireguardPublicKey = publicKeys.kappril_wireguard;
             public = true;
           };
+          janek = {
+            name = "janek";
+            address = 4;
+            wireguardPublicKey = publicKeys.janek_wireguard;
+            public = true;
+          };
         };
       };
       # Add some extra packages to nixpkgs
