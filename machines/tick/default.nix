@@ -5,5 +5,7 @@
   ];
 
   networking.hostName = "tick";
-  age.identityPaths = [ "/path/to/the/private/ssh/key" ];
+
+  # You need to point this to the private key for tick
+  # age.identityPaths = [ "/path/to/the/private/ssh/key" ];
 }
