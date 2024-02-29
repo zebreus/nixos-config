@@ -30,7 +30,7 @@ in
         publicKeys.janek_borg_backup_append_only
       ];
       authorizedKeys = [
-        publicKeys.janek_borg_backup
+        publicKeys.tick
       ];
     };
     nele = {
@@ -40,7 +40,7 @@ in
         publicKeys.nele_borg_backup_append_only
       ];
       authorizedKeys = [
-        publicKeys.janek_borg_backup
+        publicKeys.tick
       ];
     };
     simone = {
@@ -50,7 +50,7 @@ in
         publicKeys.simone_borg_backup_append_only
       ];
       authorizedKeys = [
-        publicKeys.janek_borg_backup
+        publicKeys.tick
       ];
     };
   };

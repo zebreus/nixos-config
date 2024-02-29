@@ -36,9 +36,11 @@ with import ./public-keys.nix;
   "kashenblade_wireguard_pub.age".publicKeys = [ recovery kashenblade ];
   "kappril_wireguard.age".publicKeys = [ recovery kappril ];
   "kappril_wireguard_pub.age".publicKeys = [ recovery kappril ];
+  "tick_wireguard.age".publicKeys = [ recovery tick ];
+  "tick_wireguard_pub.age".publicKeys = [ recovery tick ];
   # MARKER_WIREGUARD_KEYS
 
-  "shared_wireguard_psk.age".publicKeys = [ recovery erms kashenblade kappril ];
+  "shared_wireguard_psk.age".publicKeys = [ recovery erms kashenblade kappril tick ];
 
   # Backup secrets
   # For now this is keyed to the machine where the backup is initiated from, but it would make more sense to key it to lennart

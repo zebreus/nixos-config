@@ -54,10 +54,10 @@
             public = true;
           };
           # Janeks laptop
-          tick = {
-            name = "tick";
+          janek = {
+            name = "janek";
             address = 4;
-            wireguardPublicKey = publicKeys.tick_wireguard;
+            wireguardPublicKey = publicKeys.janek_wireguard;
             trusted = true;
           };
           # Neles machine
@@ -77,6 +77,12 @@
             name = "dolt";
             address = 7;
             wireguardPublicKey = publicKeys.dolt_wireguard;
+          };
+          tick = {
+            name = "tick";
+            address = 8;
+            wireguardPublicKey = publicKeys.tick_wireguard;
+            trusted = true;
           };
         };
       };
@@ -139,6 +145,8 @@
       nixosModules = {
         tick = {
           imports = [
+            overlayNixpkgs
+            agenix.nixosModules.default
             informationAboutOtherMachines
             ./machines/tick
           ];
