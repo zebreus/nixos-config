@@ -30,27 +30,17 @@ in
         publicKeys.janek_borg_backup_append_only
       ];
       authorizedKeys = [
-        publicKeys.tick
+        publicKeys.janek_borg_backup_trusted
       ];
     };
-    nele = {
+    janek-proxmox = {
       quota = "2T";
-      path = "/storage/borg/nele";
+      path = "/storage/borg/janek-proxmox";
       authorizedKeysAppendOnly = [
-        publicKeys.nele_borg_backup_append_only
+        publicKeys.janek-proxmox_borg_backup_append_only
       ];
       authorizedKeys = [
-        publicKeys.tick
-      ];
-    };
-    simone = {
-      quota = "2T";
-      path = "/storage/borg/simone";
-      authorizedKeysAppendOnly = [
-        publicKeys.simone_borg_backup_append_only
-      ];
-      authorizedKeys = [
-        publicKeys.tick
+        publicKeys.janek-proxmox_borg_backup_trusted
       ];
     };
   };

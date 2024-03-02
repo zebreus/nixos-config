@@ -60,29 +60,11 @@
             wireguardPublicKey = publicKeys.janek_wireguard;
             trusted = true;
           };
-          # Neles machine
-          nele = {
-            name = "nele";
-            address = 5;
-            wireguardPublicKey = publicKeys.nele_wireguard;
-          };
-          # Simones machine
-          simone = {
-            name = "simone";
-            address = 6;
-            wireguardPublicKey = publicKeys.simone_wireguard;
-          };
           # Janeks server
-          dolt = {
-            name = "dolt";
-            address = 7;
-            wireguardPublicKey = publicKeys.dolt_wireguard;
-          };
-          tick = {
-            name = "tick";
-            address = 8;
-            wireguardPublicKey = publicKeys.tick_wireguard;
-            trusted = true;
+          janek-proxmox = {
+            name = "janek-proxmox";
+            address = 5;
+            wireguardPublicKey = publicKeys.janek-proxmox_wireguard;
           };
         };
       };
@@ -141,17 +123,6 @@
             ];
           };
         };
-
-      nixosModules = {
-        tick = {
-          imports = [
-            overlayNixpkgs
-            agenix.nixosModules.default
-            informationAboutOtherMachines
-            ./machines/tick
-          ];
-        };
-      };
 
       # Helper scripts
       gen-host-keys = pkgs.callPackage ./scripts/gen-host-keys.nix { };
