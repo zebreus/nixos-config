@@ -77,41 +77,12 @@ in
       # Configure the WireGuard interface.
       wireguard.interfaces = {
         # "antibuilding" is the network interface name.
-        antibuilding = rec {
+        antibuilding = {
           ips = [ "${ipv6_prefix}::${builtins.toString thisMachine.address}/64" ];
           listenPort = 51820;
 
           # Path to the private key file.
           privateKeyFile = config.age.secrets.wireguard_private_key.path;
-
-          # This allows the wireguard server to route your traffic to the internet and hence be like a VPN
-          postSetup = builtins.concatStringsSep "\n" (
-            (if isServer thisMachine then
-              ((builtins.concatMap
-                (machine:
-                  # Trusted machines are allowed to connect to all other machines.
-                  (if machine.trusted then
-                    [
-                      "${pkgs.iptables}/bin/ip6tables -A FORWARD -s ${ipv6_prefix}::${builtins.toString machine.address} -j ACCEPT"
-                    ] else [ ]) ++
-                  # Block connections from untrusted machines, if this machine is not public.
-                  (if machine.trusted || thisMachine.public then [ ] else [
-                    "${pkgs.iptables}/bin/ip6tables -I INPUT 1 -s ${ipv6_prefix}::${builtins.toString machine.address} -j DROP"
-                  ]) ++
-                  # Connections to public machines are allowed from all other machines.
-                  (if machine.public then
-                    [
-                      "${pkgs.iptables}/bin/ip6tables -A FORWARD -d ${ipv6_prefix}::${builtins.toString machine.address} -j ACCEPT"
-                    ] else [ ]))
-                otherMachines) ++
-              [
-                "${pkgs.iptables}/bin/ip6tables -A FORWARD -m state --state RELATED,ESTABLISHED -j ACCEPT"
-                "${pkgs.iptables}/bin/ip6tables -A FORWARD -j DROP"
-              ]) else [ ])
-            ++ [ ]
-          );
-
-          postShutdown = builtins.replaceStrings [ "-A" "-I INPUT 1" ] [ "-D" "-D" ] postSetup;
 
           peers = builtins.map
             (machine: (
@@ -133,6 +104,73 @@ in
               })
             ))
             otherMachines;
+
+          # Setup firewall rules for the WireGuard interface.
+          postSetup = builtins.concatStringsSep "\n" (
+            if isServer thisMachine then
+              [
+                # Make sure the temp chain does not exist and is empty
+                "${pkgs.iptables}/bin/ip6tables -F antibuilding-forward-temp || true"
+                "${pkgs.iptables}/bin/ip6tables -X antibuilding-forward-temp || true"
+                "${pkgs.iptables}/bin/ip6tables -F antibuilding-input-temp || true"
+                "${pkgs.iptables}/bin/ip6tables -X antibuilding-input-temp || true"
+                # Create the temp chain.
+                "${pkgs.iptables}/bin/ip6tables -N antibuilding-forward-temp || true"
+                "${pkgs.iptables}/bin/ip6tables -N antibuilding-input-temp || true" # The input chain should only contain drop rules
+              ] ++
+              ((builtins.concatMap
+                (machine:
+                  # Trusted machines are allowed to connect to all other machines.
+                  (if machine.trusted then
+                    [
+                      "${pkgs.iptables}/bin/ip6tables -A antibuilding-forward-temp -s ${ipv6_prefix}::${builtins.toString machine.address} -j ACCEPT"
+                    ] else [ ]) ++
+                  # Block connections from untrusted machines, if this machine is not public.
+                  (if machine.trusted || thisMachine.public then [ ] else [
+                    "${pkgs.iptables}/bin/ip6tables -A antibuilding-input-temp -s ${ipv6_prefix}::${builtins.toString machine.address} -j DROP"
+                  ]) ++
+                  # Connections to public machines are allowed from all other machines.
+                  (if machine.public then
+                    [
+                      "${pkgs.iptables}/bin/ip6tables -A antibuilding-forward-temp -d ${ipv6_prefix}::${builtins.toString machine.address} -j ACCEPT"
+                    ] else [ ]))
+                otherMachines) ++
+              [
+                "${pkgs.iptables}/bin/ip6tables -A antibuilding-forward-temp -m state --state RELATED,ESTABLISHED -j ACCEPT"
+                "${pkgs.iptables}/bin/ip6tables -A antibuilding-forward-temp -j DROP"
+                # Add the new chain
+                "${pkgs.iptables}/bin/ip6tables -A FORWARD -j antibuilding-forward-temp"
+                "${pkgs.iptables}/bin/ip6tables -I INPUT 1 -j antibuilding-input-temp"
+                # Delete the previous chain
+                "${pkgs.iptables}/bin/ip6tables -D FORWARD -j antibuilding-forward || true"
+                "${pkgs.iptables}/bin/ip6tables -D INPUT -j antibuilding-input || true"
+                # Give the real name to the new chain
+                "${pkgs.iptables}/bin/ip6tables -E antibuilding-forward-temp antibuilding-forward"
+                "${pkgs.iptables}/bin/ip6tables -E antibuilding-input-temp antibuilding-input"
+              ]) else [ ]
+          );
+
+          # Tear down firewall rules
+          postShutdown = builtins.concatStringsSep "\n" (
+            if isServer thisMachine then
+              ([
+                # Remove and delete the chains
+                "${pkgs.iptables}/bin/ip6tables -D FORWARD -j antibuilding-forward || true"
+                "${pkgs.iptables}/bin/ip6tables -D INPUT -j antibuilding-input || true"
+                "${pkgs.iptables}/bin/ip6tables -F antibuilding-forward || true"
+                "${pkgs.iptables}/bin/ip6tables -F antibuilding-input || true"
+                "${pkgs.iptables}/bin/ip6tables -X antibuilding-forward || true"
+                "${pkgs.iptables}/bin/ip6tables -X antibuilding-input || true"
+              ] ++ [
+                # Do the same for the temp chains, if they exist (they should not, but just in case)
+                "${pkgs.iptables}/bin/ip6tables -D FORWARD -j antibuilding-forward-temp || true"
+                "${pkgs.iptables}/bin/ip6tables -D INPUT -j antibuilding-input-temp || true"
+                "${pkgs.iptables}/bin/ip6tables -F antibuilding-forward-temp || true"
+                "${pkgs.iptables}/bin/ip6tables -F antibuilding-input-temp || true"
+                "${pkgs.iptables}/bin/ip6tables -X antibuilding-forward-temp || true"
+                "${pkgs.iptables}/bin/ip6tables -X antibuilding-input-temp || true"
+              ]) else [ ]
+          );
         };
       };
     };
