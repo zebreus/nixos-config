@@ -68,7 +68,7 @@ in
       wireguard.interfaces = {
         # "antibuilding" is the network interface name.
         antibuilding = rec {
-          ips = [ "10.20.30.${builtins.toString thisMachine.address}/24" "${ipv6_prefix}::${builtins.toString thisMachine.address}/64" ];
+          ips = [ "${ipv6_prefix}::${builtins.toString thisMachine.address}/64" ];
           listenPort = 51820;
 
           # Path to the private key file.
@@ -82,24 +82,19 @@ in
                   # Trusted machines are allowed to connect to all other machines.
                   (if machine.trusted then
                     [
-                      "${pkgs.iptables}/bin/iptables -A FORWARD -i antibuilding -s 10.20.30.${builtins.toString machine.address} -j ACCEPT"
                       "${pkgs.iptables}/bin/ip6tables -A FORWARD -s ${ipv6_prefix}::${builtins.toString machine.address} -j ACCEPT"
                     ] else [ ]) ++
                   # Block connections from untrusted machines, if this machine is not public.
                   (if machine.trusted || thisMachine.public then [ ] else [
-                    "${pkgs.iptables}/bin/iptables -I INPUT 1 -i antibuilding -s 10.20.30.${builtins.toString machine.address} -j DROP"
                     "${pkgs.iptables}/bin/ip6tables -I INPUT 1 -s ${ipv6_prefix}::${builtins.toString machine.address} -j DROP"
                   ]) ++
                   # Connections to public machines are allowed from all other machines.
                   (if machine.public then
                     [
-                      "${pkgs.iptables}/bin/iptables -A FORWARD -i antibuilding -d 10.20.30.${builtins.toString machine.address} -j ACCEPT"
                       "${pkgs.iptables}/bin/ip6tables -A FORWARD -d ${ipv6_prefix}::${builtins.toString machine.address} -j ACCEPT"
                     ] else [ ]))
                 otherMachines) ++
               [
-                "${pkgs.iptables}/bin/iptables -A FORWARD -i antibuilding -m state --state RELATED,ESTABLISHED -j ACCEPT"
-                "${pkgs.iptables}/bin/iptables -A FORWARD -i antibuilding -j DROP"
                 "${pkgs.iptables}/bin/ip6tables -A FORWARD -m state --state RELATED,ESTABLISHED -j ACCEPT"
                 "${pkgs.iptables}/bin/ip6tables -A FORWARD -j DROP"
               ]) else [ ])
@@ -118,9 +113,9 @@ in
                 persistentKeepalive = 25;
               } //
               (if machine.staticIp4 == null then {
-                allowedIPs = [ "10.20.30.${builtins.toString machine.address}/32" "${ipv6_prefix}::${builtins.toString machine.address}/128" ];
+                allowedIPs = [ "${ipv6_prefix}::${builtins.toString machine.address}/128" ];
               } else {
-                allowedIPs = [ "10.20.30.0/24" "${ipv6_prefix}::0/64" ];
+                allowedIPs = [ "${ipv6_prefix}::0/64" ];
 
                 # Set this to the server IP and port.
                 endpoint = "${machine.staticIp4}:51820";
@@ -134,7 +129,6 @@ in
     # Enable IP forwarding on the server so peers can communicate with each other.
     boot =
       if isServer then {
-        kernel.sysctl."net.ipv4.conf.antibuilding.forwarding" = true;
         kernel.sysctl."net.ipv6.conf.all.forwarding" = true;
       } else { };
   };
