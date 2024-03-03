@@ -67,6 +67,13 @@
             address = 5;
             wireguardPublicKey = publicKeys.janek-proxmox_wireguard;
           };
+          # Janeks backup server
+          janek-backup = {
+            name = "janek-backup";
+            address = 6;
+            wireguardPublicKey = publicKeys.janek-backup_wireguard;
+            public = true;
+          };
         };
       };
       # Add some extra packages to nixpkgs
