@@ -1,10 +1,11 @@
 { pkgs, config, lib, ... }:
 let
   thisMachine = config.machines."${config.networking.hostName}";
-  isServer = thisMachine.staticIp4 != null;
+  # isServer = thisMachine.staticIp != null;
+  isServer = machine: ((machine.staticIp4 != null) || (machine.staticIp6 != null));
   # If this is a server: All other machines including servers and clients
   # If this is a client: Only other machines that are servers
-  otherMachines = lib.attrValues (lib.filterAttrs (name: machine: name != config.networking.hostName && (isServer || (machine.staticIp4 != null))) config.machines);
+  otherMachines = lib.attrValues (lib.filterAttrs (name: machine: name != config.networking.hostName && ((isServer thisMachine) || (isServer machine))) config.machines);
 
   ipv6_prefix = "fd10:2030";
 in
@@ -16,12 +17,12 @@ in
   options = with lib; {
     customWireguardPrivateKeyFile = mkOption {
       default = [ ];
-      description = lib.mdDoc "The wireguard private key for this machine. Should only be set if the";
+      description = lib.mdDoc "The wireguard private key for this machine. Should only be set if the secrets of that machine are not managed in this repo";
       type = with types; attrsOf (submodule machineOpts);
     };
     customWireguardPskFile = mkOption {
       default = [ ];
-      description = lib.mdDoc "Information about the machines in the network";
+      description = lib.mdDoc "Information about the machines in the network. Should only be set if the secrets of that machine are not managed in this repo";
       type = with types; attrsOf (submodule machineOpts);
     };
   };
@@ -47,14 +48,23 @@ in
       hosts = builtins.listToAttrs (builtins.concatMap
         (machine: [
           {
-            name = "10.20.30.${builtins.toString machine.address}";
-            value = [ "${machine.name}.antibuild.ing" machine.name ];
-          }
-          {
             name = "${ipv6_prefix}::${builtins.toString machine.address}";
             value = [ "${machine.name}.antibuild.ing" machine.name ];
           }
         ]
+        # Set hostnames for the endpoints of the machines with static IPs.
+        ++ (if machine.staticIp4 != null then [
+          {
+            name = machine.staticIp4;
+            value = [ "${machine.name}.endpoint.zebre.us" ];
+          }
+        ] else [ ])
+        ++ (if machine.staticIp6 != null then [
+          {
+            name = machine.staticIp6;
+            value = [ "${machine.name}.endpoint.zebre.us" ];
+          }
+        ] else [ ])
         )
         (lib.attrValues config.machines));
 
@@ -76,7 +86,7 @@ in
 
           # This allows the wireguard server to route your traffic to the internet and hence be like a VPN
           postSetup = builtins.concatStringsSep "\n" (
-            (if isServer then
+            (if isServer thisMachine then
               ((builtins.concatMap
                 (machine:
                   # Trusted machines are allowed to connect to all other machines.
@@ -112,13 +122,14 @@ in
                 # Send keepalives every 25 seconds.
                 persistentKeepalive = 25;
               } //
-              (if machine.staticIp4 == null then {
+              (if !isServer machine then {
                 allowedIPs = [ "${ipv6_prefix}::${builtins.toString machine.address}/128" ];
               } else {
                 allowedIPs = [ "${ipv6_prefix}::0/64" ];
 
                 # Set this to the server IP and port.
-                endpoint = "${machine.staticIp4}:51820";
+                endpoint = "${machine.name}.endpoint.zebre.us:51820";
+                dynamicEndpointRefreshSeconds = 60;
               })
             ))
             otherMachines;
@@ -128,7 +139,7 @@ in
 
     # Enable IP forwarding on the server so peers can communicate with each other.
     boot =
-      if isServer then {
+      if isServer thisMachine then {
         kernel.sysctl."net.ipv6.conf.all.forwarding" = true;
       } else { };
   };

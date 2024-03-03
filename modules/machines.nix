@@ -19,7 +19,14 @@ let
       address = mkOption {
         example = 6;
         type = lib.types.ints.between 1 255;
-        description = lib.mdDoc ''The last part of the IPv4 address of the machine.'';
+        description = lib.mdDoc ''The last byte of the antibuilding IPv4 address of the machine.'';
+      };
+
+      staticIp6 = mkOption {
+        example = "1111:1111:1111:1111::1";
+        type = types.nullOr types.str;
+        description = lib.mdDoc ''A static ipv6 address where this machine can be reached.'';
+        default = null;
       };
 
       staticIp4 = mkOption {
