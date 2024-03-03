@@ -256,7 +256,7 @@ in
           })
           [
             { name = "kappril"; url = "ssh://borg@kappril//storage/borg/matrix"; }
-            { name = "janek-backup"; url = "ssh://borg@10.71.4.6//backups/lennart/matrix"; }
+            { name = "janek-backup"; url = "ssh://borg@janek-backup//backups/lennart/matrix"; }
           ]
         );
     };

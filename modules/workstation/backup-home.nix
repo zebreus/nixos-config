@@ -32,19 +32,28 @@ in
     mode = "0400";
   };
 
-  services.borgbackup.jobs = {
-    home-lennart = rec {
-      encryption = {
-        mode = "repokey";
-        passCommand = "cat ${config.age.secrets.erms_backup_home_passphrase.path}";
-      };
-      environment.BORG_RSH = "ssh -i ${config.age.secrets.lennart_borg_backup_ed25519.path}";
-      extraCreateArgs = "--stats --checkpoint-interval 600";
-      repo = "ssh://borg@kappril//storage/borg/${config.networking.hostName}/home";
-      startAt = "daily";
-      user = "lennart";
-      paths = "/home/lennart";
-      exclude = map (x: paths + "/" + x) (common-excludes);
-    };
-  };
+  services.borgbackup.jobs = builtins.listToAttrs
+    (builtins.map
+      (borgRepo: {
+        name = "home-to-${borgRepo.name}";
+        value = rec {
+          encryption = {
+            mode = "repokey";
+            passCommand = "cat ${config.age.secrets.erms_backup_home_passphrase.path}";
+          };
+          environment.BORG_RSH = "ssh -i ${config.age.secrets.lennart_borg_backup_ed25519.path}";
+          extraCreateArgs = "--stats --checkpoint-interval 600";
+          repo = borgRepo.url;
+          startAt = "*-*-* 01:00:00";
+          inhibitsSleep = true;
+          user = "lennart";
+          paths = "/home/lennart";
+          exclude = map (x: paths + "/" + x) (common-excludes);
+        };
+      })
+      [
+        { name = "kappril"; url = "ssh://borg@kappril//storage/borg/${config.networking.hostName}/home"; }
+        { name = "janek-backup"; url = "ssh://borg@janek-backup//backups/lennart/main"; }
+      ]
+    );
 }
