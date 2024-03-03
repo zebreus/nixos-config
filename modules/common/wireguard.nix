@@ -83,20 +83,25 @@ in
                   (if machine.trusted then
                     [
                       "${pkgs.iptables}/bin/iptables -A FORWARD -i antibuilding -s 10.20.30.${builtins.toString machine.address} -j ACCEPT"
+                      "${pkgs.iptables}/bin/ip6tables -A FORWARD -s ${ipv6_prefix}::${builtins.toString machine.address} -j ACCEPT"
                     ] else [ ]) ++
                   # Block connections from untrusted machines, if this machine is not public.
                   (if machine.trusted || thisMachine.public then [ ] else [
                     "${pkgs.iptables}/bin/iptables -I INPUT 1 -i antibuilding -s 10.20.30.${builtins.toString machine.address} -j DROP"
+                    "${pkgs.iptables}/bin/ip6tables -I INPUT 1 -s ${ipv6_prefix}::${builtins.toString machine.address} -j DROP"
                   ]) ++
                   # Connections to public machines are allowed from all other machines.
                   (if machine.public then
                     [
                       "${pkgs.iptables}/bin/iptables -A FORWARD -i antibuilding -d 10.20.30.${builtins.toString machine.address} -j ACCEPT"
+                      "${pkgs.iptables}/bin/ip6tables -A FORWARD -d ${ipv6_prefix}::${builtins.toString machine.address} -j ACCEPT"
                     ] else [ ]))
                 otherMachines) ++
               [
                 "${pkgs.iptables}/bin/iptables -A FORWARD -i antibuilding -m state --state RELATED,ESTABLISHED -j ACCEPT"
                 "${pkgs.iptables}/bin/iptables -A FORWARD -i antibuilding -j DROP"
+                "${pkgs.iptables}/bin/ip6tables -A FORWARD -m state --state RELATED,ESTABLISHED -j ACCEPT"
+                "${pkgs.iptables}/bin/ip6tables -A FORWARD -j DROP"
               ]) else [ ])
             ++ [ ]
           );
@@ -130,7 +135,7 @@ in
     boot =
       if isServer then {
         kernel.sysctl."net.ipv4.conf.antibuilding.forwarding" = true;
-        kernel.sysctl."net.ipv6.conf.antibuilding.forwarding" = true;
+        kernel.sysctl."net.ipv6.conf.all.forwarding" = true;
       } else { };
   };
 }
