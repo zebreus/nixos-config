@@ -228,30 +228,38 @@ in
         ];
       };
 
-      borgbackup.jobs = {
-        matrix = {
-          archiveBaseName = "matrix";
-          encryption = {
-            mode = "repokey";
-            passCommand = "cat ${config.age.secrets.matrix_backup_passphrase.path}";
-          };
-          environment.BORG_RSH = "ssh -i ${config.age.secrets.ssh_host_key_ed25519.path}";
-          extraCreateArgs = "--stats --checkpoint-interval 600";
-          repo = "ssh://borg@kappril//storage/borg/matrix";
-          startAt = "*-*-* 00/1:00:00";
-          user = "root";
-          preHook = ''
-            mkdir -p /root/.dump-db
-            PGPASSWORD=synapse ${pkgs.postgresql}/bin/pg_dump -h 127.0.0.1 -U matrix-synapse --clean --format=custom matrix-synapse --no-password --file /root/.dump-db/matrix-synapse
-          '';
-          paths = [
-            "/var/lib/matrix-synapse"
-            "/root/.dump-db/matrix-synapse"
-          ];
-        };
-      };
+      borgbackup.jobs = builtins.listToAttrs
+        (builtins.map
+          (borgRepo: {
+            name = "matrix-${borgRepo.name}";
+            value =
+              {
+                archiveBaseName = "matrix";
+                encryption = {
+                  mode = "repokey";
+                  passCommand = "cat ${config.age.secrets.matrix_backup_passphrase.path}";
+                };
+                environment.BORG_RSH = "ssh -i ${config.age.secrets.ssh_host_key_ed25519.path}";
+                extraCreateArgs = "--stats --checkpoint-interval 600";
+                repo = borgRepo.url;
+                startAt = "*-*-* 00/1:00:00";
+                user = "root";
+                preHook = ''
+                  mkdir -p /root/.dump-db-to-${borgRepo.name}
+                  PGPASSWORD=synapse ${pkgs.postgresql}/bin/pg_dump -h 127.0.0.1 -U matrix-synapse --clean --format=custom matrix-synapse --no-password --file /root/.dump-db/matrix-synapse
+                '';
+                paths = [
+                  "/var/lib/matrix-synapse"
+                  "/root/.dump-db-to-${borgRepo.name}/matrix-synapse"
+                ];
+              };
+          })
+          [
+            { name = "kappril"; url = "ssh://borg@kappril//storage/borg/matrix"; }
+            { name = "janek-backup"; url = "ssh://borg@10.71.4.6//backups/lennart/matrix"; }
+          ]
+        );
     };
-
 
     environment.systemPackages = with pkgs; [
       (with pkgs;
