@@ -117,6 +117,8 @@ in
                 # Create the temp chain.
                 "${pkgs.iptables}/bin/ip6tables -N antibuilding-forward-temp || true"
                 "${pkgs.iptables}/bin/ip6tables -N antibuilding-input-temp || true" # The input chain should only contain drop rules
+                # Allow input traffic, if it is related to an established connection
+                "${pkgs.iptables}/bin/ip6tables -A antibuilding-input-temp -m state --state RELATED,ESTABLISHED -j RETURN"
               ] ++
               ((builtins.concatMap
                 (machine:
