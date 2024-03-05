@@ -59,7 +59,6 @@
             name = "janek";
             address = 4;
             wireguardPublicKey = publicKeys.janek_wireguard;
-            trusted = true;
           };
           # Janeks server
           janek-proxmox = {
