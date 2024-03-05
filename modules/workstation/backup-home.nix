@@ -41,11 +41,10 @@ in
             mode = "repokey";
             passCommand = "cat ${config.age.secrets.erms_backup_home_passphrase.path}";
           };
-          environment.BORG_RSH = "ssh -i ${config.age.secrets.lennart_borg_backup_ed25519.path}";
+          environment.BORG_RSH = "ssh -i ${config.age.secrets.lennart_borg_backup_append_only_ed25519.path}";
           extraCreateArgs = "--stats --checkpoint-interval 600";
           repo = borgRepo.url;
           startAt = "*-*-* 01:00:00";
-          inhibitsSleep = true;
           user = "lennart";
           paths = "/home/lennart";
           exclude = map (x: paths + "/" + x) (common-excludes);

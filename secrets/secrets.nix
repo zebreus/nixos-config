@@ -51,9 +51,10 @@ with import ./public-keys.nix;
   # Backup keys
   # These keys are used to connect to borg instances
   # They dont have a passphrase, but can only access the backup repository in append-only mode
-  "lennart_borg_backup_ed25519.age".publicKeys = [ recovery lennart ];
-  "lennart_borg_backup_ed25519_pub.age".publicKeys = [ recovery lennart ];
-
+  "lennart_borg_backup_append_only_ed25519.age".publicKeys = [ recovery erms lennart ];
+  "lennart_borg_backup_append_only_ed25519_pub.age".publicKeys = [ recovery erms lennart ];
+  "lennart_borg_backup_trusted_ed25519.age".publicKeys = [ recovery lennart ];
+  "lennart_borg_backup_trusted_ed25519_pub.age".publicKeys = [ recovery lennart ];
 
   # Shared secret for coturn.
   # Matrix does not support a file option, but can load extra config files, so we use a config file that only sets the secret

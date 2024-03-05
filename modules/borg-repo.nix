@@ -7,10 +7,10 @@ in
       quota = "3T";
       path = "/storage/borg/erms/home";
       authorizedKeysAppendOnly = [
-        publicKeys.lennart_borg_backup
+        publicKeys.lennart_borg_backup_append_only
       ];
       authorizedKeys = [
-        publicKeys.lennart
+        publicKeys.lennart_borg_backup_trusted
       ];
     };
     matrix = {
