@@ -138,6 +138,7 @@ in
               [
                 "${pkgs.iptables}/bin/ip6tables -A antibuilding-forward-temp -m state --state RELATED,ESTABLISHED -j ACCEPT"
                 "${pkgs.iptables}/bin/ip6tables -A antibuilding-forward-temp -j DROP"
+                "${pkgs.iptables}/bin/ip6tables -A antibuilding-input-temp -j RETURN"
                 # Add the new chain
                 "${pkgs.iptables}/bin/ip6tables -A FORWARD -j antibuilding-forward-temp"
                 "${pkgs.iptables}/bin/ip6tables -I INPUT 1 -j antibuilding-input-temp"
