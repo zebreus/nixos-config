@@ -25,8 +25,8 @@ let
   ];
 in
 {
-  age.secrets.erms_backup_home_passphrase = {
-    file = ../../secrets + "/${config.networking.hostName}_backup_home_passphrase.age";
+  age.secrets.lennart_backup_passphrase = {
+    file = ../../secrets + "/lennart_backup_passphrase.age";
     owner = "lennart";
     group = config.users.users.lennart.group;
     mode = "0400";
@@ -39,9 +39,9 @@ in
         value = rec {
           encryption = {
             mode = "repokey";
-            passCommand = "cat ${config.age.secrets.erms_backup_home_passphrase.path}";
+            passCommand = "cat ${config.age.secrets.lennart_backup_passphrase.path}";
           };
-          environment.BORG_RSH = "ssh -i ${config.age.secrets.lennart_borg_backup_append_only_ed25519.path}";
+          environment.BORG_RSH = "ssh -i ${config.age.secrets.lennart_backup_append_only_ed25519.path}";
           extraCreateArgs = "--stats --checkpoint-interval 600";
           repo = borgRepo.url;
           startAt = "*-*-* 01:00:00";

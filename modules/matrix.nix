@@ -44,6 +44,9 @@ in
     age.secrets.matrix_backup_passphrase = {
       file = ../secrets/matrix_backup_passphrase.age;
     };
+    age.secrets.matrix_backup_append_only_ed25519 = {
+      file = ../../secrets/matrix_backup_append_only_ed25519.age;
+    };
 
     # Get certs
     security.acme = {
@@ -239,7 +242,7 @@ in
                   mode = "repokey";
                   passCommand = "cat ${config.age.secrets.matrix_backup_passphrase.path}";
                 };
-                environment.BORG_RSH = "ssh -i ${config.age.secrets.ssh_host_key_ed25519.path}";
+                environment.BORG_RSH = "ssh -i ${config.age.secrets.matrix_backup_append_only_ed25519.path}";
                 extraCreateArgs = "--stats --checkpoint-interval 600";
                 repo = borgRepo.url;
                 startAt = "*-*-* 00/1:00:00";
@@ -281,7 +284,7 @@ in
         }
         trap cleanup EXIT
 
-        export BORG_RSH="ssh -i ${config.age.secrets.ssh_host_key_ed25519.path}"
+        export BORG_RSH="ssh -i ${config.age.secrets.matrix_backup_append_only_ed25519.path}"
         export BORG_PASSCOMMAND="cat ${config.age.secrets.matrix_backup_passphrase.path}"
         export BORG_REPO='ssh://borg@kappril//storage/borg/matrix'
         export ARCHIVE=$(borg list --last 1 | cut -d" " -f1)

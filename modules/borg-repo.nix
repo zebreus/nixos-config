@@ -7,10 +7,10 @@ in
       quota = "3T";
       path = "/storage/borg/erms/home";
       authorizedKeysAppendOnly = [
-        publicKeys.lennart_borg_backup_append_only
+        publicKeys.lennart_backup_append_only
       ];
       authorizedKeys = [
-        publicKeys.lennart_borg_backup_trusted
+        publicKeys.lennart_backup_trusted
       ];
     };
     matrix = {
@@ -27,20 +27,20 @@ in
       quota = "2T";
       path = "/storage/borg/janek";
       authorizedKeysAppendOnly = [
-        publicKeys.janek_borg_backup_append_only
+        publicKeys.janek_backup_append_only
       ];
       authorizedKeys = [
-        publicKeys.janek_borg_backup_trusted
+        publicKeys.janek_backup_trusted
       ];
     };
     janek-proxmox = {
       quota = "2T";
       path = "/storage/borg/janek-proxmox";
       authorizedKeysAppendOnly = [
-        publicKeys.janek-proxmox_borg_backup_append_only
+        publicKeys.janek-proxmox_backup_append_only
       ];
       authorizedKeys = [
-        publicKeys.janek-proxmox_borg_backup_trusted
+        publicKeys.janek-proxmox_backup_trusted
       ];
     };
   };
