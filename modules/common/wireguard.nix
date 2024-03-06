@@ -7,7 +7,7 @@ let
   # If this is a client: Only other machines that are servers
   otherMachines = lib.attrValues (lib.filterAttrs (name: machine: name != config.networking.hostName && ((isServer thisMachine) || (isServer machine))) config.machines);
 
-  ipv6_prefix = "fd10:2030";
+  ipv6Prefix = config.antibuilding.ipv6Prefix;
 in
 {
   imports = [
@@ -15,15 +15,22 @@ in
   ];
 
   options = with lib; {
-    customWireguardPrivateKeyFile = mkOption {
-      default = [ ];
-      description = lib.mdDoc "The wireguard private key for this machine. Should only be set if the secrets of that machine are not managed in this repo";
-      type = with types; attrsOf (submodule machineOpts);
-    };
-    customWireguardPskFile = mkOption {
-      default = [ ];
-      description = lib.mdDoc "Information about the machines in the network. Should only be set if the secrets of that machine are not managed in this repo";
-      type = with types; attrsOf (submodule machineOpts);
+    antibuilding = {
+      ipv6Prefix = mkOption {
+        default = "fd10:2030";
+        description = lib.mdDoc "The IPv6 prefix for the antibuilding. There is not much reason to change this, I just added this option so I can reuse the prefix in other places.";
+        type = types.str;
+      };
+      customWireguardPrivateKeyFile = mkOption {
+        default = [ ];
+        description = lib.mdDoc "The wireguard private key for this machine. Should only be set if the secrets of that machine are not managed in this repo";
+        type = with types; attrsOf (submodule machineOpts);
+      };
+      customWireguardPskFile = mkOption {
+        default = [ ];
+        description = lib.mdDoc "Information about the machines in the network. Should only be set if the secrets of that machine are not managed in this repo";
+        type = with types; attrsOf (submodule machineOpts);
+      };
     };
   };
 
@@ -48,7 +55,7 @@ in
       hosts = builtins.listToAttrs (builtins.concatMap
         (machine: [
           {
-            name = "${ipv6_prefix}::${builtins.toString machine.address}";
+            name = "${ipv6Prefix}::${builtins.toString machine.address}";
             value = [ "${machine.name}.antibuild.ing" machine.name ];
           }
         ]
@@ -78,7 +85,7 @@ in
       wireguard.interfaces = {
         # "antibuilding" is the network interface name.
         antibuilding = {
-          ips = [ "${ipv6_prefix}::${builtins.toString thisMachine.address}/64" ];
+          ips = [ "${ipv6Prefix}::${builtins.toString thisMachine.address}/64" ];
           listenPort = 51820;
 
           # Path to the private key file.
@@ -94,9 +101,9 @@ in
                 persistentKeepalive = 25;
               } //
               (if !isServer machine then {
-                allowedIPs = [ "${ipv6_prefix}::${builtins.toString machine.address}/128" ];
+                allowedIPs = [ "${ipv6Prefix}::${builtins.toString machine.address}/128" ];
               } else {
-                allowedIPs = [ "${ipv6_prefix}::0/64" ];
+                allowedIPs = [ "${ipv6Prefix}::0/64" ];
 
                 # Set this to the server IP and port.
                 endpoint = "${machine.name}.outside.antibuild.ing:51820";
@@ -125,16 +132,16 @@ in
                   # Trusted machines are allowed to connect to all other machines.
                   (if machine.trusted then
                     [
-                      "${pkgs.iptables}/bin/ip6tables -A antibuilding-forward-temp -s ${ipv6_prefix}::${builtins.toString machine.address} -j ACCEPT"
+                      "${pkgs.iptables}/bin/ip6tables -A antibuilding-forward-temp -s ${ipv6Prefix}::${builtins.toString machine.address} -j ACCEPT"
                     ] else [ ]) ++
                   # Block connections from untrusted machines, if this machine is not public.
                   (if machine.trusted || thisMachine.public then [ ] else [
-                    "${pkgs.iptables}/bin/ip6tables -A antibuilding-input-temp -s ${ipv6_prefix}::${builtins.toString machine.address} -j DROP"
+                    "${pkgs.iptables}/bin/ip6tables -A antibuilding-input-temp -s ${ipv6Prefix}::${builtins.toString machine.address} -j DROP"
                   ]) ++
                   # Connections to public machines are allowed from all other machines.
                   (if machine.public then
                     [
-                      "${pkgs.iptables}/bin/ip6tables -A antibuilding-forward-temp -d ${ipv6_prefix}::${builtins.toString machine.address} -j ACCEPT"
+                      "${pkgs.iptables}/bin/ip6tables -A antibuilding-forward-temp -d ${ipv6Prefix}::${builtins.toString machine.address} -j ACCEPT"
                     ] else [ ]))
                 otherMachines) ++
               [
