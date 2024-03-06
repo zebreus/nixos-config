@@ -135,6 +135,7 @@
       gen-host-keys = pkgs.callPackage ./scripts/gen-host-keys.nix { };
       gen-wireguard-keys = pkgs.callPackage ./scripts/gen-wireguard-keys.nix { };
       gen-borg-keys = pkgs.callPackage ./scripts/gen-borg-keys.nix { };
+      deploy-hosts = pkgs.callPackage ./scripts/deploy-hosts.nix { };
 
       # Raspi SD card image
       image.kappril = nixosConfigurations.kappril.config.system.build.sdImage;
