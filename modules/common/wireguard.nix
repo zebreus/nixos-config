@@ -56,13 +56,13 @@ in
         ++ (if machine.staticIp4 != null then [
           {
             name = machine.staticIp4;
-            value = [ "${machine.name}.endpoint.zebre.us" ];
+            value = [ "${machine.name}.outside.antibuild.ing" ];
           }
         ] else [ ])
         ++ (if machine.staticIp6 != null then [
           {
             name = machine.staticIp6;
-            value = [ "${machine.name}.endpoint.zebre.us" ];
+            value = [ "${machine.name}.outside.antibuild.ing" ];
           }
         ] else [ ])
         )
@@ -99,7 +99,7 @@ in
                 allowedIPs = [ "${ipv6_prefix}::0/64" ];
 
                 # Set this to the server IP and port.
-                endpoint = "${machine.name}.endpoint.zebre.us:51820";
+                endpoint = "${machine.name}.outside.antibuild.ing:51820";
                 dynamicEndpointRefreshSeconds = 60;
               })
             ))
