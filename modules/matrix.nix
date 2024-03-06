@@ -45,7 +45,7 @@ in
       file = ../secrets/matrix_backup_passphrase.age;
     };
     age.secrets.matrix_backup_append_only_ed25519 = {
-      file = ../../secrets/matrix_backup_append_only_ed25519.age;
+      file = ../secrets/matrix_backup_append_only_ed25519.age;
     };
 
     # Get certs
