@@ -1,4 +1,4 @@
-{ config, ... }:
+{ config, lib, ... }:
 let
   common-excludes = [
     # Largest cache dirs
@@ -25,6 +25,10 @@ let
   ];
 in
 {
+  imports = [
+    ../helpers/borgMeteredConnectionOption.nix
+  ];
+
   age.secrets.lennart_backup_passphrase = {
     file = ../../secrets + "/lennart_backup_passphrase.age";
     owner = "lennart";
@@ -33,8 +37,8 @@ in
   };
 
   services.borgbackup.jobs = builtins.listToAttrs
-    (builtins.map
-      (borgRepo: {
+    (lib.imap0
+      (index: borgRepo: {
         name = "home-to-${borgRepo.name}";
         value = rec {
           encryption = {
@@ -44,10 +48,12 @@ in
           environment.BORG_RSH = "ssh -i ${config.age.secrets.lennart_backup_append_only_ed25519.path}";
           extraCreateArgs = "--stats --checkpoint-interval 600";
           repo = borgRepo.url;
-          startAt = "*-*-* 01:00:00";
+          startAt = "*-*-* 0${builtins.toString index}/3:00:00";
+          persistentTimer = true;
           user = "lennart";
           paths = "/home/lennart";
           exclude = map (x: paths + "/" + x) (common-excludes);
+          dontStartOnMeteredConnection = true;
         };
       })
       [
