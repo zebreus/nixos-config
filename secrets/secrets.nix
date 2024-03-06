@@ -22,10 +22,10 @@ with import ./public-keys.nix;
   # MARKER_HOST_KEYS
 
   # Private user keys
-  # Can be decrypted by recovery key and self
-  "lennart_ed25519.age".publicKeys = [ recovery lennart ];
-  "lennart_ed25519_pub.age".publicKeys = [ recovery lennart ];
-
+  # Can be decrypted by recovery key, hosts where the user is required, and self
+  # These keys should be password protected
+  "lennart_ed25519.age".publicKeys = [ recovery erms lennart ];
+  "lennart_ed25519_pub.age".publicKeys = [ recovery erms lennart ];
 
   # Wireguard keys
   # Can be decrypted by recovery key or the respective machine key
