@@ -17,12 +17,15 @@ rec {
   # Used to login into machines and services
   # These keys are only present on the machines I use interactively and have a passphrase
   lennart = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIBTHzLm8QMhHIo7kFAvtAFnqpspeR3L3gM8kLoG1137";
+
+  # Borg backup keys
   lennart_borg_backup_append_only = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIEEAbjLP/4tC4+UQCytbISY+ezfEd2NhohU7a33s0XTz";
   lennart_borg_backup_trusted = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAf6WpgqXZg5Nz5/bYaF8fd72zE3TK8FhcCnT+7OGTRr";
   janek_borg_backup_append_only = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIBg+saphG0duv0TPObtX9GRQzcz/K6nxHVkuHetMedFp";
   janek_borg_backup_trusted = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIBFuAR34VlHKrKSFysyHHvlZgkDobF72Az4iyAIqm1E6";
   janek-proxmox_borg_backup_append_only = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIEvD6Xz+LOyq8O9Vls3sOw+Zm1xFA9YGIPjBHsWrRWP/";
   janek-proxmox_borg_backup_trusted = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINtmJswyw0hW65cSYtIJUTWWVlTcFtrIBKAPlvSmL7AT";
+  # MARKER_BORG_BACKUP_KEYS
 
   # Wireguard public keys
   # Generated with `nix run .#gen-wireguard-keys`

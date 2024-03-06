@@ -47,14 +47,17 @@ with import ./public-keys.nix;
   # Generated with `tr -dc A-Za-z0-9 </dev/urandom | head -c 64; echo`
   "erms_backup_home_passphrase.age".publicKeys = [ recovery erms ];
   "matrix_backup_passphrase.age".publicKeys = [ recovery kashenblade ];
+  # MARKER_BORG_PASSPHRASES
 
   # Backup keys
   # These keys are used to connect to borg instances
-  # They dont have a passphrase, but can only access the backup repository in append-only mode
+  # The append_only keys dont have a passphrase, but can only access the backup repository in append-only mode
+  # The trusted keys also dont have a passphrase and can access the backup repository in read-write mode. However they can only be decrypted by a password protected user key
   "lennart_borg_backup_append_only_ed25519.age".publicKeys = [ recovery erms lennart ];
   "lennart_borg_backup_append_only_ed25519_pub.age".publicKeys = [ recovery erms lennart ];
   "lennart_borg_backup_trusted_ed25519.age".publicKeys = [ recovery lennart ];
   "lennart_borg_backup_trusted_ed25519_pub.age".publicKeys = [ recovery lennart ];
+  # MARKER_BORG_BACKUP_KEYS
 
   # Shared secret for coturn.
   # Matrix does not support a file option, but can load extra config files, so we use a config file that only sets the secret
