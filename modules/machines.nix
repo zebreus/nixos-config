@@ -49,6 +49,13 @@ let
         description = lib.mdDoc ''Whether this machine can be accessed by untrusted machines in the VPN.'';
         default = false;
       };
+
+      sshPublicKey = mkOption {
+        example = "xTIBA5rboUvnH4htodjb6e697QjLERt1NAB4mZqp8Dg=";
+        type = types.nullOr types.singleLineStr;
+        description = lib.mdDoc "The public SSH host key of this machine. Implies that the machine can be accessed via SSH.";
+        default = null;
+      };
     };
 
   };

@@ -40,6 +40,7 @@
             address = 1;
             wireguardPublicKey = publicKeys.erms_wireguard;
             trusted = true;
+            sshPublicKey = publicKeys.erms;
           };
           kashenblade = {
             name = "kashenblade";
@@ -47,12 +48,14 @@
             wireguardPublicKey = publicKeys.kashenblade_wireguard;
             staticIp4 = "167.235.154.30";
             staticIp6 = "2a01:4f8:c0c:d91f::1";
+            sshPublicKey = publicKeys.kashenblade;
           };
           kappril = {
             name = "kappril";
             address = 3;
             wireguardPublicKey = publicKeys.kappril_wireguard;
             public = true;
+            sshPublicKey = publicKeys.kappril;
           };
           # Janeks laptop
           janek = {

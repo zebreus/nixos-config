@@ -63,6 +63,9 @@ with import ./public-keys.nix;
   "matrix_backup_trusted_ed25519_pub.age".publicKeys = [ recovery lennart ];
   # MARKER_BORG_BACKUP_KEYS
 
+  # This is secret because it contains information about the infrastructure of other people
+  "extra_config.age".publicKeys = [ recovery erms lennart ];
+
   # Shared secret for coturn.
   # Matrix does not support a file option, but can load extra config files, so we use a config file that only sets the secret
   "coturn_static_auth_secret.age".publicKeys = [ recovery kashenblade ];
