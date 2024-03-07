@@ -76,6 +76,12 @@
             wireguardPublicKey = publicKeys.janek-backup_wireguard;
             public = true;
           };
+          sempriaq = {
+            name = "sempriaq";
+            address = 7;
+            wireguardPublicKey = publicKeys.sempriaq_wireguard;
+            sshPublicKey = publicKeys.sempriaq;
+          };
         };
       };
       # Add some extra packages to nixpkgs
@@ -119,6 +125,18 @@
               home-manager.nixosModules.home-manager
               agenix.nixosModules.default
               ./machines/kappril
+            ];
+          };
+
+          sempriaq = nixpkgs.lib.nixosSystem {
+            system = "x86_64-linux";
+            specialArgs = attrs;
+            modules = [
+              overlayNixpkgs
+              informationAboutOtherMachines
+              home-manager.nixosModules.home-manager
+              agenix.nixosModules.default
+              ./machines/sempriaq
             ];
           };
 

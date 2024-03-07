@@ -11,6 +11,7 @@ rec {
   erms = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIjV6XlMFyfQ2MVkvDp45g+yejQ5bMplGBxWs2vSw5tY root@erms";
   kashenblade = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIC3mSVmxa5RyNkEeBvKQIsPvyn8bDD+kQHI4pOkHPSvp root@kashenblade";
   kappril = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIE80q4TrgnlTN7ZYN/sfr0XI1dH+xHJHRlsrmECJOxMP root@kappril";
+  sempriaq = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIA+5O+ll6EBBW3e/ClEHKuZKyQJnHN195lkrhiKAZwVA root@sempriaq";
   # MARKER_PUBLIC_HOST_KEYS
 
   # User keys
@@ -37,7 +38,8 @@ rec {
   janek_wireguard = "o5Bk0O/x2UI3FS+GAMZhW40ER/o3uBbPeiw0vJPJyiY=";
   janek-proxmox_wireguard = "x/96EtoKnx/Dtgv1+aX61BXvuYYAy89p7T/MbrU7uB8=";
   janek-backup_wireguard = "FQIG2kNEnUEbFfw3oCCstqG3lWjCranGXsfCglriJB8=";
+  sempriaq_wireguard = "EUtA4cXqFQ7kXKG4YSjfQn3PnVGI1kyiGvhaVPwNOCo=";
   # MARKER_WIREGUARD_PUBLIC_KEYS
 
-  allMachines = [ erms kashenblade kappril ];
+  allMachines = [ sempriaq erms kashenblade kappril ];
 }

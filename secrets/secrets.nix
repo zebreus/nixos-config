@@ -19,6 +19,10 @@ with import ./public-keys.nix;
   "kappril_ed25519_pub.age".publicKeys = [ recovery kappril ];
   "kappril_rsa.age".publicKeys = [ recovery kappril ];
   "kappril_rsa_pub.age".publicKeys = [ recovery kappril ];
+  "sempriaq_ed25519.age".publicKeys = [ recovery sempriaq ];
+  "sempriaq_ed25519_pub.age".publicKeys = [ recovery sempriaq ];
+  "sempriaq_rsa.age".publicKeys = [ recovery sempriaq ];
+  "sempriaq_rsa_pub.age".publicKeys = [ recovery sempriaq ];
   # MARKER_HOST_KEYS
 
   # Private user keys
@@ -38,9 +42,11 @@ with import ./public-keys.nix;
   "kappril_wireguard_pub.age".publicKeys = [ recovery kappril ];
   "tick_wireguard.age".publicKeys = [ recovery tick ];
   "tick_wireguard_pub.age".publicKeys = [ recovery tick ];
+  "sempriaq_wireguard.age".publicKeys = [ recovery sempriaq ];
+  "sempriaq_wireguard_pub.age".publicKeys = [ recovery sempriaq ];
   # MARKER_WIREGUARD_KEYS
 
-  "shared_wireguard_psk.age".publicKeys = [ recovery erms kashenblade kappril tick ];
+  "shared_wireguard_psk.age".publicKeys = [ recovery erms kashenblade kappril sempriaq ];
 
   # Backup secrets
   # For now this is keyed to the machine where the backup is initiated from, but it would make more sense to key it to lennart
