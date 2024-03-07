@@ -278,6 +278,8 @@ in
       writeScriptBin "restore-matrix-from-backup" ''
         #!${bash}/bin/bash
 
+        # Matrix restore script tested at 07.03.2024
+
         read -r -p "Are you sure you want to restore from the latest backup? This will destroy the current data. [y/N]" -n 1
         echo # (optional) move to a new line
         if [[ "$REPLY" =~ ^[^Yy]$ ]]; then
