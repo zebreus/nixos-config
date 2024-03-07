@@ -13,10 +13,18 @@
       url = "github:ryantm/agenix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    simple-nix-mailserver = {
+      url = "gitlab:GaetanLepage/nixos-mailserver";
+      # TODO: Make the mailserver follow the main nixpkgs, once it supports current nixpkgs.
+      # inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
-  outputs = { self, nixpkgs, home-manager, disko, agenix, ... }@attrs:
+  outputs = { self, nixpkgs, home-manager, disko, agenix, simple-nix-mailserver, ... }@attrs:
     let
+      # TODO: Remove this once the mailserver supports current nixpkgs.
+      nixpkgsThatAreWorkingWithTheMailserver = simple-nix-mailserver.inputs.nixpkgs;
+
       overlays = [
         (final: prev: {
           agenix = agenix.packages.${prev.system}.default;
@@ -27,6 +35,11 @@
         system = "x86_64-linux";
       };
       publicKeys = import secrets/public-keys.nix;
+
+      # Add some extra packages to nixpkgs
+      overlayNixpkgs = ({ config, pkgs, ... }: {
+        nixpkgs.overlays = overlays;
+      });
 
       # Sets config options with information about other machines.
       # Only contains the information that is relevant for all machines.
@@ -81,13 +94,10 @@
             address = 7;
             wireguardPublicKey = publicKeys.sempriaq_wireguard;
             sshPublicKey = publicKeys.sempriaq;
+            # staticIp4 = "192.227.228.220";
           };
         };
       };
-      # Add some extra packages to nixpkgs
-      overlayNixpkgs = ({ config, pkgs, ... }: {
-        nixpkgs.overlays = overlays;
-      });
     in
     rec   {
       nixosConfigurations =
@@ -128,7 +138,7 @@
             ];
           };
 
-          sempriaq = nixpkgs.lib.nixosSystem {
+          sempriaq = nixpkgsThatAreWorkingWithTheMailserver.lib.nixosSystem {
             system = "x86_64-linux";
             specialArgs = attrs;
             modules = [
@@ -136,6 +146,7 @@
               informationAboutOtherMachines
               home-manager.nixosModules.home-manager
               agenix.nixosModules.default
+              simple-nix-mailserver.nixosModules.default
               ./machines/sempriaq
             ];
           };

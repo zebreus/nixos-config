@@ -76,4 +76,8 @@ with import ./public-keys.nix;
   # Matrix does not support a file option, but can load extra config files, so we use a config file that only sets the secret
   "coturn_static_auth_secret.age".publicKeys = [ recovery kashenblade ];
   "coturn_static_auth_secret_matrix_config.age".publicKeys = [ recovery kashenblade ];
+
+  # Mail server password hashes
+  # Generate one with `nix-shell -p mkpasswd --run 'mkpasswd -sm bcrypt'`
+  "lennart_mail_passwordhash.age".publicKeys = [ recovery sempriaq ];
 }
