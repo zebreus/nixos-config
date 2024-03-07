@@ -85,4 +85,5 @@ with import ./public-keys.nix;
   # Mail server password hashes
   # Generate one with `nix-shell -p mkpasswd --run 'mkpasswd -sm bcrypt'`
   "lennart_mail_passwordhash.age".publicKeys = [ recovery sempriaq ];
+  "lennart_mail_password.age".publicKeys = [ recovery lennart erms ];
 }

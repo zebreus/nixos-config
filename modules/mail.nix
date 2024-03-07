@@ -33,6 +33,12 @@ in
       file = ../secrets/lennart_mail_passwordhash.age;
       mode = "0444";
     };
+    age.secrets."mail_${name}_backup_passphrase" = {
+      file = ../secrets + "/mail_${name}_backup_passphrase.age";
+    };
+    age.secrets."mail_${name}_backup_append_only_ed25519" = {
+      file = ../secrets + "/mail_${name}_backup_append_only_ed25519.age";
+    };
 
     mailserver = {
       enable = true;
@@ -42,7 +48,7 @@ in
       loginAccounts = {
         "lennart@${domain}" = {
           hashedPasswordFile = config.age.secrets.lennart_mail_passwordhash.path;
-          aliases = [ "postmaster@${domain}" "lennart@${domain}" ];
+          aliases = [ "postmaster@${domain}" "zebreus@${domain}" ];
         };
       };
 
@@ -70,13 +76,6 @@ in
     };
     security.acme.acceptTerms = true;
     security.acme.defaults.email = certEmail;
-
-    age.secrets."mail_${name}_backup_passphrase" = {
-      file = ../secrets + "/mail_${name}_backup_passphrase.age";
-    };
-    age.secrets."mail_${name}_backup_append_only_ed25519" = {
-      file = ../secrets + "/mail_${name}_backup_append_only_ed25519.age";
-    };
 
     services.borgbackup.jobs = builtins.listToAttrs
       (builtins.map

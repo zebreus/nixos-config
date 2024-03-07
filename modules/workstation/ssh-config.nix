@@ -138,7 +138,7 @@ in
               # Strato server. Cancelled for 07.09.2024 because I don't need it anymore.
               # Currently runs a tor relay
               stratoBeta = {
-                host = "h2903394.stratoserver.net h2903395 85.214.52.114";
+                host = "h2903395.stratoserver.net h2903395 85.214.52.114";
                 hostname = "85.214.52.114";
                 user = "root";
                 identityFile = config.age.secrets.lennart_ed25519.path;

@@ -6,5 +6,6 @@
     ./sudo.nix
     ./user-keys.nix
     ./ssh-config.nix
+    ./email.nix
   ];
 }
