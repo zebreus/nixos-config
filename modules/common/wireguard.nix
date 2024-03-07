@@ -8,6 +8,53 @@ let
   otherMachines = lib.attrValues (lib.filterAttrs (name: machine: name != config.networking.hostName && ((isServer thisMachine) || (isServer machine))) config.machines);
 
   ipv6Prefix = config.antibuilding.ipv6Prefix;
+
+  # All the names that hosts can be reached with
+  allHostNames = builtins.concatMap
+    (machine: [
+      {
+        address = "${ipv6Prefix}::${builtins.toString machine.address}";
+        name = "${machine.name}.antibuild.ing";
+        inherit (machine) sshPublicKey;
+      }
+      {
+        address = "${ipv6Prefix}::${builtins.toString machine.address}";
+        name = machine.name;
+        inherit (machine) sshPublicKey;
+      }
+      {
+        address = "${ipv6Prefix}::${builtins.toString machine.address}";
+        name = "${ipv6Prefix}::${builtins.toString machine.address}";
+        inherit (machine) sshPublicKey;
+      }
+    ]
+    # Set hostnames for the endpoints of the machines with static IPs.
+    ++ (if machine.staticIp4 != null then [
+      {
+        address = machine.staticIp4;
+        name = "${machine.name}.outside.antibuild.ing";
+        inherit (machine) sshPublicKey;
+      }
+      {
+        address = machine.staticIp4;
+        name = machine.staticIp4;
+        inherit (machine) sshPublicKey;
+      }
+    ] else [ ])
+    ++ (if machine.staticIp6 != null then [
+      {
+        address = machine.staticIp6;
+        name = "${machine.name}.outside.antibuild.ing";
+        inherit (machine) sshPublicKey;
+      }
+      {
+        address = machine.staticIp6;
+        name = machine.staticIp6;
+        inherit (machine) sshPublicKey;
+      }
+    ] else [ ])
+    )
+    (lib.attrValues config.machines);
 in
 {
   imports = [
@@ -44,6 +91,16 @@ in
       mode = "0444";
     };
 
+    # Add known ssh keys to the known_hosts file.
+    services.openssh.knownHosts = builtins.foldl'
+      (acc: { name, sshPublicKey, ... }: acc // {
+        ${name} = {
+          publicKey = sshPublicKey;
+        };
+      })
+      { }
+      (builtins.filter (e: e.sshPublicKey != null) allHostNames);
+
     networking = {
       # Open firewall port for WireGuard.
       firewall = {
@@ -52,28 +109,16 @@ in
       };
 
       # Add all machines to the hosts file.
-      hosts = builtins.listToAttrs (builtins.concatMap
-        (machine: [
-          {
-            name = "${ipv6Prefix}::${builtins.toString machine.address}";
-            value = [ "${machine.name}.antibuild.ing" machine.name ];
-          }
-        ]
-        # Set hostnames for the endpoints of the machines with static IPs.
-        ++ (if machine.staticIp4 != null then [
-          {
-            name = machine.staticIp4;
-            value = [ "${machine.name}.outside.antibuild.ing" ];
-          }
-        ] else [ ])
-        ++ (if machine.staticIp6 != null then [
-          {
-            name = machine.staticIp6;
-            value = [ "${machine.name}.outside.antibuild.ing" ];
-          }
-        ] else [ ])
-        )
-        (lib.attrValues config.machines));
+      hosts = builtins.listToAttrs
+        (
+          builtins.map
+            (
+              address: {
+                name = address;
+                value = builtins.map (e: e.name) (builtins.filter (e: e.address == address) allHostNames);
+              }
+            )
+            (lib.unique (builtins.map (e: e.address) allHostNames)));
 
       # Prevent networkmanager from doing weird stuff with the wireguard interface.
       networkmanager =
