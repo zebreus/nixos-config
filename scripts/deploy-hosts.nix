@@ -5,22 +5,47 @@ with pkgs; writeScriptBin "deploy-hosts" ''
   set -x
   set -e
 
-  echo Building configurations...
-  nixos-rebuild --flake .#erms --target-host erms build
-  nixos-rebuild --flake .#kappril --target-host kappril build
-  nixos-rebuild --flake .#kashenblade --target-host kashenblade build
+  HOSTS=(
+    erms
+    kappril
+    sempriaq
+    kashenblade
+  )
 
-  echo Activating configurations...
-  nixos-rebuild --flake .#erms --target-host erms test
-  nixos-rebuild --flake .#kappril --target-host kappril test
-  nixos-rebuild --flake .#kashenblade --target-host kashenblade test
+  function buildConfigurations {
+    echo Building configuration for $host...
+    for host in "''${HOSTS[@]}"; do
+      nixos-rebuild --flake .#$host --target-host $host build
+    done
+  }
 
-  until nc -vz -w 2 erms 22; do sleep 1; done 
-  until nc -vz -w 2 kashenblade 22; do sleep 1; done 
-  until nc -vz -w 2 kappril 22; do sleep 1; done 
+  function activateConfigurations {
+    echo Activating configuration for $host...
+    for host in "''${HOSTS[@]}"; do
+      nixos-rebuild --flake .#$host --target-host $host test
+    done
+  }
 
-  echo Making configurations boot default configurations...
-  nixos-rebuild --flake .#erms --target-host erms boot
-  nixos-rebuild --flake .#kappril --target-host kappril boot
-  nixos-rebuild --flake .#kashenblade --target-host kashenblade boot
+  function makeConfigurationsBootDefault {
+    echo Making configuration boot default for $host...
+    for host in "''${HOSTS[@]}"; do
+      nixos-rebuild --flake .#$host --target-host $host boot
+    done
+  }
+
+  function waitForHosts {
+    echo Confirming that all hosts are up...
+    for host in "''${HOSTS[@]}"; do
+      until nc -vz -w 2 $host 22; do sleep 1; done 
+    done
+  }
+
+  waitForHosts
+  buildConfigurations
+  waitForHosts
+  activateConfigurations
+  waitForHosts
+  makeConfigurationsBootDefault
+
+  echo Done.
 ''
