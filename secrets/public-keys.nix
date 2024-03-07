@@ -28,6 +28,8 @@ rec {
   janek-proxmox_backup_trusted = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINtmJswyw0hW65cSYtIJUTWWVlTcFtrIBKAPlvSmL7AT";
   matrix_backup_append_only = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOHl6VhhC44lFd8RXoR2Ms47DQYOEaDLdstWu7azOax/";
   matrix_backup_trusted = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGHFAgSn+sRu2BAozhMJqk9GWUKR8cN0mnjK+JbL0bI8";
+  mail_zebre_us_backup_append_only = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMAh77FpoiwNj+7LkbCFHqOvm57btMN5rjK1jT00B0zj";
+  mail_zebre_us_backup_trusted = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKCBUTAjUWmMlNOBpp2SwFICx4DKoNxiWVGfkWtPOptr";
   # MARKER_BORG_BACKUP_KEYS
 
   # Wireguard public keys

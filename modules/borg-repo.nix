@@ -17,10 +17,20 @@ in
       quota = "1T";
       path = "/storage/borg/matrix";
       authorizedKeysAppendOnly = [
-        publicKeys.kashenblade
+        publicKeys.matrix_backup_append_only
       ];
       authorizedKeys = [
-        publicKeys.lennart
+        publicKeys.matrix_backup_trusted
+      ];
+    };
+    mail_zebre_us = {
+      quota = "1T";
+      path = "/storage/borg/mail_zebre_us";
+      authorizedKeysAppendOnly = [
+        publicKeys.mail_zebre_us_backup_append_only
+      ];
+      authorizedKeys = [
+        publicKeys.mail_zebre_us_backup_trusted
       ];
     };
     janek = {

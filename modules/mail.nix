@@ -6,6 +6,7 @@ let
   fqdnDomain = "mail.${baseDomain}";
   certEmail = cfg.certEmail;
   domain = baseDomain;
+  name = builtins.replaceStrings [ "." "-" ] [ "_" "_" ] baseDomain;
 in
 {
   options.modules.mailserver = {
@@ -40,6 +41,9 @@ in
         };
       };
 
+      # User and group for mail storage
+      vmailUserName = "virtualMail";
+      vmailGroupName = "virtualMail";
       # Default directory for mail storage
       mailDirectory = "/var/vmail";
       # Mail indices do not need to be backed up
@@ -61,5 +65,39 @@ in
     };
     security.acme.acceptTerms = true;
     security.acme.defaults.email = certEmail;
+
+    age.secrets."mail_${name}_backup_passphrase" = {
+      file = ../secrets + "/mail_${name}_backup_passphrase.age";
+    };
+    age.secrets."mail_${name}_backup_append_only_ed25519" = {
+      file = ../secrets + "/mail_${name}_backup_append_only_ed25519.age";
+    };
+
+    services.borgbackup.jobs = builtins.listToAttrs
+      (builtins.map
+        (borgRepo: {
+          name = "mail-${name}-to-${borgRepo.name}";
+          value =
+            {
+              archiveBaseName = "mail_${name}";
+              encryption = {
+                mode = "repokey";
+                passCommand = "cat ${config.age.secrets."mail_${name}_backup_passphrase".path}";
+              };
+              environment.BORG_RSH = "ssh -i ${config.age.secrets."mail_${name}_backup_append_only_ed25519".path}";
+              extraCreateArgs = "--stats --checkpoint-interval 600";
+              repo = borgRepo.url;
+              startAt = "*-*-* 00/1:00:00";
+              user = "root";
+              paths = [
+                "/var/vmail"
+                "/var/dkim"
+              ];
+            };
+        })
+        [
+          { name = "kappril"; url = "ssh://borg@kappril//storage/borg/mail_${name}"; }
+        ]
+      );
   };
 }
