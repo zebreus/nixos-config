@@ -231,6 +231,19 @@ in
         ];
       };
 
+      # Create db dump 5 minutes before the borgbackup
+      postgresqlBackup =
+        {
+          enable = true;
+          startAt = "*-*-* 00/1:55:00";
+          databases = [
+            "matrix-synapse"
+          ];
+          compression = "none";
+          location = "/var/backup/postgresql";
+          pgdumpOptions = "--clean --format=custom --no-password";
+        };
+
       borgbackup.jobs = builtins.listToAttrs
         (builtins.map
           (borgRepo: {
@@ -247,13 +260,9 @@ in
                 repo = borgRepo.url;
                 startAt = "*-*-* 00/1:00:00";
                 user = "root";
-                preHook = ''
-                  mkdir -p /root/.dump-db-to-${borgRepo.name}
-                  PGPASSWORD=synapse ${pkgs.postgresql}/bin/pg_dump -h 127.0.0.1 -U matrix-synapse --clean --format=custom matrix-synapse --no-password --file /root/.dump-db/matrix-synapse
-                '';
                 paths = [
                   "/var/lib/matrix-synapse"
-                  "/root/.dump-db-to-${borgRepo.name}/matrix-synapse"
+                  "/var/backup/postgresql/matrix-synapse.sql"
                 ];
               };
           })
@@ -294,7 +303,7 @@ in
         echo "Restoring database"
         sudo -u postgres psql -c 'CREATE DATABASE "matrix-synapse" WITH OWNER "matrix-synapse" TEMPLATE template0 LC_COLLATE = "C" LC_CTYPE = "C";'
         borg mount $BORG_REPO::$ARCHIVE /mnt
-        PGPASSWORD=synapse pg_restore -h 127.0.0.1 -U matrix-synapse -d matrix-synapse /mnt/root/.dump-db/matrix-synapse
+        PGPASSWORD=synapse pg_restore -h 127.0.0.1 -U matrix-synapse -d matrix-synapse /mnt/var/backup/postgresql/matrix-synapse.sql
         borg umount /mnt || true
         echo "Database restored"
 
