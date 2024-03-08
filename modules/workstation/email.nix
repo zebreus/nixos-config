@@ -8,8 +8,9 @@
 
   home-manager.users = {
     lennart = { pkgs, ... }: {
-      programs.mbsync.enable = true;
+      # Provides sendmail
       programs.msmtp.enable = true;
+      programs.mbsync.enable = true;
       programs.thunderbird = {
         enable = true;
         profiles.lennart = {
@@ -21,6 +22,11 @@
         hooks = {
           preNew = "mbsync --all";
         };
+      };
+      programs.gpg = {
+        enable = true;
+        mutableKeys = false;
+        mutableTrust = false;
       };
       accounts.email = {
         accounts.lennart = {
