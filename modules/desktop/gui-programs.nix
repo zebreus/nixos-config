@@ -27,8 +27,8 @@ in
       gimp
       gitg
       piper
-      obs-studio
       virt-manager
       gnome.gnome-boxes
+      anki
     ];
 }
