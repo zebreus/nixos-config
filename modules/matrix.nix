@@ -15,6 +15,28 @@ let
     return 200 '${builtins.toJSON data}';
   '';
   email = cfg.certEmail;
+
+  element-branding-resources = pkgs.runCommand "element-branding-resources"
+    {
+      src = [
+        ../resources/blobs-dark.webp
+        ../resources/icon.webp
+      ];
+    } ''
+    mkdir -p $out
+    for file in $src; do
+      out_name=$(echo $file | sed -E 's|/nix/store/[^-]+-||')
+      cp $file $out/$out_name
+    done
+  '';
+  element-branding = {
+    # When a string, the URL for the full-page image background of the login, registration, and welcome pages. This property can additionally be an array to have the app choose an image at random from the selections.
+    welcome_background_url = "/extra/resources/blobs-dark.webp";
+    # A URL to the logo used on the login, registration, etc pages.
+    auth_header_logo_url = "/extra/resources/icon.webp";
+    # A list of links to add to the footer during login, registration, etc. Each entry must have a text and url property.
+    # auth_footer_links = [ ];
+  };
 in
 {
   options.modules.matrix = {
@@ -73,10 +95,26 @@ in
       allowedTCPPorts = [ 80 443 3478 5349 ];
     };
 
-    nixpkgs.config.element-web.conf = {
-      show_labs_settings = true;
-      default_theme = "dark";
+    nixpkgs.config.element-web = {
+      conf = {
+        show_labs_settings = true;
+        default_theme = "dark";
+        default_server_config = clientConfig;
+        brand = "zebre.us";
+        permalink_prefix = "https://element.zebre.us";
+        branding = element-branding;
+      };
     };
+    # Patch the welcome strings on the login page to say the domain instead of element
+    nixpkgs.overlays = [
+      (final: prev: {
+        element-web-unwrapped = prev.element-web-unwrapped.overrideAttrs (old: {
+          prePatch = ''
+            sed -Ei 's/("welcome_to_element": ")([^"]*)Element([^"]*")/\1\2${baseDomain}\3/' src/i18n/strings/*.json
+          '';
+        });
+      })
+    ];
 
     # Enable the PostgreSQL service.
     services = {
@@ -146,11 +184,9 @@ in
             serverAliases = [
               elementDomain
             ];
-
-            root = pkgs.element-web.override {
-              conf = {
-                default_server_config = clientConfig; # see `clientConfig` from the snippet above.
-              };
+            root = pkgs.element-web;
+            locations = {
+              "/extra/resources/" = { alias = element-branding-resources + "/"; };
             };
           };
         };
