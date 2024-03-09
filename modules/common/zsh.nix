@@ -16,10 +16,6 @@ in
     enable = true;
     autosuggestions.enable = true;
     syntaxHighlighting.enable = true;
-
-    shellAliases = {
-      sl = "sl -w -5 -e";
-    };
     histSize = 50000;
 
     ohMyZsh = {
@@ -69,6 +65,5 @@ in
     bat
     zsh
     zsh-autosuggestions
-    sl
   ];
 }

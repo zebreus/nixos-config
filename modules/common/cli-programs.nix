@@ -1,6 +1,6 @@
 # Adds cli programs to system packages
 # Various editors and other tools
-{ pkgs, ... }:
+{ lib, pkgs, ... }:
 {
   environment.systemPackages = with pkgs;
     [
@@ -31,4 +31,7 @@
       agenix
       age
     ];
+  environment.shellAliases = {
+    sl = "${lib.getExe pkgs.sl} -w -5 -e";
+  };
 }
