@@ -134,6 +134,34 @@ let
 
     destination = "/lib/udev/rules.d/99-hidraw-permisson.rules";
   };
+
+  ddcUdev = pkgs.writeTextFile {
+    name = "ddcUdev";
+    text = ''
+      # Sample rules to grant RW access to /dev/i2c devices.
+
+      # This sample file can be modified and copied to /etc/udev/rules.d.  If file 
+      # /etc/udev/rules.d/60-ddcutil-i2c.rules exists, it overrides a file with the 
+      # same name in /usr/lib/udev/rules.d, which is created by ddcutil installation.
+      # This can be useful in cases where the usual rules do not work as needed, or
+      # during development. 
+
+      # The usual case, using TAG+="uaccess":  If a /dev/i2c device is associated
+      # with a video adapter, grant the current user access to it.
+      SUBSYSTEM=="i2c-dev", KERNEL=="i2c-[0-9]*", ATTRS{class}=="0x030000", TAG+="uaccess" 
+
+      # Assigns i2c devices to group i2c, and gives that group RW access.
+      # Individual users must then be assigned to group i2c.
+      # On some distributions, installing package i2c-tools creates this rule. 
+      # (For example, on Ubuntu, see 40-i2c-tools.rules.)
+      # KERNEL=="i2c-[0-9]*", GROUP="i2c", MODE="0660"
+
+      # Gives everyone RW access to the /dev/i2c devices: 
+      # KERNEL=="i2c-[0-9]*",  MODE="0666"
+    '';
+
+    destination = "/lib/udev/rules.d/50-ddc.rules";
+  };
 in
 {
   services.udev.packages = [
@@ -143,6 +171,7 @@ in
     logicAnalyzerUdev
     tangUdev
     mxMasterConfigurationUdev
+    ddcUdev
     pkgs.headsetcontrol
     pkgs.gnome.gnome-settings-daemon
   ];
