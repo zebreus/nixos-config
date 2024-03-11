@@ -15,6 +15,6 @@
   system.stateVersion = "23.11";
   networking = {
     hostName = "kappril";
-    domain = "zebre.us";
+    domain = "antibuild.ing";
   };
 }

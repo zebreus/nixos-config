@@ -10,7 +10,7 @@
   system.stateVersion = "23.11";
   networking = {
     hostName = "sempriaq";
-    domain = "zebre.us";
+    domain = "antibuild.ing";
   };
 
   modules.mailserver =

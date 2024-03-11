@@ -12,5 +12,6 @@
     ./root.nix
     ./wireguard.nix
     ./zsh.nix
+    ./mta.nix
   ];
 }

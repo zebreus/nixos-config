@@ -11,7 +11,7 @@
   system.stateVersion = "23.11";
   networking = {
     hostName = "kashenblade";
-    domain = "zebre.us";
+    domain = "antibuild.ing";
   };
 
   modules.matrix =
