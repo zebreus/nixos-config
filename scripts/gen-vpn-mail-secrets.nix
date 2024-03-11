@@ -69,15 +69,20 @@ with pkgs; writeScriptBin "gen-vpn-mail-secrets" ''
     VPN_MAIL_SECRETS_MARKER="MARKER_VPN_MAIL_SECRETS"
 
     PASSWORD_SECRETS_NAME="$HOST_NAME"_mail_password.age
+    PASSWORD_CONFIG_SECRETS_NAME="$HOST_NAME"_mail_password_postfix_config.age
     PASSWORDHASH_SECRETS_NAME="$HOST_NAME"_mail_passwordhash.age
 
     PASSWORD=$(tr -dc A-Za-z0-9 </dev/urandom | head -c 64)
-    PASSWORDHASH=$(echo -n "$PASSWORD" | ${lib.getExe' pkgs.mkpasswd "mkpasswd"} -sm bcrypt - )
+    PASSWORDHASH=$(${lib.getExe' pkgs.mkpasswd "mkpasswd"} -m bcrypt "$PASSWORD" )
 
     ${perl}/bin/perl -pi -e '$_ = q(  "'$PASSWORD_SECRETS_NAME'".publicKeys = [ recovery '"$HOST_NAME"' ];) . qq(\n) . $_ if /'"$VPN_MAIL_SECRETS_MARKER"'/' secrets.nix
+    ${perl}/bin/perl -pi -e '$_ = q(  "'$PASSWORD_CONFIG_SECRETS_NAME'".publicKeys = [ recovery '"$HOST_NAME"' ];) . qq(\n) . $_ if /'"$VPN_MAIL_SECRETS_MARKER"'/' secrets.nix
     ${perl}/bin/perl -pi -e '$_ = q(  "'$PASSWORDHASH_SECRETS_NAME'".publicKeys = [ recovery '"$all_decryptors"' ];) . qq(\n) . $_ if /'"$VPN_MAIL_SECRETS_MARKER"'/' secrets.nix
 
+    
+
     echo "$PASSWORD" | ${pkgs.agenix}/bin/agenix -e "$PASSWORD_SECRETS_NAME"
+    echo '['"$MAIL_RELAY_HOST_NAME"'.antibuild.ing]:submission root@'"$HOST_NAME"'.antibuild.ing:'"$PASSWORD" | ${pkgs.agenix}/bin/agenix -e "$PASSWORD_CONFIG_SECRETS_NAME"
     echo "$PASSWORDHASH" | ${pkgs.agenix}/bin/agenix -e "$PASSWORDHASH_SECRETS_NAME"
   }
 

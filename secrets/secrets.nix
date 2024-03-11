@@ -96,18 +96,22 @@ with import ./public-keys.nix;
   "erms_dkim_rsa.age".publicKeys = [ recovery erms sempriaq ];
   "erms_dkim_rsa_pub.age".publicKeys = [ recovery erms sempriaq ];
   "erms_mail_password.age".publicKeys = [ recovery erms ];
+  "erms_mail_password_postfix_config.age".publicKeys = [ recovery erms ];
   "erms_mail_passwordhash.age".publicKeys = [ recovery erms sempriaq ];
   "kashenblade_dkim_rsa.age".publicKeys = [ recovery kashenblade sempriaq ];
   "kashenblade_dkim_rsa_pub.age".publicKeys = [ recovery kashenblade sempriaq ];
   "kashenblade_mail_password.age".publicKeys = [ recovery kashenblade ];
+  "kashenblade_mail_password_postfix_config.age".publicKeys = [ recovery kashenblade ];
   "kashenblade_mail_passwordhash.age".publicKeys = [ recovery kashenblade sempriaq ];
   "kappril_dkim_rsa.age".publicKeys = [ recovery kappril sempriaq ];
   "kappril_dkim_rsa_pub.age".publicKeys = [ recovery kappril sempriaq ];
   "kappril_mail_password.age".publicKeys = [ recovery kappril ];
+  "kappril_mail_password_postfix_config.age".publicKeys = [ recovery kappril ];
   "kappril_mail_passwordhash.age".publicKeys = [ recovery kappril sempriaq ];
   "sempriaq_dkim_rsa.age".publicKeys = [ recovery sempriaq ];
   "sempriaq_dkim_rsa_pub.age".publicKeys = [ recovery sempriaq ];
   "sempriaq_mail_password.age".publicKeys = [ recovery sempriaq ];
+  "sempriaq_mail_password_postfix_config.age".publicKeys = [ recovery sempriaq ];
   "sempriaq_mail_passwordhash.age".publicKeys = [ recovery sempriaq ];
   # MARKER_VPN_MAIL_SECRETS
 
