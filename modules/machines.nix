@@ -56,6 +56,13 @@ let
         description = lib.mdDoc "The public SSH host key of this machine. Implies that the machine can be accessed via SSH.";
         default = null;
       };
+
+      managed = mkOption {
+        example = false;
+        type = types.bool;
+        description = lib.mdDoc "Specify whether this machine is managed by this nixos-config";
+        default = self.config.sshPublicKey != null;
+      };
     };
 
   };
