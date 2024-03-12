@@ -1,4 +1,4 @@
-{ config, lib, ... }: {
+{ config, pkgs, lib, ... }: {
 
   config = lib.mkIf (config.networking.hostName != "sempriaq") {
     # I want to be able to do the follwoing things:
@@ -86,7 +86,57 @@
         # smtp_sasl_security_options = "";
         smtp_use_tls = "yes";
         # fallback_transport = "smtp:sempriaq.antibuild.ing";
+
+        # OpenDKIM mail verification and signing
+        milter_default_action = "accept";
+        milter_protocol = "6";
+        smtpd_milters = config.services.opendkim.socket;
+        non_smtpd_milters = config.services.opendkim.socket;
       };
     };
+
+    age.secrets."${config.networking.hostName}_dkim_rsa" = {
+      file = ../../secrets + "/${config.networking.hostName}_dkim_rsa.age";
+      owner = config.services.opendkim.user;
+      group = config.services.opendkim.group;
+    };
+
+    services.opendkim =
+      let
+        keyTable = pkgs.writeText "opendkim-keytable" ''
+          ${config.networking.hostName}.antibuild.ing ${config.networking.hostName}.antibuild.ing:mail:${config.age.secrets."${config.networking.hostName}_dkim_rsa".path}
+        '';
+        signingTable = pkgs.writeText "opendkim-SigningTable" ''
+          *@${config.networking.hostName}.antibuild.ing ${config.networking.hostName}.antibuild.ing
+        '';
+      in
+      {
+        enable = true;
+        selector = "mail";
+        domains = "csl:${config.networking.hostName}.antibuild.ing";
+        configFile = pkgs.writeText "opendkim.conf" (
+          ''
+            Canonicalization relaxed/relaxed
+            UMask 0002
+            Socket ${config.services.opendkim.socket}
+            KeyTable file:${keyTable}
+            SigningTable refile:${signingTable}
+            Syslog yes
+            SyslogSuccess yes
+            LogWhy yes
+            LogResults yes
+          ''
+        );
+      };
+    systemd.services.opendkim = {
+      preStart = lib.mkForce "";
+      serviceConfig = {
+        ExecStart = lib.mkForce "${pkgs.opendkim}/bin/opendkim ${lib.escapeShellArgs  [ "-f" "-l" "-x" config.services.opendkim.configFile ]}";
+        PermissionsStartOnly = lib.mkForce false;
+      };
+    };
+
+    users.users.${config.services.postfix.user}.extraGroups = [ config.services.opendkim.group ];
   };
+
 }
