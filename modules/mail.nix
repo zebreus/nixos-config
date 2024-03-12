@@ -41,6 +41,12 @@ in
     age.secrets."mail_${name}_backup_append_only_ed25519" = {
       file = ../secrets + "/mail_${name}_backup_append_only_ed25519.age";
     };
+    age.secrets."${name}_dkim_rsa" = {
+      file = ../secrets + "/${name}_dkim_rsa.age";
+      owner = config.services.opendkim.user;
+      group = config.services.opendkim.group;
+      path = "${config.mailserver.dkimKeyDirectory}/${domain}.mail.key";
+    };
 
     services.postfix = {
       config = {
