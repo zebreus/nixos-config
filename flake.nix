@@ -56,6 +56,7 @@
             # TODO: Automatically add port 25 to publicPorts if managed = true (thats the default for managed)
             publicPorts = [ 25 ];
             sshPublicKey = publicKeys.erms;
+            relaxedSpf = true;
           };
           kashenblade = {
             name = "kashenblade";
@@ -73,6 +74,7 @@
             public = true;
             publicPorts = [ 25 ];
             sshPublicKey = publicKeys.kappril;
+            relaxedSpf = true;
           };
           # Janeks laptop
           janek = {
