@@ -82,7 +82,7 @@ with pkgs; writeScriptBin "gen-vpn-mail-secrets" ''
     
 
     echo "$PASSWORD" | ${pkgs.agenix}/bin/agenix -e "$PASSWORD_SECRETS_NAME"
-    echo '['"$MAIL_RELAY_HOST_NAME"'.antibuild.ing]:submission root@'"$HOST_NAME"'.antibuild.ing:'"$PASSWORD" | ${pkgs.agenix}/bin/agenix -e "$PASSWORD_CONFIG_SECRETS_NAME"
+    echo '['"$MAIL_RELAY_HOST_NAME"'.antibuild.ing]:submission root@'"$HOST_NAME"'.antibuild.ing:'"$PASSWORD""\n"'[mail.zebre.us]:submission root@'"$HOST_NAME"'.antibuild.ing:'"$PASSWORD""\n"'[mail.antibuild.ing]:submission root@'"$HOST_NAME"'.antibuild.ing:'"$PASSWORD" | ${pkgs.agenix}/bin/agenix -e "$PASSWORD_CONFIG_SECRETS_NAME"
     echo "$PASSWORDHASH" | ${pkgs.agenix}/bin/agenix -e "$PASSWORDHASH_SECRETS_NAME"
   }
 

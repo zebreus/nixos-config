@@ -71,21 +71,17 @@
         inet_interfaces = [ "all" ];
         inet_protocols = [ "ipv4" "ipv6" ];
 
+        # The idea behind this configuration is to first try to deliver mail directly to the recipient
+        # If that fails, we try to deliver via sempriaq.antibuild.ing
         smtp_host_lookup = [ "native" "dns" ];
-        #disable_dns_lookups = yes
         ignore_mx_lookup_error = "yes";
 
-        smtp_fallback_relay = [ "[sempriaq.antibuild.ing]:submission" ];
-        # smtp_fallback_relay = [ "[sempriaq.antibuild.ing]:submission" "smtp:mail.zebre.us:submission" ];
-
+        smtp_fallback_relay = [ "[sempriaq.antibuild.ing]:submission" "[mail.zebre.us]:submission" ];
         smtp_sasl_auth_enable = "yes";
-        smtp_tls_security_level = "encrypt";
-        smtp_sasl_tls_security_options = "noanonymous";
-        # smtp_sasl_mechanism_filter = [ "plain" "login" ];
+        smtp_tls_security_level = "may";
+        smtp_sasl_tls_security_options = [ "noanonymous" ];
         smtp_sasl_password_maps = "hash:${config.environment.etc.postfix.source}/sasl_password";
-        # smtp_sasl_security_options = "";
         smtp_use_tls = "yes";
-        # fallback_transport = "smtp:sempriaq.antibuild.ing";
 
         # OpenDKIM mail verification and signing
         milter_default_action = "accept";
