@@ -5,6 +5,7 @@
     ./hardware-configuration.nix
     ../../modules/common
     ../../modules/matrix.nix
+    ../../modules/dns.nix
     ../../modules/auto-maintenance.nix
   ];
 

@@ -59,6 +59,11 @@ in
       # For that reason, we also set virtual_mailbox_domains to realDomains manually (and dont add the VPN machines there) 
       domains = realDomains;
 
+      # According to the simple nix mailserver doc it is a good idea to run a local DNS resolver on the mail server
+      # However, I also want to run an authoritative DNS server on the mail server, so for now I will disable the local DNS resolver (kresd)
+      # TODO: Enable local DNS resolver again
+      localDnsResolver = false;
+
       loginAccounts = {
         "lennart@${domain}" = {
           hashedPasswordFile = config.age.secrets.lennart_mail_passwordhash.path;

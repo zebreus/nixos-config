@@ -6,6 +6,7 @@
 
   networking.useDHCP = false;
   networking.useNetworkd = true;
+  services.resolved.enable = false;
 
   modules.hetzner.wan = {
     enable = true;

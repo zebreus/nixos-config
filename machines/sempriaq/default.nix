@@ -5,6 +5,7 @@
     ../../modules/common
     ../../modules/auto-maintenance.nix
     ../../modules/mail.nix
+    ../../modules/dns.nix
   ];
 
   system.stateVersion = "23.11";
