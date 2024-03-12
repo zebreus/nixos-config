@@ -113,6 +113,8 @@ with import ./public-keys.nix;
   "sempriaq_mail_password.age".publicKeys = [ recovery sempriaq ];
   "sempriaq_mail_password_postfix_config.age".publicKeys = [ recovery sempriaq ];
   "sempriaq_mail_passwordhash.age".publicKeys = [ recovery sempriaq ];
+  "zebre_us_dkim_rsa.age".publicKeys = [ recovery sempriaq ];
+  "zebre_us_dkim_rsa_pub.age".publicKeys = [ recovery sempriaq ];
   # MARKER_VPN_MAIL_SECRETS
 
 }
