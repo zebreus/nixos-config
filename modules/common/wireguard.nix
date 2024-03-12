@@ -179,15 +179,36 @@ in
                     [
                       "${pkgs.iptables}/bin/ip6tables -A antibuilding-forward-temp -s ${ipv6Prefix}::${builtins.toString machine.address} -j ACCEPT"
                     ] else [ ]) ++
+                  # Forward trusted ports to all machines.
+                  (builtins.map
+                    (port:
+                      "${pkgs.iptables}/bin/ip6tables -A antibuilding-forward-temp -s ${ipv6Prefix}::${builtins.toString machine.address} -p tcp --dport ${builtins.toString port} -j ACCEPT"
+                    )
+                    machine.trustedPorts) ++
                   # Block connections from untrusted machines, if this machine is not public.
-                  (if machine.trusted || thisMachine.public then [ ] else [
-                    "${pkgs.iptables}/bin/ip6tables -A antibuilding-input-temp -s ${ipv6Prefix}::${builtins.toString machine.address} -j DROP"
-                  ]) ++
+                  # TODO: Support public and trusted ports
+                  (if machine.trusted || thisMachine.public then [ ] else
+                  (
+                    (builtins.map
+                      (port:
+                        "${pkgs.iptables}/bin/ip6tables -A antibuilding-input-temp -s ${ipv6Prefix}::${builtins.toString machine.address} -p tcp --dport ${builtins.toString port} -j RETURN"
+                      )
+                      (machine.trustedPorts ++ thisMachine.publicPorts)) ++
+                    [
+                      "${pkgs.iptables}/bin/ip6tables -A antibuilding-input-temp -s ${ipv6Prefix}::${builtins.toString machine.address} -j DROP"
+                    ]
+                  )) ++
                   # Connections to public machines are allowed from all other machines.
                   (if machine.public then
                     [
                       "${pkgs.iptables}/bin/ip6tables -A antibuilding-forward-temp -d ${ipv6Prefix}::${builtins.toString machine.address} -j ACCEPT"
-                    ] else [ ]))
+                    ] else [ ]) ++
+                  # Open individual public ports.
+                  (builtins.map
+                    (port:
+                      "${pkgs.iptables}/bin/ip6tables -A antibuilding-forward-temp -d ${ipv6Prefix}::${builtins.toString machine.address} -p tcp --dport ${builtins.toString port} -j ACCEPT"
+                    )
+                    machine.publicPorts))
                 otherMachines) ++
               [
                 "${pkgs.iptables}/bin/ip6tables -A antibuilding-forward-temp -m state --state RELATED,ESTABLISHED -j ACCEPT"

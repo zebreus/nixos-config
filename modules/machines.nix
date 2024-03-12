@@ -43,11 +43,25 @@ let
         default = false;
       };
 
+      trustedPorts = mkOption {
+        example = true;
+        type = types.listOf types.int;
+        description = lib.mdDoc ''This machine is allowed to access this tcp port on all other machines in the VPN.'';
+        default = [ ];
+      };
+
       public = mkOption {
         example = true;
         type = types.bool;
         description = lib.mdDoc ''Whether this machine can be accessed by untrusted machines in the VPN.'';
         default = false;
+      };
+
+      publicPorts = mkOption {
+        example = true;
+        type = types.listOf types.int;
+        description = lib.mdDoc ''All other machines in the VPN are allowed to access these tcp ports on this machine.'';
+        default = [ ];
       };
 
       sshPublicKey = mkOption {

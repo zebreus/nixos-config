@@ -94,6 +94,9 @@
             address = 7;
             wireguardPublicKey = publicKeys.sempriaq_wireguard;
             sshPublicKey = publicKeys.sempriaq;
+            # This machine is allow to contact port 25 on every other machine.
+            trustedPorts = [ 25 ];
+            public = true;
             # staticIp4 = "192.227.228.220";
           };
         };
