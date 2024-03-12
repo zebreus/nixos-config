@@ -73,7 +73,7 @@ in
       loginAccounts = {
         "lennart@${domain}" = {
           hashedPasswordFile = config.age.secrets.lennart_mail_passwordhash.path;
-          aliases = [ "postmaster@${domain}" "zebreus@${domain}" ];
+          aliases = [ "postmaster@${domain}" "dmarc-reports@${domain}" "abuse@${domain}" "zebreus@${domain}" ];
         };
       };
 

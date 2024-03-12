@@ -51,7 +51,7 @@ in
           # TODO: Verify that autodiscovery works like this
           (machine: ''
             ; Mail records for ${machine.name}
-            _dmarc.${machine.name} IN TXT ${quoteTxtEntry "v=DMARC1; p=none"}
+            _dmarc.${machine.name} IN TXT ${quoteTxtEntry "v=DMARC1; p=none; rua=mailto:dmarc-reports@zebre.us; ruf=mailto:dmarc-reports@zebre.us; fo=1"}
             ${machine.name} IN TXT ${quoteTxtEntry "v=spf1 +ip6:${config.antibuilding.ipv6Prefix}::0/64 +a:mail.zebre.us +mx +a -all"}
             mail._domainkey.${machine.name} IN TXT ${quoteTxtEntry "v=DKIM1; k=rsa; s=email; p=${publicKeys."${machine.name}_dkim"}"}
             ${machine.name} IN MX 30 mail.zebre.us.
