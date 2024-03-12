@@ -5,12 +5,21 @@ with pkgs; writeScriptBin "deploy-hosts" ''
   set -x
   set -e
 
-  HOSTS=(
-    erms
-    kappril
-    sempriaq
-    kashenblade
-  )
+  HOSTS=( $@ )
+  if [ -z "$HOSTS" ]; then
+    echo "Usage: $0 <host1> <host2> ..."
+    echo "If you want to deploy to all hosts, use 'all' as the argument."
+    exit 1
+  fi
+
+  if [ "$HOSTS" = "all" ]; then
+    HOSTS=(
+      erms
+      kappril
+      sempriaq
+      kashenblade
+    )
+  fi
 
   function buildConfigurations {
     echo Building configuration for $host...
