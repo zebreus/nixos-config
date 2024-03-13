@@ -88,6 +88,16 @@
         milter_protocol = "6";
         smtpd_milters = config.services.opendkim.socket;
         non_smtpd_milters = config.services.opendkim.socket;
+
+        # Some rate limiting to prevent dos from outside
+        anvil_rate_time_unit = "60s";
+        smtpd_client_message_rate_limit = "60";
+        smtpd_client_recipient_rate_limit = "60";
+        smtpd_client_new_tls_session_rate_limit = "60";
+        smtpd_client_connection_rate_limit = "120";
+        smtpd_client_ipv4_prefix_length = "32";
+        smtpd_client_ipv6_prefix_length = "64";
+        smtpd_client_event_limit_exceptions = [ "$mynetworks" "${config.antibuilding.ipv6Prefix}::0/64" ];
       };
     };
 
