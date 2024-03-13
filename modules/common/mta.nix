@@ -1,5 +1,4 @@
 { config, pkgs, lib, ... }: {
-
   config = lib.mkIf (config.networking.hostName != "sempriaq") {
     # I want to be able to do the follwoing things:
     # - Receive emails from anyone for local users
@@ -98,6 +97,9 @@
         smtpd_client_ipv4_prefix_length = "32";
         smtpd_client_ipv6_prefix_length = "64";
         smtpd_client_event_limit_exceptions = [ "$mynetworks" "${config.antibuilding.ipv6Prefix}::0/64" ];
+
+        # Some customized error messages
+        bounce_template_file = "${../../resources/bounce.cf}";
       };
     };
 

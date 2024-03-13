@@ -1,0 +1,131 @@
+failure_template = <<EOF
+Charset: us-ascii
+From: Mail Delivery Service <postmaster>
+Subject: Undelivered Correspondence Returned to Sender
+Postmaster-Subject: Postmaster Copy: Undelivered Mail
+
+Dear Sender,
+
+Regrettably, we must inform you of the failure of your
+correspondence to reach its intended recipient. The precise
+reasons for this failure are currently under review by our
+department.
+
+In compliance with Section 7, Subsection C, Paragraph 3 of
+the Mail Services Directive, we are obliged to inform you
+that our records indicate an indeterminate cause for the
+failed dispatch. Furthermore, pursuant to Section 12,
+Subsection F, Paragraph 2 of the Mail Services Directive,
+the resolution of such incidents is subject to a mandatory
+waiting period of no less than 30 day(s).
+
+Refrain from repeating the dispatch without thorough
+reconsideration. In accordance with Section 14, Subsection
+D, Paragraph 2 of the Mail Services Directive, please be
+advised that failure to comply may result in administrative
+penalties. Your patience in this matter is appreciated.
+
+For any additional information or inquiries related to this
+matter, please submit a formal written request to the
+Postmaster. Please include this report in all subsequent
+communications for documentation purposes. You  are
+authorized to redact your personal information from the
+enclosed failed correspondence.  
+
+Thank you for your cooperation in this matter.
+Mail Delivery Service at $myhostname.
+EOF
+
+delay_template = <<EOF
+Charset: us-ascii
+From: Mail Delivery Service <postmaster>
+Subject: Delayed Correspondence (still being retried)
+Postmaster-Subject: Postmaster Warning: Delayed Mail
+
+Dear Sender,
+
+This notification serves to inform you that your dispatched
+correspondence is experiencing a prolonged period of
+transmission. The cause of this delay, which has persisted
+for $delay_warning_time_hours hour(s), is currently under investigation by the Mail
+Delivery Service. Further attempts will be made for up to $maximal_queue_lifetime_days
+day(s), subject to the SSO outlined in Section 9, Subsection
+B, Paragraph 4 of the Mail Services Directive. 
+
+Please note that the resolution of such matters is subject
+to the completion of administrative procedures, including
+but not limited to paperwork submission, interdepartmental
+approvals, and compliance with standard operating protocols.
+Furthermore, pursuant to Section 12, Subsection F, Paragraph
+4, the resolution is subject to a mandatory waiting period
+of no less than 10 day(s).
+
+We must remind you that repeated transmission attempts may
+exacerbate the situation and lead to further complications.
+In accordance with Section 14, Subsection D, Paragraph 2,
+please be advised that failure to comply may result in
+administrative penalties.
+
+For any additional information or inquiries related to this
+matter, please submit a formal written request to the
+Postmaster. Please include this report in all subsequent
+communications for documentation purposes. You  are
+authorized to redact your personal information from the
+appended failed correspondence.
+
+Thank you for your cooperation in this matter.
+Mail Delivery Service at $myhostname.
+EOF
+
+success_template = <<EOF
+Charset: us-ascii
+From: Mail Delivery Service <postmaster>
+Subject: Successful Correspondence Delivery Report
+
+Dear Sender,
+
+We are pleased to inform you that your dispatched
+correspondence has been successfully delivered to the
+designated recipient(s), following the review process
+outlined in Section 9, Subsection B, Paragraph 4 of the Mail
+Services Directive.
+
+If your dispatch was directed to a mailbox, you will receive
+no further notifications. Otherwise, you may still receive
+notifications of correspondence delivery errors from other
+systems, as per the provisions of Section 16, Subsection C,
+Paragraph 9 of the Mail Services Directive.
+
+Should you require additional information or wish to dispute
+the status of your dispatch, please submit a formal written
+request to the Postmaster. Please include this report in all
+subsequent communications for documentation purposes. You
+are authorized to redact your personal information from the
+enclosed correspondence.
+
+Thank you for your cooperation in this matter.
+Mail Delivery Service at $myhostname.
+EOF
+
+verify_template = <<EOF
+Charset: us-ascii
+From: Mail Delivery Service <postmaster>
+Subject: Correspondence Delivery Status Report
+
+Dear Sender,
+
+According to the clearance process outlined in Section 3,
+Subsection D, Paragraph 12 of the Mail Services Directive,
+we enclosed the correspondence delivery report that you
+requested.
+
+Should you require additional information or wish to dispute
+this report, please submit a formal written request to the
+Postmaster. Please include this report in all subsequent
+communications for documentation purposes. You are
+authorized to redact your personal information from the
+enclosed correspondence.
+
+Thank you for your cooperation in this matter.
+Mail Delivery Service at $myhostname.
+EOF

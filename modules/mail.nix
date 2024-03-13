@@ -53,6 +53,9 @@ in
         smtp_host_lookup = [ "native" "dns" ];
         # Do not create virtual domains for the relayed domains
         virtual_mailbox_domains = lib.mkForce (builtins.toFile "vhosts" (concatStringsSep "\n" realDomains));
+
+        # Some customized error messages
+        bounce_template_file = "${../resources/bounce.cf}";
       };
     };
 
