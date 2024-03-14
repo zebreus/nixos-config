@@ -7,60 +7,33 @@
   };
 
   home-manager.users = {
-    lennart = { pkgs, ... }: {
-      # Provides sendmail
-      programs.msmtp.enable = true;
-      programs.mbsync.enable = true;
-      programs.thunderbird = {
-        enable = true;
-        profiles.lennart = {
-          isDefault = true;
-        };
-      };
-      programs.notmuch = {
-        enable = true;
-        hooks = {
-          preNew = "mbsync --all";
-        };
-      };
-      programs.gpg = {
-        enable = true;
-        mutableKeys = false;
-        mutableTrust = false;
-      };
+    lennart = { pkgs, lib, ... }: {
       accounts.email = {
+        accounts.${config.networking.hostName}.primary = lib.mkForce false;
         accounts.lennart = {
+          primary = true;
           address = "lennart@zebre.us";
-          # gpg = {
-          #   key = "F9119EC8FCC56192B5CF53A0BF4F64254BD8C8B5";
-          #   signByDefault = true;
-          # };
           imap = {
             host = "mail.zebre.us";
             port = 993;
-          };
-          userName = "lennart@zebre.us";
-          passwordCommand = "cat ${config.age.secrets.lennart_mail_password.path}";
-          mbsync = {
-            enable = true;
-            create = "maildir";
-          };
-          msmtp.enable = true;
-          notmuch.enable = true;
-          primary = true;
-          realName = "Lennart Eichhorn";
-          signature = {
-            text = ''
-              test signature
-              https://keybase.io
-            '';
-            showSignature = "append";
           };
           smtp = {
             host = "mail.zebre.us";
             port = 465;
           };
-          thunderbird.enable = true;
+          realName = "Lennart Eichhorn";
+          userName = "lennart@zebre.us";
+          passwordCommand = "cat ${config.age.secrets.lennart_mail_password.path}";
+          neomutt = {
+            enable = true;
+            mailboxType = "imap";
+            extraConfig = ''
+              set header_cache = "~/.cache/neomutt/headers"
+              set message_cachedir = "~/.cache/neomutt/messages"
+              set tmpdir = ~/.cache/neomutt/tmp
+              set imap_qresync = yes
+            '';
+          };
         };
       };
     };
