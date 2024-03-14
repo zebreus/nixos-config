@@ -10,6 +10,7 @@
   # Disable postfix sendmail
   services.postfix.setSendmail = lib.mkForce false;
 
+  # Enable msmtp globally
   programs.msmtp = {
     enable = true;
     accounts = {
@@ -69,7 +70,7 @@
         accounts.email = {
           accounts.host = {
             primary = true;
-            address = "root@${config.networking.hostName}.antibuild.ing";
+            address = "${current-user}@${config.networking.hostName}.antibuild.ing";
             imap = {
               host = "mail.zebre.us";
               port = 993;
