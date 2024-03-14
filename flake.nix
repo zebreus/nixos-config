@@ -18,6 +18,10 @@
       # TODO: Make the mailserver follow the main nixpkgs, once it supports current nixpkgs.
       # inputs.nixpkgs.follows = "nixpkgs";
     };
+    # simple-nix-mailserver = {
+    #   url = "gitlab:simple-nixos-mailserver/nixos-mailserver";
+    #   inputs.nixpkgs.follows = "nixpkgs";
+    # };
   };
 
   outputs = { self, nixpkgs, home-manager, disko, agenix, simple-nix-mailserver, ... }@attrs:

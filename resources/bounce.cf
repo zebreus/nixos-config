@@ -33,7 +33,7 @@ authorized to redact your personal information from the
 enclosed failed correspondence.  
 
 Thank you for your cooperation in this matter.
-Mail Delivery Service at $myhostname.
+Mail Delivery Service at $myhostname
 EOF
 
 delay_template = <<EOF
@@ -74,7 +74,7 @@ authorized to redact your personal information from the
 appended failed correspondence.
 
 Thank you for your cooperation in this matter.
-Mail Delivery Service at $myhostname.
+Mail Delivery Service at $myhostname
 EOF
 
 success_template = <<EOF
@@ -104,7 +104,7 @@ are authorized to redact your personal information from the
 enclosed correspondence.
 
 Thank you for your cooperation in this matter.
-Mail Delivery Service at $myhostname.
+Mail Delivery Service at $myhostname
 EOF
 
 verify_template = <<EOF
@@ -127,5 +127,5 @@ authorized to redact your personal information from the
 enclosed correspondence.
 
 Thank you for your cooperation in this matter.
-Mail Delivery Service at $myhostname.
+Mail Delivery Service at $myhostname
 EOF
