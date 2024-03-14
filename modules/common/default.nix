@@ -7,7 +7,7 @@
     ./git.nix
     ./host_keys.nix
     ./locales.nix
-    ./neomutt.nix
+    ./host-email.nix
     ./nix.nix
     ./openssh.nix
     ./root.nix
