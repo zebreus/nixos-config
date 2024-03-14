@@ -41,6 +41,12 @@
       };
       programs.neomutt = {
         enable = true;
+        extraConfig = ''
+          set header_cache = "~/.cache/neomutt/headers"
+          set message_cachedir = "~/.cache/neomutt/messages"
+          set tmpdir = "~/.cache/neomutt/tmp"
+          set imap_qresync = yes
+        '';
       };
       home.file.".cache/neomutt/headers/.keep".text = "";
       home.file.".cache/neomutt/messages/.keep".text = "";
@@ -50,37 +56,40 @@
       };
     })
 
-    # Enable root email account
-    ({ pkgs, ... }: {
-      accounts.email = {
-        accounts.${config.networking.hostName} = {
-          primary = true;
-          address = "root@${config.networking.hostName}.antibuild.ing";
-          imap = {
-            host = "mail.zebre.us";
-            port = 993;
+    # Enable host email account
+    # The host account is used to send emails from <username>@<hostname>.antibuild.ing
+    # Every user on the system can use this account to send emails
+    # All received emails are available to all users of the system
+    (home-manager-args:
+      let
+        home-manager-config = home-manager-args.config;
+        current-user = home-manager-config.home.username;
+      in
+      {
+        accounts.email = {
+          accounts.host = {
+            primary = true;
+            address = "root@${config.networking.hostName}.antibuild.ing";
+            imap = {
+              host = "mail.zebre.us";
+              port = 993;
+            };
+            smtp = {
+              host = "mail.zebre.us";
+              port = 465;
+            };
+            realName = config.users.users."${current-user}".description;
+            userName = "root@${config.networking.hostName}.antibuild.ing";
+            passwordCommand = "cat ${config.age.secrets."${config.networking.hostName}_mail_password".path}";
+            neomutt = {
+              enable = true;
+              mailboxType = "imap";
+              mailboxName = "host";
+            };
+            msmtp.enable = true;
           };
-          smtp = {
-            host = "mail.zebre.us";
-            port = 465;
-          };
-          realName = "Administrator";
-          userName = "root@${config.networking.hostName}.antibuild.ing";
-          passwordCommand = "cat ${config.age.secrets."${config.networking.hostName}_mail_password".path}";
-          neomutt = {
-            enable = true;
-            mailboxType = "imap";
-            extraConfig = ''
-              set header_cache = "~/.cache/neomutt/headers"
-              set message_cachedir = "~/.cache/neomutt/messages"
-              set tmpdir = ~/.cache/neomutt/tmp
-              set imap_qresync = yes
-            '';
-          };
-          msmtp.enable = true;
         };
-      };
-    })
+      })
 
     # Colors for neomutt
     {

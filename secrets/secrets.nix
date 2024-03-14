@@ -86,6 +86,7 @@ with import ./public-keys.nix;
   # Generate one with `nix-shell -p mkpasswd --run 'mkpasswd -sm bcrypt'`
   "lennart_mail_passwordhash.age".publicKeys = [ recovery sempriaq ];
   "lennart_mail_password.age".publicKeys = [ recovery lennart erms ];
+  "gmail_password.age".publicKeys = [ recovery erms ];
 
   # VPN mail secrets
   # Secrets for the mail accounts inside the antibuilding
