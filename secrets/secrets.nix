@@ -40,8 +40,6 @@ with import ./public-keys.nix;
   "kashenblade_wireguard_pub.age".publicKeys = [ recovery kashenblade ];
   "kappril_wireguard.age".publicKeys = [ recovery kappril ];
   "kappril_wireguard_pub.age".publicKeys = [ recovery kappril ];
-  "tick_wireguard.age".publicKeys = [ recovery tick ];
-  "tick_wireguard_pub.age".publicKeys = [ recovery tick ];
   "sempriaq_wireguard.age".publicKeys = [ recovery sempriaq ];
   "sempriaq_wireguard_pub.age".publicKeys = [ recovery sempriaq ];
   # MARKER_WIREGUARD_KEYS
