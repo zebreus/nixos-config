@@ -127,7 +127,7 @@ in
         @ IN TXT ${quoteTxtEntry "v=spf1 a:mail.zebre.us -all"}
         mail IN TXT ${quoteTxtEntry "v=spf1 a:mail.zebre.us -all"}
         _dmarc IN TXT ${quoteTxtEntry "v=DMARC1; p=none"}
-        mail._domainkey IN TXT ${quoteTxtEntry "v=DKIM1; k=rsa; s=email; p=${publicKeys.zebre_us_dkim}"}
+        mail._domainkey IN TXT ${quoteTxtEntry "v=DKIM1; k=rsa; s=email; p=${publicKeys.madmanfred_com_dkim}"}
         @ IN MX 30 mail.zebre.us.
         ; Autodiscovery:
         _submission._tcp IN SRV 0 5 587 mail.zebreu.us.

@@ -45,6 +45,12 @@ in
       group = config.services.opendkim.group;
       path = "${config.mailserver.dkimKeyDirectory}/${domain}.mail.key";
     };
+    age.secrets."madmanfred_com_dkim_rsa" = {
+      file = ../secrets + "/madmanfred_com_dkim_rsa.age";
+      owner = config.services.opendkim.user;
+      group = config.services.opendkim.group;
+      path = "${config.mailserver.dkimKeyDirectory}/madmanfred.com.mail.key";
+    };
 
     services.postfix = {
       config = {
