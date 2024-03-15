@@ -34,7 +34,7 @@ in
         $TTL 60
         $ORIGIN antibuild.ing.
         @ IN SOA ns1.antibuild.ing. lennart.zebre.us. (
-                1710252093  ; serial secs since Jan 1 1970
+                1710252094  ; serial secs since Jan 1 1970
                 14400        ; refresh (>=60)
                 3600        ; retry (>=60)
                 604800      ; expire
@@ -72,7 +72,7 @@ in
         $TTL 60
         $ORIGIN zebre.us.
         @ IN SOA ns1.antibuild.ing. lennart.zebre.us. (
-                1710252093  ; serial secs since Jan 1 1970
+                1710252094  ; serial secs since Jan 1 1970
                 14400        ; refresh (>=60)
                 3600        ; retry (>=60)
                 604800      ; expire
@@ -93,6 +93,37 @@ in
 
         ; Records for mail
         mail IN A 192.227.228.220
+        @ IN TXT ${quoteTxtEntry "v=spf1 a:mail.zebre.us -all"}
+        mail IN TXT ${quoteTxtEntry "v=spf1 a:mail.zebre.us -all"}
+        _dmarc IN TXT ${quoteTxtEntry "v=DMARC1; p=none"}
+        mail._domainkey IN TXT ${quoteTxtEntry "v=DKIM1; k=rsa; s=email; p=${publicKeys.zebre_us_dkim}"}
+        @ IN MX 30 mail.zebre.us.
+        ; Autodiscovery:
+        _submission._tcp IN SRV 0 5 587 mail.zebreu.us.
+        _submissions._tcp IN SRV 0 5 465 mail.zebreu.us.
+        _imap._tcp IN SRV 0 5 143 mail.zebreu.us.
+        _imaps._tcp IN SRV 0 5 993 mail.zebreu.us.
+      '';
+    };
+
+    zones."madmanfred.com" = {
+      # DNSSEC is currently broken
+      # TODO: Fix upstream
+      dnssec = false;
+      data = ''
+        $TTL 60
+        $ORIGIN madmanfred.com.
+        @ IN SOA ns1.antibuild.ing. lennart.zebre.us. (
+                1710252094  ; serial secs since Jan 1 1970
+                14400        ; refresh (>=60)
+                3600        ; retry (>=60)
+                604800      ; expire
+                300          ; minimum ttl
+                )
+        @ IN NS ns1.antibuild.ing.
+        @ IN NS ns2.antibuild.ing.
+
+        ; Records for mail
         @ IN TXT ${quoteTxtEntry "v=spf1 a:mail.zebre.us -all"}
         mail IN TXT ${quoteTxtEntry "v=spf1 a:mail.zebre.us -all"}
         _dmarc IN TXT ${quoteTxtEntry "v=DMARC1; p=none"}
