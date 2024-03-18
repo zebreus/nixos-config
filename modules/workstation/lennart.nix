@@ -2,6 +2,9 @@ let
   publicKeys = import ../../secrets/public-keys.nix;
 in
 {
+  home-manager.users.lennart.imports = [
+    ./goa.nix
+  ];
   users.users.lennart = {
     isNormalUser = true;
     description = "Lennart";

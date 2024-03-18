@@ -22,9 +22,14 @@
     #   url = "gitlab:simple-nixos-mailserver/nixos-mailserver";
     #   inputs.nixpkgs.follows = "nixpkgs";
     # };
+    gnome-online-accounts-config = {
+      # url = "/home/lennart/Documents/gnome-online-accounts-config";
+      url = "github:zebreus/gnome-online-accounts-config";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
-  outputs = { self, nixpkgs, home-manager, disko, agenix, simple-nix-mailserver, ... }@attrs:
+  outputs = { self, nixpkgs, home-manager, disko, agenix, simple-nix-mailserver, gnome-online-accounts-config, ... }@attrs:
     let
       # TODO: Remove this once the mailserver supports current nixpkgs.
       nixpkgsThatAreWorkingWithTheMailserver = simple-nix-mailserver.inputs.nixpkgs;
@@ -124,6 +129,7 @@
               informationAboutOtherMachines
               agenix.nixosModules.default
               home-manager.nixosModules.home-manager
+              gnome-online-accounts-config.nixosModules.default
               ./machines/erms
             ];
           };
@@ -136,6 +142,7 @@
               informationAboutOtherMachines
               agenix.nixosModules.default
               home-manager.nixosModules.home-manager
+              gnome-online-accounts-config.nixosModules.default
               ./machines/kashenblade
             ];
           };
@@ -148,6 +155,7 @@
               informationAboutOtherMachines
               home-manager.nixosModules.home-manager
               agenix.nixosModules.default
+              gnome-online-accounts-config.nixosModules.default
               ./machines/kappril
             ];
           };
@@ -161,6 +169,7 @@
               home-manager.nixosModules.home-manager
               agenix.nixosModules.default
               simple-nix-mailserver.nixosModules.default
+              gnome-online-accounts-config.nixosModules.default
               ./machines/sempriaq
             ];
           };
