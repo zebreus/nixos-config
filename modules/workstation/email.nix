@@ -14,6 +14,11 @@
 
   home-manager.users = {
     lennart = { pkgs, lib, ... }: {
+      # services.gnome-online-accounts.accounts = {
+      #   lennart_imap_smtp.IsLocked = lib.mkForce null;
+      #   host_imap_smtp.IsLocked = lib.mkForce null;
+      #   gmail_google.IsLocked = lib.mkForce null;
+      # };
       programs.thunderbird = {
         enable = true;
         profiles.lennart = {
@@ -24,6 +29,7 @@
         accounts.host = {
           primary = lib.mkForce false;
           thunderbird.enable = true;
+          gnome-online-accounts.enable = true;
         };
         accounts.lennart = {
           primary = true;
@@ -48,6 +54,7 @@
             enable = true;
           };
           msmtp.enable = true;
+          gnome-online-accounts.enable = true;
         };
         accounts.gmail = {
           primary = false;
@@ -63,7 +70,7 @@
             port = 465;
           };
           realName = "Lennart Eichhorn";
-          # I need a app password, which I can get at the bottom of https://myaccount.google.com/signinoptions/two-step-verification
+          # I need an app password, which I can get at the bottom of https://myaccount.google.com/signinoptions/two-step-verification
           passwordCommand = "cat ${config.age.secrets.gmail_password.path}";
           neomutt = {
             enable = true;
@@ -74,6 +81,10 @@
             enable = true;
           };
           msmtp.enable = true;
+          gnome-online-accounts = {
+            enable = true;
+            provider = "google";
+          };
         };
       };
     };
