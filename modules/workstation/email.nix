@@ -19,18 +19,12 @@
         hmConfig = homeManagerConfig.config;
       in
       {
-        imports = [
-          ./secret-service-passwords.nix
-        ];
-
-
-
-        services.secret-service-passwords = {
+        services.secret-service = {
           enable = true;
           secrets = [
             {
               label = "GOA imap_smtp credentials for identity lennart_imap_smtp";
-              passwordCommand = "(password=\"$(${lib.concatStringsSep " " hmConfig.accounts.email.accounts.lennart.passwordCommand})\" ; echo -n \"{'imap-password': <'$password'>, 'smtp-password': <'$password'>}\")";
+              secretCommand = "(password=\"$(${lib.concatStringsSep " " hmConfig.accounts.email.accounts.lennart.passwordCommand})\" ; echo -n \"{'imap-password': <'$password'>, 'smtp-password': <'$password'>}\")";
               attributes = {
                 "xdg:schema" = "org.gnome.OnlineAccounts";
                 "goa-identity" = "imap_smtp:gen0:lennart_imap_smtp";
@@ -38,7 +32,7 @@
             }
             {
               label = "GOA imap_smtp credentials for identity host_imap_smtp";
-              passwordCommand = "(password=\"$(${lib.concatStringsSep " " hmConfig.accounts.email.accounts.host.passwordCommand})\" ; echo -n \"{'imap-password': <'$password'>, 'smtp-password': <'$password'>}\")";
+              secretCommand = "(password=\"$(${lib.concatStringsSep " " hmConfig.accounts.email.accounts.host.passwordCommand})\" ; echo -n \"{'imap-password': <'$password'>, 'smtp-password': <'$password'>}\")";
               attributes = {
                 "xdg:schema" = "org.gnome.OnlineAccounts";
                 "goa-identity" = "imap_smtp:gen0:host_imap_smtp";

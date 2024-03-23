@@ -97,6 +97,46 @@
         "type": "github"
       }
     },
+    "flake-utils": {
+      "inputs": {
+        "systems": "systems_2"
+      },
+      "locked": {
+        "lastModified": 1710146030,
+        "narHash": "sha256-SZ5L6eA7HJ/nmkzGG7/ISclqe6oZdOZTNoesiInkXPQ=",
+        "owner": "numtide",
+        "repo": "flake-utils",
+        "rev": "b1d9ab70662946ef0850d488da1c9019f3a9752a",
+        "type": "github"
+      },
+      "original": {
+        "owner": "numtide",
+        "repo": "flake-utils",
+        "type": "github"
+      }
+    },
+    "gnome-online-accounts-config": {
+      "inputs": {
+        "flake-utils": "flake-utils",
+        "home-manager": "home-manager_2",
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1710946047,
+        "narHash": "sha256-Au36lYbH2L/KAbtXD7VtRCGh512YVHlv7hJC2sfoPps=",
+        "owner": "zebreus",
+        "repo": "gnome-online-accounts-config",
+        "rev": "07e67b288d2da3e9dbdc42649d811f00a53d3f74",
+        "type": "github"
+      },
+      "original": {
+        "owner": "zebreus",
+        "repo": "gnome-online-accounts-config",
+        "type": "github"
+      }
+    },
     "home-manager": {
       "inputs": {
         "nixpkgs": [
@@ -121,19 +161,41 @@
     "home-manager_2": {
       "inputs": {
         "nixpkgs": [
+          "gnome-online-accounts-config",
           "nixpkgs"
         ]
       },
       "locked": {
-        "lastModified": 1707683400,
-        "narHash": "sha256-Zc+J3UO1Xpx+NL8UB6woPHyttEy9cXXtm+0uWwzuYDc=",
+        "lastModified": 1710820906,
+        "narHash": "sha256-2bNMraoRB4pdw/HtxgYTFeMhEekBZeQ53/a8xkqpbZc=",
         "owner": "nix-community",
         "repo": "home-manager",
-        "rev": "21b078306a2ab68748abf72650db313d646cf2ca",
+        "rev": "022464438a85450abb23d93b91aa82e0addd71fb",
         "type": "github"
       },
       "original": {
         "owner": "nix-community",
+        "repo": "home-manager",
+        "type": "github"
+      }
+    },
+    "home-manager_3": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1711214771,
+        "narHash": "sha256-yN5DQX12jN+cqg3GHRgZESvfeip9yacbyxE5sSKOaV0=",
+        "owner": "zebreus",
+        "repo": "home-manager",
+        "rev": "923aa606e6f69241c09a27aecf4bf3324d864620",
+        "type": "github"
+      },
+      "original": {
+        "owner": "zebreus",
+        "ref": "init-secret-service",
         "repo": "home-manager",
         "type": "github"
       }
@@ -203,7 +265,8 @@
       "inputs": {
         "agenix": "agenix",
         "disko": "disko",
-        "home-manager": "home-manager_2",
+        "gnome-online-accounts-config": "gnome-online-accounts-config",
+        "home-manager": "home-manager_3",
         "nixpkgs": "nixpkgs",
         "simple-nix-mailserver": "simple-nix-mailserver"
       }
@@ -232,6 +295,21 @@
       }
     },
     "systems": {
+      "locked": {
+        "lastModified": 1681028828,
+        "narHash": "sha256-Vy1rq5AaRuLzOxct8nz4T6wlgyUR7zLU309k9mBC768=",
+        "owner": "nix-systems",
+        "repo": "default",
+        "rev": "da67096a3b9bf56a91d16901293e51ba5b49a27e",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nix-systems",
+        "repo": "default",
+        "type": "github"
+      }
+    },
+    "systems_2": {
       "locked": {
         "lastModified": 1681028828,
         "narHash": "sha256-Vy1rq5AaRuLzOxct8nz4T6wlgyUR7zLU309k9mBC768=",
