@@ -11,6 +11,12 @@
     group = config.users.users.lennart.group;
     mode = "0400";
   };
+  age.secrets.gmail_oauth2_token = {
+    file = ../../secrets/gmail_oauth2_token.age;
+    owner = "lennart";
+    group = config.users.users.lennart.group;
+    mode = "0400";
+  };
 
   home-manager.users = {
     lennart = homeManagerConfig:
@@ -36,6 +42,14 @@
               attributes = {
                 "xdg:schema" = "org.gnome.OnlineAccounts";
                 "goa-identity" = "imap_smtp:gen0:host_imap_smtp";
+              };
+            }
+            {
+              label = "GOA google credentials for identity gmail_google";
+              secretCommand = "cat ${config.age.secrets.gmail_oauth2_token.path}";
+              attributes = {
+                "xdg:schema" = "org.gnome.OnlineAccounts";
+                "goa-identity" = "google:gen11:gmail_google";
               };
             }
           ];
