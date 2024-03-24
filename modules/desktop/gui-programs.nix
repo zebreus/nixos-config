@@ -42,5 +42,7 @@ in
       virt-manager
       gnome.gnome-boxes
       anki
+      evolution
+      fractal
     ];
 }
