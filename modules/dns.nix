@@ -51,7 +51,7 @@ in
           # TODO: Verify that autodiscovery works like this
           (machine: ''
             ; Mail records for ${machine.name}
-            _dmarc.${machine.name} IN TXT ${quoteTxtEntry "v=DMARC1; p=reject; rua=mailto:dmarc-reports@zebre.us; ruf=mailto:dmarc-reports@zebre.us; fo=1"}
+            _dmarc.${machine.name} IN TXT ${quoteTxtEntry "v=DMARC1; p=reject; fo=1; adkim=s; aspf=s; ri=86400; rua=mailto:dmarc-reports@zebre.us; ruf=mailto:dmarc-reports@zebre.us"}
             ${machine.name} IN TXT ${quoteTxtEntry "v=spf1 +ip6:${config.antibuilding.ipv6Prefix}::0/64 +a:mail.zebre.us +mx +a ${if machine.relaxedSpf then "?" else "-"}all"}
             mail._domainkey.${machine.name} IN TXT ${quoteTxtEntry "v=DKIM1; k=rsa; s=email; p=${publicKeys."${machine.name}_dkim"}"}
             ${machine.name} IN MX 30 mail.zebre.us.
@@ -95,7 +95,7 @@ in
         mail IN A 192.227.228.220
         @ IN TXT ${quoteTxtEntry "v=spf1 a:mail.zebre.us -all"}
         mail IN TXT ${quoteTxtEntry "v=spf1 a:mail.zebre.us -all"}
-        _dmarc IN TXT ${quoteTxtEntry "v=DMARC1; p=none"}
+        _dmarc IN TXT ${quoteTxtEntry "v=DMARC1; p=reject; fo=1; adkim=s; aspf=s; ri=86400; rua=mailto:dmarc-reports@zebre.us; ruf=mailto:dmarc-reports@zebre.us"}
         mail._domainkey IN TXT ${quoteTxtEntry "v=DKIM1; k=rsa; s=email; p=${publicKeys.zebre_us_dkim}"}
         @ IN MX 30 mail.zebre.us.
         ; Autodiscovery:
@@ -126,7 +126,7 @@ in
         ; Records for mail
         @ IN TXT ${quoteTxtEntry "v=spf1 a:mail.zebre.us -all"}
         mail IN TXT ${quoteTxtEntry "v=spf1 a:mail.zebre.us -all"}
-        _dmarc IN TXT ${quoteTxtEntry "v=DMARC1; p=none"}
+        _dmarc IN TXT ${quoteTxtEntry "v=DMARC1; p=reject; fo=1; adkim=s; aspf=s; ri=86400; rua=mailto:dmarc-reports@zebre.us; ruf=mailto:dmarc-reports@zebre.us"}
         mail._domainkey IN TXT ${quoteTxtEntry "v=DKIM1; k=rsa; s=email; p=${publicKeys.madmanfred_com_dkim}"}
         @ IN MX 30 mail.zebre.us.
         ; Autodiscovery:
