@@ -26,6 +26,12 @@ let
             ExecCondition = checkMeteredConnection;
           };
         } else { });
+  mkBackupTimerMetered = name: cfg:
+    lib.nameValuePair "borgbackup-job-${name}"
+      (if cfg.dontStartOnMeteredConnection then
+        {
+          wants = [ "network-online.target" ];
+        } else { });
 in
 with lib;
 {
@@ -50,5 +56,8 @@ with lib;
   config = {
     systemd.services =
       mapAttrs' mkBackupServiceMetered config.services.borgbackup.jobs;
+
+    systemd.timers =
+      mapAttrs' mkBackupTimerMetered config.services.borgbackup.jobs;
   };
 }
