@@ -14,14 +14,9 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     simple-nix-mailserver = {
-      url = "gitlab:GaetanLepage/nixos-mailserver";
-      # TODO: Make the mailserver follow the main nixpkgs, once it supports current nixpkgs.
-      # inputs.nixpkgs.follows = "nixpkgs";
+      url = "gitlab:simple-nixos-mailserver/nixos-mailserver";
+      inputs.nixpkgs.follows = "nixpkgs";
     };
-    # simple-nix-mailserver = {
-    #   url = "gitlab:simple-nixos-mailserver/nixos-mailserver";
-    #   inputs.nixpkgs.follows = "nixpkgs";
-    # };
     gnome-online-accounts-config = {
       # url = "/home/lennart/Documents/gnome-online-accounts-config";
       url = "github:zebreus/gnome-online-accounts-config";
@@ -31,8 +26,6 @@
 
   outputs = { self, nixpkgs, home-manager, disko, agenix, simple-nix-mailserver, gnome-online-accounts-config, ... }@attrs:
     let
-      # TODO: Remove this once the mailserver supports current nixpkgs.
-      nixpkgsThatAreWorkingWithTheMailserver = simple-nix-mailserver.inputs.nixpkgs;
 
       overlays = [
         (final: prev: {
@@ -160,7 +153,7 @@
             ];
           };
 
-          sempriaq = nixpkgsThatAreWorkingWithTheMailserver.lib.nixosSystem {
+          sempriaq = nixpkgs.lib.nixosSystem {
             system = "x86_64-linux";
             specialArgs = attrs;
             modules = [
