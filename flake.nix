@@ -177,6 +177,17 @@
               ./machines/hetzner-template
             ];
           };
+
+          blanderdash = nixpkgs.lib.nixosSystem {
+            system = "aarch64-linux";
+            # specialArgs = attrs;
+            modules = [
+              agenix.nixosModules.default
+              disko.nixosModules.disko
+              # home-manager.nixosModules.home-manager
+              ./machines/blanderdash
+            ];
+          };
         };
 
       # Helper scripts
