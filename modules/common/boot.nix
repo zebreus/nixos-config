@@ -6,7 +6,7 @@
 
   config = {
     boot = {
-      kernelPackages = pkgs.linuxPackages_6_7;
+      kernelPackages = pkgs.linuxPackages_latest;
 
       loader = lib.mkIf (! config.boot.noEfi) (lib.mkMerge [
         { grub.enable = false; }
