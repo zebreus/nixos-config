@@ -1,11 +1,20 @@
 = Template for a new hetzner vm
 
-1. Find a name for the new vm. Copy this directory and rename it to the new name. Also adjust the hostname in default.nix
-2. Create a new ARM VM
-3. SSH into the vm, run `ip addr` and copy the MAC, ipv4 and ipv6 addresses
-4. Insert the values into the networking.nix file
-5. Run `nix run github:nix-community/nixos-anywhere -- --build-on-remote --flake .#NEW_NAME root@INSERT_IPV4_ADDRESS`
-6. Remove openssh configuration from default.nix and import ../../modules/common
-7. Figure out how to deploy with `nixos-rebuild --fast --build-host root@IP  --target-host root@IP --max-jobs 0 --flake .#NEW_NAME switch`
+1. Find a name for the new vm. Copy this directory and rename it to the new name. Also adjust the hostname in default.nix.
+2. Copy the hetzner-template entry in flake.nix and rename it to the new name.
+3. Create a new ARM VM
+4. SSH into the vm, run `ip addr` and copy the MAC, ipv4 and ipv6 addresses
+5. Insert the values into the networking.nix file
+6. Run `nix run github:nix-community/nixos-anywhere -- --build-on-remote --flake .#NEW_NAME root@INSERT_IPV4_ADDRESS`
+7. Generate keys. `nix run .#gen-host-keys NEW_NAME` `nix run .#gen-wireguard-keys NEW_NAME` `gen-vpn-mail-secrets NEW_NAME sempriaq`
+8. Add the new host to the recipients of shared_wireguard_psk in secrets.nix. The reencrypt the shared_wireguard_psk. `sudo EDITOR=nano agenix -e shared_wireguard_psk.age -i /etc/ssh/ssh_host_ed25519_key` make a change and undo it again. This will reencrypt the file.
+9. Copy the generated private key to the machine for bootstrapping the secrets: `scp ~/.ssh/blanderdash_ed25519 root@49.13.8.171:/etc/ssh/ssh_host_ed25519_key`
+10. Remove the old host identification from ssh known_hosts on your machine.
+11. Copy the hetzner-template machine entry in flake.nix and rename it to the new name. Assign a new address in there. Uncomment the modules in the nixosConfigurations section of the new host.
+12. Remove openssh configuration from default.nix and import ../../modules/common
+13. Remove disko and copy stuff from kashenblade
+14. Test the new config with `nixos-rebuild --fast --target-host root@IP --flake .#NEW_NAME test`
+15. If everything works, apply the new config with `nixos-rebuild --fast --target-host root@IP --flake .#NEW_NAME switch`
+16. Rebuild all hosts
 
 NOTE: Disko only works once when nixos-anywhere is used. If you want to modify the partitioning at a later point, you should replace `disk-config.nix` with a `hardware-configuration.nix` file and remove the disko module. See kashenblade for an example.
