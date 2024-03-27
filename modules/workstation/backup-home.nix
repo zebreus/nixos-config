@@ -46,6 +46,7 @@ in
             passCommand = "cat ${config.age.secrets.lennart_backup_passphrase.path}";
           };
           environment.BORG_RSH = "ssh -i ${config.age.secrets.lennart_backup_append_only_ed25519.path}";
+          environment.BORG_RELOCATED_REPO_ACCESS_IS_OK = "yes";
           extraCreateArgs = "--stats --checkpoint-interval 600";
           repo = borgRepo.url;
           startAt = "*-*-* 0${builtins.toString index}/3:00:00";

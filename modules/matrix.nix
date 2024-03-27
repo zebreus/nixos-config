@@ -292,6 +292,7 @@ in
                   passCommand = "cat ${config.age.secrets.matrix_backup_passphrase.path}";
                 };
                 environment.BORG_RSH = "ssh -i ${config.age.secrets.matrix_backup_append_only_ed25519.path}";
+                environment.BORG_RELOCATED_REPO_ACCESS_IS_OK = "yes";
                 extraCreateArgs = "--stats --checkpoint-interval 600";
                 repo = borgRepo.url;
                 startAt = "*-*-* 00/1:00:00";
