@@ -23,6 +23,10 @@ with import ./public-keys.nix;
   "sempriaq_ed25519_pub.age".publicKeys = [ recovery sempriaq ];
   "sempriaq_rsa.age".publicKeys = [ recovery sempriaq ];
   "sempriaq_rsa_pub.age".publicKeys = [ recovery sempriaq ];
+  "blanderdash_ed25519.age".publicKeys = [ recovery blanderdash ];
+  "blanderdash_ed25519_pub.age".publicKeys = [ recovery blanderdash ];
+  "blanderdash_rsa.age".publicKeys = [ recovery blanderdash ];
+  "blanderdash_rsa_pub.age".publicKeys = [ recovery blanderdash ];
   # MARKER_HOST_KEYS
 
   # Private user keys
@@ -42,9 +46,11 @@ with import ./public-keys.nix;
   "kappril_wireguard_pub.age".publicKeys = [ recovery kappril ];
   "sempriaq_wireguard.age".publicKeys = [ recovery sempriaq ];
   "sempriaq_wireguard_pub.age".publicKeys = [ recovery sempriaq ];
+  "blanderdash_wireguard.age".publicKeys = [ recovery blanderdash ];
+  "blanderdash_wireguard_pub.age".publicKeys = [ recovery blanderdash ];
   # MARKER_WIREGUARD_KEYS
 
-  "shared_wireguard_psk.age".publicKeys = [ recovery erms kashenblade kappril sempriaq ];
+  "shared_wireguard_psk.age".publicKeys = [ recovery erms kashenblade kappril sempriaq blanderdash ];
 
   # Backup secrets
   # For now this is keyed to the machine where the backup is initiated from, but it would make more sense to key it to lennart
@@ -113,6 +119,10 @@ with import ./public-keys.nix;
   "zebre_us_dkim_rsa_pub.age".publicKeys = [ recovery sempriaq ];
   "madmanfred_com_dkim_rsa.age".publicKeys = [ recovery sempriaq ];
   "madmanfred_com_dkim_rsa_pub.age".publicKeys = [ recovery sempriaq ];
+  "blanderdash_dkim_rsa.age".publicKeys = [ recovery sempriaq ];
+  "blanderdash_dkim_rsa_pub.age".publicKeys = [ recovery sempriaq ];
+  "blanderdash_mail_password.age".publicKeys = [ recovery blanderdash ];
+  "blanderdash_mail_passwordhash.age".publicKeys = [ recovery blanderdash sempriaq ];
   # MARKER_VPN_MAIL_SECRETS
 
 }

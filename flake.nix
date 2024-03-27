@@ -108,6 +108,20 @@
             public = true;
             # staticIp4 = "192.227.228.220";
           };
+          # hetzner-template = {
+          #   name = "hetzner-template";
+          #   address = 99;
+          #   wireguardPublicKey = publicKeys.hetzner-template_wireguard;
+          #   publicPorts = [ 25 ];
+          #   sshPublicKey = publicKeys.hetzner-template;
+          # };
+          blanderdash = {
+            name = "blanderdash";
+            address = 8;
+            wireguardPublicKey = publicKeys.blanderdash_wireguard;
+            publicPorts = [ 25 ];
+            sshPublicKey = publicKeys.blanderdash;
+          };
         };
       };
     in
@@ -169,22 +183,25 @@
 
           hetzner-template = nixpkgs.lib.nixosSystem {
             system = "aarch64-linux";
-            # specialArgs = attrs;
             modules = [
               agenix.nixosModules.default
-              disko.nixosModules.disko
+              disko.nixosModules.disko # Remove this after initial setup
+              # overlayNixpkgs
+              # informationAboutOtherMachines
               # home-manager.nixosModules.home-manager
+              # gnome-online-accounts-config.nixosModules.default
               ./machines/hetzner-template
             ];
           };
 
           blanderdash = nixpkgs.lib.nixosSystem {
             system = "aarch64-linux";
-            # specialArgs = attrs;
             modules = [
               agenix.nixosModules.default
-              disko.nixosModules.disko
-              # home-manager.nixosModules.home-manager
+              overlayNixpkgs
+              informationAboutOtherMachines
+              home-manager.nixosModules.home-manager
+              gnome-online-accounts-config.nixosModules.default
               ./machines/blanderdash
             ];
           };
