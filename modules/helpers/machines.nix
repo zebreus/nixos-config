@@ -77,14 +77,6 @@ let
         description = lib.mdDoc "Specify whether this machine is managed by this nixos-config";
         default = self.config.sshPublicKey != null;
       };
-
-      # TODO: Rename and couple to whether the host has a public IP
-      relaxedSpf = mkOption {
-        example = true;
-        type = types.bool;
-        description = lib.mdDoc "Weird option. This sets SPF and DMARC for the hostname, so that it can send emails directly to the internet from changing IPs.";
-        default = false;
-      };
     };
 
   };

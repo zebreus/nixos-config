@@ -55,10 +55,7 @@
             address = 1;
             wireguardPublicKey = publicKeys.erms_wireguard;
             trusted = true;
-            # TODO: Automatically add port 25 to publicPorts if managed = true (thats the default for managed)
-            publicPorts = [ 25 ];
             sshPublicKey = publicKeys.erms;
-            relaxedSpf = true;
           };
           kashenblade = {
             name = "kashenblade";
@@ -66,17 +63,14 @@
             wireguardPublicKey = publicKeys.kashenblade_wireguard;
             staticIp4 = "167.235.154.30";
             staticIp6 = "2a01:4f8:c0c:d91f::1";
-            publicPorts = [ 25 ];
             sshPublicKey = publicKeys.kashenblade;
           };
           kappril = {
             name = "kappril";
             address = 3;
             wireguardPublicKey = publicKeys.kappril_wireguard;
-            public = true;
-            publicPorts = [ 25 ];
+            publicPorts = [ 22 ];
             sshPublicKey = publicKeys.kappril;
-            relaxedSpf = true;
           };
           # Janeks laptop
           janek = {
@@ -102,24 +96,18 @@
             address = 7;
             wireguardPublicKey = publicKeys.sempriaq_wireguard;
             sshPublicKey = publicKeys.sempriaq;
-            # This machine is allow to contact port 25 on every other machine.
-            trustedPorts = [ 25 ];
-            publicPorts = [ 25 ];
             public = true;
-            # staticIp4 = "192.227.228.220";
           };
           # hetzner-template = {
           #   name = "hetzner-template";
           #   address = 99;
           #   wireguardPublicKey = publicKeys.hetzner-template_wireguard;
-          #   publicPorts = [ 25 ];
           #   sshPublicKey = publicKeys.hetzner-template;
           # };
           blanderdash = {
             name = "blanderdash";
             address = 8;
             wireguardPublicKey = publicKeys.blanderdash_wireguard;
-            publicPorts = [ 25 ];
             sshPublicKey = publicKeys.blanderdash;
           };
         };
