@@ -208,7 +208,38 @@
       gen-mail-dkim-keys = pkgs.callPackage ./scripts/gen-mail-dkim-keys.nix { };
       deploy-hosts = pkgs.callPackage ./scripts/deploy-hosts.nix { };
 
+      generate-docs =
+        let
+          optionsDoc = pkgs.nixosOptionsDoc {
+            options = (nixpkgs.lib.evalModules {
+              modules = [
+                informationAboutOtherMachines
+                ./modules
+                {
+                  documentation.nixos.options.warningsAreEsrrors = false;
+                }
+              ];
+              check = false;
+
+            }).options;
+            transformOptions = opt: opt // {
+              # Clean up declaration sites to not refer to the NixOS source tree.
+              declarations = map
+                (decl:
+                  let subpath = nixpkgs.lib.removePrefix "/" (nixpkgs.lib.removePrefix (toString ./.) (toString (decl)));
+                  in { url = subpath; name = subpath; })
+                opt.declarations;
+            };
+          };
+        in
+        pkgs.writeScriptBin "generate-docs" ''
+          #!${pkgs.bash}/bin/bash
+          cp ${optionsDoc.optionsCommonMark} ./options.md
+          chmod 644 ./options.md
+        '';
+
       # Raspi SD card image
       image.kappril = nixosConfigurations.kappril.config.system.build.sdImage;
     };
 }
+

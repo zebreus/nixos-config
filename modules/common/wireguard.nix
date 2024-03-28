@@ -65,14 +65,14 @@ in
         type = types.str;
       };
       customWireguardPrivateKeyFile = mkOption {
-        default = [ ];
+        default = null;
         description = lib.mdDoc "The wireguard private key for this machine. Should only be set if the secrets of that machine are not managed in this repo";
-        type = with types; attrsOf (submodule machineOpts);
+        type = types.nullOr types.str;
       };
       customWireguardPskFile = mkOption {
-        default = [ ];
+        default = null;
         description = lib.mdDoc "Information about the machines in the network. Should only be set if the secrets of that machine are not managed in this repo";
-        type = with types; attrsOf (submodule machineOpts);
+        type = types.nullOr types.str;
       };
     };
   };
