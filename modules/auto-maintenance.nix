@@ -33,6 +33,7 @@ in
     nix.gc = {
       automatic = true;
       dates = "04:00";
+      options = "--delete-older-than +5";
     };
 
     nix.optimise = {
