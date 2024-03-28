@@ -57,10 +57,6 @@ let
     (lib.attrValues config.machines);
 in
 {
-  imports = [
-    ../machines.nix
-  ];
-
   options = with lib; {
     antibuilding = {
       ipv6Prefix = mkOption {
@@ -102,6 +98,8 @@ in
       (builtins.filter (e: e.sshPublicKey != null) allHostNames);
 
     networking = {
+      domain = "antibuild.ing";
+
       # Open firewall port for WireGuard.
       firewall = {
         allowedUDPPorts = [ 51820 ];

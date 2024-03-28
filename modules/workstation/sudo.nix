@@ -1,8 +1,11 @@
+{ lib, config, ... }:
 {
-  security.sudo = {
-    enable = true;
-    wheelNeedsPassword = false;
-  };
+  config = lib.mkIf config.modules.workstation.enable {
+    security.sudo = {
+      enable = true;
+      wheelNeedsPassword = false;
+    };
 
-  users.extraGroups.wheel.members = [ "lennart" ];
+    users.extraGroups.wheel.members = [ "lennart" ];
+  };
 }

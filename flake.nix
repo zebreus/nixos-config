@@ -47,7 +47,7 @@
       # Only contains the information that is relevant for all machines.
       informationAboutOtherMachines = {
         imports = [
-          modules/machines.nix
+          modules/helpers/machines.nix
         ];
         machines = {
           erms = {
@@ -132,10 +132,11 @@
             system = "x86_64-linux";
             specialArgs = attrs;
             modules = [
+              agenix.nixosModules.default
               overlayNixpkgs
               informationAboutOtherMachines
-              agenix.nixosModules.default
               home-manager.nixosModules.home-manager
+              simple-nix-mailserver.nixosModules.default
               gnome-online-accounts-config.nixosModules.default
               ./machines/erms
             ];
@@ -145,10 +146,11 @@
             system = "aarch64-linux";
             specialArgs = attrs;
             modules = [
+              agenix.nixosModules.default
               overlayNixpkgs
               informationAboutOtherMachines
-              agenix.nixosModules.default
               home-manager.nixosModules.home-manager
+              simple-nix-mailserver.nixosModules.default
               gnome-online-accounts-config.nixosModules.default
               ./machines/kashenblade
             ];
@@ -158,10 +160,11 @@
             system = "aarch64-linux";
             specialArgs = attrs;
             modules = [
+              agenix.nixosModules.default
               overlayNixpkgs
               informationAboutOtherMachines
               home-manager.nixosModules.home-manager
-              agenix.nixosModules.default
+              simple-nix-mailserver.nixosModules.default
               gnome-online-accounts-config.nixosModules.default
               ./machines/kappril
             ];
@@ -171,10 +174,10 @@
             system = "x86_64-linux";
             specialArgs = attrs;
             modules = [
+              agenix.nixosModules.default
               overlayNixpkgs
               informationAboutOtherMachines
               home-manager.nixosModules.home-manager
-              agenix.nixosModules.default
               simple-nix-mailserver.nixosModules.default
               gnome-online-accounts-config.nixosModules.default
               ./machines/sempriaq
@@ -184,11 +187,12 @@
           hetzner-template = nixpkgs.lib.nixosSystem {
             system = "aarch64-linux";
             modules = [
-              agenix.nixosModules.default
               disko.nixosModules.disko # Remove this after initial setup
+              agenix.nixosModules.default
               # overlayNixpkgs
               # informationAboutOtherMachines
               # home-manager.nixosModules.home-manager
+              # simple-nix-mailserver.nixosModules.default
               # gnome-online-accounts-config.nixosModules.default
               ./machines/hetzner-template
             ];
@@ -201,6 +205,7 @@
               overlayNixpkgs
               informationAboutOtherMachines
               home-manager.nixosModules.home-manager
+              simple-nix-mailserver.nixosModules.default
               gnome-online-accounts-config.nixosModules.default
               ./machines/blanderdash
             ];

@@ -1,6 +1,8 @@
-# Mixed stuff I probably need on desktop systems
-{
-  networking.networkmanager.enable = true;
+# Enable networkmanager
+{ lib, config, ... }: {
+  config = lib.mkIf config.modules.desktop.enable {
+    networking.networkmanager.enable = true;
 
-  users.extraGroups.networkmanager.members = [ "lennart" ];
+    users.extraGroups.networkmanager.members = [ "lennart" ];
+  };
 }

@@ -1,5 +1,5 @@
 # Udev rules for various devices that I use or have used
-{ pkgs, ... }:
+{ lib, config, pkgs, ... }:
 let
   tangUdev = pkgs.writeTextFile {
     name = "tang-udev";
@@ -164,15 +164,17 @@ let
   };
 in
 {
-  services.udev.packages = [
-    wallyUdev
-    tbsUdev
-    icestickUdev
-    logicAnalyzerUdev
-    tangUdev
-    mxMasterConfigurationUdev
-    ddcUdev
-    pkgs.headsetcontrol
-    pkgs.gnome.gnome-settings-daemon
-  ];
+  config = lib.mkIf config.modules.desktop.enable {
+    services.udev.packages = [
+      wallyUdev
+      tbsUdev
+      icestickUdev
+      logicAnalyzerUdev
+      tangUdev
+      mxMasterConfigurationUdev
+      ddcUdev
+      pkgs.headsetcontrol
+      pkgs.gnome.gnome-settings-daemon
+    ];
+  };
 }

@@ -1,7 +1,7 @@
 { lib, config, pkgs, ... }:
 with lib;
 let
-  cfg = config.modules.mailserver;
+  cfg = config.modules.mail;
   inherit (cfg) baseDomain;
   mailFqdn = "mail.${baseDomain}";
   certEmail = cfg.certEmail;
@@ -9,8 +9,8 @@ let
   name = builtins.replaceStrings [ "." "-" ] [ "_" "_" ] baseDomain;
 in
 {
-  options.modules.mailserver = {
-    enable = mkEnableOption "Enable mail server";
+  options.modules.mail = {
+    enable = mkEnableOption "Enable the mail server";
 
     baseDomain = mkOption {
       type = types.str;
@@ -198,7 +198,7 @@ in
             (lib.attrValues (lib.filterAttrs (name: machine: machine.managed) config.machines)));
       in
       {
-        config = mkIf config.modules.mailserver.enable {
+        config = mkIf cfg.enable {
           age.secrets = (builtins.foldl' (acc: machine: (acc // machine.secrets)) ({ }) machines);
           mailserver = {
             domains = (builtins.map (machine: machine.domain) machines);

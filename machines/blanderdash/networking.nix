@@ -1,7 +1,7 @@
 { ... }:
 {
   imports = [
-    ../../modules/hetzner.nix
+    ../../modules/helpers/hetzner.nix
   ];
   networking.useDHCP = false;
   networking.useNetworkd = true;

@@ -1,5 +1,7 @@
 # Enable flatpak
-{
-  # Enable flatpak
-  services.flatpak.enable = true;
+{ lib, config, ... }: {
+  config = lib.mkIf config.modules.desktop.enable {
+    # Enable flatpak
+    services.flatpak.enable = true;
+  };
 }

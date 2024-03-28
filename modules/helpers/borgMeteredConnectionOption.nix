@@ -1,3 +1,4 @@
+# Adds an option to borg backup jobs, so they do not start on metered connections
 { config, pkgs, lib, ... }:
 let
   checkMeteredConnection = pkgs.writeScript "check-metered-connection.sh" ''

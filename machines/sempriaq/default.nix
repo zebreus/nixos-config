@@ -14,7 +14,7 @@
     domain = "antibuild.ing";
   };
 
-  modules.mailserver =
+  modules.mail =
     {
       enable = true;
       baseDomain = "zebre.us";

@@ -18,3 +18,4 @@ Each machine uses its ed25519 SSH host key to decrypt its secrets. That SSH host
 
 - Manage SSH config
 - Manage account passwords
+- Write documentation

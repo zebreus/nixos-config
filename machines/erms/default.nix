@@ -1,10 +1,6 @@
 {
   imports = [
-    ../../modules/common
-    ../../modules/desktop
-    ../../modules/workstation
-    ../../modules/docker.nix
-    ../../modules/libvirt.nix
+    ../../modules
     ./hardware-configuration.nix
     ./nvidia.nix
     ./webcam.nix
@@ -13,8 +9,11 @@
   system.stateVersion = "22.05";
   networking = {
     hostName = "erms";
-    domain = "antibuild.ing";
   };
+
+  modules.auto-maintenance.enable = false;
+  modules.desktop.enable = true;
+  modules.workstation.enable = true;
 
   boot.binfmt.emulatedSystems = [ "aarch64-linux" ];
 }

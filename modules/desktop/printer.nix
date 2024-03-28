@@ -1,25 +1,24 @@
 # Setup support for printers and scanners
-{ pkgs, ... }:
-{
+{ lib, config, pkgs, ... }: {
+  config = lib.mkIf config.modules.desktop.enable {
+    # Enable printing on HP printers
+    services.printing = {
+      enable = true;
+      #  drivers = [ pkgs.hplip ];
+    };
 
+    # Enable scanning
+    hardware.sane.enable = true;
 
-  # Enable printing on HP printers
-  services.printing = {
-    enable = true;
-    #  drivers = [ pkgs.hplip ];
+    environment.systemPackages = with pkgs;
+      [
+
+        sane-backends
+        xsane
+
+      ];
+
+    users.extraGroups.lp.members = [ "lennart" ];
+    users.extraGroups.scanner.members = [ "lennart" ];
   };
-
-  # Enable scanning
-  hardware.sane.enable = true;
-
-  environment.systemPackages = with pkgs;
-    [
-
-      sane-backends
-      xsane
-
-    ];
-
-  users.extraGroups.lp.members = [ "lennart" ];
-  users.extraGroups.scanner.members = [ "lennart" ];
 }

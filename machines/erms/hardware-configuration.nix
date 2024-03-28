@@ -1,4 +1,4 @@
-{ config, lib, modulesPath, ... }:
+{ config, lib, modulesPath, pkgs, ... }:
 
 {
   imports =
@@ -12,8 +12,21 @@
       kernelModules = [ ];
     };
     kernelModules = [ "kvm-intel" "i2c-dev" "ddcci_backlight" ];
-    extraModulePackages = [ config.boot.kernelPackages.ddcci-driver ];
+    # TODO: Replace this with config.boot.kernelPackages.ddcci-driver once https://github.com/NixOS/nixpkgs/issues/297312 is fixed
+    extraModulePackages = [
+      (
+        config.boot.kernelPackages.ddcci-driver.overrideAttrs (old: {
+          patches = [
+            (pkgs.fetchpatch {
+              url = "https://gitlab.com/Sweenu/ddcci-driver-linux/-/commit/7f851f5fb8fbcd7b3a93aaedff90b27124e17a7e.patch";
+              hash = "sha256-Y1ktYaJTd9DtT/mwDqtjt/YasW9cVm0wI43wsQhl7Bg=";
+            })
+          ];
+        })
+      )
+    ];
   };
+
 
   fileSystems = {
     "/" = {
