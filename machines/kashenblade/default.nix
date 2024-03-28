@@ -3,22 +3,16 @@
   imports = [
     ./networking.nix
     ./hardware-configuration.nix
-    ../../modules/common
-    ../../modules/matrix.nix
-    ../../modules/dns.nix
-    ../../modules/auto-maintenance.nix
+    ../../modules
   ];
 
   system.stateVersion = "23.11";
-  networking = {
-    hostName = "kashenblade";
-    domain = "antibuild.ing";
-  };
+  networking.hostName = "kashenblade";
 
-  modules.matrix =
-    {
-      enable = true;
-      baseDomain = "zebre.us";
-      certEmail = "lennarteichhorn@googlemail.com";
-    };
+  modules.authoritative_dns.enable = true;
+  modules.matrix = {
+    enable = true;
+    baseDomain = "zebre.us";
+    certEmail = "lennarteichhorn@googlemail.com";
+  };
 }

@@ -3,13 +3,9 @@
   imports = [
     ./networking.nix
     ./hardware-configuration.nix
-    ../../modules/common
-    ../../modules/auto-maintenance.nix
+    ../../modules
   ];
 
   system.stateVersion = "23.11";
-  networking = {
-    hostName = "blanderdash";
-    domain = "antibuild.ing";
-  };
+  networking.hostName = "blanderdash";
 }

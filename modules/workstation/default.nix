@@ -3,12 +3,13 @@
   imports = [
     ./backup-home.nix
     ./docker.nix
+    ./email.nix
+    ./emulated-systems.nix
     ./lennart.nix
-    ./sudo.nix
-    ./user-keys.nix
     ./libvirt.nix
     ./ssh-config.nix
-    ./email.nix
+    ./sudo.nix
+    ./user-keys.nix
   ];
 
   options.modules.workstation.enable = lib.mkOption {
