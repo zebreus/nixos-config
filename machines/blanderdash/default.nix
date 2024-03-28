@@ -8,4 +8,6 @@
 
   system.stateVersion = "23.11";
   networking.hostName = "blanderdash";
+
+  modules.authoritative_dns.enable = true;
 }

@@ -40,7 +40,7 @@ in
           $TTL 60
           $ORIGIN antibuild.ing.
           @ IN SOA ns1.antibuild.ing. lennart.zebre.us. (
-                  1710252095  ; serial secs since Jan 1 1970
+                  1710252096  ; serial secs since Jan 1 1970
                   14400        ; refresh (>=60)
                   3600        ; retry (>=60)
                   604800      ; expire
@@ -48,9 +48,12 @@ in
                   )
           @ IN NS ns1.antibuild.ing.
           @ IN NS ns2.antibuild.ing.
+          @ IN NS ns3.antibuild.ing.
           ns1 IN A 167.235.154.30
-          ns2 IN A 192.227.228.220
-          ; ns1 IN AAAA 2a01:4f8:c0c:d91f::1
+          ns2 IN A 49.13.8.171
+          ns3 IN A 192.227.228.220
+          ns1 IN AAAA 2a01:4f8:c0c:d91f::1
+          ns2 IN AAAA 2a01:4f8:c013:29b1::1
         
         '' + (builtins.concatStringsSep "\n" (
           builtins.map
@@ -78,7 +81,7 @@ in
           $TTL 60
           $ORIGIN zebre.us.
           @ IN SOA ns1.antibuild.ing. lennart.zebre.us. (
-                  1710252095  ; serial secs since Jan 1 1970
+                  1710252096  ; serial secs since Jan 1 1970
                   14400        ; refresh (>=60)
                   3600        ; retry (>=60)
                   604800      ; expire
@@ -86,6 +89,7 @@ in
                   )
           @ IN NS ns1.antibuild.ing.
           @ IN NS ns2.antibuild.ing.
+          @ IN NS ns3.antibuild.ing.
 
           ; Records for matrix/synapse
           @ IN A 167.235.154.30
@@ -120,7 +124,7 @@ in
           $TTL 60
           $ORIGIN madmanfred.com.
           @ IN SOA ns1.antibuild.ing. lennart.zebre.us. (
-                  1710252095  ; serial secs since Jan 1 1970
+                  1710252096  ; serial secs since Jan 1 1970
                   14400        ; refresh (>=60)
                   3600        ; retry (>=60)
                   604800      ; expire
@@ -128,6 +132,7 @@ in
                   )
           @ IN NS ns1.antibuild.ing.
           @ IN NS ns2.antibuild.ing.
+          @ IN NS ns3.antibuild.ing.
 
           ; Records for mail
           @ IN TXT ${quoteTxtEntry "v=spf1 a:mail.zebre.us -all"}
