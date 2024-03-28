@@ -40,7 +40,7 @@ in
           $TTL 60
           $ORIGIN antibuild.ing.
           @ IN SOA ns1.antibuild.ing. lennart.zebre.us. (
-                  1710252094  ; serial secs since Jan 1 1970
+                  1710252095  ; serial secs since Jan 1 1970
                   14400        ; refresh (>=60)
                   3600        ; retry (>=60)
                   604800      ; expire
@@ -58,7 +58,7 @@ in
             (machine: ''
               ; Mail records for ${machine.name}
               _dmarc.${machine.name} IN TXT ${quoteTxtEntry "v=DMARC1; p=reject; fo=1; adkim=s; aspf=s; ri=86400; rua=mailto:dmarc-reports@zebre.us; ruf=mailto:dmarc-reports@zebre.us"}
-              ${machine.name} IN TXT ${quoteTxtEntry "v=spf1 +ip6:${config.antibuilding.ipv6Prefix}::0/64 +a:mail.zebre.us +mx +a ${if machine.relaxedSpf then "?" else "-"}all"}
+              ${machine.name} IN TXT ${quoteTxtEntry "v=spf1 a:mail.zebre.us -all"}
               mail._domainkey.${machine.name} IN TXT ${quoteTxtEntry "v=DKIM1; k=rsa; s=email; p=${publicKeys."${machine.name}_dkim"}"}
               ${machine.name} IN MX 30 mail.zebre.us.
               ; Autodiscovery
@@ -78,7 +78,7 @@ in
           $TTL 60
           $ORIGIN zebre.us.
           @ IN SOA ns1.antibuild.ing. lennart.zebre.us. (
-                  1710252094  ; serial secs since Jan 1 1970
+                  1710252095  ; serial secs since Jan 1 1970
                   14400        ; refresh (>=60)
                   3600        ; retry (>=60)
                   604800      ; expire
@@ -120,7 +120,7 @@ in
           $TTL 60
           $ORIGIN madmanfred.com.
           @ IN SOA ns1.antibuild.ing. lennart.zebre.us. (
-                  1710252094  ; serial secs since Jan 1 1970
+                  1710252095  ; serial secs since Jan 1 1970
                   14400        ; refresh (>=60)
                   3600        ; retry (>=60)
                   604800      ; expire
