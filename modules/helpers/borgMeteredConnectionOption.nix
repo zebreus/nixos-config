@@ -39,7 +39,6 @@ with lib;
   options.services.borgbackup.jobs = with lib;
     mkOption
       {
-        description = "";
         type = types.attrsOf
           (types.submodule (
             { name, config, ... }: {
