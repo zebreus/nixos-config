@@ -207,6 +207,7 @@
       gen-vpn-mail-secrets = pkgs.callPackage ./scripts/gen-vpn-mail-secrets.nix { };
       gen-mail-dkim-keys = pkgs.callPackage ./scripts/gen-mail-dkim-keys.nix { };
       deploy-hosts = pkgs.callPackage ./scripts/deploy-hosts.nix { };
+      fast-deploy = pkgs.callPackage ./scripts/fast-deploy.nix { };
 
       generate-docs =
         let
