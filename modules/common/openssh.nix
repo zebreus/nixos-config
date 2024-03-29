@@ -21,11 +21,11 @@ in
     settings = {
       PasswordAuthentication = false;
       PermitRootLogin = lib.mkForce "prohibit-password";
+      PubkeyAcceptedKeyTypes = "ssh-ed25519-cert-v01@openssh.com,ssh-ed25519";
     };
   };
 
   programs.ssh.hostKeyAlgorithms = [
     "ssh-ed25519"
-    "ssh-rsa"
   ];
 }
