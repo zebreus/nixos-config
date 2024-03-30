@@ -1,22 +1,24 @@
 { lib, config, pkgs, ... }: {
   config = lib.mkIf config.modules.workstation.enable {
-    age.secrets.lennart_mail_password = {
-      file = ../../secrets/lennart_mail_password.age;
-      owner = "lennart";
-      group = config.users.users.lennart.group;
-      mode = "0400";
-    };
-    age.secrets.gmail_password = {
-      file = ../../secrets/gmail_password.age;
-      owner = "lennart";
-      group = config.users.users.lennart.group;
-      mode = "0400";
-    };
-    age.secrets.gmail_oauth2_token = {
-      file = ../../secrets/gmail_oauth2_token.age;
-      owner = "lennart";
-      group = config.users.users.lennart.group;
-      mode = "0400";
+    age.secrets = {
+      lennart_mail_password = {
+        file = ../../secrets/lennart_mail_password.age;
+        owner = "lennart";
+        inherit (config.users.users.lennart) group;
+        mode = "0400";
+      };
+      gmail_password = {
+        file = ../../secrets/gmail_password.age;
+        owner = "lennart";
+        inherit (config.users.users.lennart) group;
+        mode = "0400";
+      };
+      gmail_oauth2_token = {
+        file = ../../secrets/gmail_oauth2_token.age;
+        owner = "lennart";
+        inherit (config.users.users.lennart) group;
+        mode = "0400";
+      };
     };
 
     services.pcscd.enable = true;
@@ -29,7 +31,7 @@
     home-manager.users = {
       lennart = homeManagerConfig:
         let
-          lib = homeManagerConfig.lib;
+          inherit (homeManagerConfig) lib;
           hmConfig = homeManagerConfig.config;
         in
         {
@@ -79,13 +81,13 @@
               isDefault = true;
             };
           };
-          accounts.email = {
-            accounts.host = {
+          accounts.email.accounts = {
+            host = {
               primary = lib.mkForce false;
               thunderbird.enable = true;
               gnome-online-accounts.enable = true;
             };
-            accounts.lennart = {
+            lennart = {
               primary = true;
               address = "lennart@zebre.us";
               imap = {
@@ -110,7 +112,7 @@
               msmtp.enable = true;
               gnome-online-accounts.enable = true;
             };
-            accounts.gmail = {
+            gmail = {
               primary = false;
               # flavor = "gmail.com";
               address = "lennarteichhorn@gmail.com";

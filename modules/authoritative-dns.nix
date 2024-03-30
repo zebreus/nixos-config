@@ -17,7 +17,7 @@ let
     in
     builtins.concatStringsSep " " (builtins.map (s: "\"" + s + "\"") chunks);
 
-  machinesThatCanReceiveMail = (lib.attrValues (lib.filterAttrs (name: machine: machine.managed) config.machines));
+  machinesThatCanReceiveMail = lib.attrValues (lib.filterAttrs (name: machine: machine.managed) config.machines);
 
   zones = {
     "antibuild.ing" = ''

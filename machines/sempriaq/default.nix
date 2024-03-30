@@ -1,6 +1,5 @@
 {
   imports = [
-    ./networking.nix
     ./hardware-configuration.nix
     ../../modules
   ];
@@ -8,11 +7,13 @@
   system.stateVersion = "23.11";
   networking.hostName = "sempriaq";
 
-  modules.authoritative_dns.enable = true;
-  modules.mail = {
-    enable = true;
-    baseDomain = "zebre.us";
-    certEmail = "lennarteichhorn@googlemail.com";
+  modules = {
+    authoritative_dns.enable = true;
+    mail = {
+      enable = true;
+      baseDomain = "zebre.us";
+      certEmail = "lennarteichhorn@googlemail.com";
+    };
+    boot.type = "legacy";
   };
-  modules.boot.type = "legacy";
 }

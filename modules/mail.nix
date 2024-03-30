@@ -4,7 +4,7 @@ let
   cfg = config.modules.mail;
   inherit (cfg) baseDomain;
   mailFqdn = "mail.${baseDomain}";
-  certEmail = cfg.certEmail;
+  inherit (cfg) certEmail;
   domain = baseDomain;
   name = builtins.replaceStrings [ "." "-" ] [ "_" "_" ] baseDomain;
 in
@@ -29,27 +29,29 @@ in
   };
 
   config = mkIf cfg.enable {
-    age.secrets.lennart_mail_passwordhash = {
-      file = ../secrets/lennart_mail_passwordhash.age;
-      mode = "0444";
-    };
-    age.secrets."mail_${name}_backup_passphrase" = {
-      file = ../secrets + "/mail_${name}_backup_passphrase.age";
-    };
-    age.secrets."mail_${name}_backup_append_only_ed25519" = {
-      file = ../secrets + "/mail_${name}_backup_append_only_ed25519.age";
-    };
-    age.secrets."${name}_dkim_rsa" = {
-      file = ../secrets + "/${name}_dkim_rsa.age";
-      owner = config.services.opendkim.user;
-      group = config.services.opendkim.group;
-      path = "${config.mailserver.dkimKeyDirectory}/${domain}.mail.key";
-    };
-    age.secrets."madmanfred_com_dkim_rsa" = {
-      file = ../secrets + "/madmanfred_com_dkim_rsa.age";
-      owner = config.services.opendkim.user;
-      group = config.services.opendkim.group;
-      path = "${config.mailserver.dkimKeyDirectory}/madmanfred.com.mail.key";
+    age.secrets = {
+      lennart_mail_passwordhash = {
+        file = ../secrets/lennart_mail_passwordhash.age;
+        mode = "0444";
+      };
+      "mail_${name}_backup_passphrase" = {
+        file = ../secrets + "/mail_${name}_backup_passphrase.age";
+      };
+      "mail_${name}_backup_append_only_ed25519" = {
+        file = ../secrets + "/mail_${name}_backup_append_only_ed25519.age";
+      };
+      "${name}_dkim_rsa" = {
+        file = ../secrets + "/${name}_dkim_rsa.age";
+        owner = config.services.opendkim.user;
+        inherit (config.services.opendkim) group;
+        path = "${config.mailserver.dkimKeyDirectory}/${domain}.mail.key";
+      };
+      "madmanfred_com_dkim_rsa" = {
+        file = ../secrets + "/madmanfred_com_dkim_rsa.age";
+        owner = config.services.opendkim.user;
+        inherit (config.services.opendkim) group;
+        path = "${config.mailserver.dkimKeyDirectory}/madmanfred.com.mail.key";
+      };
     };
 
     services.postfix = {
@@ -168,10 +170,10 @@ in
     ({ lib, config, pkgs, ... }:
       let
         machines =
-          (builtins.map
+          builtins.map
             (machine:
               let
-                name = machine.name;
+                inherit (machine) name;
               in
               rec {
                 secrets = {
@@ -181,7 +183,7 @@ in
                   "${name}_dkim_rsa" = {
                     file = ../secrets + "/${name}_dkim_rsa.age";
                     owner = config.services.opendkim.user;
-                    group = config.services.opendkim.group;
+                    inherit (config.services.opendkim) group;
                     path = "${config.mailserver.dkimKeyDirectory}/${domain}.mail.key";
                   };
                 };
@@ -195,14 +197,14 @@ in
                 };
               })
             # All managed servers
-            (lib.attrValues (lib.filterAttrs (name: machine: machine.managed) config.machines)));
+            (lib.attrValues (lib.filterAttrs (name: machine: machine.managed) config.machines));
       in
       {
         config = mkIf cfg.enable {
-          age.secrets = (builtins.foldl' (acc: machine: (acc // machine.secrets)) ({ }) machines);
+          age.secrets = builtins.foldl' (acc: machine: (acc // machine.secrets)) { } machines;
           mailserver = {
-            domains = (builtins.map (machine: machine.domain) machines);
-            loginAccounts = (builtins.foldl' (acc: machine: (acc // machine.loginAccount)) ({ }) machines);
+            domains = builtins.map (machine: machine.domain) machines;
+            loginAccounts = builtins.foldl' (acc: machine: (acc // machine.loginAccount)) { } machines;
           };
         };
       })

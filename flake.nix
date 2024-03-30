@@ -39,9 +39,9 @@
       publicKeys = import secrets/public-keys.nix;
 
       # Add some extra packages to nixpkgs
-      overlayNixpkgs = ({ config, pkgs, ... }: {
+      overlayNixpkgs = { config, pkgs, ... }: {
         nixpkgs.overlays = overlays;
-      });
+      };
 
       # Sets config options with information about other machines.
       # Only contains the information that is relevant for all machines.
@@ -212,7 +212,7 @@
       generate-docs =
         let
           optionsDoc = pkgs.nixosOptionsDoc {
-            options = (nixpkgs.lib.evalModules {
+            inherit ((nixpkgs.lib.evalModules {
               modules = [
                 informationAboutOtherMachines
                 ./modules
@@ -222,12 +222,12 @@
               ];
               check = false;
 
-            }).options;
+            })) options;
             transformOptions = opt: opt // {
               # Clean up declaration sites to not refer to the NixOS source tree.
               declarations = map
                 (decl:
-                  let subpath = nixpkgs.lib.removePrefix "/" (nixpkgs.lib.removePrefix (toString ./.) (toString (decl)));
+                  let subpath = nixpkgs.lib.removePrefix "/" (nixpkgs.lib.removePrefix (toString ./.) (toString decl));
                   in { url = subpath; name = subpath; })
                 opt.declarations;
             };

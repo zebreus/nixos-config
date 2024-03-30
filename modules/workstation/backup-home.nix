@@ -34,7 +34,7 @@ in
     age.secrets.lennart_backup_passphrase = {
       file = ../../secrets + "/lennart_backup_passphrase.age";
       owner = "lennart";
-      group = config.users.users.lennart.group;
+      inherit (config.users.users.lennart) group;
       mode = "0400";
     };
 
@@ -55,7 +55,7 @@ in
             persistentTimer = true;
             user = "lennart";
             paths = "/home/lennart";
-            exclude = map (x: paths + "/" + x) (common-excludes);
+            exclude = map (x: paths + "/" + x) common-excludes;
             dontStartOnMeteredConnection = true;
           };
         })

@@ -37,10 +37,6 @@
   home-manager.sharedModules = [
     # Enable neomutt and set some aliases
     ({ pkgs, ... }: {
-      home.shellAliases = {
-        mutt = "neomutt";
-        mail = "neomutt";
-      };
       programs.neomutt = {
         enable = true;
         extraConfig = ''
@@ -50,9 +46,15 @@
           set imap_qresync = yes
         '';
       };
-      home.file.".cache/neomutt/headers/.keep".text = "";
-      home.file.".cache/neomutt/messages/.keep".text = "";
-      home.file.".cache/neomutt/tmp/.keep".text = "";
+      home = {
+        shellAliases = {
+          mutt = "neomutt";
+          mail = "neomutt";
+        };
+        file.".cache/neomutt/headers/.keep".text = "";
+        file.".cache/neomutt/messages/.keep".text = "";
+        file.".cache/neomutt/tmp/.keep".text = "";
+      };
       programs.msmtp = {
         enable = true;
       };

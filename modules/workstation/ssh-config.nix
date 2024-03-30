@@ -7,7 +7,7 @@ in
     age.secrets.extra_config = {
       file = ../../secrets/extra_config.age;
       owner = "lennart";
-      group = config.users.users.lennart.group;
+      inherit (config.users.users.lennart) group;
     };
 
     home-manager.users = {
@@ -22,7 +22,7 @@ in
               antibuildingHosts = builtins.listToAttrs
                 (builtins.map
                   (machine: {
-                    name = machine.name;
+                    inherit (machine) name;
                     value = {
                       port = 22;
                       user = "root";

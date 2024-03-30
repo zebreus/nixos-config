@@ -55,19 +55,21 @@ in
 
   config = mkIf cfg.enable {
     # Define the files with the secrets
-    age.secrets.coturn_static_auth_secret = {
-      file = ../secrets/coturn_static_auth_secret.age;
-      owner = "turnserver";
-    };
-    age.secrets.coturn_static_auth_secret_matrix_config = {
-      file = ../secrets/coturn_static_auth_secret_matrix_config.age;
-      owner = "matrix-synapse";
-    };
-    age.secrets.matrix_backup_passphrase = {
-      file = ../secrets/matrix_backup_passphrase.age;
-    };
-    age.secrets.matrix_backup_append_only_ed25519 = {
-      file = ../secrets/matrix_backup_append_only_ed25519.age;
+    age.secrets = {
+      coturn_static_auth_secret = {
+        file = ../secrets/coturn_static_auth_secret.age;
+        owner = "turnserver";
+      };
+      coturn_static_auth_secret_matrix_config = {
+        file = ../secrets/coturn_static_auth_secret_matrix_config.age;
+        owner = "matrix-synapse";
+      };
+      matrix_backup_passphrase = {
+        file = ../secrets/matrix_backup_passphrase.age;
+      };
+      matrix_backup_append_only_ed25519 = {
+        file = ../secrets/matrix_backup_append_only_ed25519.age;
+      };
     };
 
     # Get certs

@@ -7,7 +7,7 @@ let
   # If this is a client: Only other machines that are servers
   otherMachines = lib.attrValues (lib.filterAttrs (name: machine: name != config.networking.hostName && ((isServer thisMachine) || (isServer machine))) config.machines);
 
-  ipv6Prefix = config.antibuilding.ipv6Prefix;
+  inherit (config.antibuilding) ipv6Prefix;
 
   # All the names that hosts can be reached with
   allHostNames = builtins.concatMap
@@ -19,7 +19,7 @@ let
       }
       {
         address = "${ipv6Prefix}::${builtins.toString machine.address}";
-        name = machine.name;
+        inherit (machine) name;
         inherit (machine) sshPublicKey;
       }
       {
@@ -137,7 +137,7 @@ in
           peers = builtins.map
             (machine: (
               {
-                name = machine.name;
+                inherit (machine) name;
                 publicKey = machine.wireguardPublicKey;
                 presharedKeyFile = config.age.secrets.shared_wireguard_psk.path;
                 # Send keepalives every 25 seconds.

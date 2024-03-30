@@ -9,8 +9,10 @@
   system.stateVersion = "22.05";
   networking.hostName = "erms";
 
-  modules.auto-maintenance.enable = false;
-  modules.desktop.enable = true;
-  modules.workstation.enable = true;
+  modules = {
+    auto-maintenance.enable = false;
+    desktop.enable = true;
+    workstation.enable = true;
+  };
 }
 
