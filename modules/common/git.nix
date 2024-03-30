@@ -7,9 +7,12 @@
   programs.git = {
     enable = true;
     lfs.enable = true;
-    config.user = {
-      name = "Zebreus";
-      email = "lennarteichhorn@googlemail.com";
+    config = {
+      user = {
+        name = "Zebreus";
+        email = "lennarteichhorn@googlemail.com";
+      };
+      init.defaultBranch = "main";
     };
   };
 }
