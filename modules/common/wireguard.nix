@@ -2,7 +2,7 @@
 let
   thisMachine = config.machines."${config.networking.hostName}";
   # isServer = thisMachine.staticIp != null;
-  isServer = machine: ((machine.staticIp4 != null) || (machine.staticIp6 != null));
+  isServer = machine: ((machine.vpnHub.staticIp4 != null) || (machine.vpnHub.staticIp6 != null));
   # If this is a server: All other machines including servers and clients
   # If this is a client: Only other machines that are servers
   otherMachines = lib.attrValues (lib.filterAttrs (name: machine: name != config.networking.hostName && ((isServer thisMachine) || (isServer machine))) config.machines);
@@ -29,27 +29,27 @@ let
       }
     ]
     # Set hostnames for the endpoints of the machines with static IPs.
-    ++ (if machine.staticIp4 != null then [
+    ++ (if machine.vpnHub.staticIp4 != null then [
       {
-        address = machine.staticIp4;
+        address = machine.vpnHub.staticIp4;
         name = "${machine.name}.outside.antibuild.ing";
         inherit (machine) sshPublicKey;
       }
       {
-        address = machine.staticIp4;
-        name = machine.staticIp4;
+        address = machine.vpnHub.staticIp4;
+        name = machine.vpnHub.staticIp4;
         inherit (machine) sshPublicKey;
       }
     ] else [ ])
-    ++ (if machine.staticIp6 != null then [
+    ++ (if machine.vpnHub.staticIp6 != null then [
       {
-        address = machine.staticIp6;
+        address = machine.vpnHub.staticIp6;
         name = "${machine.name}.outside.antibuild.ing";
         inherit (machine) sshPublicKey;
       }
       {
-        address = machine.staticIp6;
-        name = machine.staticIp6;
+        address = machine.vpnHub.staticIp6;
+        name = machine.vpnHub.staticIp6;
         inherit (machine) sshPublicKey;
       }
     ] else [ ])
