@@ -65,6 +65,9 @@
             staticIp6 = "2a01:4f8:c0c:d91f::1";
             vpnHub.enable = true;
             sshPublicKey = publicKeys.kashenblade;
+            authoritativeDns.enable = true;
+            authoritativeDns.name = "ns1";
+            publicPorts = [ 53 ];
           };
           kappril = {
             name = "kappril";
@@ -98,6 +101,10 @@
             wireguardPublicKey = publicKeys.sempriaq_wireguard;
             sshPublicKey = publicKeys.sempriaq;
             public = true;
+            authoritativeDns.enable = true;
+            authoritativeDns.name = "ns3";
+            publicPorts = [ 53 ];
+            staticIp4 = "192.227.228.220";
           };
           # hetzner-template = {
           #   name = "hetzner-template";
@@ -110,6 +117,12 @@
             address = 8;
             wireguardPublicKey = publicKeys.blanderdash_wireguard;
             sshPublicKey = publicKeys.blanderdash;
+            authoritativeDns.enable = true;
+            authoritativeDns.primary = true;
+            authoritativeDns.name = "ns2";
+            publicPorts = [ 53 ];
+            staticIp4 = "49.13.8.171";
+            staticIp6 = "2a01:4f8:c013:29b1::1";
           };
         };
       };

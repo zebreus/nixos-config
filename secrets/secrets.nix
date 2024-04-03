@@ -125,4 +125,8 @@ with import ./public-keys.nix;
   "blanderdash_mail_passwordhash.age".publicKeys = [ recovery blanderdash sempriaq ];
   # MARKER_VPN_MAIL_SECRETS
 
+  # Authoritative DNS server transport key
+  # Used for transfering the changed signature records form the primary to the secondary DNS servers
+  "knot_transport_key.age".publicKeys = [ recovery kashenblade blanderdash sempriaq ];
+
 }

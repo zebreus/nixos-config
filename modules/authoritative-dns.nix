@@ -19,19 +19,28 @@ let
 
   machinesThatCanReceiveMail = lib.attrValues (lib.filterAttrs (name: machine: machine.managed) config.machines);
 
+  machinesThatAreAuthoritativeDnsServers = builtins.map
+    (machine: machine // {
+      ips = ([ "${config.antibuilding.ipv6Prefix}::${builtins.toString machine.address}" ] ++
+        (if machine.staticIp4 != null then [ "${machine.staticIp4}" ] else [ ]) ++
+        (if machine.staticIp6 != null then [ "${machine.staticIp6}" ] else [ ]));
+    })
+    (lib.attrValues
+      (lib.filterAttrs (name: machine: machine.authoritativeDns.enable) config.machines));
+  primaryServers = lib.filter (machine: machine.authoritativeDns.primary) machinesThatAreAuthoritativeDnsServers;
+  secondaryServers = lib.filter (machine: machine.authoritativeDns.primary == false) machinesThatAreAuthoritativeDnsServers;
+  thisServer = lib.head (lib.attrValues (lib.filterAttrs (name: machine: name == config.networking.hostName) config.machines));
+
   zones = {
     "antibuild.ing" = ''
       $TTL 60
       $ORIGIN antibuild.ing.
-      @       SOA     ns1.antibuild.ing. lennart.zebre.us. 1710252096 14400 3600 604800 300
-      @       NS      ns1.antibuild.ing.
-      @       NS      ns2.antibuild.ing.
-      @       NS      ns3.antibuild.ing.
-      ns1     A       167.235.154.30
-      ns2     A       49.13.8.171
-      ns3     A       192.227.228.220
-      ns1     AAAA    2a01:4f8:c0c:d91f::1
-      ns2     AAAA    2a01:4f8:c013:29b1::1
+      @ SOA ${(lib.head primaryServers).authoritativeDns.name}.antibuild.ing. lennart.zebre.us. 1710253000 14400 3600 604800 300
+      ${lib.concatStringsSep "\n" (lib.concatMap (machine: [
+        "@ NS ${machine.authoritativeDns.name}.antibuild.ing." ] ++ 
+        (if machine.staticIp4 != null then [ "${machine.authoritativeDns.name} A ${machine.staticIp4}" ] else [ ]) ++
+        (if machine.staticIp6 != null then [ "${machine.authoritativeDns.name} AAAA ${machine.staticIp6}" ] else [ ])
+      ) machinesThatAreAuthoritativeDnsServers)}
     ''
     + (builtins.concatStringsSep "\n" (
       builtins.map
@@ -54,7 +63,7 @@ let
       $TTL 60
       $ORIGIN zebre.us.
       @ IN SOA ns1.antibuild.ing. lennart.zebre.us. (
-              1710252096  ; serial secs since Jan 1 1970
+              1710253000  ; serial secs since Jan 1 1970
               14400        ; refresh (>=60)
               3600        ; retry (>=60)
               604800      ; expire
@@ -92,7 +101,7 @@ let
       $TTL 60
       $ORIGIN madmanfred.com.
       @ IN SOA ns1.antibuild.ing. lennart.zebre.us. (
-              1710252096  ; serial secs since Jan 1 1970
+              1710253000  ; serial secs since Jan 1 1970
               14400        ; refresh (>=60)
               3600        ; retry (>=60)
               604800      ; expire
@@ -114,41 +123,126 @@ let
       _imap._tcp IN SRV 0 5 143 mail.zebreu.us.
       _imaps._tcp IN SRV 0 5 993 mail.zebreu.us.
     '';
+
+    "wirs.ing" = ''
+      $TTL 60
+      $ORIGIN wirs.ing.
+      @ IN SOA ns1.antibuild.ing. lennart.zebre.us. (
+              1710253000  ; serial secs since Jan 1 1970
+              14400       ; refresh (>=60)
+              3600        ; retry (>=60)
+              604800      ; expire
+              300         ; minimum ttl
+              )
+      @ IN NS ns1.antibuild.ing.
+      @ IN NS ns2.antibuild.ing.
+      @ IN NS ns3.antibuild.ing.
+
+      ; CNAME on the root is apparently not standard. There are probably good reasons for that.
+      ; I just added the A and AAAA records for zebreus.github.io manually.
+      ; @ IN CNAME zebreus.github.io.
+      @	IN A 185.199.108.153
+      @	IN A 185.199.109.153
+      @	IN A 185.199.110.153
+      @	IN A 185.199.111.153
+      @	IN AAAA 2606:50c0:8000::153
+      @	IN AAAA 2606:50c0:8001::153
+      @	IN AAAA 2606:50c0:8002::153
+      @	IN AAAA 2606:50c0:8003::153
+      ofborg IN CNAME zebreus.github.io.
+      search IN CNAME zebreus.github.io.
+      second IN CNAME zebreus.github.io.
+      _github-pages-challenge-zebreus IN TXT ${quoteTxtEntry "3a57be146a6065e7abbae1a5783afa"}
+    '';
   };
 
   knotZonesEnv = pkgs.buildEnv {
     name = "knot-zones";
-    paths = lib.mapAttrsToList (name: value: pkgs.writeTextDir "${name}.zone" value) zones;
+    paths = (lib.mapAttrsToList (name: value: pkgs.writeTextDir "${name}.zone" value) zones);
   };
 in
 {
-  options.modules.authoritative_dns =
+  config = lib.mkIf thisServer.authoritativeDns.enable
     {
-      enable = lib.mkEnableOption "Enable the authoritative DNS server on port 53";
-    };
+      age.secrets.knot_transport_key = {
+        file = ../secrets/knot_transport_key.age;
+        owner = "knot";
+        group = "knot";
+        mode = "0400";
+      };
 
-  config = lib.mkIf config.modules.authoritative_dns.enable {
-    networking.firewall.allowedTCPPorts = [ 53 ];
-    networking.firewall.allowedUDPPorts = [ 53 ];
-    services.knot = {
-      enable = true;
-      settings = {
-        server = {
-          listen = [ "0.0.0.0@53" "::1@53" ];
-        };
-        log.syslog.any = "info";
-        template.default = {
-          storage = knotZonesEnv;
-          dnssec-signing = true;
-          # Input-only zone files
-          # https://www.knot-dns.cz/docs/2.8/html/operation.html#example-3
-          # prevents modification of the zonefiles, since the zonefiles are immutable
-          zonefile-sync = -1;
-          zonefile-load = "difference";
-          journal-content = "changes";
-        };
-        zone = lib.mapAttrs (name: value: { file = "${name}.zone"; }) zones;
+      networking.firewall.allowedTCPPorts = [ 53 ];
+      networking.firewall.allowedUDPPorts = [ 53 ];
+      services.knot = {
+        enable = true;
+        keyFiles = [ config.age.secrets.knot_transport_key.path ];
+        settings =
+          {
+            remote = builtins.map
+              # TODO: Verify that autodiscovery works like this
+              (machine: {
+                id = machine.name;
+                key = "knot_transfer_key";
+                address = builtins.map (ip: "${ip}@53") machine.ips;
+              })
+              machinesThatAreAuthoritativeDnsServers;
+
+            server = {
+              listen = [ "0.0.0.0@53" "::@53" ];
+            };
+            log.syslog.any = "info";
+            template.default = {
+              storage = knotZonesEnv;
+              dnssec-signing = true;
+
+              # Input-only zone files
+              # https://www.knot-dns.cz/docs/2.8/html/operation.html#example-3
+              # prevents modification of the zonefiles, since the zonefiles are immutable
+              zonefile-sync = -1;
+              zonefile-load = "difference";
+              journal-content = "changes";
+            };
+            acl = [
+              {
+                id = "transfer_antibuilding";
+                key = "knot_transfer_key";
+                address = builtins.concatMap (machine: machine.ips) (secondaryServers ++ primaryServers);
+                # [ "${config.antibuilding.ipv6Prefix}::/64" "167.235.154.30" "49.13.8.171/32" "192.227.228.220/32" ];
+                action = [ "transfer" ];
+              }
+              {
+                id = "notify_antibuilding";
+                key = "knot_transfer_key";
+                address = builtins.concatMap (machine: machine.ips) (secondaryServers ++ primaryServers);
+                action = [ "notify" ];
+              }
+            ];
+            policy = [
+              {
+                id = "normal-signatures";
+                signing-threads = 2;
+                algorithm = "ECDSAP256SHA256";
+                zsk-lifetime = "1d";
+                ksk-lifetime = "0";
+                reproducible-signing = true;
+              }
+            ];
+
+            zone = (lib.mapAttrs
+              (name: value: (if thisServer.authoritativeDns.primary then {
+                file = "${name}.zone";
+                notify = builtins.map (machine: machine.name) secondaryServers;
+                acl = "transfer_antibuilding";
+                dnssec-signing = true;
+                dnssec-policy = "normal-signatures";
+              } else {
+                file = "${name}.zone";
+                master = builtins.map (machine: machine.name) primaryServers;
+                acl = "notify_antibuilding";
+                dnssec-signing = false;
+              }))
+              zones);
+          };
       };
     };
-  };
 }

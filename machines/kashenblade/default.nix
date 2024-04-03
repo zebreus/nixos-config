@@ -9,7 +9,6 @@
   system.stateVersion = "23.11";
   networking.hostName = "kashenblade";
 
-  modules.authoritative_dns.enable = true;
   modules.matrix = {
     enable = true;
     baseDomain = "zebre.us";

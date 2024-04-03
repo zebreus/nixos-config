@@ -97,6 +97,25 @@ let
         description = lib.mdDoc "Specify whether this machine is managed by this nixos-config";
         default = self.config.sshPublicKey != null;
       };
+
+      authoritativeDns = {
+        enable = mkOption {
+          type = types.bool;
+          default = false;
+          description = lib.mdDoc "Whether this machine is a authoritative DNS server";
+        };
+        primary = mkOption {
+          type = types.bool;
+          default = false;
+          description = lib.mdDoc "Whether this machine is the primary authoritative DNS server. This one is responsible for DNSSEC signing";
+        };
+        name = mkOption {
+          type = types.nullOr types.str;
+          description = lib.mdDoc "Name of this DNS server. Should be like ns1, ns2, ns3, ";
+          default = null;
+          example = "ns1";
+        };
+      };
     };
 
   };

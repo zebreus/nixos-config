@@ -8,7 +8,6 @@
   networking.hostName = "sempriaq";
 
   modules = {
-    authoritative_dns.enable = true;
     mail = {
       enable = true;
       baseDomain = "zebre.us";
