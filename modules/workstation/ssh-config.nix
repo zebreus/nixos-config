@@ -125,6 +125,12 @@ in
                   port = 29418;
                   identityFile = config.age.secrets.lennart_ed25519.path;
                 };
+                tgc = {
+                  hostname = "git.transgirl.cafe";
+                  host = "git.transgirl.cafe";
+                  user = "git";
+                  identityFile = config.age.secrets.lennart_ed25519.path;
+                };
               };
               # Miscellaneous hosts
               miscHosts = {
