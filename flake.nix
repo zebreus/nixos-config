@@ -214,6 +214,20 @@
             ];
           };
           # MARKER_NIXOS_CONFIGURATIONS
+
+          # ISO image for a up-to-date NixOS installer
+          installer = nixpkgs.lib.nixosSystem {
+            system = "x86_64-linux";
+            modules = [
+              "${nixpkgs}/nixos/modules/installer/cd-dvd/installation-cd-graphical-gnome.nix"
+              ({ pkgs, ... }: {
+                environment.systemPackages = [ pkgs.neovim ];
+                users.users.root.password = "54321";
+                users.users.root.openssh.authorizedKeys.keys = [ publicKeys.lennart ];
+                boot.kernelPackages = pkgs.linuxPackages_latest;
+              })
+            ];
+          };
         };
 
       # Helper scripts
@@ -255,6 +269,13 @@
           cp ${optionsDoc.optionsCommonMark} ./options.md
           chmod 644 ./options.md
         '';
+      generate-installer = pkgs.writeScriptBin "generate-installer" ''
+        #!${pkgs.bash}/bin/bash
+
+        RESULT_PATH=$(nix build .#nixosConfigurations.installer.config.system.build.isoImage --print-out-paths)
+        echo $RESULT_PATH
+        ln -s $RESULT_PATH/iso/* ./installer.iso
+      '';
 
       # Raspi SD card image
       image.kappril = nixosConfigurations.kappril.config.system.build.sdImage;

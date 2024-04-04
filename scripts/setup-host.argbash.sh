@@ -132,6 +132,11 @@ function test-ssh {
 }
 
 if ! test-ssh; then
+    echo "Removing old signature for $SSH_TARGET from known hosts"
+    ssh-keygen -R "$(echo "$SSH_TARGET" | cut -d"@" -f2)"
+fi
+
+if ! test-ssh; then
     echo "Installing ssh host key to $SSH_TARGET"
     ssh-copy-id -o StrictHostKeyChecking=no -o PreferredAuthentications=password -f -i ~/.ssh/id_ed25519.pub "$SSH_TARGET"
 fi

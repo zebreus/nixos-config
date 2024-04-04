@@ -2,7 +2,7 @@
   imports = [
     ./disk-config.nix
     ./hardware-configuration.nix
-    ../../modules/common
+    ../../modules
   ];
 
   system.stateVersion = "24.05";
