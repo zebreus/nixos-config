@@ -36,14 +36,15 @@ let
     "antibuild.ing" = ''
       $TTL 60
       $ORIGIN antibuild.ing.
-      @ SOA ${(lib.head primaryServers).authoritativeDns.name}.antibuild.ing. lennart.zebre.us. 1710253000 14400 3600 604800 300
+      @ SOA ${(lib.head primaryServers).authoritativeDns.name}.antibuild.ing. lennart.zebre.us. 1710255000 14400 3600 604800 300
       ${lib.concatStringsSep "\n" (lib.concatMap (machine: [
         "@ NS ${machine.authoritativeDns.name}.antibuild.ing." ] ++ 
         (if machine.staticIp4 != null then [ "${machine.authoritativeDns.name} A ${machine.staticIp4}" ] else [ ]) ++
         (if machine.staticIp6 != null then [ "${machine.authoritativeDns.name} AAAA ${machine.staticIp6}" ] else [ ])
       ) machinesThatAreAuthoritativeDnsServers)}
     ''
-    + (builtins.concatStringsSep "\n" (
+    +
+    (builtins.concatStringsSep "\n" (
       builtins.map
         # TODO: Verify that autodiscovery works like this
         (machine: ''
@@ -58,14 +59,19 @@ let
           _imap._tcp.${machine.name} SRV 0 5 143 mail.zebreu.us.
           _imaps._tcp.${machine.name} SRV 0 5 993 mail.zebreu.us.
         '')
-        machinesThatCanReceiveMail));
+        machinesThatCanReceiveMail))
+    +
+    ''
+      ; A a record, so there is a record for the root domain
+      @ IN A ${(lib.head primaryServers).staticIp4}
+    '';
 
     # Used for my external stuff. Matrix, mail, etc.
     "zebre.us" = ''
       $TTL 60
       $ORIGIN zebre.us.
       @ IN SOA ns1.antibuild.ing. lennart.zebre.us. (
-              1710253000  ; serial secs since Jan 1 1970
+              1710255000  ; serial secs since Jan 1 1970
               14400        ; refresh (>=60)
               3600        ; retry (>=60)
               604800      ; expire
@@ -104,7 +110,7 @@ let
       $TTL 60
       $ORIGIN madmanfred.com.
       @ IN SOA ns1.antibuild.ing. lennart.zebre.us. (
-              1710253000  ; serial secs since Jan 1 1970
+              1710255000  ; serial secs since Jan 1 1970
               14400        ; refresh (>=60)
               3600        ; retry (>=60)
               604800      ; expire
@@ -132,7 +138,7 @@ let
       $TTL 60
       $ORIGIN wirs.ing.
       @ IN SOA ns1.antibuild.ing. lennart.zebre.us. (
-              1710253000  ; serial secs since Jan 1 1970
+              1710255000  ; serial secs since Jan 1 1970
               14400       ; refresh (>=60)
               3600        ; retry (>=60)
               604800      ; expire
@@ -164,7 +170,7 @@ let
       $TTL 60
       $ORIGIN cicen.net.
       @ IN SOA ns1.antibuild.ing. lennart.zebre.us. (
-              1710253000  ; serial secs since Jan 1 1970
+              1710255000  ; serial secs since Jan 1 1970
               14400       ; refresh (>=60)
               3600        ; retry (>=60)
               604800      ; expire
@@ -180,7 +186,7 @@ let
       $TTL 60
       $ORIGIN del.blue.
       @ IN SOA ns1.antibuild.ing. lennart.zebre.us. (
-              1710253000  ; serial secs since Jan 1 1970
+              1710255000  ; serial secs since Jan 1 1970
               14400       ; refresh (>=60)
               3600        ; retry (>=60)
               604800      ; expire
@@ -196,7 +202,7 @@ let
       $TTL 60
       $ORIGIN einhorn.jetzt.
       @ IN SOA ns1.antibuild.ing. lennart.zebre.us. (
-              1710253000  ; serial secs since Jan 1 1970
+              1710255000  ; serial secs since Jan 1 1970
               14400       ; refresh (>=60)
               3600        ; retry (>=60)
               604800      ; expire
@@ -227,7 +233,7 @@ let
       $TTL 60
       $ORIGIN generated.fashion.
       @ IN SOA ns1.antibuild.ing. lennart.zebre.us. (
-              1710253000  ; serial secs since Jan 1 1970
+              1710255000  ; serial secs since Jan 1 1970
               14400       ; refresh (>=60)
               3600        ; retry (>=60)
               604800      ; expire
@@ -247,7 +253,7 @@ let
       $TTL 60
       $ORIGIN xn--f87c.cc.
       @ IN SOA ns1.antibuild.ing. lennart.zebre.us. (
-              1710253000  ; serial secs since Jan 1 1970
+              1710255000  ; serial secs since Jan 1 1970
               14400       ; refresh (>=60)
               3600        ; retry (>=60)
               604800      ; expire
