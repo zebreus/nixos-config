@@ -124,6 +124,7 @@
             staticIp4 = "49.13.8.171";
             staticIp6 = "2a01:4f8:c013:29b1::1";
           };
+          # MARKER_MACHINE_CONFIGURATIONS
         };
       };
     in
@@ -212,6 +213,7 @@
               ./machines/blanderdash
             ];
           };
+          # MARKER_NIXOS_CONFIGURATIONS
         };
 
       # Helper scripts
@@ -222,6 +224,7 @@
       gen-mail-dkim-keys = pkgs.callPackage ./scripts/gen-mail-dkim-keys.nix { };
       deploy-hosts = pkgs.callPackage ./scripts/deploy-hosts.nix { };
       fast-deploy = pkgs.callPackage ./scripts/fast-deploy.nix { };
+      setup-host = pkgs.callPackage ./scripts/setup-host.nix { };
 
       generate-docs =
         let
@@ -255,6 +258,8 @@
 
       # Raspi SD card image
       image.kappril = nixosConfigurations.kappril.config.system.build.sdImage;
+
+      formatter.x86_64-linux = pkgs.nixpkgs-fmt;
     };
 }
 
