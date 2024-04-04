@@ -23,10 +23,8 @@ with pkgs; writeScriptBin "deploy-hosts" ''
   function activateConfigurations {
     echo Activating configuration for $host...
     for host in "''${HOSTS[@]}"; do
-      nixos-rebuild --flake .#$host --target-host $host test &
+      nixos-rebuild --flake .#$host --target-host $host switch
     done
-
-    wait $(jobs -p)
   }
 
   function waitForHosts {
