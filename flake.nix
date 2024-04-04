@@ -124,6 +124,13 @@
             staticIp4 = "49.13.8.171";
             staticIp6 = "2a01:4f8:c013:29b1::1";
           };
+          prandtl = {
+            name = "prandtl";
+            address = 9;
+            wireguardPublicKey = publicKeys.prandtl_wireguard;
+            trusted = true;
+            sshPublicKey = publicKeys.prandtl;
+          };
           # MARKER_MACHINE_CONFIGURATIONS
         };
       };
@@ -211,6 +218,20 @@
               simple-nix-mailserver.nixosModules.default
               gnome-online-accounts-config.nixosModules.default
               ./machines/blanderdash
+            ];
+          };
+          prandtl = nixpkgs.lib.nixosSystem {
+            system = "x86_64-linux";
+            specialArgs = attrs;
+            modules = [
+              agenix.nixosModules.default
+              disko.nixosModules.disko
+              overlayNixpkgs
+              informationAboutOtherMachines
+              home-manager.nixosModules.home-manager
+              simple-nix-mailserver.nixosModules.default
+              gnome-online-accounts-config.nixosModules.default
+              ./machines/prandtl
             ];
           };
           # MARKER_NIXOS_CONFIGURATIONS

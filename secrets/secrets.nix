@@ -27,6 +27,10 @@ with import ./public-keys.nix;
   "blanderdash_ed25519_pub.age".publicKeys = [ recovery blanderdash ];
   "blanderdash_rsa.age".publicKeys = [ recovery blanderdash ];
   "blanderdash_rsa_pub.age".publicKeys = [ recovery blanderdash ];
+  "prandtl_ed25519.age".publicKeys = [ recovery prandtl ];
+  "prandtl_ed25519_pub.age".publicKeys = [ recovery prandtl ];
+  "prandtl_rsa.age".publicKeys = [ recovery prandtl ];
+  "prandtl_rsa_pub.age".publicKeys = [ recovery prandtl ];
   # MARKER_HOST_KEYS
 
   # Private user keys
@@ -48,9 +52,11 @@ with import ./public-keys.nix;
   "sempriaq_wireguard_pub.age".publicKeys = [ recovery sempriaq ];
   "blanderdash_wireguard.age".publicKeys = [ recovery blanderdash ];
   "blanderdash_wireguard_pub.age".publicKeys = [ recovery blanderdash ];
+  "prandtl_wireguard.age".publicKeys = [ recovery prandtl ];
+  "prandtl_wireguard_pub.age".publicKeys = [ recovery prandtl ];
   # MARKER_WIREGUARD_KEYS
 
-  "shared_wireguard_psk.age".publicKeys = [ recovery erms kashenblade kappril sempriaq blanderdash ];
+  "shared_wireguard_psk.age".publicKeys = [ recovery ] ++ allMachines;
 
   # Backup secrets
   # For now this is keyed to the machine where the backup is initiated from, but it would make more sense to key it to lennart
@@ -123,10 +129,13 @@ with import ./public-keys.nix;
   "blanderdash_dkim_rsa_pub.age".publicKeys = [ recovery sempriaq ];
   "blanderdash_mail_password.age".publicKeys = [ recovery blanderdash ];
   "blanderdash_mail_passwordhash.age".publicKeys = [ recovery blanderdash sempriaq ];
+  "prandtl_dkim_rsa.age".publicKeys = [ recovery sempriaq ];
+  "prandtl_dkim_rsa_pub.age".publicKeys = [ recovery sempriaq ];
+  "prandtl_mail_password.age".publicKeys = [ recovery prandtl ];
+  "prandtl_mail_passwordhash.age".publicKeys = [ recovery prandtl sempriaq ];
   # MARKER_VPN_MAIL_SECRETS
 
   # Authoritative DNS server transport key
   # Used for transfering the changed signature records form the primary to the secondary DNS servers
   "knot_transport_key.age".publicKeys = [ recovery kashenblade blanderdash sempriaq ];
-
 }
