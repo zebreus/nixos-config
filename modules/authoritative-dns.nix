@@ -32,6 +32,7 @@ let
   thisServer = lib.head (lib.attrValues (lib.filterAttrs (name: machine: name == config.networking.hostName) config.machines));
 
   zones = {
+    # Used for infrastructure and internal names
     "antibuild.ing" = ''
       $TTL 60
       $ORIGIN antibuild.ing.
@@ -59,6 +60,7 @@ let
         '')
         machinesThatCanReceiveMail));
 
+    # Used for my external stuff. Matrix, mail, etc.
     "zebre.us" = ''
       $TTL 60
       $ORIGIN zebre.us.
@@ -97,6 +99,7 @@ let
       _imaps._tcp IN SRV 0 5 993 mail.zebreu.us.
     '';
 
+    # My old email server lived here. Now it's just a redirect to the new one
     "madmanfred.com" = ''
       $TTL 60
       $ORIGIN madmanfred.com.
@@ -124,6 +127,7 @@ let
       _imaps._tcp IN SRV 0 5 993 mail.zebreu.us.
     '';
 
+    # I use this domains for hosting random stuff with github pages
     "wirs.ing" = ''
       $TTL 60
       $ORIGIN wirs.ing.
@@ -154,6 +158,110 @@ let
       second IN CNAME zebreus.github.io.
       _github-pages-challenge-zebreus IN TXT ${quoteTxtEntry "3a57be146a6065e7abbae1a5783afa"}
     '';
+
+    # My old matrix server
+    "cicen.net" = ''
+      $TTL 60
+      $ORIGIN cicen.net.
+      @ IN SOA ns1.antibuild.ing. lennart.zebre.us. (
+              1710253000  ; serial secs since Jan 1 1970
+              14400       ; refresh (>=60)
+              3600        ; retry (>=60)
+              604800      ; expire
+              300         ; minimum ttl
+              )
+      @ IN NS ns1.antibuild.ing.
+      @ IN NS ns2.antibuild.ing.
+      @ IN NS ns3.antibuild.ing.
+    '';
+
+    # I use this domain for testing
+    "del.blue" = ''
+      $TTL 60
+      $ORIGIN del.blue.
+      @ IN SOA ns1.antibuild.ing. lennart.zebre.us. (
+              1710253000  ; serial secs since Jan 1 1970
+              14400       ; refresh (>=60)
+              3600        ; retry (>=60)
+              604800      ; expire
+              300         ; minimum ttl
+              )
+      @ IN NS ns1.antibuild.ing.
+      @ IN NS ns2.antibuild.ing.
+      @ IN NS ns3.antibuild.ing.
+    '';
+
+    # Hosts a badly drawn picture of a unicorn
+    "einhorn.jetzt" = ''
+      $TTL 60
+      $ORIGIN einhorn.jetzt.
+      @ IN SOA ns1.antibuild.ing. lennart.zebre.us. (
+              1710253000  ; serial secs since Jan 1 1970
+              14400       ; refresh (>=60)
+              3600        ; retry (>=60)
+              604800      ; expire
+              300         ; minimum ttl
+              )
+      @ IN NS ns1.antibuild.ing.
+      @ IN NS ns2.antibuild.ing.
+      @ IN NS ns3.antibuild.ing.
+
+      ; CNAME on the root is apparently not standard. There are probably good reasons for that.
+      ; I just added the A and AAAA records for zebreus.github.io manually.
+      ; @ IN CNAME zebreus.github.io.
+      @	IN A 185.199.108.153
+      @	IN A 185.199.109.153
+      @	IN A 185.199.110.153
+      @	IN A 185.199.111.153
+      @	IN AAAA 2606:50c0:8000::153
+      @	IN AAAA 2606:50c0:8001::153
+      @	IN AAAA 2606:50c0:8002::153
+      @	IN AAAA 2606:50c0:8003::153
+      www IN CNAME zebreus.github.io.
+      _github-pages-challenge-zebreus IN TXT ${quoteTxtEntry "039c1f2cef900279d730d61bbf2295"}
+      @ IN TXT ${quoteTxtEntry "google-site-verification=N11GiQq5grX82UY2Ik0dn4AQ7NpFd4dl_Sg2G2BYrvU"}
+    '';
+
+    # Hosts a now defunct and unfinished project for ai generated shirts
+    "generated.fashion" = ''
+      $TTL 60
+      $ORIGIN generated.fashion.
+      @ IN SOA ns1.antibuild.ing. lennart.zebre.us. (
+              1710253000  ; serial secs since Jan 1 1970
+              14400       ; refresh (>=60)
+              3600        ; retry (>=60)
+              604800      ; expire
+              300         ; minimum ttl
+              )
+      @ IN NS ns1.antibuild.ing.
+      @ IN NS ns2.antibuild.ing.
+      @ IN NS ns3.antibuild.ing.
+
+      @	IN A 76.76.21.21
+      www	IN CNAME cname.vercel-dns.com.
+      @ IN TXT ${quoteTxtEntry "google-site-verification=6B_Cig2VbMktIY9q13NowVz_5bZ1bQLgSOdFgVqpuzQ"}
+    '';
+
+    # Hosts a broken test of a gunjs based blog
+    "xn--f87c.cc" = ''
+      $TTL 60
+      $ORIGIN generated.fashion.
+      @ IN SOA ns1.antibuild.ing. lennart.zebre.us. (
+              1710253000  ; serial secs since Jan 1 1970
+              14400       ; refresh (>=60)
+              3600        ; retry (>=60)
+              604800      ; expire
+              300         ; minimum ttl
+              )
+      @ IN NS ns1.antibuild.ing.
+      @ IN NS ns2.antibuild.ing.
+      @ IN NS ns3.antibuild.ing.
+
+      @	IN A 76.76.21.21
+      www	IN CNAME cname.vercel-dns.com.
+      testing IN NS ns1.vercel-dns.com.
+    '';
+    # 
   };
 
   knotZonesEnv = pkgs.buildEnv {
