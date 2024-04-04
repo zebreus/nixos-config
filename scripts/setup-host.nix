@@ -122,6 +122,8 @@ with pkgs; writeScriptBin "setup-host" ''
     nix fmt machines/$TARGET_HOST_NAME/default.nix
   fi
 
+  git add flake.nix machines/"$TARGET_HOST_NAME"
+
   echo "Finished preparing secrets for $TARGET_HOST_NAME"
   echo "You should now add the new host in machines and flake.nix"
   echo "Then run the following command to deploy the host:"
