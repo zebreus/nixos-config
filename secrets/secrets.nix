@@ -39,6 +39,9 @@ with import ./public-keys.nix;
   "lennart_ed25519.age".publicKeys = [ recovery erms lennart ];
   "lennart_ed25519_pub.age".publicKeys = [ recovery erms lennart ];
 
+  # User login passwords
+  "lennart_login_passwordhash.age".publicKeys = [ recovery erms ];
+
   # Wireguard keys
   # Can be decrypted by recovery key or the respective machine key
   # Generated with `nix run .#gen-wireguard-keys`

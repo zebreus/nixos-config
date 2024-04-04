@@ -4,14 +4,22 @@ let
 in
 {
   config = lib.mkIf config.modules.workstation.enable {
-    users.users.lennart = {
-      isNormalUser = true;
-      description = "Lennart";
-      extraGroups = [ ];
-      openssh.authorizedKeys.keys = [
-        publicKeys.lennart
-      ];
-      home = "/home/lennart";
+    age.secrets.lennart_login_passwordhash = {
+      file = ../../secrets/lennart_login_passwordhash.age;
+    };
+
+    users = {
+      mutableUsers = false;
+      users.lennart = {
+        isNormalUser = true;
+        description = "Lennart";
+        extraGroups = [ ];
+        openssh.authorizedKeys.keys = [
+          publicKeys.lennart
+        ];
+        home = "/home/lennart";
+        hashedPasswordFile = config.age.secrets.lennart_login_passwordhash.path;
+      };
     };
   };
 }
