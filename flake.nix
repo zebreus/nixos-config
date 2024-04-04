@@ -219,12 +219,17 @@
           installer = nixpkgs.lib.nixosSystem {
             system = "x86_64-linux";
             modules = [
-              "${nixpkgs}/nixos/modules/installer/cd-dvd/installation-cd-graphical-gnome.nix"
+              "${nixpkgs}/nixos/modules/installer/cd-dvd/installation-cd-minimal.nix"
               ({ pkgs, ... }: {
-                environment.systemPackages = [ pkgs.neovim ];
-                users.users.root.password = "54321";
+                networking.wireless.enable = false;
+                networking.networkmanager.enable = true;
+                environment.systemPackages = [ pkgs.rsync pkgs.git ];
+                users.users.root.password = nixpkgs.lib.mkForce "54321";
+                users.users.root.initialHashedPassword = nixpkgs.lib.mkForce null;
                 users.users.root.openssh.authorizedKeys.keys = [ publicKeys.lennart ];
                 boot.kernelPackages = pkgs.linuxPackages_latest;
+                boot.supportedFilesystems.bcachefs = nixpkgs.lib.mkForce true;
+                boot.supportedFilesystems.zfs = nixpkgs.lib.mkForce false;
               })
             ];
           };
