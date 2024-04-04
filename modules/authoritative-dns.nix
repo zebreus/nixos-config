@@ -245,7 +245,7 @@ let
     # Hosts a broken test of a gunjs based blog
     "xn--f87c.cc" = ''
       $TTL 60
-      $ORIGIN generated.fashion.
+      $ORIGIN xn--f87c.cc.
       @ IN SOA ns1.antibuild.ing. lennart.zebre.us. (
               1710253000  ; serial secs since Jan 1 1970
               14400       ; refresh (>=60)
