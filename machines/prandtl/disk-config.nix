@@ -15,7 +15,7 @@
           };
           esp = {
             name = "ESP";
-            size = "500M";
+            size = "16G";
             type = "EF00";
             content = {
               type = "filesystem";
@@ -28,13 +28,18 @@
               ];
             };
           };
-          root = {
-            name = "root";
-            end = "-0";
+          luks = {
+            size = "100%";
             content = {
-              type = "filesystem";
-              format = "bcachefs";
-              mountpoint = "/";
+              type = "luks";
+              name = "root";
+              settings.allowDiscards = true;
+              passwordFile = "/tmp/secret.key";
+              content = {
+                type = "filesystem";
+                format = "ext4";
+                mountpoint = "/";
+              };
             };
           };
         };
