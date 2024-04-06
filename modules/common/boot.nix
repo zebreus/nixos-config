@@ -25,7 +25,7 @@
         };
         raspi = {
           grub.enable = false;
-          loader.generic-extlinux-compatible.enable = true;
+          generic-extlinux-compatible.enable = true;
         };
       }.${config.modules.boot.type};
     };
