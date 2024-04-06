@@ -60,4 +60,6 @@ rec {
   # MARKER_VPN_MAIL_DKIM_PUBLIC_KEYS
 
   allMachines = [ prandtl blanderdash sempriaq erms kashenblade kappril ];
+  workstations = [ erms ];
+  dnsServers = [ kashenblade blanderdash sempriaq ];
 }

@@ -265,6 +265,7 @@
       deploy-hosts = pkgs.callPackage ./scripts/deploy-hosts.nix { };
       fast-deploy = pkgs.callPackage ./scripts/fast-deploy.nix { };
       setup-host = pkgs.callPackage ./scripts/setup-host.nix { };
+      add-workstation = pkgs.callPackage ./scripts/add-workstation.nix { };
 
       generate-docs =
         let

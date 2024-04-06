@@ -36,11 +36,11 @@ with import ./public-keys.nix;
   # Private user keys
   # Can be decrypted by recovery key, hosts where the user is required, and self
   # These keys should be password protected
-  "lennart_ed25519.age".publicKeys = [ recovery erms lennart ];
-  "lennart_ed25519_pub.age".publicKeys = [ recovery erms lennart ];
+  "lennart_ed25519.age".publicKeys = [ recovery lennart ] ++ workstations;
+  "lennart_ed25519_pub.age".publicKeys = [ recovery lennart ] ++ workstations;
 
   # User login passwords
-  "lennart_login_passwordhash.age".publicKeys = [ recovery erms ];
+  "lennart_login_passwordhash.age".publicKeys = [ recovery ] ++ workstations;
 
   # Wireguard keys
   # Can be decrypted by recovery key or the respective machine key
@@ -88,7 +88,7 @@ with import ./public-keys.nix;
   # MARKER_BORG_BACKUP_KEYS
 
   # This is secret because it contains information about the infrastructure of other people
-  "extra_config.age".publicKeys = [ recovery erms lennart ];
+  "extra_config.age".publicKeys = [ recovery ] ++ workstations;
 
   # Shared secret for coturn.
   # Matrix does not support a file option, but can load extra config files, so we use a config file that only sets the secret
@@ -98,9 +98,9 @@ with import ./public-keys.nix;
   # Mail server password hashes
   # Generate one with `nix-shell -p mkpasswd --run 'mkpasswd -sm bcrypt'`
   "lennart_mail_passwordhash.age".publicKeys = [ recovery sempriaq ];
-  "lennart_mail_password.age".publicKeys = [ recovery lennart erms ];
-  "gmail_password.age".publicKeys = [ recovery erms ];
-  "gmail_oauth2_token.age".publicKeys = [ recovery erms ];
+  "lennart_mail_password.age".publicKeys = [ recovery ] ++ workstations;
+  "gmail_password.age".publicKeys = [ recovery ] ++ workstations;
+  "gmail_oauth2_token.age".publicKeys = [ recovery ] ++ workstations;
 
   # VPN mail secrets
   # Secrets for the mail accounts inside the antibuilding
@@ -140,5 +140,5 @@ with import ./public-keys.nix;
 
   # Authoritative DNS server transport key
   # Used for transfering the changed signature records form the primary to the secondary DNS servers
-  "knot_transport_key.age".publicKeys = [ recovery kashenblade blanderdash sempriaq ];
+  "knot_transport_key.age".publicKeys = [ recovery ] ++ dnsServers;
 }
