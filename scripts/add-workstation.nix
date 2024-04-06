@@ -4,6 +4,7 @@ with pkgs; writeScriptBin "add-workstation" ''
   TARGET_HOSTNAME=$1
   if [ -z "$TARGET_HOSTNAME" ]; then
     echo "Usage: add-workstation <target_hostname>"
+    echo "Adds a machine as a decryptor for the workstation secrets."
     exit 1
   fi
 

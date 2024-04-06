@@ -8,6 +8,7 @@
 # ARG_OPTIONAL_SINGLE([boot], [], [bootloader type. Can be "auto", "efi", or "legacy". Auto will ssh into the target host and autodetect the boot type], [auto])
 # ARG_OPTIONAL_BOOLEAN([secrets], , [Generate new secrets.], [on])
 # ARG_OPTIONAL_BOOLEAN([machine], , [Insert a template for the new machine into machines and flake.nix.], [on])
+# ARG_OPTIONAL_BOOLEAN([workstation], , [Set to true if this machine should be used interactivly.], [off])
 # ARG_HELP([Generates config for a new host that can be deployed with nixos-anywhere])
 # ARG_VERSION([echo "1.0.0"])
 # ARGBASH_GO
@@ -29,6 +30,14 @@ function generateSecrets {
         echo Reeencrypting the secrets
         sudo EDITOR=: agenix -e shared_wireguard_psk.age -i /etc/ssh/ssh_host_ed25519_key
         git add .
+
+        if [ "$_arg_workstation" == "on" ]; then
+            echo Reencrypting the secrets for the workstation
+            nix run .#add-workstation "$TARGET_HOST_NAME"
+
+            echo "Adding backup keys for the workstation"
+            nix run .#gen-borg-keys -- lennart_"$TARGET_HOST_NAME"_backup "$TARGET_HOST_NAME" "lennart"
+        fi
 
         cd ..
     fi
