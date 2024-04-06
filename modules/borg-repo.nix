@@ -13,14 +13,24 @@ in
 
   config = lib.mkIf config.modules.borg-repo.enable {
     services.borgbackup.repos = {
-      main = {
+      lennart_erms_backup = {
         quota = "3T";
         path = "/storage/borg/erms/home";
         authorizedKeysAppendOnly = [
-          publicKeys.lennart_backup_append_only
+          publicKeys.lennart_erms_backup_append_only
         ];
         authorizedKeys = [
-          publicKeys.lennart_backup_trusted
+          publicKeys.lennart_erms_backup_trusted
+        ];
+      };
+      lennart_prandtl_backup = {
+        quota = "3T";
+        path = "/storage/borg/prandtl/home";
+        authorizedKeysAppendOnly = [
+          publicKeys.lennart_prandtl_backup_append_only
+        ];
+        authorizedKeys = [
+          publicKeys.lennart_prandtl_backup_trusted
         ];
       };
       matrix = {

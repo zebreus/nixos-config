@@ -9,7 +9,7 @@ in
     };
 
     users = {
-      mutableUsers = false;
+      mutableUsers = true;
       users.lennart = {
         isNormalUser = true;
         description = "Lennart";
