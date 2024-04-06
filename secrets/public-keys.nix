@@ -32,6 +32,8 @@ rec {
   matrix_backup_trusted = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGHFAgSn+sRu2BAozhMJqk9GWUKR8cN0mnjK+JbL0bI8";
   mail_zebre_us_backup_append_only = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMAh77FpoiwNj+7LkbCFHqOvm57btMN5rjK1jT00B0zj";
   mail_zebre_us_backup_trusted = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKCBUTAjUWmMlNOBpp2SwFICx4DKoNxiWVGfkWtPOptr";
+  lennart_prandtl_backup_append_only = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIDhfgbfKLPq9ku1okz+ivR5eb78b48mZKpu0lScgokHD";
+  lennart_prandtl_backup_trusted = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIDg8GlQVRU4aC2oDCkDtEd5ENKMRAMtJNgWWye2Eau0Z";
   # MARKER_BORG_BACKUP_KEYS
 
   # Wireguard public keys

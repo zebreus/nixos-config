@@ -67,6 +67,7 @@ with import ./public-keys.nix;
   "lennart_erms_backup_passphrase.age".publicKeys = [ recovery erms lennart ];
   "matrix_backup_passphrase.age".publicKeys = [ recovery kashenblade lennart ];
   "mail_zebre_us_backup_passphrase.age".publicKeys = [ recovery sempriaq lennart ];
+  "lennart_prandtl_backup_passphrase.age".publicKeys = [ recovery prandtl lennart ];
   # MARKER_BORG_PASSPHRASES
 
   # Backup keys
@@ -85,6 +86,10 @@ with import ./public-keys.nix;
   "mail_zebre_us_backup_append_only_ed25519_pub.age".publicKeys = [ recovery sempriaq lennart ];
   "mail_zebre_us_backup_trusted_ed25519.age".publicKeys = [ recovery lennart ];
   "mail_zebre_us_backup_trusted_ed25519_pub.age".publicKeys = [ recovery lennart ];
+  "lennart_prandtl_backup_append_only_ed25519.age".publicKeys = [ recovery prandtl lennart ];
+  "lennart_prandtl_backup_append_only_ed25519_pub.age".publicKeys = [ recovery prandtl lennart ];
+  "lennart_prandtl_backup_trusted_ed25519.age".publicKeys = [ recovery lennart ];
+  "lennart_prandtl_backup_trusted_ed25519_pub.age".publicKeys = [ recovery lennart ];
   # MARKER_BORG_BACKUP_KEYS
 
   # This is secret because it contains information about the infrastructure of other people
