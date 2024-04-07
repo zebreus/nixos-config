@@ -43,11 +43,12 @@
             favorite-apps = [ "org.gnome.Nautilus.desktop" "google-chrome.desktop" "spotify.desktop" "org.gnome.Fractal.desktop" "org.gnome.Evolution.desktop" "org.gnome.Console.desktop" ];
           };
           # Set the default keybindings
-          "org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0" = {
+          "org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom99" = {
             name = "Open Terminal";
             command = "kgx";
             binding = "<Super>Return";
           };
+          "org/gnome/settings-daemon/plugins/media-keys".custom-keybindings = [ "/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom99/" ];
           "org/gnome/desktop/wm/keybindings".close = [ "<Alt>F4" "<Super>q" ];
         };
       };
