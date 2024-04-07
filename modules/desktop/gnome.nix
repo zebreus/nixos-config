@@ -38,10 +38,31 @@
             status-message-enabled = false;
             user-switch-enabled = false;
           };
+          # Setup favorite apps
+          "org/gnome/shell" = {
+            favorite-apps = [ "org.gnome.Nautilus.desktop" "google-chrome.desktop" "spotify.desktop" "org.gnome.Fractal.desktop" "org.gnome.Evolution.desktop" "org.gnome.Console.desktop" ];
+          };
+          # Set the default keybindings
+          "org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0" = {
+            name = "Open Terminal";
+            command = "kgx";
+            binding = "<Super>Return";
+          };
+          "org/gnome/desktop/wm/keybindings".close = [ "<Alt>F4" "<Super>q" ];
         };
       };
     };
 
+    xdg.mime.defaultApplications = {
+      "text/html" = "google-chrome.desktop";
+      "application/xhtml+xml" = "google-chrome.desktop";
+      "x-scheme-handler/http" = "google-chrome.desktop";
+      "x-scheme-handler/https" = "google-chrome.desktop";
+      "x-scheme-handler/about" = "google-chrome.desktop";
+      "x-scheme-handler/unknown" = "google-chrome.desktop";
+      "x-scheme-handler/mailto" = "userapp-Evolution-CXJPK2.desktop";
+      "text/calendar" = "org.gnome.Evolution.desktop";
+    };
 
     environment.systemPackages = with pkgs;
       [
