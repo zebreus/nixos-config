@@ -131,6 +131,12 @@ in
                   user = "git";
                   identityFile = config.age.secrets.lennart_ed25519.path;
                 };
+                gitDarmstadtCcc = {
+                  hostname = "git.darmstadt.ccc.de";
+                  host = "git.darmstadt.ccc.de";
+                  user = "git";
+                  identityFile = config.age.secrets.lennart_ed25519.path;
+                };
               };
               # Miscellaneous hosts
               miscHosts = {
