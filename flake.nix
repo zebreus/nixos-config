@@ -22,14 +22,19 @@
       url = "github:zebreus/gnome-online-accounts-config";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    nixos-wallpaper = {
+      url = "github:zebreus/nixos-dark-wallpaper";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
-  outputs = { self, nixpkgs, home-manager, disko, agenix, simple-nix-mailserver, gnome-online-accounts-config, ... }@attrs:
+  outputs = { self, nixpkgs, home-manager, disko, agenix, simple-nix-mailserver, gnome-online-accounts-config, nixos-wallpaper, ... }@attrs:
     let
 
       overlays = [
         (final: prev: {
           agenix = agenix.packages.${prev.system}.default;
+          nixos-wallpaper = nixos-wallpaper.packages.${prev.system}.default;
         })
       ];
       pkgs = import nixpkgs {
