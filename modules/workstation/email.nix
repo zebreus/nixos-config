@@ -19,6 +19,12 @@
         inherit (config.users.users.lennart) group;
         mode = "0400";
       };
+      hda_mail_password = {
+        file = ../../secrets/hda_mail_password.age;
+        owner = "lennart";
+        inherit (config.users.users.lennart) group;
+        mode = "0400";
+      };
     };
 
     services.pcscd.enable = true;
@@ -61,6 +67,14 @@
                 attributes = {
                   "xdg:schema" = "org.gnome.OnlineAccounts";
                   "goa-identity" = "imap_smtp:gen0:host_imap_smtp";
+                };
+              }
+              {
+                label = "GOA imap_smtp credentials for identity hda_imap_smtp";
+                secretCommand = "(password=\"$(${lib.concatStringsSep " " hmConfig.accounts.email.accounts.hda.passwordCommand})\" ; echo -n \"{'imap-password': <'$password'>, 'smtp-password': <'$password'>}\")";
+                attributes = {
+                  "xdg:schema" = "org.gnome.OnlineAccounts";
+                  "goa-identity" = "imap_smtp:gen0:hda_imap_smtp";
                 };
               }
               {
@@ -140,6 +154,32 @@
                 enable = true;
                 provider = "google";
               };
+            };
+            hda = {
+              primary = false;
+              address = "lennart.eichhorn@stud.h-da.de";
+              imap = {
+                host = "imap.stud.h-da.de";
+                port = 993;
+              };
+              smtp = {
+                host = "mail.zebre.us";
+                port = 587;
+                tls.useStartTls = true;
+              };
+              realName = "Lennart Eichhorn";
+              userName = "lennart.eichhorn@stud.h-da.de";
+              passwordCommand = "cat ${config.age.secrets.hda_mail_password.path}";
+              neomutt = {
+                enable = true;
+                mailboxType = "imap";
+                mailboxName = "hda";
+              };
+              thunderbird = {
+                enable = true;
+              };
+              msmtp.enable = true;
+              gnome-online-accounts.enable = true;
             };
           };
         };
