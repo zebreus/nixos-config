@@ -1,6 +1,16 @@
 { lib, config, ... }:
 let
   publicKeys = import ../secrets/public-keys.nix;
+
+  borgRepos = [
+    { name = "lennart_erms"; size = "3T"; }
+    { name = "lennart_prandtl"; size = "3T"; }
+    { name = "matrix"; size = "1T"; }
+    { name = "mail_zebre_us"; size = "1T"; }
+    { name = "janek"; size = "2T"; }
+    { name = "janek-proxmox"; size = "2T"; }
+  ];
+
 in
 {
   options.modules.borg-repo = {
@@ -12,67 +22,21 @@ in
   };
 
   config = lib.mkIf config.modules.borg-repo.enable {
-    services.borgbackup.repos = {
-      lennart_erms_backup = {
-        quota = "3T";
-        path = "/storage/borg/erms/home";
-        authorizedKeysAppendOnly = [
-          publicKeys.lennart_erms_backup_append_only
-        ];
-        authorizedKeys = [
-          publicKeys.lennart_erms_backup_trusted
-        ];
+    services.borgbackup.repos =
+      (builtins.listToAttrs (builtins.map
+        (repo: lib.nameValuePair repo.name {
+          quota = repo.size;
+          path = "/storage/borg/${repo.name}";
+          authorizedKeysAppendOnly = [
+            publicKeys."${repo.name}_backup_append_only"
+          ];
+          authorizedKeys = [
+            publicKeys."${repo.name}_backup_trusted"
+          ];
+        })
+        borgRepos)) //
+      {
+        # I can put unmanaged extra repos here
       };
-      lennart_prandtl_backup = {
-        quota = "3T";
-        path = "/storage/borg/prandtl/home";
-        authorizedKeysAppendOnly = [
-          publicKeys.lennart_prandtl_backup_append_only
-        ];
-        authorizedKeys = [
-          publicKeys.lennart_prandtl_backup_trusted
-        ];
-      };
-      matrix = {
-        quota = "1T";
-        path = "/storage/borg/matrix";
-        authorizedKeysAppendOnly = [
-          publicKeys.matrix_backup_append_only
-        ];
-        authorizedKeys = [
-          publicKeys.matrix_backup_trusted
-        ];
-      };
-      mail_zebre_us = {
-        quota = "1T";
-        path = "/storage/borg/mail_zebre_us";
-        authorizedKeysAppendOnly = [
-          publicKeys.mail_zebre_us_backup_append_only
-        ];
-        authorizedKeys = [
-          publicKeys.mail_zebre_us_backup_trusted
-        ];
-      };
-      janek = {
-        quota = "2T";
-        path = "/storage/borg/janek";
-        authorizedKeysAppendOnly = [
-          publicKeys.janek_backup_append_only
-        ];
-        authorizedKeys = [
-          publicKeys.janek_backup_trusted
-        ];
-      };
-      janek-proxmox = {
-        quota = "2T";
-        path = "/storage/borg/janek-proxmox";
-        authorizedKeysAppendOnly = [
-          publicKeys.janek-proxmox_backup_append_only
-        ];
-        authorizedKeys = [
-          publicKeys.janek-proxmox_backup_trusted
-        ];
-      };
-    };
   };
 }

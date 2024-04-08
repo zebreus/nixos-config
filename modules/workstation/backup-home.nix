@@ -23,10 +23,19 @@ let
     ".npm"
     ".conda"
   ];
+
+  createReposModule = { config, lib, ... }: {
+    config = {
+      allBorgRepos = builtins.concatMap
+        (machine: if machine.workstation.enable then [{ name = "lennart_${machine.name}"; size = "3T"; }] else [ ])
+        (lib.attrValues config.machines);
+    };
+  };
 in
 {
   imports = [
     ../helpers/borgMeteredConnectionOption.nix
+    createReposModule
   ];
 
   config = lib.mkIf config.modules.workstation.enable {
@@ -66,7 +75,7 @@ in
             environment.BORG_RSH = "ssh -i ${config.age.secrets."lennart_${config.networking.hostName}_backup_append_only_ed25519".path}";
             environment.BORG_RELOCATED_REPO_ACCESS_IS_OK = "yes";
             extraCreateArgs = "--stats --checkpoint-interval 600";
-            repo = borgRepo.url;
+            repo = "${borgRepo.backupHost.locationPrefix}lennart_${config.networking.hostName}";
             startAt = "*-*-* 0${builtins.toString index}/3:00:00";
             persistentTimer = true;
             # user = "lennart";
@@ -76,10 +85,16 @@ in
             dontStartOnMeteredConnection = true;
           };
         })
-        [
-          { name = "kappril"; url = "ssh://borg@kappril//storage/borg/${config.networking.hostName}/home"; }
-          { name = "janek-backup"; url = "ssh://borg@janek-backup//backups/lennart/${config.networking.hostName}/home"; }
-        ]
+        ([
+          {
+            name = "janek-backup";
+            backupHost = {
+              locationPrefix = "borg@janek-backup//backups/lennart/";
+            };
+          }
+
+          { name = "janek-backup"; url = "ssh://borg@janek-backup//backups/lennart/lennart_${config.networking.hostName}"; }
+        ] ++ config.allBackupHosts)
       );
   };
 }

@@ -1,5 +1,5 @@
 # Option definitions for information about the machines in the network
-{ lib, ... }:
+{ lib, config, ... }:
 with lib;
 let
   machineOpts = self: {
@@ -107,7 +107,9 @@ let
         primary = mkOption {
           type = types.bool;
           default = false;
-          description = lib.mdDoc "Whether this machine is the primary authoritative DNS server. This one is responsible for DNSSEC signing";
+          description = lib.mdDoc ''
+            Whether this machine is the primary authoritative DNS server. This one is responsible for DNSSEC signing. There should be only one primary authoritative DNS server.
+          '';
         };
         name = mkOption {
           type = types.nullOr types.str;
@@ -116,8 +118,45 @@ let
           example = "ns1";
         };
       };
-    };
 
+      backupHost = {
+        enable = mkOption {
+          type = types.nullOr types.bool;
+          description = lib.mdDoc ''
+            This machine is hosting backups. The machine should provide at least 5TB of storage.
+          '';
+          default = false;
+        };
+        storagePath = mkOption {
+          type = types.nullOr types.str;
+          description = lib.mdDoc ''
+            The prefix of the path to the backup repos. This should be a path on a separate disk.
+          '';
+          default = "/storage/borg";
+          example = "/backups/lennart";
+        };
+        locationPrefix = mkOption {
+          type = types.nullOr types.str;
+          description = lib.mdDoc ''
+            The prefix to the borg repo. This string suffixed with the repo name is the full path to the borg repo.
+          '';
+          default = "ssh://borg@${self.config.name}/${self.config.backupHost.storagePath}/";
+          example = "ssh://borg@janek-backup//backups/lennart/";
+        };
+      };
+
+      workstation = {
+        enable = mkOption {
+          type = types.nullOr types.bool;
+          description = lib.mdDoc ''
+            This machine is a workstation. It is used for daily work and should have lennart, a GUI, ssh keys and such.
+
+            A home backup repo will be created for each workstation.
+          '';
+          default = false;
+        };
+      };
+    };
   };
 in
 {
@@ -126,6 +165,44 @@ in
       default = [ ];
       description = lib.mdDoc "Information about the machines in the network";
       type = with types; attrsOf (submodule machineOpts);
+    };
+    allBorgRepos =
+      let
+        backupRepo = self: {
+          options = {
+            name = mkOption {
+              type = types.str;
+              description = lib.mdDoc ''
+                The name of the backup repository. This is used to identify the backup repository on the backup host.
+
+                You need keys for every backup repository. Use `nix run .#gen-borg-keys <this_name> <machines> lennart` to generate the keys.
+              '';
+            };
+            size = mkOption {
+              type = types.str;
+              description = lib.mdDoc ''
+                Limit the maximum size of the repo.
+              '';
+              default = "2T";
+              example = "4T";
+            };
+          };
+        };
+      in
+      mkOption {
+        type = types.listOf (types.submodule backupRepo);
+        description = lib.mdDoc ''
+          List of all borg repos that will get generated. This is an internal option and should only be set implicitly.
+
+          I am sure that there is a better way to solve this.
+        '';
+        default = [ ];
+      };
+    allBackupHosts = mkOption {
+      default = lib.attrValues (lib.filterAttrs (name: machine: machine.backupHost.enable) config.machines);
+      description = lib.mdDoc "All hosts that are backup hosts. Collected from machines.";
+      type = with types; listOf (submodule machineOpts);
+      readOnly = true;
     };
   };
 }

@@ -61,6 +61,7 @@
             wireguardPublicKey = publicKeys.erms_wireguard;
             trusted = true;
             sshPublicKey = publicKeys.erms;
+            workstation.enable = true;
           };
           kashenblade = {
             name = "kashenblade";
@@ -80,6 +81,7 @@
             wireguardPublicKey = publicKeys.kappril_wireguard;
             publicPorts = [ 22 ];
             sshPublicKey = publicKeys.kappril;
+            backupHost.enable = true;
           };
           # Janeks laptop
           janek = {
@@ -135,6 +137,7 @@
             wireguardPublicKey = publicKeys.prandtl_wireguard;
             trusted = true;
             sshPublicKey = publicKeys.prandtl;
+            workstation.enable = true;
           };
           # MARKER_MACHINE_CONFIGURATIONS
         };
