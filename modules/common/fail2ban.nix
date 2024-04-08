@@ -5,7 +5,7 @@
     ignoreIP = [
       # Do not ban traffic from the antibuilding
       # TODO: Maybe only not ban traffic from workstations?
-      "10.20.30.0/24"
+      "fd10:2030::0/64"
     ];
     bantime = "10m";
     bantime-increment = {
