@@ -66,7 +66,7 @@ with import ./public-keys.nix;
   # Generated with `tr -dc A-Za-z0-9 </dev/urandom | head -c 64; echo`
   "lennart_erms_backup_passphrase.age".publicKeys = [ recovery erms lennart ];
   "matrix_backup_passphrase.age".publicKeys = [ recovery kashenblade lennart ];
-  "mail_zebre_us_backup_passphrase.age".publicKeys = [ recovery sempriaq lennart ];
+  "mail_backup_passphrase.age".publicKeys = [ recovery sempriaq lennart ];
   "lennart_prandtl_backup_passphrase.age".publicKeys = [ recovery prandtl lennart ];
   # MARKER_BORG_PASSPHRASES
 
@@ -82,10 +82,10 @@ with import ./public-keys.nix;
   "matrix_backup_append_only_ed25519_pub.age".publicKeys = [ recovery kashenblade lennart ];
   "matrix_backup_trusted_ed25519.age".publicKeys = [ recovery lennart ];
   "matrix_backup_trusted_ed25519_pub.age".publicKeys = [ recovery lennart ];
-  "mail_zebre_us_backup_append_only_ed25519.age".publicKeys = [ recovery sempriaq lennart ];
-  "mail_zebre_us_backup_append_only_ed25519_pub.age".publicKeys = [ recovery sempriaq lennart ];
-  "mail_zebre_us_backup_trusted_ed25519.age".publicKeys = [ recovery lennart ];
-  "mail_zebre_us_backup_trusted_ed25519_pub.age".publicKeys = [ recovery lennart ];
+  "mail_backup_append_only_ed25519.age".publicKeys = [ recovery sempriaq lennart ];
+  "mail_backup_append_only_ed25519_pub.age".publicKeys = [ recovery sempriaq lennart ];
+  "mail_backup_trusted_ed25519.age".publicKeys = [ recovery lennart ];
+  "mail_backup_trusted_ed25519_pub.age".publicKeys = [ recovery lennart ];
   "lennart_prandtl_backup_append_only_ed25519.age".publicKeys = [ recovery prandtl lennart ];
   "lennart_prandtl_backup_append_only_ed25519_pub.age".publicKeys = [ recovery prandtl lennart ];
   "lennart_prandtl_backup_trusted_ed25519.age".publicKeys = [ recovery lennart ];

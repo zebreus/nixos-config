@@ -2,6 +2,27 @@
 { lib, config, ... }:
 with lib;
 let
+  backupRepoOpts = self: {
+    options = {
+      name = mkOption {
+        type = types.str;
+        description = lib.mdDoc ''
+          The name of the backup repository. This is used to identify the backup repository on the backup host.
+
+          You need keys for every backup repository. Use `nix run .#gen-borg-keys <this_name> <machines> lennart` to generate the keys.
+        '';
+      };
+      size = mkOption {
+        type = types.str;
+        description = lib.mdDoc ''
+          Limit the maximum size of the repo.
+        '';
+        default = "2T";
+        example = "4T";
+      };
+    };
+  };
+
   machineOpts = self: {
     options = {
       name = mkOption {
@@ -156,6 +177,47 @@ let
           default = false;
         };
       };
+
+      mailServer = {
+        enable = mkEnableOption "Enable the mail server";
+        # TODO: Move this somewhere else
+        baseDomain = mkOption {
+          type = types.str;
+          description = ''
+            Base domain for the mail server. You need to setup the DNS records according to the
+            setup guide at https://nixos-mailserver.readthedocs.io/en/latest/setup-guide.html
+            and https://nixos-mailserver.readthedocs.io/en/latest/autodiscovery.html. Also add
+            an additional SPF record for the mail subdomain.
+          '';
+        };
+        # TODO: Move this somewhere else
+        certEmail = mkOption {
+          type = types.str;
+          description = "Email address to use for Let's Encrypt certificates.";
+        };
+      };
+
+      matrixServer = {
+        enable = mkEnableOption "Enable matrix server";
+        # TODO: Move this somewhere else
+        baseDomain = mkOption {
+          type = types.str;
+          description = "Base domain for the matrix server. You need to setup the DNS records for this domain and for the matrix, element, and turn subdomains.";
+        };
+        # TODO: Move this somewhere else
+        certEmail = mkOption {
+          type = types.str;
+          description = "Email address to use for Let's Encrypt certificates.";
+        };
+      };
+
+      extraBorgRepos = mkOption {
+        type = types.listOf (types.submodule backupRepoOpts);
+        description = lib.mdDoc ''
+          Extra borg repos used by this machine.
+        '';
+        default = [ ];
+      };
     };
   };
 in
@@ -166,38 +228,15 @@ in
       description = lib.mdDoc "Information about the machines in the network";
       type = with types; attrsOf (submodule machineOpts);
     };
-    allBorgRepos =
-      let
-        backupRepo = self: {
-          options = {
-            name = mkOption {
-              type = types.str;
-              description = lib.mdDoc ''
-                The name of the backup repository. This is used to identify the backup repository on the backup host.
+    allBorgRepos = mkOption {
+      type = types.listOf (types.submodule backupRepoOpts);
+      description = lib.mdDoc ''
+        List of all borg repos that will get generated. This is an internal option and should only be set implicitly.
 
-                You need keys for every backup repository. Use `nix run .#gen-borg-keys <this_name> <machines> lennart` to generate the keys.
-              '';
-            };
-            size = mkOption {
-              type = types.str;
-              description = lib.mdDoc ''
-                Limit the maximum size of the repo.
-              '';
-              default = "2T";
-              example = "4T";
-            };
-          };
-        };
-      in
-      mkOption {
-        type = types.listOf (types.submodule backupRepo);
-        description = lib.mdDoc ''
-          List of all borg repos that will get generated. This is an internal option and should only be set implicitly.
-
-          I am sure that there is a better way to solve this.
-        '';
-        default = [ ];
-      };
+        I am sure that there is a better way to solve this.
+      '';
+      default = [ ];
+    };
     allBackupHosts = mkOption {
       default = lib.attrValues (lib.filterAttrs (name: machine: machine.backupHost.enable) config.machines);
       description = lib.mdDoc "All hosts that are backup hosts. Collected from machines.";
@@ -205,4 +244,10 @@ in
       readOnly = true;
     };
   };
+
+  imports = [
+    {
+      allBorgRepos = builtins.concatMap (machine: machine.extraBorgRepos) (lib.attrValues config.machines);
+    }
+  ];
 }

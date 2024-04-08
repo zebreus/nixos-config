@@ -74,6 +74,11 @@
             authoritativeDns.enable = true;
             authoritativeDns.name = "ns1";
             publicPorts = [ 53 ];
+            matrixServer = {
+              enable = true;
+              baseDomain = "zebre.us";
+              certEmail = "lennarteichhorn@googlemail.com";
+            };
           };
           kappril = {
             name = "kappril";
@@ -88,12 +93,18 @@
             name = "janek";
             address = 4;
             wireguardPublicKey = publicKeys.janek_wireguard;
+            extraBorgRepos = [
+              { name = "janek"; size = "2T"; }
+            ];
           };
           # Janeks server
           janek-proxmox = {
             name = "janek-proxmox";
             address = 5;
             wireguardPublicKey = publicKeys.janek-proxmox_wireguard;
+            extraBorgRepos = [
+              { name = "janek-proxmox"; size = "2T"; }
+            ];
           };
           # Janeks backup server
           janek-backup = {
@@ -101,6 +112,10 @@
             address = 6;
             wireguardPublicKey = publicKeys.janek-backup_wireguard;
             public = true;
+            backupHost = {
+              enable = true;
+              storagePath = "/backups/lennart";
+            };
           };
           sempriaq = {
             name = "sempriaq";
@@ -112,6 +127,11 @@
             authoritativeDns.name = "ns3";
             publicPorts = [ 53 ];
             staticIp4 = "192.227.228.220";
+            mailServer = {
+              enable = true;
+              baseDomain = "zebre.us";
+              certEmail = "lennarteichhorn@googlemail.com";
+            };
           };
           # hetzner-template = {
           #   name = "hetzner-template";

@@ -39,7 +39,6 @@ in
   ];
 
   config = lib.mkIf config.modules.workstation.enable {
-
     age.secrets = {
       "lennart_${config.networking.hostName}_backup_passphrase" = {
         file = ../../secrets + "/lennart_${config.networking.hostName}_backup_passphrase.age";
@@ -85,16 +84,7 @@ in
             dontStartOnMeteredConnection = true;
           };
         })
-        ([
-          {
-            name = "janek-backup";
-            backupHost = {
-              locationPrefix = "borg@janek-backup//backups/lennart/";
-            };
-          }
-
-          { name = "janek-backup"; url = "ssh://borg@janek-backup//backups/lennart/lennart_${config.networking.hostName}"; }
-        ] ++ config.allBackupHosts)
+        config.allBackupHosts
       );
   };
 }

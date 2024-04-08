@@ -2,7 +2,7 @@
 
 with lib;
 let
-  cfg = config.modules.matrix;
+  cfg = config.machines.${config.networking.hostName}.matrixServer;
   inherit (cfg) baseDomain;
   turnDomain = "turn.${baseDomain}";
   elementDomain = "element.${baseDomain}";
@@ -39,20 +39,6 @@ let
   };
 in
 {
-  options.modules.matrix = {
-    enable = mkEnableOption "Enable matrix server";
-
-    baseDomain = mkOption {
-      type = types.str;
-      description = "Base domain for the matrix server. You need to setup the DNS records for this domain and for the matrix, element, and turn subdomains.";
-    };
-
-    certEmail = mkOption {
-      type = types.str;
-      description = "Email address to use for Let's Encrypt certificates.";
-    };
-  };
-
   config = mkIf cfg.enable {
     # Define the files with the secrets
     age.secrets = {
@@ -296,7 +282,7 @@ in
                 environment.BORG_RSH = "ssh -i ${config.age.secrets.matrix_backup_append_only_ed25519.path}";
                 environment.BORG_RELOCATED_REPO_ACCESS_IS_OK = "yes";
                 extraCreateArgs = "--stats --checkpoint-interval 600";
-                repo = borgRepo.url;
+                repo = "${borgRepo.backupHost.locationPrefix}matrix";
                 startAt = "*-*-* 00/1:00:00";
                 user = "root";
                 paths = [
@@ -305,10 +291,7 @@ in
                 ];
               };
           })
-          [
-            { name = "kappril"; url = "ssh://borg@kappril//storage/borg/matrix"; }
-            { name = "janek-backup"; url = "ssh://borg@janek-backup//backups/lennart/matrix"; }
-          ]
+          config.allBackupHosts
         );
     };
 
@@ -336,7 +319,7 @@ in
 
         export BORG_RSH="ssh -i ${config.age.secrets.matrix_backup_append_only_ed25519.path}"
         export BORG_PASSCOMMAND="cat ${config.age.secrets.matrix_backup_passphrase.path}"
-        export BORG_REPO='ssh://borg@kappril//storage/borg/matrix'
+        export BORG_REPO='${let firstBackupHost = builtins.head config.allBackupHosts ; in "${firstBackupHost.backupHost.locationPrefix}matrix"}'
         export ARCHIVE=$(borg list --last 1 | cut -d" " -f1)
 
         echo "Dropping old database"
@@ -361,4 +344,13 @@ in
       '')
     ];
   };
+
+  imports = [
+    # Create backup Repo
+    {
+      config = {
+        allBorgRepos = [{ name = "matrix"; size = "1T"; }];
+      };
+    }
+  ];
 }

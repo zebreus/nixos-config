@@ -1,7 +1,7 @@
 { lib, config, pkgs, ... }:
 with lib;
 let
-  cfg = config.modules.mail;
+  cfg = config.machines.${config.networking.hostName}.mailServer;
   inherit (cfg) baseDomain;
   mailFqdn = "mail.${baseDomain}";
   inherit (cfg) certEmail;
@@ -9,36 +9,17 @@ let
   name = builtins.replaceStrings [ "." "-" ] [ "_" "_" ] baseDomain;
 in
 {
-  options.modules.mail = {
-    enable = mkEnableOption "Enable the mail server";
-
-    baseDomain = mkOption {
-      type = types.str;
-      description = ''
-        Base domain for the mail server. You need to setup the DNS records according to the
-        setup guide at https://nixos-mailserver.readthedocs.io/en/latest/setup-guide.html
-        and https://nixos-mailserver.readthedocs.io/en/latest/autodiscovery.html. Also add
-        an additional SPF record for the mail subdomain.
-      '';
-    };
-
-    certEmail = mkOption {
-      type = types.str;
-      description = "Email address to use for Let's Encrypt certificates.";
-    };
-  };
-
   config = mkIf cfg.enable {
     age.secrets = {
       lennart_mail_passwordhash = {
         file = ../secrets/lennart_mail_passwordhash.age;
         mode = "0444";
       };
-      "mail_${name}_backup_passphrase" = {
-        file = ../secrets + "/mail_${name}_backup_passphrase.age";
+      "mail_backup_passphrase" = {
+        file = ../secrets + "/mail_backup_passphrase.age";
       };
-      "mail_${name}_backup_append_only_ed25519" = {
-        file = ../secrets + "/mail_${name}_backup_append_only_ed25519.age";
+      "mail_backup_append_only_ed25519" = {
+        file = ../secrets + "/mail_backup_append_only_ed25519.age";
       };
       "${name}_dkim_rsa" = {
         file = ../secrets + "/${name}_dkim_rsa.age";
@@ -106,18 +87,18 @@ in
     services.borgbackup.jobs = builtins.listToAttrs
       (builtins.map
         (borgRepo: {
-          name = "mail-${name}-to-${borgRepo.name}";
+          name = "mail-to-${borgRepo.name}";
           value =
             {
-              archiveBaseName = "mail_${name}";
+              archiveBaseName = "mail";
               encryption = {
                 mode = "repokey";
-                passCommand = "cat ${config.age.secrets."mail_${name}_backup_passphrase".path}";
+                passCommand = "cat ${config.age.secrets."mail_backup_passphrase".path}";
               };
-              environment.BORG_RSH = "ssh -i ${config.age.secrets."mail_${name}_backup_append_only_ed25519".path}";
+              environment.BORG_RSH = "ssh -i ${config.age.secrets."mail_backup_append_only_ed25519".path}";
               environment.BORG_RELOCATED_REPO_ACCESS_IS_OK = "yes";
               extraCreateArgs = "--stats --checkpoint-interval 600";
-              repo = borgRepo.url;
+              repo = "${borgRepo.backupHost.locationPrefix}mail";
               startAt = "*-*-* 00/1:00:00";
               user = "root";
               paths = [
@@ -125,9 +106,7 @@ in
               ];
             };
         })
-        [
-          { name = "kappril"; url = "ssh://borg@kappril//storage/borg/mail_${name}"; }
-        ]
+        config.allBackupHosts
       );
 
     environment.systemPackages = with pkgs; [
@@ -147,9 +126,9 @@ in
         
         systemctl stop dovecot2
 
-        export BORG_RSH="ssh -i ${config.age.secrets."mail_${name}_backup_append_only_ed25519".path}"
-        export BORG_PASSCOMMAND="cat ${config.age.secrets."mail_${name}_backup_passphrase".path}"
-        export BORG_REPO='ssh://borg@kappril//storage/borg/mail_${name}'
+        export BORG_RSH="ssh -i ${config.age.secrets."mail_backup_append_only_ed25519".path}"
+        export BORG_PASSCOMMAND="cat ${config.age.secrets."mail_backup_passphrase".path}"
+        export BORG_REPO='${let firstBackupHost = builtins.head config.allBackupHosts ; in "${firstBackupHost.backupHost.locationPrefix}mail"}'
         export ARCHIVE=$(borg list --last 1 | cut -d" " -f1)
 
         echo "Deleting old mail data"
@@ -165,8 +144,14 @@ in
     ];
   };
 
-  # Configure the mail server to relay mail for all other machines on the VPN
   imports = [
+    # Add backup repo
+    {
+      config = {
+        allBorgRepos = [{ name = "mail"; size = "1T"; }];
+      };
+    }
+    # Configure the mail server to relay mail for all other machines on the VPN
     ({ lib, config, pkgs, ... }:
       let
         machines =
