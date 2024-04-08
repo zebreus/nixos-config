@@ -114,7 +114,7 @@ in
       writeScriptBin "restore-mail-from-backup" ''
         #!${bash}/bin/bash
 
-        # Mail restore script tested at 07.03.2024
+        # Mail restore script tested at 08.04.2024
 
         read -r -p "Are you sure you want to restore from the latest backup? This will destroy the current data. [y/N]" -n 1
         echo # (optional) move to a new line
@@ -128,8 +128,26 @@ in
 
         export BORG_RSH="ssh -i ${config.age.secrets."mail_backup_append_only_ed25519".path}"
         export BORG_PASSCOMMAND="cat ${config.age.secrets."mail_backup_passphrase".path}"
-        export BORG_REPO='${let firstBackupHost = builtins.head config.allBackupHosts ; in "${firstBackupHost.backupHost.locationPrefix}mail"}'
-        export ARCHIVE=$(borg list --last 1 | cut -d" " -f1)
+
+        ALL_BORG_REPOS=( ${ lib.concatStringsSep " " (builtins.map (machine: "'${machine.backupHost.locationPrefix}mail'") config.allBackupHosts)} )
+        LATEST_TIMESTAMP=mail-0
+        for TEST_BORG_REPO in "''${ALL_BORG_REPOS[@]}"; do
+          THIS_REPO_TIMESTAMP="$(borg list --sort timestamp --last 1 $TEST_BORG_REPO | cut -d" " -f1 | grep -Po '^mail-[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}$' | tail -1 || true)"
+          if [ -z "$THIS_REPO_TIMESTAMP" ] ; then
+            continue
+          fi
+          if [ "$LATEST_TIMESTAMP" \> "$THIS_REPO_TIMESTAMP" ] ; then
+            continue
+          fi
+          export LATEST_TIMESTAMP="$THIS_REPO_TIMESTAMP"
+          export BORG_REPO="$TEST_BORG_REPO"
+          export ARCHIVE="$THIS_REPO_TIMESTAMP"
+        done
+
+        if [ -z "$BORG_REPO" ] || [ -z "$ARCHIVE" ] ; then
+          echo "No backup found"
+          exit 1
+        fi
 
         echo "Deleting old mail data"
         rm -rf /var/vmail
