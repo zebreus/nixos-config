@@ -69,8 +69,8 @@ in
             repo = borgRepo.url;
             startAt = "*-*-* 0${builtins.toString index}/3:00:00";
             persistentTimer = true;
-            user = "lennart";
-            group = config.users.users.lennart.group;
+            # user = "lennart";
+            # group = config.users.users.lennart.group;
             paths = "/home/lennart";
             exclude = map (x: paths + "/" + x) common-excludes;
             dontStartOnMeteredConnection = true;
