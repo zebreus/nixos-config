@@ -2,7 +2,6 @@
 {
   boot = {
     extraModprobeConfig = ''
-      options thinkpad_acpi fan_control=1
       # exclusive_caps: Skype, Zoom, Teams etc. will only show device when actually streaming
       # card_label: Name of virtual camera, how it'll show up in Skype, Zoom, Teams
       # https://github.com/umlaeute/v4l2loopback
