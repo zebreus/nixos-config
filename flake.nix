@@ -159,6 +159,15 @@
             sshPublicKey = publicKeys.prandtl;
             workstation.enable = true;
           };
+          # Leon (friend of basilikum) laptop
+          leon = {
+            name = "leon";
+            address = 10;
+            wireguardPublicKey = publicKeys.leon_wireguard;
+            extraBorgRepos = [
+              { name = "leon"; size = "2T"; }
+            ];
+          };
           # MARKER_MACHINE_CONFIGURATIONS
         };
       };

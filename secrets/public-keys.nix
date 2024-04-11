@@ -34,6 +34,8 @@ rec {
   mail_backup_trusted = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKCBUTAjUWmMlNOBpp2SwFICx4DKoNxiWVGfkWtPOptr";
   lennart_prandtl_backup_append_only = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIDhfgbfKLPq9ku1okz+ivR5eb78b48mZKpu0lScgokHD";
   lennart_prandtl_backup_trusted = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIDg8GlQVRU4aC2oDCkDtEd5ENKMRAMtJNgWWye2Eau0Z";
+  leon_backup_trusted = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHDDQCsVnX67JHU006N7v/smtzghvUC3MKA5+h+O6CDs";
+  leon_backup_append_only = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHDDQCsVnX47JHU006N7v/smtzghvUC3MKA5+h+O6CDs";
   # MARKER_BORG_BACKUP_KEYS
 
   # Wireguard public keys
@@ -47,6 +49,7 @@ rec {
   sempriaq_wireguard = "EUtA4cXqFQ7kXKG4YSjfQn3PnVGI1kyiGvhaVPwNOCo=";
   blanderdash_wireguard = "yFx4AJXOdeuJWXh49DX2/ZO49hIanWJb0Jskuo4p63Y=";
   prandtl_wireguard = "nAN30SXneQcSandzacBYO8cqIA0e2z+5ejukDzruDGo=";
+  leon_wireguard = "rZcYbQkYucVu/fPnAK6ciB3OiwAvlddmsxoaC+Apc0I=";
   # MARKER_WIREGUARD_PUBLIC_KEYS
 
   # VPN mail DKIM public keys
