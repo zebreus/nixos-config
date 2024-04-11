@@ -65,7 +65,13 @@ in
                   host = "lounge lounge.w17.io";
                   hostname = "lounge.w17.io";
                   user = "chaos";
-                  identityFile = "~/.ssh/w17_ed25519";
+                  identityFile = config.age.secrets.lennart_ed25519.path;
+                };
+                door = {
+                  host = "door door.w17.io";
+                  hostname = "door.w17.io";
+                  user = "door";
+                  identityFile = config.age.secrets.w17_door_ed25519.path;
                 };
               };
               # Code forges

@@ -21,6 +21,9 @@ rec {
   # These keys are only present on the machines I use interactively and have a passphrase
   lennart = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIBTHzLm8QMhHIo7kFAvtAFnqpspeR3L3gM8kLoG1137";
 
+  # Extra SSH keys
+  w17_door = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPStVtYN/R5trr3hQSn1rLZ2bxDveTme9wtP/dpYvpG+";
+
   # Borg backup keys
   lennart_erms_backup_append_only = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIEEAbjLP/4tC4+UQCytbISY+ezfEd2NhohU7a33s0XTz";
   lennart_erms_backup_trusted = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAf6WpgqXZg5Nz5/bYaF8fd72zE3TK8FhcCnT+7OGTRr";

@@ -39,6 +39,10 @@ with import ./public-keys.nix;
   "lennart_ed25519.age".publicKeys = [ recovery lennart ] ++ workstations;
   "lennart_ed25519_pub.age".publicKeys = [ recovery lennart ] ++ workstations;
 
+  # Extra SSH keys
+  "w17_door_ed25519.age".publicKeys = [ recovery ] ++ workstations;
+  "w17_door_ed25519_pub.age".publicKeys = [ recovery ] ++ workstations;
+
   # User login passwords
   "lennart_login_passwordhash.age".publicKeys = [ recovery ] ++ workstations;
 
