@@ -133,6 +133,22 @@
         "type": "github"
       }
     },
+    "gimp-nixpkgs": {
+      "locked": {
+        "lastModified": 1712741485,
+        "narHash": "sha256-bCs0+MSTra80oXAsnM6Oq62WsirOIaijQ/BbUY59tR4=",
+        "owner": "nixos",
+        "repo": "nixpkgs",
+        "rev": "b2cf36f43f9ef2ded5711b30b1f393ac423d8f72",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nixos",
+        "ref": "nixos-23.11",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
     "gnome-online-accounts-config": {
       "inputs": {
         "flake-utils": "flake-utils",
@@ -259,6 +275,7 @@
       "inputs": {
         "agenix": "agenix",
         "disko": "disko",
+        "gimp-nixpkgs": "gimp-nixpkgs",
         "gnome-online-accounts-config": "gnome-online-accounts-config",
         "home-manager": "home-manager_3",
         "nixos-wallpaper": "nixos-wallpaper",

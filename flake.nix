@@ -1,6 +1,7 @@
 {
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
+    gimp-nixpkgs.url = "github:nixos/nixpkgs/nixos-23.11";
     home-manager = {
       url = "github:zebreus/home-manager?ref=init-secret-service";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -28,14 +29,34 @@
     };
   };
 
-  outputs = { self, nixpkgs, home-manager, disko, agenix, simple-nix-mailserver, gnome-online-accounts-config, nixos-wallpaper, ... }@attrs:
+  outputs = { self, nixpkgs, gimp-nixpkgs, home-manager, disko, agenix, simple-nix-mailserver, gnome-online-accounts-config, nixos-wallpaper, ... }@attrs:
     let
 
       overlays = [
-        (final: prev: {
-          agenix = agenix.packages.${prev.system}.default;
-          nixos-wallpaper = nixos-wallpaper.packages.${prev.system}.default;
-        })
+        (final: prev:
+          let
+            gimp-pkgs = import gimp-nixpkgs {
+              system = prev.system;
+              # gimp with plugins needs an ancient python version
+              config.permittedInsecurePackages = [
+                "python-2.7.18.7-env"
+                "python-2.7.18.7"
+              ];
+              overlays = [
+                (final: prev: {
+                  gimp = prev.gimp.override {
+                    withPython = true;
+                  };
+                })
+              ];
+            };
+          in
+          {
+            agenix = agenix.packages.${prev.system}.default;
+            nixos-wallpaper = nixos-wallpaper.packages.${prev.system}.default;
+
+            gimp-with-plugins = gimp-pkgs.gimp-with-plugins;
+          })
       ];
       pkgs = import nixpkgs {
         inherit overlays;
