@@ -119,9 +119,7 @@
                 mailboxType = "imap";
                 mailboxName = "lennart";
               };
-              thunderbird = {
-                enable = true;
-              };
+              thunderbird.enable = true;
               msmtp.enable = true;
               gnome-online-accounts.enable = true;
             };
@@ -146,9 +144,7 @@
                 mailboxType = "imap";
                 mailboxName = "gmail";
               };
-              thunderbird = {
-                enable = true;
-              };
+              thunderbird.enable = true;
               msmtp.enable = true;
               gnome-online-accounts = {
                 enable = true;
@@ -161,9 +157,11 @@
               imap = {
                 host = "imap.stud.h-da.de";
                 port = 993;
+                tls.enable = true;
+                tls.useStartTls = false;
               };
               smtp = {
-                host = "mail.zebre.us";
+                host = "smtp.h-da.de";
                 port = 587;
                 tls.useStartTls = true;
               };
@@ -175,11 +173,11 @@
                 mailboxType = "imap";
                 mailboxName = "hda";
               };
-              thunderbird = {
+              thunderbird.enable = true;
+              gnome-online-accounts = {
                 enable = true;
+                smtp.userName = "stlteich";
               };
-              msmtp.enable = true;
-              gnome-online-accounts.enable = true;
             };
           };
         };
