@@ -37,11 +37,16 @@ let
       $TTL 60
       $ORIGIN antibuild.ing.
       @ SOA ${(lib.head primaryServers).authoritativeDns.name}.antibuild.ing. lennart.zebre.us. 1710255000 14400 3600 604800 300
+
+      ; Nameservers
       ${lib.concatStringsSep "\n" (lib.concatMap (machine: [
         "@ NS ${machine.authoritativeDns.name}.antibuild.ing." ] ++ 
         (if machine.staticIp4 != null then [ "${machine.authoritativeDns.name} A ${machine.staticIp4}" ] else [ ]) ++
         (if machine.staticIp6 != null then [ "${machine.authoritativeDns.name} AAAA ${machine.staticIp6}" ] else [ ])
       ) machinesThatAreAuthoritativeDnsServers)}
+
+      ; TXT for keyoxide
+      @ IN TXT ${quoteTxtEntry "openpgp4fpr:2D53CFEA1AB4017BB327AFE310A46CC3152D49C5"}
     ''
     +
     (builtins.concatStringsSep "\n" (
@@ -103,6 +108,9 @@ let
       _submissions._tcp IN SRV 0 5 465 mail.zebreu.us.
       _imap._tcp IN SRV 0 5 143 mail.zebreu.us.
       _imaps._tcp IN SRV 0 5 993 mail.zebreu.us.
+
+      ; TXT for keyoxide
+      @ IN TXT ${quoteTxtEntry "openpgp4fpr:2D53CFEA1AB4017BB327AFE310A46CC3152D49C5"}
     '';
 
     # My old email server lived here. Now it's just a redirect to the new one
@@ -131,6 +139,9 @@ let
       _submissions._tcp IN SRV 0 5 465 mail.zebreu.us.
       _imap._tcp IN SRV 0 5 143 mail.zebreu.us.
       _imaps._tcp IN SRV 0 5 993 mail.zebreu.us.
+
+      ; TXT for keyoxide
+      @ IN TXT ${quoteTxtEntry "openpgp4fpr:2D53CFEA1AB4017BB327AFE310A46CC3152D49C5"}
     '';
 
     # I use this domains for hosting random stuff with github pages
@@ -163,6 +174,9 @@ let
       search IN CNAME zebreus.github.io.
       second IN CNAME zebreus.github.io.
       _github-pages-challenge-zebreus IN TXT ${quoteTxtEntry "3a57be146a6065e7abbae1a5783afa"}
+
+      ; TXT for keyoxide
+      @ IN TXT ${quoteTxtEntry "openpgp4fpr:2D53CFEA1AB4017BB327AFE310A46CC3152D49C5"}
     '';
 
     # My old matrix server
@@ -179,6 +193,9 @@ let
       @ IN NS ns1.antibuild.ing.
       @ IN NS ns2.antibuild.ing.
       @ IN NS ns3.antibuild.ing.
+
+      ; TXT for keyoxide
+      @ IN TXT ${quoteTxtEntry "openpgp4fpr:2D53CFEA1AB4017BB327AFE310A46CC3152D49C5"}
     '';
 
     # I use this domain for testing
@@ -195,6 +212,9 @@ let
       @ IN NS ns1.antibuild.ing.
       @ IN NS ns2.antibuild.ing.
       @ IN NS ns3.antibuild.ing.
+
+      ; TXT for keyoxide
+      @ IN TXT ${quoteTxtEntry "openpgp4fpr:2D53CFEA1AB4017BB327AFE310A46CC3152D49C5"}
     '';
 
     # Hosts a badly drawn picture of a unicorn
@@ -226,6 +246,9 @@ let
       www IN CNAME zebreus.github.io.
       _github-pages-challenge-zebreus IN TXT ${quoteTxtEntry "039c1f2cef900279d730d61bbf2295"}
       @ IN TXT ${quoteTxtEntry "google-site-verification=N11GiQq5grX82UY2Ik0dn4AQ7NpFd4dl_Sg2G2BYrvU"}
+
+      ; TXT for keyoxide
+      @ IN TXT ${quoteTxtEntry "openpgp4fpr:2D53CFEA1AB4017BB327AFE310A46CC3152D49C5"}
     '';
 
     # Hosts a now defunct and unfinished project for ai generated shirts
@@ -246,6 +269,9 @@ let
       @	IN A 76.76.21.21
       www	IN CNAME cname.vercel-dns.com.
       @ IN TXT ${quoteTxtEntry "google-site-verification=6B_Cig2VbMktIY9q13NowVz_5bZ1bQLgSOdFgVqpuzQ"}
+
+      ; TXT for keyoxide
+      @ IN TXT ${quoteTxtEntry "openpgp4fpr:2D53CFEA1AB4017BB327AFE310A46CC3152D49C5"}
     '';
 
     # Hosts a broken test of a gunjs based blog
@@ -266,6 +292,9 @@ let
       @	IN A 76.76.21.21
       www	IN CNAME cname.vercel-dns.com.
       testing IN NS ns1.vercel-dns.com.
+
+      ; TXT for keyoxide
+      @ IN TXT ${quoteTxtEntry "openpgp4fpr:2D53CFEA1AB4017BB327AFE310A46CC3152D49C5"}
     '';
     # 
   };
