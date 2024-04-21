@@ -146,6 +146,8 @@ with import ./public-keys.nix;
   "prandtl_dkim_rsa_pub.age".publicKeys = [ recovery sempriaq ];
   "prandtl_mail_password.age".publicKeys = [ recovery prandtl ];
   "prandtl_mail_passwordhash.age".publicKeys = [ recovery prandtl sempriaq ];
+  "antibuild_ing_dkim_rsa.age".publicKeys = [ recovery sempriaq ];
+  "antibuild_ing_dkim_rsa_pub.age".publicKeys = [ recovery sempriaq ];
   # MARKER_VPN_MAIL_SECRETS
 
   # Authoritative DNS server transport key

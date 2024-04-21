@@ -33,6 +33,12 @@ in
         inherit (config.services.opendkim) group;
         path = "${config.mailserver.dkimKeyDirectory}/madmanfred.com.mail.key";
       };
+      "antibuild_ing_dkim_rsa" = {
+        file = ../secrets + "/antibuild_ing_dkim_rsa.age";
+        owner = config.services.opendkim.user;
+        inherit (config.services.opendkim) group;
+        path = "${config.mailserver.dkimKeyDirectory}/antibuild.ing.mail.key";
+      };
     };
 
     services.postfix = {
@@ -48,7 +54,7 @@ in
       enable = true;
       debug = true;
       fqdn = mailFqdn;
-      domains = [ domain "madmanfred.com" ];
+      domains = [ domain "madmanfred.com" "antibuild.ing" ];
 
       # According to the simple nix mailserver doc it is a good idea to run a local DNS resolver on the mail server
       # However, I also want to run an authoritative DNS server on the mail server, so for now I will disable the local DNS resolver (kresd)
@@ -58,7 +64,7 @@ in
       loginAccounts = {
         "lennart@${domain}" = {
           hashedPasswordFile = config.age.secrets.lennart_mail_passwordhash.path;
-          aliases = [ "postmaster@${domain}" "dmarc-reports@${domain}" "abuse@${domain}" "@${domain}" "@madmanfred.com" ];
+          aliases = [ "postmaster@${domain}" "dmarc-reports@${domain}" "abuse@${domain}" "@${domain}" "@madmanfred.com" "@antibuild.ing" ];
         };
       };
 
