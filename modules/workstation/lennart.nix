@@ -29,10 +29,11 @@ in
       "fix-permissions" = ''
         mkdir -p /home/lennart
         chmod 700 /home/lennart
-        mkdir -p /home/lennart/.ssh /home/lennart/.cache /home/lennart/.config
-        chmod 700 /home/lennart/.ssh /home/lennart/.config
+        mkdir -p /home/lennart/.ssh /home/lennart/.gnupg /home/lennart/.cache /home/lennart/.config
+        chmod 700 /home/lennart/.ssh /home/lennart/.gnupg /home/lennart/.config
         chmod 755 /home/lennart/.cache
         # Recursively chown, if they are not owned by lennart
+        test "$(stat -c "%U" /home/lennart/.gnupg)" == "root" && chown -R lennart:${config.users.users.lennart.group} /home/lennart/.gnupg
         test "$(stat -c "%U" /home/lennart/.ssh)" == "root" && chown -R lennart:${config.users.users.lennart.group} /home/lennart/.ssh
         test "$(stat -c "%U" /home/lennart/.config)" == "root" && chown -R lennart:${config.users.users.lennart.group} /home/lennart/.config
         test "$(stat -c "%U" /home/lennart/.cache)" == "root" && chown -R lennart:${config.users.users.lennart.group} /home/lennart/.cache

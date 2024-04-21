@@ -25,12 +25,7 @@
         inherit (config.users.users.lennart) group;
         mode = "0400";
       };
-    };
 
-    services.pcscd.enable = true;
-    programs.gnupg.agent = {
-      enable = true;
-      pinentryPackage = pkgs.pinentry-gnome3;
     };
 
     home-manager.users = {
@@ -40,16 +35,6 @@
           hmConfig = homeManagerConfig.config;
         in
         {
-          programs.gpg = {
-            enable = true;
-            mutableKeys = true;
-            mutableTrust = true;
-            settings = {
-              # pinentry-mode = "loopback";
-              # "pinentry-program" = "${pkgs.pinentry}/bin/pinentry-gnome3";
-            };
-          };
-
           services.secret-service = {
             enable = true;
             secrets = [

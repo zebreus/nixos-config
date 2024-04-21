@@ -7,6 +7,7 @@
     ./emulated-systems.nix
     ./lennart.nix
     ./libvirt.nix
+    ./pgp.nix
     ./ssh-config.nix
     ./sudo.nix
     ./user-keys.nix
