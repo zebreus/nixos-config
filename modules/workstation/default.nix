@@ -5,6 +5,7 @@
     ./docker.nix
     ./email.nix
     ./emulated-systems.nix
+    ./homed.nix
     ./lennart.nix
     ./libvirt.nix
     ./pgp.nix
