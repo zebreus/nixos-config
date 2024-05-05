@@ -160,4 +160,7 @@ with import ./public-keys.nix;
   "81EDCEC815439600DA23AB15724393D1679C298D.key.age".publicKeys = [ recovery ] ++ workstations;
   "9DF33900CF5820B18A0C66C742A691EAC28D7B14.key.age".publicKeys = [ recovery ] ++ workstations;
   "FDE63AD88CBC90D1ABFB8FDC202C18E088EB7187.key.age".publicKeys = [ recovery ] ++ workstations;
+  
+  # Systemd-homed keys
+  "497a_homed.age".publicKeys = [ recovery ] ++ workstations;
 }
