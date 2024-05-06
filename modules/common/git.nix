@@ -5,7 +5,7 @@
     (pkgs.writeScriptBin "git-unfuck" ''
       #!/usr/bin/env bash
 
-      git commit --amend --no-edit && git push -f
+      git commit --amend --no-edit && git push --force-with-lease --force-if-includes
       echo unfucked!!!
     '')
   ];
