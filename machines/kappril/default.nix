@@ -10,4 +10,7 @@
   networking.hostName = "kappril";
 
   modules.boot.type = "raspi";
+
+  # Reduce log pollution to protect the SD card
+  networking.firewall.logRefusedConnections = false;
 }
