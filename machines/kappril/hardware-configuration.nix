@@ -17,11 +17,13 @@
   fileSystems."/" = {
     device = "/dev/disk/by-partuuid/2178694e-02";
     fsType = "ext4";
+    options = [ "defaults" "noatime" ];
   };
 
   fileSystems."/storage" = {
     device = "/dev/disk/by-uuid/9cb27da6-d189-4f8d-8070-6ea445d0cd50";
     fsType = "bcachefs";
+    options = [ "defaults" "nofail" "x-systemd.device-timeout=600" "x-systemd.mount-timeout=600" "verbose" ];
   };
 
   swapDevices = [{
