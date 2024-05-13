@@ -36,7 +36,7 @@ let
     "antibuild.ing" = ''
       $TTL 60
       $ORIGIN antibuild.ing.
-      @ SOA ${(lib.head primaryServers).authoritativeDns.name}.antibuild.ing. lennart.zebre.us. 1710256000 14400 3600 604800 300
+      @ SOA ${(lib.head primaryServers).authoritativeDns.name}.antibuild.ing. lennart.zebre.us. 1710257000 14400 3600 604800 300
 
       ; Nameservers
       ${lib.concatStringsSep "\n" (lib.concatMap (machine: [
@@ -88,7 +88,7 @@ let
       $TTL 60
       $ORIGIN zebre.us.
       @ IN SOA ns1.antibuild.ing. lennart.zebre.us. (
-              1710256000  ; serial secs since Jan 1 1970
+              1710257000  ; serial secs since Jan 1 1970
               14400        ; refresh (>=60)
               3600        ; retry (>=60)
               604800      ; expire
@@ -130,7 +130,7 @@ let
       $TTL 60
       $ORIGIN madmanfred.com.
       @ IN SOA ns1.antibuild.ing. lennart.zebre.us. (
-              1710256000  ; serial secs since Jan 1 1970
+              1710257000  ; serial secs since Jan 1 1970
               14400        ; refresh (>=60)
               3600        ; retry (>=60)
               604800      ; expire
@@ -161,7 +161,7 @@ let
       $TTL 60
       $ORIGIN wirs.ing.
       @ IN SOA ns1.antibuild.ing. lennart.zebre.us. (
-              1710256000  ; serial secs since Jan 1 1970
+              1710257000  ; serial secs since Jan 1 1970
               14400       ; refresh (>=60)
               3600        ; retry (>=60)
               604800      ; expire
@@ -196,7 +196,7 @@ let
       $TTL 60
       $ORIGIN cicen.net.
       @ IN SOA ns1.antibuild.ing. lennart.zebre.us. (
-              1710256000  ; serial secs since Jan 1 1970
+              1710257000  ; serial secs since Jan 1 1970
               14400       ; refresh (>=60)
               3600        ; retry (>=60)
               604800      ; expire
@@ -215,7 +215,7 @@ let
       $TTL 60
       $ORIGIN del.blue.
       @ IN SOA ns1.antibuild.ing. lennart.zebre.us. (
-              1710256000  ; serial secs since Jan 1 1970
+              1710257000  ; serial secs since Jan 1 1970
               14400       ; refresh (>=60)
               3600        ; retry (>=60)
               604800      ; expire
@@ -234,7 +234,7 @@ let
       $TTL 60
       $ORIGIN einhorn.jetzt.
       @ IN SOA ns1.antibuild.ing. lennart.zebre.us. (
-              1710256000  ; serial secs since Jan 1 1970
+              1710257000  ; serial secs since Jan 1 1970
               14400       ; refresh (>=60)
               3600        ; retry (>=60)
               604800      ; expire
@@ -268,7 +268,7 @@ let
       $TTL 60
       $ORIGIN generated.fashion.
       @ IN SOA ns1.antibuild.ing. lennart.zebre.us. (
-              1710256000  ; serial secs since Jan 1 1970
+              1710257000  ; serial secs since Jan 1 1970
               14400       ; refresh (>=60)
               3600        ; retry (>=60)
               604800      ; expire
@@ -291,7 +291,7 @@ let
       $TTL 60
       $ORIGIN xn--f87c.cc.
       @ IN SOA ns1.antibuild.ing. lennart.zebre.us. (
-              1710256000  ; serial secs since Jan 1 1970
+              1710257000  ; serial secs since Jan 1 1970
               14400       ; refresh (>=60)
               3600        ; retry (>=60)
               604800      ; expire
@@ -304,6 +304,25 @@ let
       @	IN A 76.76.21.21
       www	IN CNAME cname.vercel-dns.com.
       testing IN NS ns1.vercel-dns.com.
+
+      ; TXT for keyoxide
+      @ IN TXT ${quoteTxtEntry "openpgp4fpr:2D53CFEA1AB4017BB327AFE310A46CC3152D49C5"}
+    '';
+
+    # Maybe I will use this for an url shortener or something. nothing for now
+    "zeb.rs" = ''
+      $TTL 60
+      $ORIGIN zeb.rs.
+      @ IN SOA ns1.antibuild.ing. lennart.zebre.us. (
+              1710257000  ; serial secs since Jan 1 1970
+              14400       ; refresh (>=60)
+              3600        ; retry (>=60)
+              604800      ; expire
+              300         ; minimum ttl
+              )
+      @ IN NS ns1.antibuild.ing.
+      @ IN NS ns2.antibuild.ing.
+      @ IN NS ns3.antibuild.ing.
 
       ; TXT for keyoxide
       @ IN TXT ${quoteTxtEntry "openpgp4fpr:2D53CFEA1AB4017BB327AFE310A46CC3152D49C5"}
