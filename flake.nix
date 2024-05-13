@@ -27,9 +27,13 @@
       url = "github:zebreus/nixos-dark-wallpaper";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    besserestrichliste = {
+      url = "github:zebreus/besserestrichliste";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
-  outputs = { self, nixpkgs, gimp-nixpkgs, home-manager, disko, agenix, simple-nix-mailserver, gnome-online-accounts-config, nixos-wallpaper, ... }@attrs:
+  outputs = { self, nixpkgs, gimp-nixpkgs, home-manager, disko, agenix, simple-nix-mailserver, gnome-online-accounts-config, nixos-wallpaper, besserestrichliste, ... }@attrs:
     let
 
       overlays = [
@@ -206,6 +210,7 @@
               home-manager.nixosModules.home-manager
               simple-nix-mailserver.nixosModules.default
               gnome-online-accounts-config.nixosModules.default
+              besserestrichliste.nixosModules.x86_64-linux.default
               ./machines/erms
             ];
           };
@@ -220,6 +225,7 @@
               home-manager.nixosModules.home-manager
               simple-nix-mailserver.nixosModules.default
               gnome-online-accounts-config.nixosModules.default
+              besserestrichliste.nixosModules.aarch64-linux.default
               ./machines/kashenblade
             ];
           };
@@ -234,6 +240,7 @@
               home-manager.nixosModules.home-manager
               simple-nix-mailserver.nixosModules.default
               gnome-online-accounts-config.nixosModules.default
+              besserestrichliste.nixosModules.aarch64-linux.default
               ./machines/kappril
             ];
           };
@@ -248,6 +255,7 @@
               home-manager.nixosModules.home-manager
               simple-nix-mailserver.nixosModules.default
               gnome-online-accounts-config.nixosModules.default
+              besserestrichliste.nixosModules.x86_64-linux.default
               ./machines/sempriaq
             ];
           };
@@ -262,6 +270,7 @@
               # home-manager.nixosModules.home-manager
               # simple-nix-mailserver.nixosModules.default
               # gnome-online-accounts-config.nixosModules.default
+              # besserestrichliste.nixosModules.aarch64-linux.default
               ./machines/hetzner-template
             ];
           };
@@ -275,6 +284,7 @@
               home-manager.nixosModules.home-manager
               simple-nix-mailserver.nixosModules.default
               gnome-online-accounts-config.nixosModules.default
+              besserestrichliste.nixosModules.aarch64-linux.default
               ./machines/blanderdash
             ];
           };
@@ -289,6 +299,7 @@
               home-manager.nixosModules.home-manager
               simple-nix-mailserver.nixosModules.default
               gnome-online-accounts-config.nixosModules.default
+              besserestrichliste.nixosModules.x86_64-linux.default
               ./machines/prandtl
             ];
           };

@@ -23,6 +23,27 @@
         "type": "github"
       }
     },
+    "besserestrichliste": {
+      "inputs": {
+        "flake-utils": "flake-utils",
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1715606148,
+        "narHash": "sha256-a4IzkJ8IpNKZikx39kBjq/bB42ZflUaQNKCoRe7vQD8=",
+        "owner": "zebreus",
+        "repo": "besserestrichliste",
+        "rev": "091e6957ee2c5a3f98963ff2a7353278fa133df9",
+        "type": "github"
+      },
+      "original": {
+        "owner": "zebreus",
+        "repo": "besserestrichliste",
+        "type": "github"
+      }
+    },
     "blobs": {
       "flake": false,
       "locked": {
@@ -133,6 +154,24 @@
         "type": "github"
       }
     },
+    "flake-utils_3": {
+      "inputs": {
+        "systems": "systems_4"
+      },
+      "locked": {
+        "lastModified": 1710146030,
+        "narHash": "sha256-SZ5L6eA7HJ/nmkzGG7/ISclqe6oZdOZTNoesiInkXPQ=",
+        "owner": "numtide",
+        "repo": "flake-utils",
+        "rev": "b1d9ab70662946ef0850d488da1c9019f3a9752a",
+        "type": "github"
+      },
+      "original": {
+        "owner": "numtide",
+        "repo": "flake-utils",
+        "type": "github"
+      }
+    },
     "gimp-nixpkgs": {
       "locked": {
         "lastModified": 1712741485,
@@ -151,7 +190,7 @@
     },
     "gnome-online-accounts-config": {
       "inputs": {
-        "flake-utils": "flake-utils",
+        "flake-utils": "flake-utils_2",
         "home-manager": "home-manager_2",
         "nixpkgs": [
           "nixpkgs"
@@ -236,7 +275,7 @@
     },
     "nixos-wallpaper": {
       "inputs": {
-        "flake-utils": "flake-utils_2",
+        "flake-utils": "flake-utils_3",
         "nixpkgs": [
           "nixpkgs"
         ]
@@ -274,6 +313,7 @@
     "root": {
       "inputs": {
         "agenix": "agenix",
+        "besserestrichliste": "besserestrichliste",
         "disko": "disko",
         "gimp-nixpkgs": "gimp-nixpkgs",
         "gnome-online-accounts-config": "gnome-online-accounts-config",
@@ -366,9 +406,24 @@
         "type": "github"
       }
     },
+    "systems_5": {
+      "locked": {
+        "lastModified": 1681028828,
+        "narHash": "sha256-Vy1rq5AaRuLzOxct8nz4T6wlgyUR7zLU309k9mBC768=",
+        "owner": "nix-systems",
+        "repo": "default",
+        "rev": "da67096a3b9bf56a91d16901293e51ba5b49a27e",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nix-systems",
+        "repo": "default",
+        "type": "github"
+      }
+    },
     "utils": {
       "inputs": {
-        "systems": "systems_4"
+        "systems": "systems_5"
       },
       "locked": {
         "lastModified": 1709126324,
