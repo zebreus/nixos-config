@@ -1,7 +1,10 @@
 {
 
+    "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+    "extends": [ "config:base" ],
     "lockFileMaintenance": {
-        "enabled": true
+        "enabled": true,
+        "extends": [ "schedule:daily" ]
     },
     "nix": {
         "enabled": true
@@ -13,7 +16,7 @@
             "matchManagers": [ "nix" ],
             "packagePatterns": [ "*" ],
             "excludePackagePatterns": [ "helix" ],
-            "enabled": false
+            "enabled": true
         }
 
     ]
