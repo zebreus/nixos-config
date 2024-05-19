@@ -1,0 +1,20 @@
+{
+
+    "lockFileMaintenance": {
+        "enabled": true
+    },
+    "nix": {
+        "enabled": true
+    },
+    "packageRules": [
+        {
+            "automerge": true,
+
+            "matchManagers": [ "nix" ],
+            "packagePatterns": [ "*" ],
+            "excludePackagePatterns": [ "helix" ],
+            "enabled": false
+        }
+
+    ]
+}
