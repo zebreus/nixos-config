@@ -99,6 +99,8 @@
             authoritativeDns.enable = true;
             authoritativeDns.name = "ns1";
             publicPorts = [ 53 ];
+            trustedPorts = [ 9100 ];
+            monitoring.enable = true;
             matrixServer = {
               enable = true;
               baseDomain = "zebre.us";

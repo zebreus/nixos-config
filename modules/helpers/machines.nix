@@ -211,6 +211,10 @@ let
         };
       };
 
+      monitoring = {
+        enable = mkEnableOption "Run grafana and the prometheus collector on this machine";
+      };
+
       extraBorgRepos = mkOption {
         type = types.listOf (types.submodule backupRepoOpts);
         description = lib.mdDoc ''

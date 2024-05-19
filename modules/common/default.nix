@@ -9,6 +9,7 @@
     ./locales.nix
     ./host-email.nix
     ./nix.nix
+    ./node-exporter.nix
     ./openssh.nix
     ./root.nix
     ./wireguard.nix
