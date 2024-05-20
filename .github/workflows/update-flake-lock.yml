@@ -1,0 +1,36 @@
+name: update-flake-lock
+on:
+  workflow_dispatch: # allows manual triggering
+  schedule:
+    - cron: "0 0 * * 0" # runs weekly on Sunday at 00:00
+
+jobs:
+  lockfile:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Install Nix
+        uses: DeterminateSystems/nix-installer-action@main
+      - name: Update flake lock myself
+        run: |
+          git config user.email lennarteichhorn+nixos-config-updater@gmail.com  
+          git config user.name Zebreus
+
+          echo "Checking for flake input updates"
+          PREVIOUS_HEAD="$(git rev-parse HEAD)"
+          nix flake update --commit-lock-file --commit-lockfile-summary "Update lockfile"
+          NEW_HEAD="$(git rev-parse HEAD)"
+          if [ "$PREVIOUS_HEAD" == "$NEW_HEAD" ]; then
+            echo "🚀 Already updated"
+            exit 0
+          fi
+
+          echo "Found updates, rebuilding..."
+          nix shell nixpkgs#nixos-rebuild --command nixos-rebuild dry-build --flake .#erms --print-build-logs
+          nix shell nixpkgs#nixos-rebuild --command nixos-rebuild dry-build --flake .#kashenblade --print-build-logs
+          # nix shell nixpkgs#nixos-rebuild --command nixos-rebuild dry-build --flake .#erms --print-build-logs
+          echo "🚀 Updated successfully"
+
+          git push
+          echo "Pushed commit"
