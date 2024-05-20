@@ -14,6 +14,7 @@ in
       trusted = true;
       sshPublicKey = publicKeys.erms;
       workstation.enable = true;
+      auto-maintenance.enable = false;
     };
     kashenblade = {
       name = "kashenblade";
@@ -107,6 +108,7 @@ in
       trusted = true;
       sshPublicKey = publicKeys.prandtl;
       workstation.enable = true;
+      auto-maintenance.enable = false;
     };
     # Leon (friend of basilikum) laptop
     leon = {

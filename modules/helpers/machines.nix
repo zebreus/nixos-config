@@ -216,6 +216,14 @@ let
         enable = mkEnableOption "Run grafana and the prometheus collector on this machine";
       };
 
+      auto-maintenance = {
+        enable = mkOption {
+          type = types.bool;
+          default = true;
+          description = "Enable automatic maintenance for this machine";
+        };
+      };
+
       extraBorgRepos = mkOption {
         type = types.listOf (types.submodule backupRepoOpts);
         description = ''

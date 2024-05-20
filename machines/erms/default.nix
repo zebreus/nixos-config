@@ -20,7 +20,6 @@
   };
 
   modules = {
-    auto-maintenance.enable = false;
     desktop.enable = true;
     workstation.enable = true;
   };

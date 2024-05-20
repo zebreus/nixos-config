@@ -2,19 +2,10 @@
 { config, lib, ... }:
 let
   hostname = config.networking.hostName;
+  thisMachine = config.machines."${config.networking.hostName}";
 in
 {
-  options.modules.auto-maintenance = {
-    enable = lib.mkOption {
-      type = lib.types.bool;
-      default = true;
-      description = ''
-        Enable automatic maintenance tasks.
-      '';
-    };
-  };
-
-  config = lib.mkIf config.modules.auto-maintenance.enable {
+  config = lib.mkIf thisMachine.auto-maintenance.enable {
     system.autoUpgrade = {
       enable = true;
       flake = ''github:zebreus/nixos-config#${hostname}'';
