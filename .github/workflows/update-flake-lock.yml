@@ -2,7 +2,8 @@ name: update-flake-lock
 on:
   workflow_dispatch: # allows manual triggering
   schedule:
-    - cron: "0 0 * * 0" # runs weekly on Sunday at 00:00
+    - cron: "0 3 * * *" # At 3am every day
+
 permissions:
   contents: write
 jobs:
@@ -18,20 +19,19 @@ jobs:
           git config user.email lennarteichhorn+nixos-config-updater@gmail.com  
           git config user.name Zebreus
 
-          echo "Checking for flake input updates"
+          echo "🔍 Checking for flake input updates"
           PREVIOUS_HEAD="$(git rev-parse HEAD)"
-          nix flake update --commit-lock-file --commit-lockfile-summary "Update lockfile"
+          nix flake update --commit-lock-file --commit-lockfile-summary "Update flake inputs"
           NEW_HEAD="$(git rev-parse HEAD)"
           if [ "$PREVIOUS_HEAD" == "$NEW_HEAD" ]; then
-            echo "🚀 Already updated"
+            echo "✅ No updates found, everything is up to date"
             exit 0
           fi
 
-          echo "Found updates, rebuilding..."
+          echo "🔄 Updates found, testing if it still evals successfully"
           nix shell nixpkgs#nixos-rebuild --command nixos-rebuild dry-build --flake .#erms --print-build-logs
           nix shell nixpkgs#nixos-rebuild --command nixos-rebuild dry-build --flake .#kashenblade --print-build-logs
-          # nix shell nixpkgs#nixos-rebuild --command nixos-rebuild dry-build --flake .#erms --print-build-logs
-          echo "🚀 Updated successfully"
+          echo "✨ Updated configuration evaluated successfully"
 
           git push
-          echo "Pushed commit"
+          echo "✅ Pushed updates to the repository"
