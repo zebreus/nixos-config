@@ -20,25 +20,26 @@ in
       flake = ''github:zebreus/nixos-config#${hostname}'';
       flags = [
         "--refresh"
-        "--update-input"
-        "nixpkgs"
-        "--no-write-lock-file"
         "-L" # print build logs
       ];
-      dates = "03:20";
+      dates = "hourly";
       randomizedDelaySec = "5min";
       allowReboot = true;
+      rebootWindow = {
+        lower = "04:00";
+        upper = "06:00";
+      };
     };
 
     nix.gc = {
       automatic = true;
-      dates = "04:00";
+      dates = "03:25";
       options = "--delete-older-than +5";
     };
 
     nix.optimise = {
       automatic = true;
-      dates = [ "04:40" ];
+      dates = [ "03:40" ];
     };
   };
 }
