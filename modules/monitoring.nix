@@ -34,7 +34,8 @@ in
             static_configs = [
               {
                 targets = (builtins.map
-                  (machine: machine.name)
+                  # (machine: "${machine.name}:9100")
+                  (machine: "[${config.antibuilding.ipv6Prefix}::${builtins.toString machine.address}]:9100")
                   accessibleMachines);
               }
             ];

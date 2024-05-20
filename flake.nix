@@ -19,7 +19,6 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     gnome-online-accounts-config = {
-      # url = "/home/lennart/Documents/gnome-online-accounts-config";
       url = "github:zebreus/gnome-online-accounts-config";
       inputs.nixpkgs.follows = "nixpkgs";
     };
@@ -160,12 +159,7 @@
               certEmail = "lennarteichhorn@googlemail.com";
             };
           };
-          # hetzner-template = {
-          #   name = "hetzner-template";
-          #   address = 99;
-          #   wireguardPublicKey = publicKeys.hetzner-template_wireguard;
-          #   sshPublicKey = publicKeys.hetzner-template;
-          # };
+
           blanderdash = {
             name = "blanderdash";
             address = 8;
@@ -201,65 +195,44 @@
     in
     {
       nixosConfigurations =
+        let
+          commonModules = [
+            agenix.nixosModules.default
+            overlayNixpkgs
+            informationAboutOtherMachines
+            home-manager.nixosModules.home-manager
+            simple-nix-mailserver.nixosModules.default
+            gnome-online-accounts-config.nixosModules.default
+            besserestrichliste.nixosModules.aarch64-linux.default
+          ];
+        in
         {
           erms = nixpkgs.lib.nixosSystem {
             system = "x86_64-linux";
-            specialArgs = attrs;
             modules = [
-              agenix.nixosModules.default
-              overlayNixpkgs
-              informationAboutOtherMachines
-              home-manager.nixosModules.home-manager
-              simple-nix-mailserver.nixosModules.default
-              gnome-online-accounts-config.nixosModules.default
-              besserestrichliste.nixosModules.x86_64-linux.default
               ./machines/erms
-            ];
+            ] ++ commonModules;
           };
 
           kashenblade = nixpkgs.lib.nixosSystem {
             system = "aarch64-linux";
-            specialArgs = attrs;
             modules = [
-              agenix.nixosModules.default
-              overlayNixpkgs
-              informationAboutOtherMachines
-              home-manager.nixosModules.home-manager
-              simple-nix-mailserver.nixosModules.default
-              gnome-online-accounts-config.nixosModules.default
-              besserestrichliste.nixosModules.aarch64-linux.default
               ./machines/kashenblade
-            ];
+            ] ++ commonModules;
           };
 
           kappril = nixpkgs.lib.nixosSystem {
             system = "aarch64-linux";
-            specialArgs = attrs;
             modules = [
-              agenix.nixosModules.default
-              overlayNixpkgs
-              informationAboutOtherMachines
-              home-manager.nixosModules.home-manager
-              simple-nix-mailserver.nixosModules.default
-              gnome-online-accounts-config.nixosModules.default
-              besserestrichliste.nixosModules.aarch64-linux.default
               ./machines/kappril
-            ];
+            ] ++ commonModules;
           };
 
           sempriaq = nixpkgs.lib.nixosSystem {
             system = "x86_64-linux";
-            specialArgs = attrs;
             modules = [
-              agenix.nixosModules.default
-              overlayNixpkgs
-              informationAboutOtherMachines
-              home-manager.nixosModules.home-manager
-              simple-nix-mailserver.nixosModules.default
-              gnome-online-accounts-config.nixosModules.default
-              besserestrichliste.nixosModules.x86_64-linux.default
               ./machines/sempriaq
-            ];
+            ] ++ commonModules;
           };
 
           hetzner-template = nixpkgs.lib.nixosSystem {
@@ -280,30 +253,15 @@
           blanderdash = nixpkgs.lib.nixosSystem {
             system = "aarch64-linux";
             modules = [
-              agenix.nixosModules.default
-              overlayNixpkgs
-              informationAboutOtherMachines
-              home-manager.nixosModules.home-manager
-              simple-nix-mailserver.nixosModules.default
-              gnome-online-accounts-config.nixosModules.default
-              besserestrichliste.nixosModules.aarch64-linux.default
               ./machines/blanderdash
-            ];
+            ] ++ commonModules;
           };
           prandtl = nixpkgs.lib.nixosSystem {
             system = "x86_64-linux";
-            specialArgs = attrs;
             modules = [
-              agenix.nixosModules.default
               disko.nixosModules.disko
-              overlayNixpkgs
-              informationAboutOtherMachines
-              home-manager.nixosModules.home-manager
-              simple-nix-mailserver.nixosModules.default
-              gnome-online-accounts-config.nixosModules.default
-              besserestrichliste.nixosModules.x86_64-linux.default
               ./machines/prandtl
-            ];
+            ] ++ commonModules;
           };
           # MARKER_NIXOS_CONFIGURATIONS
 
@@ -339,50 +297,9 @@
         setup-host = pkgs.callPackage ./scripts/setup-host.nix { };
         add-workstation = pkgs.callPackage ./scripts/add-workstation.nix { };
 
-        generate-docs =
-          let
-            optionsDoc = pkgs.nixosOptionsDoc {
-              inherit ((nixpkgs.lib.evalModules {
-                modules = [
-                  {
-                    config = {
-                      _module.check = false;
-                    };
-                    options.services.borgbackup.jobs = nixpkgs.lib.mkOption { description = "Normal borg backup jobs."; };
-                  }
-                  ./modules/helpers/machines.nix
-                  ./modules
-                ];
-
-              })) options;
-              lib = nixpkgs.lib;
-
-              transformOptions = opt: opt // {
-                # Clean up declaration sites to not refer to the NixOS source tree.
-                declarations = map
-                  (decl:
-                    let subpath = nixpkgs.lib.removePrefix "/" (nixpkgs.lib.removePrefix (toString ./.) (toString decl));
-                    in { url = subpath; name = subpath; })
-                  opt.declarations;
-              };
-            };
-          in
-          pkgs.writeScriptBin "generate-docs" ''
-            #!${pkgs.bash}/bin/bash
-            cp ${optionsDoc.optionsCommonMark} ./options.md
-            chmod 644 ./options.md
-          '';
-        generate-installer = pkgs.writeScriptBin "generate-installer" ''
-          #!${pkgs.bash}/bin/bash
-
-          RESULT_PATH=$(nix build .#nixosConfigurations.installer.config.system.build.isoImage --print-out-paths)
-          echo $RESULT_PATH
-          ln -s $RESULT_PATH/iso/* ./installer.iso
-        '';
+        generate-docs = pkgs.callPackage ./scripts/generate-docs.nix { };
+        generate-installer = pkgs.callPackage ./scripts/generate-installer.nix { };
       };
-
-      # Raspi SD card image
-      # image.kappril = nixosConfigurations.kappril.config.system.build.sdImage;
 
       formatter.x86_64-linux = pkgs.nixpkgs-fmt;
     };

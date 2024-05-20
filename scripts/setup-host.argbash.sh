@@ -76,7 +76,6 @@ END_HEREDOC
         cat <<END_HEREDOC
 ${TARGET_HOST_NAME} = nixpkgs.lib.nixosSystem {
   system = "x86_64-linux";
-  specialArgs = attrs;
   modules = [
     agenix.nixosModules.default
     disko.nixosModules.disko
