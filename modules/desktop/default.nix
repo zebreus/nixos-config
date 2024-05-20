@@ -1,5 +1,9 @@
 # Configuration for the machines that I use interactivly
-{ lib, config, ... }: {
+{ lib, config, ... }:
+let
+  thisMachine = config.machines."${config.networking.hostName}";
+in
+{
   imports = [
     ./audio.nix
     ./flatpak.nix
@@ -22,7 +26,7 @@
 
   config = {
     assertions = [{
-      assertion = config.modules.desktop.enable -> config.modules.workstation.enable;
+      assertion = thisMachine.desktop.enable -> thisMachine.workstation.enable;
       message = "You need to enable the workstation module for the desktop module to work. This is because many desktop things dont work as root, so we need a normal user.";
     }];
   };

@@ -1,5 +1,5 @@
 { lib, config, pkgs, ... }: {
-  config = lib.mkIf config.modules.workstation.enable {
+  config = lib.mkIf config.machines.${config.networking.hostName}.workstation.enable {
     age.secrets =
       (
         builtins.mapAttrs

@@ -1,6 +1,6 @@
 { lib, config, pkgs, ... }:
 {
-  config = lib.mkIf config.modules.workstation.enable {
+  config = lib.mkIf config.machines.${config.networking.hostName}.workstation.enable {
     virtualisation.libvirtd = {
       enable = true;
       qemu = {

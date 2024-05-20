@@ -15,10 +15,10 @@
     ./user-keys.nix
   ];
 
-  options.modules.workstation.enable = lib.mkOption {
-    default = false;
-    description = ''
-      This is a machine I use interactivly regularly (laptop, desktop, etc.)
-    '';
-  };
+  # options.modules.workstation.enable = lib.mkOption {
+  #   default = false;
+  #   description = ''
+  #     This is a machine I use interactivly regularly (laptop, desktop, etc.)
+  #   '';
+  # };
 }

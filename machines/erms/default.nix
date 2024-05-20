@@ -19,11 +19,6 @@
     speed = "0.3";
   };
 
-  modules = {
-    desktop.enable = true;
-    workstation.enable = true;
-  };
-
   boot = {
     extraModprobeConfig = ''
       options thinkpad_acpi fan_control=1

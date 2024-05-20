@@ -179,6 +179,10 @@ let
         };
       };
 
+      desktop = {
+        enable = mkEnableOption "This is a machine I use interactivly regularly (laptop, desktop, etc.). Provides a GUI and such.";
+      };
+
       mailServer = {
         enable = mkEnableOption "Enable the mail server";
         # TODO: Move this somewhere else

@@ -1,6 +1,6 @@
 # Enable the GNOME Desktop Environment.
 { lib, config, pkgs, ... }: {
-  config = lib.mkIf config.modules.desktop.enable {
+  config = lib.mkIf config.machines.${config.networking.hostName}.desktop.enable {
     services.xserver = {
       enable = true;
       displayManager.gdm = {

@@ -7,9 +7,5 @@
 
   system.stateVersion = "24.05";
   networking.hostName = "prandtl";
-  modules = {
-    boot.type = "legacy";
-    desktop.enable = true;
-    workstation.enable = true;
-  };
+  modules.boot.type = "legacy";
 }

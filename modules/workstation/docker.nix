@@ -1,5 +1,5 @@
 { lib, pkgs, config, ... }: with lib; {
-  config = lib.mkIf config.modules.workstation.enable {
+  config = lib.mkIf config.machines.${config.networking.hostName}.workstation.enable {
     virtualisation.docker = lib.mkMerge [
       {
         enableOnBoot = true;

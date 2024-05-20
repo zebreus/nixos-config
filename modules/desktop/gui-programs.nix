@@ -6,7 +6,7 @@ let
   };
 in
 {
-  config = lib.mkIf config.modules.desktop.enable {
+  config = lib.mkIf config.machines.${config.networking.hostName}.desktop.enable {
 
 
     # List packages installed in system profile. To search, run:

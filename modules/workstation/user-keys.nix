@@ -1,7 +1,6 @@
 { config, lib, ... }:
 {
-  config = lib.mkIf config.modules.workstation.enable {
-    # age.identityPaths = [ config.age.secrets.lennart_ed25519.path ];
+  config = lib.mkIf config.machines.${config.networking.hostName}.workstation.enable {
     age.secrets = {
       lennart_ed25519 = {
         file = ../../secrets/lennart_ed25519.age;

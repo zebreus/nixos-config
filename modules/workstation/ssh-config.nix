@@ -3,7 +3,7 @@ let
   accessibleMachines = lib.attrValues ((lib.filterAttrs (name: machine: machine.sshPublicKey != null)) config.machines);
 in
 {
-  config = lib.mkIf config.modules.workstation.enable {
+  config = lib.mkIf config.machines.${config.networking.hostName}.workstation.enable {
     age.secrets.extra_config = {
       file = ../../secrets/extra_config.age;
       owner = "lennart";

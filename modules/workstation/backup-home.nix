@@ -38,7 +38,7 @@ in
     createReposModule
   ];
 
-  config = lib.mkIf config.modules.workstation.enable {
+  config = lib.mkIf config.machines.${config.networking.hostName}.workstation.enable {
     age.secrets = {
       "lennart_${config.networking.hostName}_backup_passphrase" = {
         file = ../../secrets + "/lennart_${config.networking.hostName}_backup_passphrase.age";

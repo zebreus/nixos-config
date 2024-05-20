@@ -3,7 +3,7 @@ let
   publicKeys = import ../../secrets/public-keys.nix;
 in
 {
-  config = lib.mkIf config.modules.workstation.enable {
+  config = lib.mkIf config.machines.${config.networking.hostName}.workstation.enable {
     age.secrets.lennart_login_passwordhash = {
       file = ../../secrets/lennart_login_passwordhash.age;
     };

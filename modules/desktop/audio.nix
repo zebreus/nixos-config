@@ -1,5 +1,5 @@
 { lib, config, ... }: {
-  config = lib.mkIf config.modules.desktop.enable {
+  config = lib.mkIf config.machines.${config.networking.hostName}.desktop.enable {
     # Enable sound with pipewire.
     sound.enable = true;
     hardware.pulseaudio.enable = false;
