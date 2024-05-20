@@ -29,8 +29,7 @@ jobs:
           fi
 
           echo "🔄 Updates found, testing if it still evals successfully"
-          nix shell nixpkgs#nixos-rebuild --command nixos-rebuild dry-build --flake .#erms --print-build-logs
-          nix shell nixpkgs#nixos-rebuild --command nixos-rebuild dry-build --flake .#kashenblade --print-build-logs
+          nix flake check -v --no-build
           echo "✨ Updated configuration evaluated successfully"
 
           git push
