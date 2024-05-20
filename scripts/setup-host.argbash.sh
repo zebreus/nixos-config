@@ -90,9 +90,9 @@ ${TARGET_HOST_NAME} = nixpkgs.lib.nixosSystem {
 END_HEREDOC
     )
 
-    perl -pi -e '$_ = qq('"$FLAKE_MACHINE_CONFIGURATION"'\n) . $_ if /MARKER_MACHINE_CONFIGURATIONS/' flake.nix
+    perl -pi -e '$_ = qq('"$FLAKE_MACHINE_CONFIGURATION"'\n) . $_ if /MARKER_MACHINE_CONFIGURATIONS/' hosts.nix
     perl -pi -e '$_ = qq('"$FLAKE_NIXOS_CONFIGURATION"'\n) . $_ if /MARKER_NIXOS_CONFIGURATIONS/' flake.nix
-    nix fmt flake.nix
+    nix fmt flake.nix hosts.nix
 
     cp -rT machines/template-host machines/"$TARGET_HOST_NAME"
     find machines/"$TARGET_HOST_NAME" -type f -exec sed -i "s/template-host/$TARGET_HOST_NAME/g" {} \;
