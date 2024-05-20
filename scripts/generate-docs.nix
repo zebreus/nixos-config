@@ -10,8 +10,8 @@ let
           };
           options.services.borgbackup.jobs = lib.mkOption { description = "Normal borg backup jobs."; };
         }
-        ./modules/helpers/machines.nix
-        ./modules
+        ../modules/helpers/machines.nix
+        ../modules
       ];
 
     })) options;
