@@ -161,7 +161,8 @@ let
           description = ''
             The prefix to the borg repo. This string suffixed with the repo name is the full path to the borg repo.
           '';
-          default = "ssh://borg@${self.config.name}/${self.config.backupHost.storagePath}/";
+          default = if self.config.backupHost.enable then "ssh://borg@${self.config.name}/${self.config.backupHost.storagePath}/" else null;
+          defaultText = "ssh://borg@<name>/${self.config.backupHost.storagePath}/";
           example = "ssh://borg@janek-backup//backups/lennart/";
         };
       };
@@ -228,7 +229,7 @@ in
 {
   options = {
     machines = mkOption {
-      default = [ ];
+      default = { };
       description = "Information about the machines in the network";
       type = with types; attrsOf (submodule machineOpts);
     };

@@ -199,7 +199,7 @@
         };
       };
     in
-    rec   {
+    {
       nixosConfigurations =
         {
           erms = nixpkgs.lib.nixosSystem {
@@ -327,56 +327,62 @@
           };
         };
 
-      # Helper scripts
-      gen-host-keys = pkgs.callPackage ./scripts/gen-host-keys.nix { };
-      gen-wireguard-keys = pkgs.callPackage ./scripts/gen-wireguard-keys.nix { };
-      gen-borg-keys = pkgs.callPackage ./scripts/gen-borg-keys.nix { };
-      gen-vpn-mail-secrets = pkgs.callPackage ./scripts/gen-vpn-mail-secrets.nix { };
-      gen-mail-dkim-keys = pkgs.callPackage ./scripts/gen-mail-dkim-keys.nix { };
-      deploy-hosts = pkgs.callPackage ./scripts/deploy-hosts.nix { };
-      fast-deploy = pkgs.callPackage ./scripts/fast-deploy.nix { };
-      setup-host = pkgs.callPackage ./scripts/setup-host.nix { };
-      add-workstation = pkgs.callPackage ./scripts/add-workstation.nix { };
+      packages.x86_64-linux = {
+        # Helper scripts
+        gen-host-keys = pkgs.callPackage ./scripts/gen-host-keys.nix { };
+        gen-wireguard-keys = pkgs.callPackage ./scripts/gen-wireguard-keys.nix { };
+        gen-borg-keys = pkgs.callPackage ./scripts/gen-borg-keys.nix { };
+        gen-vpn-mail-secrets = pkgs.callPackage ./scripts/gen-vpn-mail-secrets.nix { };
+        gen-mail-dkim-keys = pkgs.callPackage ./scripts/gen-mail-dkim-keys.nix { };
+        deploy-hosts = pkgs.callPackage ./scripts/deploy-hosts.nix { };
+        fast-deploy = pkgs.callPackage ./scripts/fast-deploy.nix { };
+        setup-host = pkgs.callPackage ./scripts/setup-host.nix { };
+        add-workstation = pkgs.callPackage ./scripts/add-workstation.nix { };
 
-      generate-docs =
-        let
-          optionsDoc = pkgs.nixosOptionsDoc {
-            inherit ((nixpkgs.lib.evalModules {
-              modules = [
-                informationAboutOtherMachines
-                ./modules
-                {
-                  documentation.nixos.options.warningsAreEsrrors = false;
-                }
-              ];
-              check = false;
+        generate-docs =
+          let
+            optionsDoc = pkgs.nixosOptionsDoc {
+              inherit ((nixpkgs.lib.evalModules {
+                modules = [
+                  {
+                    config = {
+                      _module.check = false;
+                    };
+                    options.services.borgbackup.jobs = nixpkgs.lib.mkOption { description = "Normal borg backup jobs."; };
+                  }
+                  ./modules/helpers/machines.nix
+                  ./modules
+                ];
 
-            })) options;
-            transformOptions = opt: opt // {
-              # Clean up declaration sites to not refer to the NixOS source tree.
-              declarations = map
-                (decl:
-                  let subpath = nixpkgs.lib.removePrefix "/" (nixpkgs.lib.removePrefix (toString ./.) (toString decl));
-                  in { url = subpath; name = subpath; })
-                opt.declarations;
+              })) options;
+              lib = nixpkgs.lib;
+
+              transformOptions = opt: opt // {
+                # Clean up declaration sites to not refer to the NixOS source tree.
+                declarations = map
+                  (decl:
+                    let subpath = nixpkgs.lib.removePrefix "/" (nixpkgs.lib.removePrefix (toString ./.) (toString decl));
+                    in { url = subpath; name = subpath; })
+                  opt.declarations;
+              };
             };
-          };
-        in
-        pkgs.writeScriptBin "generate-docs" ''
+          in
+          pkgs.writeScriptBin "generate-docs" ''
+            #!${pkgs.bash}/bin/bash
+            cp ${optionsDoc.optionsCommonMark} ./options.md
+            chmod 644 ./options.md
+          '';
+        generate-installer = pkgs.writeScriptBin "generate-installer" ''
           #!${pkgs.bash}/bin/bash
-          cp ${optionsDoc.optionsCommonMark} ./options.md
-          chmod 644 ./options.md
-        '';
-      generate-installer = pkgs.writeScriptBin "generate-installer" ''
-        #!${pkgs.bash}/bin/bash
 
-        RESULT_PATH=$(nix build .#nixosConfigurations.installer.config.system.build.isoImage --print-out-paths)
-        echo $RESULT_PATH
-        ln -s $RESULT_PATH/iso/* ./installer.iso
-      '';
+          RESULT_PATH=$(nix build .#nixosConfigurations.installer.config.system.build.isoImage --print-out-paths)
+          echo $RESULT_PATH
+          ln -s $RESULT_PATH/iso/* ./installer.iso
+        '';
+      };
 
       # Raspi SD card image
-      image.kappril = nixosConfigurations.kappril.config.system.build.sdImage;
+      # image.kappril = nixosConfigurations.kappril.config.system.build.sdImage;
 
       formatter.x86_64-linux = pkgs.nixpkgs-fmt;
     };

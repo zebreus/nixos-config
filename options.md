@@ -61,6 +61,802 @@ lazy attribute set of raw value
 
 
 
+## allBackupHosts
+
+
+
+All hosts that are backup hosts\. Collected from machines\.
+
+
+
+*Type:*
+list of (submodule) *(read only)*
+
+
+
+*Default:*
+` [ ] `
+
+*Declared by:*
+ - [modules/helpers/machines\.nix](modules/helpers/machines.nix)
+
+
+
+## allBackupHosts\.\*\.address
+
+
+
+The last byte of the antibuilding IPv4 address of the machine\.
+
+
+
+*Type:*
+integer between 1 and 255 (both inclusive)
+
+
+
+*Example:*
+` 6 `
+
+*Declared by:*
+ - [modules/helpers/machines\.nix](modules/helpers/machines.nix)
+
+
+
+## allBackupHosts\.\*\.authoritativeDns\.enable
+
+
+
+Whether this machine is a authoritative DNS server
+
+
+
+*Type:*
+boolean
+
+
+
+*Default:*
+` false `
+
+*Declared by:*
+ - [modules/helpers/machines\.nix](modules/helpers/machines.nix)
+
+
+
+## allBackupHosts\.\*\.authoritativeDns\.name
+
+
+
+Name of this DNS server\. Should be like ns1, ns2, ns3,
+
+
+
+*Type:*
+null or string
+
+
+
+*Default:*
+` null `
+
+
+
+*Example:*
+` "ns1" `
+
+*Declared by:*
+ - [modules/helpers/machines\.nix](modules/helpers/machines.nix)
+
+
+
+## allBackupHosts\.\*\.authoritativeDns\.primary
+
+
+
+Whether this machine is the primary authoritative DNS server\. This one is responsible for DNSSEC signing\. There should be only one primary authoritative DNS server\.
+
+
+
+*Type:*
+boolean
+
+
+
+*Default:*
+` false `
+
+*Declared by:*
+ - [modules/helpers/machines\.nix](modules/helpers/machines.nix)
+
+
+
+## allBackupHosts\.\*\.backupHost\.enable
+
+
+
+This machine is hosting backups\. The machine should provide at least 5TB of storage\.
+
+
+
+*Type:*
+null or boolean
+
+
+
+*Default:*
+` false `
+
+*Declared by:*
+ - [modules/helpers/machines\.nix](modules/helpers/machines.nix)
+
+
+
+## allBackupHosts\.\*\.backupHost\.locationPrefix
+
+
+
+The prefix to the borg repo\. This string suffixed with the repo name is the full path to the borg repo\.
+
+
+
+*Type:*
+null or string
+
+
+
+*Default:*
+` "ssh://borg@<name>//storage/borg/" `
+
+
+
+*Example:*
+` "ssh://borg@janek-backup//backups/lennart/" `
+
+*Declared by:*
+ - [modules/helpers/machines\.nix](modules/helpers/machines.nix)
+
+
+
+## allBackupHosts\.\*\.backupHost\.storagePath
+
+
+
+The prefix of the path to the backup repos\. This should be a path on a separate disk\.
+
+
+
+*Type:*
+null or string
+
+
+
+*Default:*
+` "/storage/borg" `
+
+
+
+*Example:*
+` "/backups/lennart" `
+
+*Declared by:*
+ - [modules/helpers/machines\.nix](modules/helpers/machines.nix)
+
+
+
+## allBackupHosts\.\*\.extraBorgRepos
+
+
+
+Extra borg repos used by this machine\.
+
+
+
+*Type:*
+list of (submodule)
+
+
+
+*Default:*
+` [ ] `
+
+*Declared by:*
+ - [modules/helpers/machines\.nix](modules/helpers/machines.nix)
+
+
+
+## allBackupHosts\.\*\.extraBorgRepos\.\*\.name
+
+
+
+The name of the backup repository\. This is used to identify the backup repository on the backup host\.
+
+You need keys for every backup repository\. Use ` nix run .#gen-borg-keys <this_name> <machines> lennart ` to generate the keys\.
+
+
+
+*Type:*
+string
+
+*Declared by:*
+ - [modules/helpers/machines\.nix](modules/helpers/machines.nix)
+
+
+
+## allBackupHosts\.\*\.extraBorgRepos\.\*\.size
+
+
+
+Limit the maximum size of the repo\.
+
+
+
+*Type:*
+string
+
+
+
+*Default:*
+` "2T" `
+
+
+
+*Example:*
+` "4T" `
+
+*Declared by:*
+ - [modules/helpers/machines\.nix](modules/helpers/machines.nix)
+
+
+
+## allBackupHosts\.\*\.mailServer\.enable
+
+
+
+Whether to enable Enable the mail server\.
+
+
+
+*Type:*
+boolean
+
+
+
+*Default:*
+` false `
+
+
+
+*Example:*
+` true `
+
+*Declared by:*
+ - [modules/helpers/machines\.nix](modules/helpers/machines.nix)
+
+
+
+## allBackupHosts\.\*\.mailServer\.baseDomain
+
+
+
+Base domain for the mail server\. You need to setup the DNS records according to the
+setup guide at https://nixos-mailserver\.readthedocs\.io/en/latest/setup-guide\.html
+and https://nixos-mailserver\.readthedocs\.io/en/latest/autodiscovery\.html\. Also add
+an additional SPF record for the mail subdomain\.
+
+
+
+*Type:*
+string
+
+*Declared by:*
+ - [modules/helpers/machines\.nix](modules/helpers/machines.nix)
+
+
+
+## allBackupHosts\.\*\.mailServer\.certEmail
+
+
+
+Email address to use for Let’s Encrypt certificates\.
+
+
+
+*Type:*
+string
+
+*Declared by:*
+ - [modules/helpers/machines\.nix](modules/helpers/machines.nix)
+
+
+
+## allBackupHosts\.\*\.managed
+
+
+
+Specify whether this machine is managed by this nixos-config
+
+
+
+*Type:*
+boolean
+
+
+
+*Default:*
+` false `
+
+
+
+*Example:*
+` false `
+
+*Declared by:*
+ - [modules/helpers/machines\.nix](modules/helpers/machines.nix)
+
+
+
+## allBackupHosts\.\*\.matrixServer\.enable
+
+
+
+Whether to enable Enable matrix server\.
+
+
+
+*Type:*
+boolean
+
+
+
+*Default:*
+` false `
+
+
+
+*Example:*
+` true `
+
+*Declared by:*
+ - [modules/helpers/machines\.nix](modules/helpers/machines.nix)
+
+
+
+## allBackupHosts\.\*\.matrixServer\.baseDomain
+
+
+
+Base domain for the matrix server\. You need to setup the DNS records for this domain and for the matrix, element, and turn subdomains\.
+
+
+
+*Type:*
+string
+
+*Declared by:*
+ - [modules/helpers/machines\.nix](modules/helpers/machines.nix)
+
+
+
+## allBackupHosts\.\*\.matrixServer\.certEmail
+
+
+
+Email address to use for Let’s Encrypt certificates\.
+
+
+
+*Type:*
+string
+
+*Declared by:*
+ - [modules/helpers/machines\.nix](modules/helpers/machines.nix)
+
+
+
+## allBackupHosts\.\*\.monitoring\.enable
+
+
+
+Whether to enable Run grafana and the prometheus collector on this machine\.
+
+
+
+*Type:*
+boolean
+
+
+
+*Default:*
+` false `
+
+
+
+*Example:*
+` true `
+
+*Declared by:*
+ - [modules/helpers/machines\.nix](modules/helpers/machines.nix)
+
+
+
+## allBackupHosts\.\*\.name
+
+
+
+Hostname of a machine on the network
+
+
+
+*Type:*
+string
+
+
+
+*Example:*
+` "bernd" `
+
+*Declared by:*
+ - [modules/helpers/machines\.nix](modules/helpers/machines.nix)
+
+
+
+## allBackupHosts\.\*\.public
+
+
+
+Whether this machine can be accessed by untrusted machines in the VPN\.
+
+
+
+*Type:*
+boolean
+
+
+
+*Default:*
+` false `
+
+
+
+*Example:*
+` true `
+
+*Declared by:*
+ - [modules/helpers/machines\.nix](modules/helpers/machines.nix)
+
+
+
+## allBackupHosts\.\*\.publicPorts
+
+
+
+All other machines in the VPN are allowed to access these tcp ports on this machine\.
+
+
+
+*Type:*
+list of signed integer
+
+
+
+*Default:*
+` [ ] `
+
+
+
+*Example:*
+` true `
+
+*Declared by:*
+ - [modules/helpers/machines\.nix](modules/helpers/machines.nix)
+
+
+
+## allBackupHosts\.\*\.sshPublicKey
+
+
+
+The public SSH host key of this machine\. Implies that the machine can be accessed via SSH\.
+
+
+
+*Type:*
+null or (optionally newline-terminated) single-line string
+
+
+
+*Default:*
+` null `
+
+
+
+*Example:*
+` "xTIBA5rboUvnH4htodjb6e697QjLERt1NAB4mZqp8Dg=" `
+
+*Declared by:*
+ - [modules/helpers/machines\.nix](modules/helpers/machines.nix)
+
+
+
+## allBackupHosts\.\*\.staticIp4
+
+
+
+A static ipv4 address where this machine can be reached\.
+
+
+
+*Type:*
+null or string
+
+
+
+*Default:*
+` null `
+
+
+
+*Example:*
+` "10.192.122.3" `
+
+*Declared by:*
+ - [modules/helpers/machines\.nix](modules/helpers/machines.nix)
+
+
+
+## allBackupHosts\.\*\.staticIp6
+
+
+
+A static ipv6 address where this machine can be reached\.
+
+
+
+*Type:*
+null or string
+
+
+
+*Default:*
+` null `
+
+
+
+*Example:*
+` "1111:1111:1111:1111::1" `
+
+*Declared by:*
+ - [modules/helpers/machines\.nix](modules/helpers/machines.nix)
+
+
+
+## allBackupHosts\.\*\.trusted
+
+
+
+Whether this machine is allowed to access all other machines in the VPN\.
+
+
+
+*Type:*
+boolean
+
+
+
+*Default:*
+` false `
+
+
+
+*Example:*
+` true `
+
+*Declared by:*
+ - [modules/helpers/machines\.nix](modules/helpers/machines.nix)
+
+
+
+## allBackupHosts\.\*\.trustedPorts
+
+
+
+This machine is allowed to access this tcp port on all other machines in the VPN\.
+
+
+
+*Type:*
+list of signed integer
+
+
+
+*Default:*
+` [ ] `
+
+
+
+*Example:*
+` true `
+
+*Declared by:*
+ - [modules/helpers/machines\.nix](modules/helpers/machines.nix)
+
+
+
+## allBackupHosts\.\*\.vpnHub\.enable
+
+
+
+Whether this machine is the hub of the VPN\.
+
+
+
+*Type:*
+boolean
+
+
+
+*Default:*
+` false `
+
+*Declared by:*
+ - [modules/helpers/machines\.nix](modules/helpers/machines.nix)
+
+
+
+## allBackupHosts\.\*\.vpnHub\.staticIp4
+
+
+
+A static ipv4 address where the hub can be reached\.
+
+
+
+*Type:*
+null or string *(read only)*
+
+
+
+*Default:*
+` null `
+
+*Declared by:*
+ - [modules/helpers/machines\.nix](modules/helpers/machines.nix)
+
+
+
+## allBackupHosts\.\*\.vpnHub\.staticIp6
+
+
+
+A static ipv6 address where the hub can be reached\.
+
+
+
+*Type:*
+null or string *(read only)*
+
+
+
+*Default:*
+` null `
+
+*Declared by:*
+ - [modules/helpers/machines\.nix](modules/helpers/machines.nix)
+
+
+
+## allBackupHosts\.\*\.wireguardPublicKey
+
+
+
+The base64 wireguard public key of the machine\.
+
+
+
+*Type:*
+(optionally newline-terminated) single-line string
+
+
+
+*Example:*
+` "xTIBA5rboUvnH4htodjb6e697QjLERt1NAB4mZqp8Dg=" `
+
+*Declared by:*
+ - [modules/helpers/machines\.nix](modules/helpers/machines.nix)
+
+
+
+## allBackupHosts\.\*\.workstation\.enable
+
+
+
+This machine is a workstation\. It is used for daily work and should have lennart, a GUI, ssh keys and such\.
+
+A home backup repo will be created for each workstation\.
+
+
+
+*Type:*
+null or boolean
+
+
+
+*Default:*
+` false `
+
+*Declared by:*
+ - [modules/helpers/machines\.nix](modules/helpers/machines.nix)
+
+
+
+## allBorgRepos
+
+
+
+List of all borg repos that will get generated\. This is an internal option and should only be set implicitly\.
+
+I am sure that there is a better way to solve this\.
+
+
+
+*Type:*
+list of (submodule)
+
+
+
+*Default:*
+` [ ] `
+
+*Declared by:*
+ - [modules/helpers/machines\.nix](modules/helpers/machines.nix)
+
+
+
+## allBorgRepos\.\*\.name
+
+
+
+The name of the backup repository\. This is used to identify the backup repository on the backup host\.
+
+You need keys for every backup repository\. Use ` nix run .#gen-borg-keys <this_name> <machines> lennart ` to generate the keys\.
+
+
+
+*Type:*
+string
+
+*Declared by:*
+ - [modules/helpers/machines\.nix](modules/helpers/machines.nix)
+
+
+
+## allBorgRepos\.\*\.size
+
+
+
+Limit the maximum size of the repo\.
+
+
+
+*Type:*
+string
+
+
+
+*Default:*
+` "2T" `
+
+
+
+*Example:*
+` "4T" `
+
+*Declared by:*
+ - [modules/helpers/machines\.nix](modules/helpers/machines.nix)
+
+
+
 ## antibuilding\.customWireguardPrivateKeyFile
 
 
@@ -138,7 +934,7 @@ attribute set of (submodule)
 
 
 *Default:*
-` [ ] `
+` { } `
 
 *Declared by:*
  - [modules/helpers/machines\.nix](modules/helpers/machines.nix)
@@ -166,6 +962,273 @@ integer between 1 and 255 (both inclusive)
 
 
 
+## machines\.\<name>\.authoritativeDns\.enable
+
+
+
+Whether this machine is a authoritative DNS server
+
+
+
+*Type:*
+boolean
+
+
+
+*Default:*
+` false `
+
+*Declared by:*
+ - [modules/helpers/machines\.nix](modules/helpers/machines.nix)
+
+
+
+## machines\.\<name>\.authoritativeDns\.name
+
+
+
+Name of this DNS server\. Should be like ns1, ns2, ns3,
+
+
+
+*Type:*
+null or string
+
+
+
+*Default:*
+` null `
+
+
+
+*Example:*
+` "ns1" `
+
+*Declared by:*
+ - [modules/helpers/machines\.nix](modules/helpers/machines.nix)
+
+
+
+## machines\.\<name>\.authoritativeDns\.primary
+
+
+
+Whether this machine is the primary authoritative DNS server\. This one is responsible for DNSSEC signing\. There should be only one primary authoritative DNS server\.
+
+
+
+*Type:*
+boolean
+
+
+
+*Default:*
+` false `
+
+*Declared by:*
+ - [modules/helpers/machines\.nix](modules/helpers/machines.nix)
+
+
+
+## machines\.\<name>\.backupHost\.enable
+
+
+
+This machine is hosting backups\. The machine should provide at least 5TB of storage\.
+
+
+
+*Type:*
+null or boolean
+
+
+
+*Default:*
+` false `
+
+*Declared by:*
+ - [modules/helpers/machines\.nix](modules/helpers/machines.nix)
+
+
+
+## machines\.\<name>\.backupHost\.locationPrefix
+
+
+
+The prefix to the borg repo\. This string suffixed with the repo name is the full path to the borg repo\.
+
+
+
+*Type:*
+null or string
+
+
+
+*Default:*
+` "ssh://borg@<name>//storage/borg/" `
+
+
+
+*Example:*
+` "ssh://borg@janek-backup//backups/lennart/" `
+
+*Declared by:*
+ - [modules/helpers/machines\.nix](modules/helpers/machines.nix)
+
+
+
+## machines\.\<name>\.backupHost\.storagePath
+
+
+
+The prefix of the path to the backup repos\. This should be a path on a separate disk\.
+
+
+
+*Type:*
+null or string
+
+
+
+*Default:*
+` "/storage/borg" `
+
+
+
+*Example:*
+` "/backups/lennart" `
+
+*Declared by:*
+ - [modules/helpers/machines\.nix](modules/helpers/machines.nix)
+
+
+
+## machines\.\<name>\.extraBorgRepos
+
+
+
+Extra borg repos used by this machine\.
+
+
+
+*Type:*
+list of (submodule)
+
+
+
+*Default:*
+` [ ] `
+
+*Declared by:*
+ - [modules/helpers/machines\.nix](modules/helpers/machines.nix)
+
+
+
+## machines\.\<name>\.extraBorgRepos\.\*\.name
+
+
+
+The name of the backup repository\. This is used to identify the backup repository on the backup host\.
+
+You need keys for every backup repository\. Use ` nix run .#gen-borg-keys <this_name> <machines> lennart ` to generate the keys\.
+
+
+
+*Type:*
+string
+
+*Declared by:*
+ - [modules/helpers/machines\.nix](modules/helpers/machines.nix)
+
+
+
+## machines\.\<name>\.extraBorgRepos\.\*\.size
+
+
+
+Limit the maximum size of the repo\.
+
+
+
+*Type:*
+string
+
+
+
+*Default:*
+` "2T" `
+
+
+
+*Example:*
+` "4T" `
+
+*Declared by:*
+ - [modules/helpers/machines\.nix](modules/helpers/machines.nix)
+
+
+
+## machines\.\<name>\.mailServer\.enable
+
+
+
+Whether to enable Enable the mail server\.
+
+
+
+*Type:*
+boolean
+
+
+
+*Default:*
+` false `
+
+
+
+*Example:*
+` true `
+
+*Declared by:*
+ - [modules/helpers/machines\.nix](modules/helpers/machines.nix)
+
+
+
+## machines\.\<name>\.mailServer\.baseDomain
+
+
+
+Base domain for the mail server\. You need to setup the DNS records according to the
+setup guide at https://nixos-mailserver\.readthedocs\.io/en/latest/setup-guide\.html
+and https://nixos-mailserver\.readthedocs\.io/en/latest/autodiscovery\.html\. Also add
+an additional SPF record for the mail subdomain\.
+
+
+
+*Type:*
+string
+
+*Declared by:*
+ - [modules/helpers/machines\.nix](modules/helpers/machines.nix)
+
+
+
+## machines\.\<name>\.mailServer\.certEmail
+
+
+
+Email address to use for Let’s Encrypt certificates\.
+
+
+
+*Type:*
+string
+
+*Declared by:*
+ - [modules/helpers/machines\.nix](modules/helpers/machines.nix)
+
+
+
 ## machines\.\<name>\.managed
 
 
@@ -186,6 +1249,90 @@ boolean
 
 *Example:*
 ` false `
+
+*Declared by:*
+ - [modules/helpers/machines\.nix](modules/helpers/machines.nix)
+
+
+
+## machines\.\<name>\.matrixServer\.enable
+
+
+
+Whether to enable Enable matrix server\.
+
+
+
+*Type:*
+boolean
+
+
+
+*Default:*
+` false `
+
+
+
+*Example:*
+` true `
+
+*Declared by:*
+ - [modules/helpers/machines\.nix](modules/helpers/machines.nix)
+
+
+
+## machines\.\<name>\.matrixServer\.baseDomain
+
+
+
+Base domain for the matrix server\. You need to setup the DNS records for this domain and for the matrix, element, and turn subdomains\.
+
+
+
+*Type:*
+string
+
+*Declared by:*
+ - [modules/helpers/machines\.nix](modules/helpers/machines.nix)
+
+
+
+## machines\.\<name>\.matrixServer\.certEmail
+
+
+
+Email address to use for Let’s Encrypt certificates\.
+
+
+
+*Type:*
+string
+
+*Declared by:*
+ - [modules/helpers/machines\.nix](modules/helpers/machines.nix)
+
+
+
+## machines\.\<name>\.monitoring\.enable
+
+
+
+Whether to enable Run grafana and the prometheus collector on this machine\.
+
+
+
+*Type:*
+boolean
+
+
+
+*Default:*
+` false `
+
+
+
+*Example:*
+` true `
 
 *Declared by:*
  - [modules/helpers/machines\.nix](modules/helpers/machines.nix)
@@ -395,6 +1542,69 @@ list of signed integer
 
 
 
+## machines\.\<name>\.vpnHub\.enable
+
+
+
+Whether this machine is the hub of the VPN\.
+
+
+
+*Type:*
+boolean
+
+
+
+*Default:*
+` false `
+
+*Declared by:*
+ - [modules/helpers/machines\.nix](modules/helpers/machines.nix)
+
+
+
+## machines\.\<name>\.vpnHub\.staticIp4
+
+
+
+A static ipv4 address where the hub can be reached\.
+
+
+
+*Type:*
+null or string *(read only)*
+
+
+
+*Default:*
+` null `
+
+*Declared by:*
+ - [modules/helpers/machines\.nix](modules/helpers/machines.nix)
+
+
+
+## machines\.\<name>\.vpnHub\.staticIp6
+
+
+
+A static ipv6 address where the hub can be reached\.
+
+
+
+*Type:*
+null or string *(read only)*
+
+
+
+*Default:*
+` null `
+
+*Declared by:*
+ - [modules/helpers/machines\.nix](modules/helpers/machines.nix)
+
+
+
 ## machines\.\<name>\.wireguardPublicKey
 
 
@@ -416,29 +1626,26 @@ The base64 wireguard public key of the machine\.
 
 
 
-## modules\.authoritative_dns\.enable
+## machines\.\<name>\.workstation\.enable
 
 
 
-Whether to enable Enable the authoritative DNS server on port 53\.
+This machine is a workstation\. It is used for daily work and should have lennart, a GUI, ssh keys and such\.
+
+A home backup repo will be created for each workstation\.
 
 
 
 *Type:*
-boolean
+null or boolean
 
 
 
 *Default:*
 ` false `
 
-
-
-*Example:*
-` true `
-
 *Declared by:*
- - [modules/authoritative-dns\.nix](modules/authoritative-dns.nix)
+ - [modules/helpers/machines\.nix](modules/helpers/machines.nix)
 
 
 
@@ -486,35 +1693,6 @@ one of “efi”, “legacy”, “raspi”
 
 
 
-## modules\.borg-repo\.enable
-
-
-
-Whether to enable Host borg backup repositories\.
-
-Currently only tested for kappril, that name is hardcoded in some places\.
-\.
-
-
-
-*Type:*
-boolean
-
-
-
-*Default:*
-` false `
-
-
-
-*Example:*
-` true `
-
-*Declared by:*
- - [modules/borg-repo\.nix](modules/borg-repo.nix)
-
-
-
 ## modules\.desktop\.enable
 
 
@@ -533,125 +1711,6 @@ unspecified value
 
 *Declared by:*
  - [modules/desktop](modules/desktop)
-
-
-
-## modules\.mail\.enable
-
-
-
-Whether to enable Enable the mail server\.
-
-
-
-*Type:*
-boolean
-
-
-
-*Default:*
-` false `
-
-
-
-*Example:*
-` true `
-
-*Declared by:*
- - [modules/mail\.nix](modules/mail.nix)
-
-
-
-## modules\.mail\.baseDomain
-
-
-
-Base domain for the mail server\. You need to setup the DNS records according to the
-setup guide at https://nixos-mailserver\.readthedocs\.io/en/latest/setup-guide\.html
-and https://nixos-mailserver\.readthedocs\.io/en/latest/autodiscovery\.html\. Also add
-an additional SPF record for the mail subdomain\.
-
-
-
-*Type:*
-string
-
-*Declared by:*
- - [modules/mail\.nix](modules/mail.nix)
-
-
-
-## modules\.mail\.certEmail
-
-
-
-Email address to use for Let’s Encrypt certificates\.
-
-
-
-*Type:*
-string
-
-*Declared by:*
- - [modules/mail\.nix](modules/mail.nix)
-
-
-
-## modules\.matrix\.enable
-
-
-
-Whether to enable Enable matrix server\.
-
-
-
-*Type:*
-boolean
-
-
-
-*Default:*
-` false `
-
-
-
-*Example:*
-` true `
-
-*Declared by:*
- - [modules/matrix\.nix](modules/matrix.nix)
-
-
-
-## modules\.matrix\.baseDomain
-
-
-
-Base domain for the matrix server\. You need to setup the DNS records for this domain and for the matrix, element, and turn subdomains\.
-
-
-
-*Type:*
-string
-
-*Declared by:*
- - [modules/matrix\.nix](modules/matrix.nix)
-
-
-
-## modules\.matrix\.certEmail
-
-
-
-Email address to use for Let’s Encrypt certificates\.
-
-
-
-*Type:*
-string
-
-*Declared by:*
- - [modules/matrix\.nix](modules/matrix.nix)
 
 
 
@@ -677,6 +1736,10 @@ unspecified value
 
 
 ## services\.borgbackup\.jobs
+
+
+
+Normal borg backup jobs\.
 
 
 
