@@ -46,7 +46,7 @@ with lib;
                 dontStartOnMeteredConnection = mkOption {
                   type = types.bool;
                   default = false;
-                  description = lib.mdDoc "Whether the backup will start if the connection is metered.";
+                  description = "Whether the backup will start if the connection is metered.";
                 };
               };
             }

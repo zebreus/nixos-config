@@ -6,7 +6,7 @@ let
     options = {
       name = mkOption {
         type = types.str;
-        description = lib.mdDoc ''
+        description = ''
           The name of the backup repository. This is used to identify the backup repository on the backup host.
 
           You need keys for every backup repository. Use `nix run .#gen-borg-keys <this_name> <machines> lennart` to generate the keys.
@@ -14,7 +14,7 @@ let
       };
       size = mkOption {
         type = types.str;
-        description = lib.mdDoc ''
+        description = ''
           Limit the maximum size of the repo.
         '';
         default = "2T";
@@ -28,32 +28,32 @@ let
       name = mkOption {
         example = "bernd";
         type = types.str;
-        description = lib.mdDoc "Hostname of a machine on the network";
+        description = "Hostname of a machine on the network";
       };
 
       wireguardPublicKey = mkOption {
         example = "xTIBA5rboUvnH4htodjb6e697QjLERt1NAB4mZqp8Dg=";
         type = types.singleLineStr;
-        description = lib.mdDoc "The base64 wireguard public key of the machine.";
+        description = "The base64 wireguard public key of the machine.";
       };
 
       address = mkOption {
         example = 6;
         type = lib.types.ints.between 1 255;
-        description = lib.mdDoc ''The last byte of the antibuilding IPv4 address of the machine.'';
+        description = ''The last byte of the antibuilding IPv4 address of the machine.'';
       };
 
       staticIp6 = mkOption {
         example = "1111:1111:1111:1111::1";
         type = types.nullOr types.str;
-        description = lib.mdDoc ''A static ipv6 address where this machine can be reached.'';
+        description = ''A static ipv6 address where this machine can be reached.'';
         default = null;
       };
 
       staticIp4 = mkOption {
         example = "10.192.122.3";
         type = types.nullOr types.str;
-        description = lib.mdDoc ''A static ipv4 address where this machine can be reached.'';
+        description = ''A static ipv4 address where this machine can be reached.'';
         default = null;
       };
 
@@ -61,17 +61,17 @@ let
         enable = mkOption {
           type = types.bool;
           default = false;
-          description = lib.mdDoc ''Whether this machine is the hub of the VPN.'';
+          description = ''Whether this machine is the hub of the VPN.'';
         };
         staticIp4 = mkOption {
           type = types.nullOr types.str;
-          description = lib.mdDoc ''A static ipv4 address where the hub can be reached.'';
+          description = ''A static ipv4 address where the hub can be reached.'';
           default = if self.config.vpnHub.enable then self.config.staticIp4 else null;
           readOnly = true;
         };
         staticIp6 = mkOption {
           type = types.nullOr types.str;
-          description = lib.mdDoc ''A static ipv6 address where the hub can be reached.'';
+          description = ''A static ipv6 address where the hub can be reached.'';
           default = if self.config.vpnHub.enable then self.config.staticIp6 else null;
           readOnly = true;
         };
@@ -80,42 +80,42 @@ let
       trusted = mkOption {
         example = true;
         type = types.bool;
-        description = lib.mdDoc ''Whether this machine is allowed to access all other machines in the VPN.'';
+        description = ''Whether this machine is allowed to access all other machines in the VPN.'';
         default = false;
       };
 
       trustedPorts = mkOption {
         example = true;
         type = types.listOf types.int;
-        description = lib.mdDoc ''This machine is allowed to access this tcp port on all other machines in the VPN.'';
+        description = ''This machine is allowed to access this tcp port on all other machines in the VPN.'';
         default = [ ];
       };
 
       public = mkOption {
         example = true;
         type = types.bool;
-        description = lib.mdDoc ''Whether this machine can be accessed by untrusted machines in the VPN.'';
+        description = ''Whether this machine can be accessed by untrusted machines in the VPN.'';
         default = false;
       };
 
       publicPorts = mkOption {
         example = true;
         type = types.listOf types.int;
-        description = lib.mdDoc ''All other machines in the VPN are allowed to access these tcp ports on this machine.'';
+        description = ''All other machines in the VPN are allowed to access these tcp ports on this machine.'';
         default = [ ];
       };
 
       sshPublicKey = mkOption {
         example = "xTIBA5rboUvnH4htodjb6e697QjLERt1NAB4mZqp8Dg=";
         type = types.nullOr types.singleLineStr;
-        description = lib.mdDoc "The public SSH host key of this machine. Implies that the machine can be accessed via SSH.";
+        description = "The public SSH host key of this machine. Implies that the machine can be accessed via SSH.";
         default = null;
       };
 
       managed = mkOption {
         example = false;
         type = types.bool;
-        description = lib.mdDoc "Specify whether this machine is managed by this nixos-config";
+        description = "Specify whether this machine is managed by this nixos-config";
         default = self.config.sshPublicKey != null;
       };
 
@@ -123,18 +123,18 @@ let
         enable = mkOption {
           type = types.bool;
           default = false;
-          description = lib.mdDoc "Whether this machine is a authoritative DNS server";
+          description = "Whether this machine is a authoritative DNS server";
         };
         primary = mkOption {
           type = types.bool;
           default = false;
-          description = lib.mdDoc ''
+          description = ''
             Whether this machine is the primary authoritative DNS server. This one is responsible for DNSSEC signing. There should be only one primary authoritative DNS server.
           '';
         };
         name = mkOption {
           type = types.nullOr types.str;
-          description = lib.mdDoc "Name of this DNS server. Should be like ns1, ns2, ns3, ";
+          description = "Name of this DNS server. Should be like ns1, ns2, ns3, ";
           default = null;
           example = "ns1";
         };
@@ -143,14 +143,14 @@ let
       backupHost = {
         enable = mkOption {
           type = types.nullOr types.bool;
-          description = lib.mdDoc ''
+          description = ''
             This machine is hosting backups. The machine should provide at least 5TB of storage.
           '';
           default = false;
         };
         storagePath = mkOption {
           type = types.nullOr types.str;
-          description = lib.mdDoc ''
+          description = ''
             The prefix of the path to the backup repos. This should be a path on a separate disk.
           '';
           default = "/storage/borg";
@@ -158,7 +158,7 @@ let
         };
         locationPrefix = mkOption {
           type = types.nullOr types.str;
-          description = lib.mdDoc ''
+          description = ''
             The prefix to the borg repo. This string suffixed with the repo name is the full path to the borg repo.
           '';
           default = "ssh://borg@${self.config.name}/${self.config.backupHost.storagePath}/";
@@ -169,7 +169,7 @@ let
       workstation = {
         enable = mkOption {
           type = types.nullOr types.bool;
-          description = lib.mdDoc ''
+          description = ''
             This machine is a workstation. It is used for daily work and should have lennart, a GUI, ssh keys and such.
 
             A home backup repo will be created for each workstation.
@@ -217,7 +217,7 @@ let
 
       extraBorgRepos = mkOption {
         type = types.listOf (types.submodule backupRepoOpts);
-        description = lib.mdDoc ''
+        description = ''
           Extra borg repos used by this machine.
         '';
         default = [ ];
@@ -229,12 +229,12 @@ in
   options = {
     machines = mkOption {
       default = [ ];
-      description = lib.mdDoc "Information about the machines in the network";
+      description = "Information about the machines in the network";
       type = with types; attrsOf (submodule machineOpts);
     };
     allBorgRepos = mkOption {
       type = types.listOf (types.submodule backupRepoOpts);
-      description = lib.mdDoc ''
+      description = ''
         List of all borg repos that will get generated. This is an internal option and should only be set implicitly.
 
         I am sure that there is a better way to solve this.
@@ -243,7 +243,7 @@ in
     };
     allBackupHosts = mkOption {
       default = lib.attrValues (lib.filterAttrs (name: machine: machine.backupHost.enable) config.machines);
-      description = lib.mdDoc "All hosts that are backup hosts. Collected from machines.";
+      description = "All hosts that are backup hosts. Collected from machines.";
       type = with types; listOf (submodule machineOpts);
       readOnly = true;
     };

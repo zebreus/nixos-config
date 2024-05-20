@@ -61,17 +61,17 @@ in
     antibuilding = {
       ipv6Prefix = mkOption {
         default = "fd10:2030";
-        description = lib.mdDoc "The IPv6 prefix for the antibuilding. There is not much reason to change this, I just added this option so I can reuse the prefix in other places.";
+        description = "The IPv6 prefix for the antibuilding. There is not much reason to change this, I just added this option so I can reuse the prefix in other places.";
         type = types.str;
       };
       customWireguardPrivateKeyFile = mkOption {
         default = null;
-        description = lib.mdDoc "The wireguard private key for this machine. Should only be set if the secrets of that machine are not managed in this repo";
+        description = "The wireguard private key for this machine. Should only be set if the secrets of that machine are not managed in this repo";
         type = types.nullOr types.str;
       };
       customWireguardPskFile = mkOption {
         default = null;
-        description = lib.mdDoc "Information about the machines in the network. Should only be set if the secrets of that machine are not managed in this repo";
+        description = "Information about the machines in the network. Should only be set if the secrets of that machine are not managed in this repo";
         type = types.nullOr types.str;
       };
     };
