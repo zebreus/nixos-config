@@ -70,10 +70,6 @@
       overlayNixpkgs = { config, pkgs, ... }: {
         nixpkgs.overlays = overlays;
       };
-
-      # Sets config options with information about other machines.
-      # Only contains the information that is relevant for all machines.
-      # informationAboutOtherMachines = 
     in
     {
       nixosConfigurations =
@@ -81,7 +77,7 @@
           commonModules = [
             agenix.nixosModules.default
             overlayNixpkgs
-            ./hosts.nix
+            ./machines.nix
             home-manager.nixosModules.home-manager
             simple-nix-mailserver.nixosModules.default
             gnome-online-accounts-config.nixosModules.default
