@@ -7,14 +7,14 @@ on:
 permissions:
   contents: write
 jobs:
-  lockfile:
+  update_inputs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
       - name: Install Nix
         uses: DeterminateSystems/nix-installer-action@main
-      - name: Update flake lock myself
+      - name: Update flake inputs
         run: |
           git config user.email lennarteichhorn+nixos-config-updater@gmail.com  
           git config user.name Zebreus
