@@ -5,6 +5,7 @@
   environment.systemPackages = with pkgs;
     [
       nixpkgs-fmt
+      nixfmt-rfc-style
       nix-index
       killall
       htop
