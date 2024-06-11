@@ -13,9 +13,7 @@
   services.thinkmorse = {
     enable = true;
     message = "Hello World!";
-    devices = [
-      "tpacpi::lid_logo_dot"
-    ];
+    devices = [ "tpacpi::lid_logo_dot" ];
     speed = "0.3";
   };
 
@@ -24,5 +22,12 @@
       options thinkpad_acpi fan_control=1
     '';
   };
-}
 
+  # Temporary for pentesting course at uni
+  networking.hosts = {
+    "10.2.17.8" = [
+      "friends.connect.usd"
+      "connect.usd"
+    ];
+  };
+}
