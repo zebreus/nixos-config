@@ -16,9 +16,21 @@
     config = {
       user = {
         name = "Zebreus";
-        email = "lennarteichhorn@googlemail.com";
+        email = "zebreus@zebre.us";
       };
       init.defaultBranch = "main";
+      # I had previously increased these limits in my user config, but cannot remember why.
+      # I probably had some reason to do that, so I will replicate it here
+      core = {
+        packedGitLimit = "1024m";
+        packedGitWindowSize = "1024m";
+        compression = "1";
+      };
+      pack = {
+        deltaCacheSize = "2048m";
+        packSizeLimit = "2048m";
+        windowMemory = "2048m";
+      };
     };
   };
 }
