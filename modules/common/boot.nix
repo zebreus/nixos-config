@@ -30,6 +30,12 @@
         pkiBundle = "/etc/secureboot";
       };
 
+      # Enable auto-login if secureboot is enabled
+      services.displayManager.autoLogin = lib.mkIf (config.modules.boot.type == "secure") {
+        enable = true;
+        user = "lennart";
+      };
+
       loader =
         {
           legacy = { };
