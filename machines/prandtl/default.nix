@@ -5,7 +5,7 @@
     ../../modules
   ];
 
-  system.stateVersion = "24.05";
+  system.stateVersion = "24.11";
   networking.hostName = "prandtl";
-  modules.boot.type = "legacy";
+  modules.boot.type = "secure";
 }
