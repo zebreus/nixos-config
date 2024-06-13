@@ -179,5 +179,6 @@ echo "Finished preparing secrets for $TARGET_HOST_NAME"
 echo "You should now add the new host in machines and flake.nix"
 echo "Then run the following command to deploy the host:"
 echo "nixos-anywhere --extra-files $SECRETS_DIR --build-on-remote --flake .#$TARGET_HOST_NAME $SSH_TARGET"
+# Use sbctl create-keys --database-path /tmp/secret/etc/secureboot --export /tmp/secret/etc/secureboot/keys to create secure boot keys
 
 # ] <-- needed because of Argbash

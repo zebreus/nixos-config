@@ -30,12 +30,30 @@
       url = "github:zebreus/besserestrichliste";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    lanzaboote = {
+      url = "github:nix-community/lanzaboote/v0.4.1";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
-  outputs = { nixpkgs, gimp-nixpkgs, home-manager, disko, agenix, simple-nix-mailserver, gnome-online-accounts-config, nixos-wallpaper, besserestrichliste, ... }:
+  outputs =
+    {
+      nixpkgs,
+      gimp-nixpkgs,
+      home-manager,
+      disko,
+      agenix,
+      simple-nix-mailserver,
+      gnome-online-accounts-config,
+      nixos-wallpaper,
+      besserestrichliste,
+      lanzaboote,
+      ...
+    }:
     let
       overlays = [
-        (final: prev:
+        (
+          final: prev:
           let
             gimp-pkgs = import gimp-nixpkgs {
               system = prev.system;
@@ -44,13 +62,7 @@
                 "python-2.7.18.7-env"
                 "python-2.7.18.7"
               ];
-              overlays = [
-                (final: prev: {
-                  gimp = prev.gimp.override {
-                    withPython = true;
-                  };
-                })
-              ];
+              overlays = [ (final: prev: { gimp = prev.gimp.override { withPython = true; }; }) ];
             };
           in
           {
@@ -58,7 +70,8 @@
             nixos-wallpaper = nixos-wallpaper.packages.${prev.system}.default;
 
             gimp-with-plugins = gimp-pkgs.gimp-with-plugins;
-          })
+          }
+        )
       ];
       pkgs = import nixpkgs {
         inherit overlays;
@@ -67,9 +80,11 @@
       publicKeys = import secrets/public-keys.nix;
 
       # Add some extra packages to nixpkgs
-      overlayNixpkgs = { config, pkgs, ... }: {
-        nixpkgs.overlays = overlays;
-      };
+      overlayNixpkgs =
+        { config, pkgs, ... }:
+        {
+          nixpkgs.overlays = overlays;
+        };
     in
     {
       nixosConfigurations =
@@ -87,30 +102,22 @@
         {
           erms = nixpkgs.lib.nixosSystem {
             system = "x86_64-linux";
-            modules = [
-              ./machines/erms
-            ] ++ commonModules;
+            modules = [ ./machines/erms ] ++ commonModules;
           };
 
           kashenblade = nixpkgs.lib.nixosSystem {
             system = "aarch64-linux";
-            modules = [
-              ./machines/kashenblade
-            ] ++ commonModules;
+            modules = [ ./machines/kashenblade ] ++ commonModules;
           };
 
           kappril = nixpkgs.lib.nixosSystem {
             system = "aarch64-linux";
-            modules = [
-              ./machines/kappril
-            ] ++ commonModules;
+            modules = [ ./machines/kappril ] ++ commonModules;
           };
 
           sempriaq = nixpkgs.lib.nixosSystem {
             system = "x86_64-linux";
-            modules = [
-              ./machines/sempriaq
-            ] ++ commonModules;
+            modules = [ ./machines/sempriaq ] ++ commonModules;
           };
 
           hetzner-template = nixpkgs.lib.nixosSystem {
@@ -130,14 +137,13 @@
 
           blanderdash = nixpkgs.lib.nixosSystem {
             system = "aarch64-linux";
-            modules = [
-              ./machines/blanderdash
-            ] ++ commonModules;
+            modules = [ ./machines/blanderdash ] ++ commonModules;
           };
           prandtl = nixpkgs.lib.nixosSystem {
             system = "x86_64-linux";
             modules = [
               disko.nixosModules.disko
+              lanzaboote.nixosModules.lanzaboote
               ./machines/prandtl
             ] ++ commonModules;
           };
@@ -148,17 +154,23 @@
             system = "x86_64-linux";
             modules = [
               "${nixpkgs}/nixos/modules/installer/cd-dvd/installation-cd-minimal.nix"
-              ({ pkgs, ... }: {
-                networking.wireless.enable = false;
-                networking.networkmanager.enable = true;
-                environment.systemPackages = [ pkgs.rsync pkgs.git ];
-                users.users.root.password = nixpkgs.lib.mkForce "54321";
-                users.users.root.initialHashedPassword = nixpkgs.lib.mkForce null;
-                users.users.root.openssh.authorizedKeys.keys = [ publicKeys.lennart ];
-                boot.kernelPackages = pkgs.linuxPackages_latest;
-                boot.supportedFilesystems.bcachefs = nixpkgs.lib.mkForce true;
-                boot.supportedFilesystems.zfs = nixpkgs.lib.mkForce false;
-              })
+              (
+                { pkgs, ... }:
+                {
+                  networking.wireless.enable = false;
+                  networking.networkmanager.enable = true;
+                  environment.systemPackages = [
+                    pkgs.rsync
+                    pkgs.git
+                  ];
+                  users.users.root.password = nixpkgs.lib.mkForce "54321";
+                  users.users.root.initialHashedPassword = nixpkgs.lib.mkForce null;
+                  users.users.root.openssh.authorizedKeys.keys = [ publicKeys.lennart ];
+                  boot.kernelPackages = pkgs.linuxPackages_latest;
+                  boot.supportedFilesystems.bcachefs = nixpkgs.lib.mkForce true;
+                  boot.supportedFilesystems.zfs = nixpkgs.lib.mkForce false;
+                }
+              )
             ];
           };
         };
@@ -182,4 +194,3 @@
       formatter.x86_64-linux = pkgs.nixpkgs-fmt;
     };
 }
-

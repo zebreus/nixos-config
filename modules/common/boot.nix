@@ -1,4 +1,9 @@
-{ pkgs, config, lib, ... }:
+{
+  pkgs,
+  config,
+  lib,
+  ...
+}:
 {
   options.modules.boot.type = lib.mkOption {
     description = ''
@@ -6,28 +11,51 @@
 
       "legacy" uses grub for BIOS systems. "raspi" uses extlinux for Raspberry Pi.
     '';
-    type = lib.types.enum [ "efi" "legacy" "raspi" ];
+    type = lib.types.enum [
+      "efi"
+      "legacy"
+      "raspi"
+      "secure"
+    ];
     default = "efi";
   };
 
-
   config = {
+
     boot = {
       kernelPackages = pkgs.linuxPackages_latest;
 
-      loader = {
-        legacy = { };
-        efi = {
-          grub.enable = false;
-          systemd-boot.enable = true;
-          efi.canTouchEfiVariables = true;
-          efi.efiSysMountPoint = "/boot/efi";
-        };
-        raspi = {
-          grub.enable = false;
-          generic-extlinux-compatible.enable = true;
-        };
-      }.${config.modules.boot.type};
+      lanzaboote = lib.mkIf (config.modules.boot.type == "secure") {
+        enable = true;
+        pkiBundle = "/etc/secureboot";
+      };
+
+      loader =
+        {
+          legacy = { };
+          efi = {
+            grub.enable = false;
+            systemd-boot.enable = true;
+            efi.canTouchEfiVariables = true;
+            efi.efiSysMountPoint = "/boot/efi";
+          };
+          raspi = {
+            grub.enable = false;
+            generic-extlinux-compatible.enable = true;
+          };
+          secure = {
+            grub.enable = false;
+
+            # Lanzaboote currently replaces the systemd-boot module.
+            # This setting is usually set to true in configuration.nix
+            # generated at installation time. So we force it to false
+            # for now.
+            systemd-boot.enable = lib.mkForce false;
+          };
+        }
+        .${config.modules.boot.type};
     };
+
+    environment.systemPackages = lib.mkIf (config.modules.boot.type == "secure") [ pkgs.sbctl ];
   };
 }
