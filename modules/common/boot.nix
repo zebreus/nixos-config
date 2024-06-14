@@ -1,8 +1,7 @@
-{
-  pkgs,
-  config,
-  lib,
-  ...
+{ pkgs
+, config
+, lib
+, ...
 }:
 {
   options.modules.boot.type = lib.mkOption {
@@ -22,13 +21,10 @@
 
   config = {
 
-    boot = {
+    boot = lib.mkMerge [{
       kernelPackages = pkgs.linuxPackages_latest;
 
-      lanzaboote = lib.mkIf (config.modules.boot.type == "secure") {
-        enable = true;
-        pkiBundle = "/etc/secureboot";
-      };
+
 
       # Enable systemd in stage 1
       initrd.systemd.enable = true;
@@ -57,15 +53,20 @@
             # Editor is not secure
             systemd-boot.editor = false;
           };
-        }
-        .${config.modules.boot.type};
-    };
+        }.${config.modules.boot.type};
+    }
+      (if (config.modules.boot.type == "secure") then {
+        lanzaboote = {
+          enable = true;
+          pkiBundle = "/etc/secureboot";
+        };
+      } else { })];
 
-      # Enable auto-login if secureboot is enabled
-      services.displayManager.autoLogin = lib.mkIf (config.modules.boot.type == "secure") {
-        enable = true;
-        user = "lennart";
-      };
+    # Enable auto-login if secureboot is enabled
+    services.displayManager.autoLogin = lib.mkIf (config.modules.boot.type == "secure") {
+      enable = true;
+      user = "lennart";
+    };
 
     environment.systemPackages = lib.mkIf (config.modules.boot.type == "secure") [ pkgs.sbctl ];
   };

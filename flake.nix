@@ -37,40 +37,39 @@
   };
 
   outputs =
-    {
-      nixpkgs,
-      gimp-nixpkgs,
-      home-manager,
-      disko,
-      agenix,
-      simple-nix-mailserver,
-      gnome-online-accounts-config,
-      nixos-wallpaper,
-      besserestrichliste,
-      lanzaboote,
-      ...
+    { nixpkgs
+    , gimp-nixpkgs
+    , home-manager
+    , disko
+    , agenix
+    , simple-nix-mailserver
+    , gnome-online-accounts-config
+    , nixos-wallpaper
+    , besserestrichliste
+    , lanzaboote
+    , ...
     }:
     let
       overlays = [
         (
           final: prev:
-          let
-            gimp-pkgs = import gimp-nixpkgs {
-              system = prev.system;
-              # gimp with plugins needs an ancient python version
-              config.permittedInsecurePackages = [
-                "python-2.7.18.7-env"
-                "python-2.7.18.7"
-              ];
-              overlays = [ (final: prev: { gimp = prev.gimp.override { withPython = true; }; }) ];
-            };
-          in
-          {
-            agenix = agenix.packages.${prev.system}.default;
-            nixos-wallpaper = nixos-wallpaper.packages.${prev.system}.default;
+            let
+              gimp-pkgs = import gimp-nixpkgs {
+                system = prev.system;
+                # gimp with plugins needs an ancient python version
+                config.permittedInsecurePackages = [
+                  "python-2.7.18.7-env"
+                  "python-2.7.18.7"
+                ];
+                overlays = [ (final: prev: { gimp = prev.gimp.override { withPython = true; }; }) ];
+              };
+            in
+            {
+              agenix = agenix.packages.${prev.system}.default;
+              nixos-wallpaper = nixos-wallpaper.packages.${prev.system}.default;
 
-            gimp-with-plugins = gimp-pkgs.gimp-with-plugins;
-          }
+              gimp-with-plugins = gimp-pkgs.gimp-with-plugins;
+            }
         )
       ];
       pkgs = import nixpkgs {
