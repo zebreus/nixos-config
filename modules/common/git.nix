@@ -27,9 +27,9 @@
         compression = "1";
       };
       pack = {
-        deltaCacheSize = "2048m";
-        packSizeLimit = "2048m";
-        windowMemory = "2048m";
+        deltaCacheSize = "1024m";
+        packSizeLimit = "1024m";
+        windowMemory = "1024m";
       };
     };
   };
