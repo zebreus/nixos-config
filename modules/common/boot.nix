@@ -30,6 +30,8 @@
         pkiBundle = "/etc/secureboot";
       };
 
+      # Enable systemd in stage 1
+      initrd.systemd.enable = true;
 
       loader =
         {
@@ -52,6 +54,8 @@
             # generated at installation time. So we force it to false
             # for now.
             systemd-boot.enable = lib.mkForce false;
+            # Editor is not secure
+            systemd-boot.editor = false;
           };
         }
         .${config.modules.boot.type};
@@ -62,7 +66,7 @@
         enable = true;
         user = "lennart";
       };
-      
+
     environment.systemPackages = lib.mkIf (config.modules.boot.type == "secure") [ pkgs.sbctl ];
   };
 }
