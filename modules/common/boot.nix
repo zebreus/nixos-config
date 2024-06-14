@@ -30,11 +30,6 @@
         pkiBundle = "/etc/secureboot";
       };
 
-      # Enable auto-login if secureboot is enabled
-      services.displayManager.autoLogin = lib.mkIf (config.modules.boot.type == "secure") {
-        enable = true;
-        user = "lennart";
-      };
 
       loader =
         {
@@ -62,6 +57,12 @@
         .${config.modules.boot.type};
     };
 
+      # Enable auto-login if secureboot is enabled
+      services.displayManager.autoLogin = lib.mkIf (config.modules.boot.type == "secure") {
+        enable = true;
+        user = "lennart";
+      };
+      
     environment.systemPackages = lib.mkIf (config.modules.boot.type == "secure") [ pkgs.sbctl ];
   };
 }
