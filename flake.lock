@@ -357,11 +357,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1711255656,
-        "narHash": "sha256-Eso3rhaPG7TlfxvhW0r16TuwKD70pYkW2JyzoU88QTQ=",
+        "lastModified": 1718356619,
+        "narHash": "sha256-KGqL7fcPdOGZ87D9qQ5SdA2OUCXYDzTMf81nnzKB16A=",
         "owner": "zebreus",
         "repo": "home-manager",
-        "rev": "25c07541451f8a84f09fb5edb49d800c0b1e34bd",
+        "rev": "2683e72293d3c61369b5ac3f4aff5caac181ee5f",
         "type": "github"
       },
       "original": {
