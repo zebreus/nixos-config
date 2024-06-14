@@ -31,7 +31,7 @@
               passwordFile = "/tmp/secret.key";
               content = {
                 type = "filesystem";
-                format = "ext4";
+                format = "bcachefs";
                 mountpoint = "/";
                 # mountOptions = [
                 #   "defaults"
