@@ -21,6 +21,7 @@
   boot.initrd.kernelModules = [ ];
   boot.kernelModules = [ "kvm-amd" ];
   boot.extraModulePackages = [ ];
+  hardware.enableRedistributableFirmware = true;
 
   swapDevices = [ ];
 
