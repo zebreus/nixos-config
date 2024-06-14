@@ -68,6 +68,7 @@
             "<Alt>F4"
             "<Super>q"
           ];
+          "org/mutter/gnome".experimental-features = [ "scale-monitor-framebuffer" ];
         };
       };
     };
