@@ -1,10 +1,16 @@
 # Enable the GNOME Desktop Environment.
-{ lib, config, pkgs, ... }: {
+{ lib
+, config
+, pkgs
+, ...
+}:
+{
   config = lib.mkIf config.machines.${config.networking.hostName}.desktop.enable {
     services.xserver = {
       enable = true;
       displayManager.gdm = {
         enable = true;
+        wayland = true;
         autoSuspend = false;
       };
       desktopManager.gnome.enable = true;
@@ -40,7 +46,14 @@
           };
           # Setup favorite apps
           "org/gnome/shell" = {
-            favorite-apps = [ "org.gnome.Nautilus.desktop" "google-chrome.desktop" "spotify.desktop" "org.gnome.Fractal.desktop" "org.gnome.Evolution.desktop" "org.gnome.Console.desktop" ];
+            favorite-apps = [
+              "org.gnome.Nautilus.desktop"
+              "google-chrome.desktop"
+              "spotify.desktop"
+              "org.gnome.Fractal.desktop"
+              "org.gnome.Evolution.desktop"
+              "org.gnome.Console.desktop"
+            ];
           };
           # Set the default keybindings
           "org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom99" = {
@@ -48,8 +61,13 @@
             command = "kgx";
             binding = "<Super>Return";
           };
-          "org/gnome/settings-daemon/plugins/media-keys".custom-keybindings = [ "/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom99/" ];
-          "org/gnome/desktop/wm/keybindings".close = [ "<Alt>F4" "<Super>q" ];
+          "org/gnome/settings-daemon/plugins/media-keys".custom-keybindings = [
+            "/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom99/"
+          ];
+          "org/gnome/desktop/wm/keybindings".close = [
+            "<Alt>F4"
+            "<Super>q"
+          ];
         };
       };
     };
@@ -65,15 +83,14 @@
       "text/calendar" = "org.gnome.Evolution.desktop";
     };
 
-    environment.systemPackages = with pkgs;
-      [
-        gnome.gnome-tweaks
-        gnome.dconf-editor
-        gnomeExtensions.appindicator
-        headsetcontrol
-        headset-charge-indicator
-        pkgs.nixos-wallpaper
-      ];
+    environment.systemPackages = with pkgs; [
+      gnome.gnome-tweaks
+      gnome.dconf-editor
+      gnomeExtensions.appindicator
+      headsetcontrol
+      headset-charge-indicator
+      pkgs.nixos-wallpaper
+    ];
 
     environment.sessionVariables.NIXOS_OZONE_WL = "1";
 

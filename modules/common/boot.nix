@@ -1,7 +1,8 @@
-{ pkgs
-, config
-, lib
-, ...
+{
+  pkgs,
+  config,
+  lib,
+  ...
 }:
 {
   options.modules.boot.type = lib.mkOption {
@@ -21,52 +22,52 @@
 
   config = {
 
-    boot = lib.mkMerge [{
-      kernelPackages = pkgs.linuxPackages_latest;
+    boot = lib.mkMerge [
+      {
+        kernelPackages = pkgs.linuxPackages_latest;
 
+        # Enable systemd in stage 1
+        initrd.systemd.enable = true;
 
+        loader =
+          {
+            legacy = { };
+            efi = {
+              grub.enable = false;
+              systemd-boot.enable = true;
+              efi.canTouchEfiVariables = true;
+              efi.efiSysMountPoint = "/boot/efi";
+            };
+            raspi = {
+              grub.enable = false;
+              generic-extlinux-compatible.enable = true;
+            };
+            secure = {
+              grub.enable = false;
 
-      # Enable systemd in stage 1
-      initrd.systemd.enable = true;
-
-      loader =
-        {
-          legacy = { };
-          efi = {
-            grub.enable = false;
-            systemd-boot.enable = true;
-            efi.canTouchEfiVariables = true;
-            efi.efiSysMountPoint = "/boot/efi";
-          };
-          raspi = {
-            grub.enable = false;
-            generic-extlinux-compatible.enable = true;
-          };
-          secure = {
-            grub.enable = false;
-
-            # Lanzaboote currently replaces the systemd-boot module.
-            # This setting is usually set to true in configuration.nix
-            # generated at installation time. So we force it to false
-            # for now.
-            systemd-boot.enable = lib.mkForce false;
-            # Editor is not secure
-            systemd-boot.editor = false;
-          };
-        }.${config.modules.boot.type};
-    }
-      (if (config.modules.boot.type == "secure") then {
-        lanzaboote = {
-          enable = true;
-          pkiBundle = "/etc/secureboot";
-        };
-      } else { })];
-
-    # Enable auto-login if secureboot is enabled
-    services.displayManager.autoLogin = lib.mkIf (config.modules.boot.type == "secure") {
-      enable = true;
-      user = "lennart";
-    };
+              # Lanzaboote currently replaces the systemd-boot module.
+              # This setting is usually set to true in configuration.nix
+              # generated at installation time. So we force it to false
+              # for now.
+              systemd-boot.enable = lib.mkForce false;
+              # Editor is not secure
+              systemd-boot.editor = false;
+            };
+          }
+          .${config.modules.boot.type};
+      }
+      (
+        if (config.modules.boot.type == "secure") then
+          {
+            lanzaboote = {
+              enable = true;
+              pkiBundle = "/etc/secureboot";
+            };
+          }
+        else
+          { }
+      )
+    ];
 
     environment.systemPackages = lib.mkIf (config.modules.boot.type == "secure") [ pkgs.sbctl ];
   };
