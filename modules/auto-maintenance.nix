@@ -25,7 +25,7 @@ in
     nix.gc = {
       automatic = true;
       dates = "03:25";
-      options = "--delete-older-than +5";
+      options = "--delete-older-than +4";
     };
 
     nix.optimise = {
