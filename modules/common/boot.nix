@@ -1,8 +1,7 @@
-{
-  pkgs,
-  config,
-  lib,
-  ...
+{ pkgs
+, config
+, lib
+, ...
 }:
 {
   options.modules.boot.type = lib.mkOption {
@@ -53,8 +52,7 @@
               # Editor is not secure
               systemd-boot.editor = false;
             };
-          }
-          .${config.modules.boot.type};
+          }.${config.modules.boot.type};
       }
       (
         if (config.modules.boot.type == "secure") then

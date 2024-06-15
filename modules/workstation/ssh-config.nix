@@ -24,16 +24,18 @@ in
               let
                 # SSH hosts from antibuilding
                 antibuildingHosts = builtins.listToAttrs (
-                  builtins.map (machine: {
-                    inherit (machine) name;
-                    value = {
-                      port = 22;
-                      user = "root";
-                      hostname = "${machine.name}.antibuild.ing";
-                      host = ''${machine.name} ${machine.name}.antibuild.ing ${config.antibuilding.ipv6Prefix}::${builtins.toString machine.address}'';
-                      identityFile = config.age.secrets.lennart_ed25519.path;
-                    };
-                  }) accessibleMachines
+                  builtins.map
+                    (machine: {
+                      inherit (machine) name;
+                      value = {
+                        port = 22;
+                        user = "root";
+                        hostname = "${machine.name}.antibuild.ing";
+                        host = ''${machine.name} ${machine.name}.antibuild.ing ${config.antibuilding.ipv6Prefix}::${builtins.toString machine.address}'';
+                        identityFile = config.age.secrets.lennart_ed25519.path;
+                      };
+                    })
+                    accessibleMachines
                 );
                 # SSH hosts from university
                 hdaHosts = {
