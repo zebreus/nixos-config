@@ -235,6 +235,10 @@ let
         '';
         default = [ ];
       };
+
+      headscale = {
+        enable = mkEnableOption "Enable headscale server";
+      };
     };
   };
 in
@@ -267,4 +271,40 @@ in
       allBorgRepos = builtins.concatMap (machine: machine.extraBorgRepos) (lib.attrValues config.machines);
     }
   ];
+
+  config =
+    let
+      headscaleServers = (lib.attrValues (lib.filterAttrs (name: machine: machine.headscale.enable) config.machines));
+      monitoringServers = (lib.attrValues (lib.filterAttrs (name: machine: machine.monitoring.enable) config.machines));
+      exactlyOne = servers: ((lib.length servers) == 1);
+      hasAttribute = servers: attribute: (exactlyOne servers) -> ((lib.head servers).${attribute} != null);
+    in
+    {
+      assertions = [
+        {
+          assertion = exactlyOne headscaleServers;
+          message = "You need exactly one headscale server, you have ${builtins.toString (lib.length headscaleServers)} (${lib.concatStringsSep ", " (builtins.map (machine: machine.name) headscaleServers)})";
+        }
+        {
+          assertion = hasAttribute headscaleServers "staticIp6";
+          message = "Your headscale server needs a static ipv6";
+        }
+        {
+          assertion = hasAttribute headscaleServers "staticIp4";
+          message = "Your headscale server needs a static ipv4";
+        }
+        {
+          assertion = exactlyOne monitoringServers;
+          message = "You need exactly one monitoring server, you have ${builtins.toString (lib.length monitoringServers)} (${lib.concatStringsSep ", " (builtins.map (machine: machine.name) headscaleServers)})";
+        }
+        {
+          assertion = hasAttribute monitoringServers "staticIp6";
+          message = "Your monitoring server needs a static ipv6";
+        }
+        {
+          assertion = hasAttribute monitoringServers "staticIp4";
+          message = "Your monitoring server needs a static ipv4";
+        }
+      ];
+    };
 }

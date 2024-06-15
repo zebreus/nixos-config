@@ -101,6 +101,9 @@ in
       publicPorts = [ 53 ];
       staticIp4 = "49.13.8.171";
       staticIp6 = "2a01:4f8:c013:29b1::1";
+      headscale = {
+        enable = true;
+      };
     };
     prandtl = {
       name = "prandtl";
