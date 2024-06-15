@@ -25,9 +25,6 @@
       {
         kernelPackages = pkgs.linuxPackages_latest;
 
-        # Enable systemd in stage 1
-        initrd.systemd.enable = true;
-
         loader =
           {
             legacy = { };
@@ -43,6 +40,9 @@
             };
             secure = {
               grub.enable = false;
+
+              # Enable systemd in stage 1
+              initrd.systemd.enable = true;
 
               # Lanzaboote currently replaces the systemd-boot module.
               # This setting is usually set to true in configuration.nix
