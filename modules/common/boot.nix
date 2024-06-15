@@ -41,9 +41,6 @@
             secure = {
               grub.enable = false;
 
-              # Enable systemd in stage 1
-              initrd.systemd.enable = true;
-
               # Lanzaboote currently replaces the systemd-boot module.
               # This setting is usually set to true in configuration.nix
               # generated at installation time. So we force it to false
@@ -61,6 +58,9 @@
               enable = true;
               pkiBundle = "/etc/secureboot";
             };
+
+            # Enable systemd in stage 1
+            initrd.systemd.enable = true;
           }
         else
           { }
