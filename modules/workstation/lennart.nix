@@ -32,6 +32,7 @@ in
         mkdir -p /home/lennart/.ssh /home/lennart/.gnupg /home/lennart/.cache /home/lennart/.config
         chmod 700 /home/lennart/.ssh /home/lennart/.gnupg /home/lennart/.config
         chmod 755 /home/lennart/.cache
+        chmod 755 /etc/ssh
         # Recursively chown, if they are not owned by lennart
         test "$(stat -c "%U" /home/lennart/.gnupg)" == "root" && chown -R lennart:${config.users.users.lennart.group} /home/lennart/.gnupg
         test "$(stat -c "%U" /home/lennart/.ssh)" == "root" && chown -R lennart:${config.users.users.lennart.group} /home/lennart/.ssh
