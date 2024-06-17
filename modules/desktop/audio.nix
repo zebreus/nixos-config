@@ -1,7 +1,8 @@
 { lib, config, ... }: {
   config = lib.mkIf config.machines.${config.networking.hostName}.desktop.enable {
+    # # This only enables alsa
+    # sound.enable = true;
     # Enable sound with pipewire.
-    sound.enable = true;
     hardware.pulseaudio.enable = false;
     security.rtkit.enable = true;
     services.pipewire = {
