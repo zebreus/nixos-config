@@ -102,8 +102,13 @@ in
       authoritativeDns.primary = true;
       authoritativeDns.name = "ns2";
       publicPorts = [ 53 ];
+      trustedPorts = [ 18000 ];
       staticIp4 = "49.13.8.171";
       staticIp6 = "2a01:4f8:c013:29b1::1";
+      vpnHub = {
+        id = 1;
+        enable = true;
+      };
       headscale = {
         enable = true;
       };
