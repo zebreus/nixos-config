@@ -166,4 +166,7 @@ with import ./public-keys.nix;
 
   # Systemd-homed keys
   "497a_homed.age".publicKeys = [ recovery ] ++ workstations;
+
+  # Other keys
+  "pogopeering.age".publicKeys = [ recovery sempriaq ];
 }

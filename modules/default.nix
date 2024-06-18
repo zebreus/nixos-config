@@ -11,6 +11,7 @@
     ./borg-repo.nix
     ./headscale.nix
     ./monitoring.nix
+    ./pogopeering.nix
     ./mail.nix
     ./matrix.nix
   ];
