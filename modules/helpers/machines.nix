@@ -63,6 +63,11 @@ let
           default = false;
           description = ''Whether this machine is the hub of the VPN.'';
         };
+        id = mkOption {
+          type = types.int;
+          example = 1;
+          description = ''The id of the network. Need to be unique. TEMPORARY!'';
+        };
         staticIp4 = mkOption {
           type = types.nullOr types.str;
           description = ''A static ipv4 address where the hub can be reached.'';
