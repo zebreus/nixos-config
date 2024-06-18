@@ -12,7 +12,6 @@
     ./node-exporter.nix
     ./openssh.nix
     ./root.nix
-    ./wireguard.nix
     ./zsh.nix
   ];
 }

@@ -109,6 +109,7 @@ in
         id = 1;
         enable = true;
       };
+      bird-lg.enable = true;
       headscale = {
         enable = true;
       };

@@ -244,6 +244,10 @@ let
       headscale = {
         enable = mkEnableOption "Enable headscale server";
       };
+
+      bird-lg = {
+        enable = mkEnableOption "Enable bird-lg frontend";
+      };
     };
   };
 in
@@ -281,6 +285,7 @@ in
     let
       headscaleServers = (lib.attrValues (lib.filterAttrs (name: machine: machine.headscale.enable) config.machines));
       monitoringServers = (lib.attrValues (lib.filterAttrs (name: machine: machine.monitoring.enable) config.machines));
+      birdLgServers = (lib.attrValues (lib.filterAttrs (name: machine: machine.bird-lg.enable) config.machines));
       exactlyOne = servers: ((lib.length servers) == 1);
       hasAttribute = servers: attribute: (exactlyOne servers) -> ((lib.head servers).${attribute} != null);
     in
@@ -300,7 +305,7 @@ in
         }
         {
           assertion = exactlyOne monitoringServers;
-          message = "You need exactly one monitoring server, you have ${builtins.toString (lib.length monitoringServers)} (${lib.concatStringsSep ", " (builtins.map (machine: machine.name) headscaleServers)})";
+          message = "You need exactly one monitoring server, you have ${builtins.toString (lib.length monitoringServers)} (${lib.concatStringsSep ", " (builtins.map (machine: machine.name) monitoringServers)})";
         }
         {
           assertion = hasAttribute monitoringServers "staticIp6";
@@ -309,6 +314,18 @@ in
         {
           assertion = hasAttribute monitoringServers "staticIp4";
           message = "Your monitoring server needs a static ipv4";
+        }
+        {
+          assertion = exactlyOne birdLgServers;
+          message = "You need exactly one bird-lg server, you have ${builtins.toString (lib.length birdLgServers)} (${lib.concatStringsSep ", " (builtins.map (machine: machine.name) birdLgServers)})";
+        }
+        {
+          assertion = hasAttribute birdLgServers "staticIp6";
+          message = "Your bird-lg server needs a static ipv6";
+        }
+        {
+          assertion = hasAttribute birdLgServers "staticIp4";
+          message = "Your bird-lg server needs a static ipv4";
         }
       ];
     };

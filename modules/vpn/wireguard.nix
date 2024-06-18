@@ -1,3 +1,4 @@
+# Establishes wireguard tunnels with all nodes with static IPs as hubs.
 { pkgs, config, lib, ... }:
 let
   machines = lib.attrValues config.machines;
@@ -34,6 +35,11 @@ let
       {
         address = "${ipv6Prefix}::${builtins.toString machine.address}";
         name = "${machine.name}.antibuild.ing";
+        inherit (machine) sshPublicKey;
+      }
+      {
+        address = "${ipv6Prefix}::${builtins.toString machine.address}";
+        name = "${machine.name}.lg.antibuild.ing";
         inherit (machine) sshPublicKey;
       }
       {
@@ -124,13 +130,7 @@ in
         (network: {
           allowedUDPPorts = [ network.port ];
           interfaces."${network.name}" = {
-            allowedTCPPorts = [ 22 ]
-              # BGP ports
-              ++ [ 179 ]
-              # bird-lg proxy port
-              ++ [ 18000 ];
-            # BFD ports
-            allowedUDPPorts = [ 3784 ];
+            allowedTCPPorts = [ 22 ];
           };
         })
         networks);
@@ -316,185 +316,6 @@ in
             };
           })
           networks);
-    };
-
-    services.bird-lg = lib.mkMerge [
-      {
-        proxy = {
-          enable = true;
-          birdSocket = "/var/run/bird/bird.ctl";
-          listenAddress = "0.0.0.0:18000";
-          allowedIPs = [ "127.0.0.1" "fd10:2030::8" "49.13.8.171" ];
-        };
-
-      }
-      (lib.mkIf (config.networking.hostName == "blanderdash") {
-        frontend = {
-          domain = "lg.arewefpgayet.rs";
-          enable = true;
-          servers = (builtins.map (machine: machine.name) machines);
-          protocolFilter = [ "bgp" "static" ];
-          listenAddress = "127.0.0.1:15000";
-          proxyPort = 18000;
-          navbar = {
-            brand = "Antibuilding";
-          };
-        };
-      })
-    ];
-    security.acme = lib.mkIf (config.networking.hostName == "blanderdash") {
-      acceptTerms = true;
-      defaults.email = "lennarteichhorn@googlemail.com";
-    };
-    services.nginx.virtualHosts = lib.mkIf (config.networking.hostName == "blanderdash") {
-      "lg.arewefpgayet.rs" = {
-        forceSSL = true;
-        enableACME = true;
-        locations."/" = {
-          proxyPass = "http://${config.services.bird-lg.frontend.listenAddress}";
-          proxyWebsockets = true;
-        };
-      };
-    };
-
-    services.bird2 = {
-      enable = true;
-      autoReload = true;
-      config = lib.mkMerge ([
-        ''
-          # Enable a lot of logging
-          log syslog {info, warning,error,fatal,trace, debug, remote, auth };
-          debug protocols { states, routes, filters, interfaces, events, packets };
-          debug tables all
-          debug channels all;
-
-          router id 10.20.30.${builtins.toString thisMachine.address};
-
-          # Disable automatically generating direct routes to all network interfaces.
-          protocol direct {
-                  disabled;
-          }
-          protocol device {}
-
-          # Forbid synchronizing BIRD routing tables with the OS kernel.
-          protocol kernel {
-            metric 0;
-          	ipv6 {
-              import none;
-              export all;
-            };
-            learn;
-          }
-
-          protocol bfd {
-                  accept ipv6;
-                  interface "antibuilding*" {
-                          min rx interval 200 ms;
-                          min tx interval 500 ms;
-                          idle tx interval 3000 ms;
-                  };
-          }
-
-          template bgp antibuilding_peer {
-                local fd10:2030::${builtins.toString thisMachine.address} as ${builtins.toString (thisMachine.address + 10000)};
-                strict bind on;
-                direct;
-
-                advertise hostname on;
-                bfd on;
-
-                ipv6 {
-                        next hop self on;
-                        gateway direct;
-                        import filter {
-                            if net ~ [ fd10:2030::${builtins.toString thisMachine.address}/128 ] then {
-                              reject;
-                            }
-                            krt_metric = 32;
-                            accept;
-                        };
-                        export filter {
-                            if source !~ [RTS_STATIC, RTS_BGP] then {
-                              reject;
-                            }
-                            accept;
-                        };
-                };
-          }
-        ''
-      ]
-      ++ (
-        builtins.map
-          (network: ''
-            # Add a static route to self
-            protocol static static${builtins.toString thisMachine.address}${network.name} {
-                    ipv6 {
-                      import filter {
-                        accept;
-                      };
-                    };
-                    route fd10:2030::${builtins.toString thisMachine.address}/128 via "${network.name}" {
-                      krt_metric = 16;
-                    };
-            }
-          '')
-          networks
-      )
-      ++ (
-        builtins.map
-          (network: ''
-            # BGP hub
-            protocol bgp ${network.name}s${builtins.toString network.server.address} from antibuilding_peer {
-                  description "BGP ${network.name}";
-                  neighbor fd10:2030::${builtins.toString network.server.address}%${network.name} as ${builtins.toString (network.server.address + 10000)};
-                  interface "${network.name}";
-            }
-
-            # Add a static route to the neighbour, if it does BFD
-            # This should make sure, that we prefer the direct connection
-            protocol static static${builtins.toString network.server.address}${network.name} {
-                    ipv6 {
-                      import filter {
-                        ifname = "${network.name}";
-                        accept;
-                      };
-                    };
-                    route fd10:2030::${builtins.toString network.server.address}/128 via fd10:2030::${builtins.toString network.server.address} dev "${network.name}" bfd on {
-                      krt_metric = 64;
-                    };
-            }
-
-
-          '')
-          (builtins.filter (network: !network.thisHostIsServer) networks)
-      )
-      ++ (
-        builtins.concatMap
-          (network: (builtins.map
-            (client: ''
-              # BGP client
-              protocol bgp ${network.name}c${builtins.toString client.address} from antibuilding_peer {
-                    description "BGP to ${network.name} ${builtins.toString client.address}";
-                    neighbor fd10:2030::${builtins.toString client.address}%${network.name} as ${builtins.toString (client.address + 10000)};
-                    interface "${network.name}";
-              }
-
-              # Add a static route to the neighbour, if it does BFD
-              protocol static static${builtins.toString client.address}${network.name} {
-                      ipv6 {
-                        import filter {
-                          ifname = "${network.name}";
-                          accept;
-                        };
-                      };
-                      route fd10:2030::${builtins.toString client.address}/128 via fd10:2030::${builtins.toString client.address} dev "${network.name}" bfd on {
-                        krt_metric = 64;
-                      };
-              }
-            '')
-            network.clients))
-          (builtins.filter (network: network.thisHostIsServer) networks)
-      ));
     };
 
     # Enable IP forwarding on the server so peers can communicate with each other.

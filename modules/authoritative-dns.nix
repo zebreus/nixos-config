@@ -1,5 +1,6 @@
 { lib, config, pkgs, ... }:
 let
+  machines = lib.attrValues config.machines;
   publicKeys = import ../secrets/public-keys.nix;
 
   # splitStringIntoChunks = str -> int -> [str]
@@ -32,13 +33,14 @@ let
   thisServer = lib.head (lib.attrValues (lib.filterAttrs (name: machine: name == config.networking.hostName) config.machines));
   grafanaServer = lib.head (lib.attrValues (lib.filterAttrs (name: machine: machine.monitoring.enable) config.machines));
   headscaleServer = lib.head (lib.attrValues (lib.filterAttrs (name: machine: machine.headscale.enable) config.machines));
+  birdLgServer = lib.head (lib.attrValues (lib.filterAttrs (name: machine: machine.bird-lg.enable) config.machines));
 
   zones = {
     # Used for infrastructure and internal names
     "antibuild.ing" = ''
       $TTL 60
       $ORIGIN antibuild.ing.
-      @ SOA ${(lib.head primaryServers).authoritativeDns.name}.antibuild.ing. lennart.zebre.us. 1710261000 14400 3600 604800 300
+      @ SOA ${(lib.head primaryServers).authoritativeDns.name}.antibuild.ing. lennart.zebre.us. 1710266000 14400 3600 604800 300
 
       ; Nameservers
       ${lib.concatStringsSep "\n" (lib.concatMap (machine: [
@@ -67,6 +69,10 @@ let
       headscale IN A ${headscaleServer.staticIp4}
       headscale IN AAAA ${headscaleServer.staticIp6}
 
+      ; bird looking-glass
+      lg IN A ${birdLgServer.staticIp4}
+      lg IN AAAA ${birdLgServer.staticIp6}
+
       ; TXT for keyoxide
       @ IN TXT ${quoteTxtEntry "openpgp4fpr:2D53CFEA1AB4017BB327AFE310A46CC3152D49C5"}
     ''
@@ -88,6 +94,15 @@ let
         '')
         machinesThatCanReceiveMail))
     +
+    (builtins.concatStringsSep "\n" (
+      builtins.map
+        # TODO: Verify that autodiscovery works like this
+        (machine: ''
+          ; Bird looking-glass proxy record for ${machine.name}
+          ${machine.name}.lg IN AAAA ${config.antibuilding.ipv6Prefix}::${builtins.toString machine.address}
+        '')
+        machines))
+    +
     ''
       ; A a record, so there is a record for the root domain
       @ IN A ${(lib.head primaryServers).staticIp4}
@@ -98,7 +113,7 @@ let
       $TTL 60
       $ORIGIN zebre.us.
       @ IN SOA ns1.antibuild.ing. lennart.zebre.us. (
-              1710261000  ; serial secs since Jan 1 1970
+              1710266000  ; serial secs since Jan 1 1970
               14400        ; refresh (>=60)
               3600        ; retry (>=60)
               604800      ; expire
@@ -140,7 +155,7 @@ let
       $TTL 60
       $ORIGIN madmanfred.com.
       @ IN SOA ns1.antibuild.ing. lennart.zebre.us. (
-              1710261000  ; serial secs since Jan 1 1970
+              1710266000  ; serial secs since Jan 1 1970
               14400        ; refresh (>=60)
               3600        ; retry (>=60)
               604800      ; expire
@@ -171,7 +186,7 @@ let
       $TTL 60
       $ORIGIN wirs.ing.
       @ IN SOA ns1.antibuild.ing. lennart.zebre.us. (
-              1710261000  ; serial secs since Jan 1 1970
+              1710266000  ; serial secs since Jan 1 1970
               14400       ; refresh (>=60)
               3600        ; retry (>=60)
               604800      ; expire
@@ -210,7 +225,7 @@ let
       $TTL 60
       $ORIGIN cicen.net.
       @ IN SOA ns1.antibuild.ing. lennart.zebre.us. (
-              1710261000  ; serial secs since Jan 1 1970
+              1710266000  ; serial secs since Jan 1 1970
               14400       ; refresh (>=60)
               3600        ; retry (>=60)
               604800      ; expire
@@ -229,7 +244,7 @@ let
       $TTL 60
       $ORIGIN del.blue.
       @ IN SOA ns1.antibuild.ing. lennart.zebre.us. (
-              1710261000  ; serial secs since Jan 1 1970
+              1710266000  ; serial secs since Jan 1 1970
               14400       ; refresh (>=60)
               3600        ; retry (>=60)
               604800      ; expire
@@ -248,7 +263,7 @@ let
       $TTL 60
       $ORIGIN einhorn.jetzt.
       @ IN SOA ns1.antibuild.ing. lennart.zebre.us. (
-              1710261000  ; serial secs since Jan 1 1970
+              1710266000  ; serial secs since Jan 1 1970
               14400       ; refresh (>=60)
               3600        ; retry (>=60)
               604800      ; expire
@@ -282,7 +297,7 @@ let
       $TTL 60
       $ORIGIN generated.fashion.
       @ IN SOA ns1.antibuild.ing. lennart.zebre.us. (
-              1710261000  ; serial secs since Jan 1 1970
+              1710266000  ; serial secs since Jan 1 1970
               14400       ; refresh (>=60)
               3600        ; retry (>=60)
               604800      ; expire
@@ -305,7 +320,7 @@ let
       $TTL 60
       $ORIGIN xn--f87c.cc.
       @ IN SOA ns1.antibuild.ing. lennart.zebre.us. (
-              1710261000  ; serial secs since Jan 1 1970
+              1710266000  ; serial secs since Jan 1 1970
               14400       ; refresh (>=60)
               3600        ; retry (>=60)
               604800      ; expire
@@ -328,7 +343,7 @@ let
       $TTL 60
       $ORIGIN zeb.rs.
       @ IN SOA ns1.antibuild.ing. lennart.zebre.us. (
-              1710261000  ; serial secs since Jan 1 1970
+              1710266000  ; serial secs since Jan 1 1970
               14400       ; refresh (>=60)
               3600        ; retry (>=60)
               604800      ; expire
