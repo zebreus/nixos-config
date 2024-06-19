@@ -4,29 +4,33 @@ let
   machines = lib.attrValues config.machines;
   thisMachine = config.machines."${config.networking.hostName}";
   # isServer = thisMachine.staticIp != null;
-  isServer = machine: ((machine.vpnHub.staticIp4 != null) || (machine.vpnHub.staticIp6 != null));
-  # If this is a server: All other machines including servers and clients
-  # If this is a client: Only other machines that are servers
-  servers = lib.filter (machine: isServer machine) machines;
+  isServer = machine: ((machine.staticIp4 != null) || (machine.staticIp6 != null));
 
   inherit (config.antibuilding) ipv6Prefix;
 
-  networks = lib.imap
-    (index: server: {
-      # General information about the network
-      name = "antibuilding${builtins.toString server.vpnHub.id}";
-      id = index;
-      clients = builtins.filter (machine: machine.name != server.name) machines;
-      server = server;
-      port = 51820 + server.vpnHub.id;
+  otherMachines = builtins.filter (machine: machine.name != config.networking.hostName) machines;
+  connectedMachines = builtins.filter (otherMachine: (isServer thisMachine) || (isServer otherMachine)) otherMachines;
 
-      prefix = "${ipv6Prefix}";
-      size = builtins.toString 112;
+  networks = lib.imap
+    (index: otherMachine: {
+      # General information about the network
+      name = "antibuilding${builtins.toString otherMachine.address}";
+      id = index;
+      otherMachine = otherMachine;
+      thisPort = 51820 + otherMachine.address;
+      otherPort = 51820 + thisMachine.address;
+
+      thisAddress = "fe80::${builtins.toString otherMachine.address}:${builtins.toString thisMachine.address}";
+      otherAddress = "fe80::${builtins.toString thisMachine.address}:${builtins.toString otherMachine.address}";
+
+      connectTo = if (isServer otherMachine) then "${otherMachine.name}.outside.antibuild.ing:${builtins.toString (51820 + thisMachine.address)}" else null;
+
+      size = builtins.toString 64;
 
       # Information about the other hosts in the network
-      thisHostIsServer = config.networking.hostName == server.name;
+      thisHostIsServer = isServer thisMachine;
     })
-    servers;
+    connectedMachines;
 in
 {
   config = {
@@ -85,7 +89,6 @@ in
           }
 
           template bgp antibuilding_peer {
-                local ${ipv6Prefix}::${builtins.toString thisMachine.address} as ${builtins.toString (thisMachine.address + 10000)};
                 strict bind on;
                 direct;
 
@@ -96,7 +99,7 @@ in
                         next hop self on;
                         gateway direct;
                         import filter {
-                            if net ~ [ ${ipv6Prefix}::${builtins.toString thisMachine.address}/128 ] then {
+                            if net ~ [ fe80::/64 ] then {
                               reject;
                             }
                             krt_metric = 32;
@@ -110,79 +113,32 @@ in
                         };
                 };
           }
+
+           # Add a static route to self
+            protocol static antibuilding${builtins.toString thisMachine.address} {
+                    ipv6 {
+                      import filter {
+                        accept;
+                      };
+                    };
+                    route ${ipv6Prefix}::${builtins.toString thisMachine.address}/128 via "antibuilding" {
+                      krt_metric = 16;
+                    };
+            }
         ''
       ]
       ++ (
         builtins.map
           (network: ''
-            # Add a static route to self
-            protocol static static${builtins.toString thisMachine.address}${network.name} {
-                    ipv6 {
-                      import filter {
-                        accept;
-                      };
-                    };
-                    route ${ipv6Prefix}::${builtins.toString thisMachine.address}/128 via "${network.name}" {
-                      krt_metric = 16;
-                    };
+            # BGP hub
+            protocol bgp ${network.name} from antibuilding_peer {
+                  description "BGP ${network.name}";
+                  local ${network.thisAddress} as ${builtins.toString (thisMachine.address + 10000)};
+                  neighbor ${network.otherAddress}%${network.name} as ${builtins.toString (network.otherMachine.address + 10000)};
+                  interface "${network.name}";
             }
           '')
           networks
-      )
-      ++ (
-        builtins.map
-          (network: ''
-            # BGP hub
-            protocol bgp ${network.name}s${builtins.toString network.server.address} from antibuilding_peer {
-                  description "BGP ${network.name}";
-                  neighbor ${ipv6Prefix}::${builtins.toString network.server.address}%${network.name} as ${builtins.toString (network.server.address + 10000)};
-                  interface "${network.name}";
-            }
-
-            # Add a static route to the neighbour, if it does BFD
-            # This should make sure, that we prefer the direct connection
-            protocol static static${builtins.toString network.server.address}${network.name} {
-                    ipv6 {
-                      import filter {
-                        ifname = "${network.name}";
-                        accept;
-                      };
-                    };
-                    route ${ipv6Prefix}::${builtins.toString network.server.address}/128 via ${ipv6Prefix}::${builtins.toString network.server.address} dev "${network.name}" bfd on {
-                      krt_metric = 64;
-                    };
-            }
-
-
-          '')
-          (builtins.filter (network: !network.thisHostIsServer) networks)
-      )
-      ++ (
-        builtins.concatMap
-          (network: (builtins.map
-            (client: ''
-              # BGP client
-              protocol bgp ${network.name}c${builtins.toString client.address} from antibuilding_peer {
-                    description "BGP to ${network.name} ${builtins.toString client.address}";
-                    neighbor ${ipv6Prefix}::${builtins.toString client.address}%${network.name} as ${builtins.toString (client.address + 10000)};
-                    interface "${network.name}";
-              }
-
-              # Add a static route to the neighbour, if it does BFD
-              protocol static static${builtins.toString client.address}${network.name} {
-                      ipv6 {
-                        import filter {
-                          ifname = "${network.name}";
-                          accept;
-                        };
-                      };
-                      route ${ipv6Prefix}::${builtins.toString client.address}/128 via ${ipv6Prefix}::${builtins.toString client.address} dev "${network.name}" bfd on {
-                        krt_metric = 64;
-                      };
-              }
-            '')
-            network.clients))
-          (builtins.filter (network: network.thisHostIsServer) networks)
       ));
     };
   };

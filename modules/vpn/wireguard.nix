@@ -4,30 +4,33 @@ let
   machines = lib.attrValues config.machines;
   thisMachine = config.machines."${config.networking.hostName}";
   # isServer = thisMachine.staticIp != null;
-  isServer = machine: ((machine.vpnHub.staticIp4 != null) || (machine.vpnHub.staticIp6 != null));
-  # If this is a server: All other machines including servers and clients
-  # If this is a client: Only other machines that are servers
-  otherMachines = lib.attrValues (lib.filterAttrs (name: machine: name != config.networking.hostName && ((isServer thisMachine) || (isServer machine))) config.machines);
-  servers = lib.filter (machine: isServer machine) machines;
+  isServer = machine: ((machine.staticIp4 != null) || (machine.staticIp6 != null));
 
   inherit (config.antibuilding) ipv6Prefix;
 
-  networks = lib.imap
-    (index: server: {
-      # General information about the network
-      name = "antibuilding${builtins.toString server.vpnHub.id}";
-      id = index;
-      clients = builtins.filter (machine: machine.name != server.name) machines;
-      server = server;
-      port = 51820 + server.vpnHub.id;
+  otherMachines = builtins.filter (machine: machine.name != config.networking.hostName) machines;
+  connectedMachines = builtins.filter (otherMachine: (isServer thisMachine) || (isServer otherMachine)) otherMachines;
 
-      prefix = "${ipv6Prefix}";
-      size = builtins.toString 112;
+  networks = lib.imap
+    (index: otherMachine: {
+      # General information about the network
+      name = "antibuilding${builtins.toString otherMachine.address}";
+      id = index;
+      otherMachine = otherMachine;
+      thisPort = 51820 + otherMachine.address;
+      otherPort = 51820 + thisMachine.address;
+
+      thisAddress = "fe80::${builtins.toString otherMachine.address}:${builtins.toString thisMachine.address}";
+      otherAddress = "fe80::${builtins.toString thisMachine.address}:${builtins.toString otherMachine.address}";
+
+      connectTo = if (isServer otherMachine) then "${otherMachine.name}.outside.antibuild.ing:${builtins.toString (51820 + thisMachine.address)}" else null;
+
+      size = builtins.toString 64;
 
       # Information about the other hosts in the network
-      thisHostIsServer = config.networking.hostName == server.name;
+      thisHostIsServer = isServer thisMachine;
     })
-    servers;
+    connectedMachines;
 
   # All the names that hosts can be reached with
   allHostNames = builtins.concatMap
@@ -54,32 +57,32 @@ let
       }
     ]
     # Set hostnames for the endpoints of the machines with static IPs.
-    ++ (if machine.vpnHub.staticIp4 != null then [
+    ++ (if machine.staticIp4 != null then [
       {
-        address = machine.vpnHub.staticIp4;
+        address = machine.staticIp4;
         name = "${machine.name}.outside.antibuild.ing";
         inherit (machine) sshPublicKey;
       }
       {
-        address = machine.vpnHub.staticIp4;
-        name = machine.vpnHub.staticIp4;
+        address = machine.staticIp4;
+        name = machine.staticIp4;
         inherit (machine) sshPublicKey;
       }
     ] else [ ])
-    ++ (if machine.vpnHub.staticIp6 != null then [
+    ++ (if machine.staticIp6 != null then [
       {
-        address = machine.vpnHub.staticIp6;
+        address = machine.staticIp6;
         name = "${machine.name}.outside.antibuild.ing";
         inherit (machine) sshPublicKey;
       }
       {
-        address = machine.vpnHub.staticIp6;
-        name = machine.vpnHub.staticIp6;
+        address = machine.staticIp6;
+        name = machine.staticIp6;
         inherit (machine) sshPublicKey;
       }
     ] else [ ])
     )
-    (lib.attrValues config.machines);
+    machines;
 in
 {
   options = with lib; {
@@ -122,13 +125,34 @@ in
       { }
       (builtins.filter (e: e.sshPublicKey != null) allHostNames);
 
+    systemd.network = {
+      wait-online.enable = false;
+      wait-online.anyInterface = false;
+      enable = true;
+
+      netdevs = {
+        "50-antibuilding" = {
+          enable = true;
+          netdevConfig = {
+            Kind = "dummy";
+            Name = "antibuilding";
+          };
+        };
+      };
+
+      networks.antibuilding = {
+        matchConfig.Name = "antibuilding";
+        address = [ "fd10:2030::${builtins.toString thisMachine.address}/112" ];
+      };
+    };
+
     networking = {
       domain = "antibuild.ing";
 
       # Open firewall port for WireGuard.
       firewall = lib.mkMerge (builtins.map
         (network: {
-          allowedUDPPorts = [ network.port ];
+          allowedUDPPorts = (builtins.map (network: network.thisPort) networks);
           interfaces."${network.name}" = {
             allowedTCPPorts = [ 22 ];
           };
@@ -161,158 +185,31 @@ in
           (network: {
             name = network.name;
             value = {
-              ips = [ "${network.prefix}::${builtins.toString thisMachine.address}/112" ];
+              ips = [ "${network.thisAddress}/64" ];
               allowedIPsAsRoutes = false;
-              listenPort = network.port;
+              listenPort = network.thisPort;
 
               # Path to the private key file.
               privateKeyFile = config.age.secrets.wireguard_private_key.path;
 
-              peers =
-                if network.thisHostIsServer then
-                  (
-                    builtins.map
-                      (machine: {
-                        inherit (machine) name;
-                        publicKey = machine.wireguardPublicKey;
-                        presharedKeyFile = config.age.secrets.shared_wireguard_psk.path;
-                        # Send keepalives every 25 seconds.
-                        persistentKeepalive = 25;
-                        allowedIPs = [ "${network.prefix}::${builtins.toString machine.address}/128" ];
-                      })
-                      network.clients
-                  )
-                else [
-                  {
-                    inherit (network.server) name;
-                    publicKey = network.server.wireguardPublicKey;
-                    presharedKeyFile = config.age.secrets.shared_wireguard_psk.path;
-                    # Send keepalives every 25 seconds.
-                    persistentKeepalive = 25;
+              peers = [
+                {
+                  inherit (network.otherMachine) name;
+                  publicKey = network.otherMachine.wireguardPublicKey;
+                  presharedKeyFile = config.age.secrets.shared_wireguard_psk.path;
+                  # Send keepalives every 25 seconds.
+                  persistentKeepalive = 25;
 
-                    allowedIPs = [ "${network.prefix}::0/${network.size}" ];
+                  allowedIPs = [ "${network.otherAddress}/128" "0::/0" ];
 
-                    # Set this to the server IP and port.
-                    endpoint = "${network.server.name}.outside.antibuild.ing:${builtins.toString network.port}";
-                    dynamicEndpointRefreshSeconds = 60;
-                  }
-                ];
+                  # Set this to the server IP and port.
+                  endpoint = network.connectTo;
+                  dynamicEndpointRefreshSeconds = 60;
+                }
+              ];
 
-              # Setup firewall rules for the WireGuard interface.
-              postSetup = builtins.concatStringsSep "\n"
-                (
-                  [
-                    ''
-                      set -x
-                      set +e
-                      # ip -6 addr add ${network.prefix}::${builtins.toString thisMachine.address}/${network.size} dev ${network.name} noprefixroute || true
-                    ''
-                  ]
-                  ++
-                  (if isServer thisMachine then
-                    [
-                      # Make sure the temp chain does not exist and is empty
-                      "${pkgs.iptables}/bin/ip6tables -F ${network.name}-forward-temp || true"
-                      "${pkgs.iptables}/bin/ip6tables -X ${network.name}-forward-temp || true"
-                      "${pkgs.iptables}/bin/ip6tables -F ${network.name}-input-temp || true"
-                      "${pkgs.iptables}/bin/ip6tables -X ${network.name}-input-temp || true"
-                      # Create the temp chain.
-                      "${pkgs.iptables}/bin/ip6tables -N ${network.name}-forward-temp || true"
-                      "${pkgs.iptables}/bin/ip6tables -N ${network.name}-input-temp || true" # The input chain should only contain drop rules
-                      # Allow input traffic, if it is related to an established connection
-                      "${pkgs.iptables}/bin/ip6tables -A ${network.name}-input-temp -m state --state RELATED,ESTABLISHED -j RETURN"
-                    ] ++
-                    ((builtins.concatMap
-                      (machine:
-                        # Trusted machines are allowed to connect to all other machines.
-                        (if machine.trusted then
-                          [
-                            "${pkgs.iptables}/bin/ip6tables -A ${network.name}-forward-temp -s ${network.prefix}::${builtins.toString machine.address} -j ACCEPT"
-                          ] else [ ]) ++
-                        # Forward trusted ports to all machines.
-                        (builtins.map
-                          (port:
-                            "${pkgs.iptables}/bin/ip6tables -A ${network.name}-forward-temp -s ${network.prefix}::${builtins.toString machine.address} -p tcp --dport ${builtins.toString port} -j ACCEPT"
-                          )
-                          machine.trustedPorts) ++
-                        # Block connections from untrusted machines, if this machine is not public.
-                        # TODO: Support public and trusted ports
-                        (if machine.trusted || thisMachine.public then [ ] else
-                        (
-                          (builtins.map
-                            (port:
-                              "${pkgs.iptables}/bin/ip6tables -A ${network.name}-input-temp -s ${network.prefix}::${builtins.toString machine.address} -p tcp --dport ${builtins.toString port} -j RETURN"
-                            )
-                            (machine.trustedPorts ++ thisMachine.publicPorts ++ [ "179" ])) ++
-                          [
-                            "${pkgs.iptables}/bin/ip6tables -A ${network.name}-input-temp -s ${network.prefix}::${builtins.toString machine.address} -j DROP"
-                          ]
-                        )) ++
-                        # Connections to public machines are allowed from all other machines.
-                        (if machine.public then
-                          [
-                            "${pkgs.iptables}/bin/ip6tables -A ${network.name}-forward-temp -d ${network.prefix}::${builtins.toString machine.address} -j ACCEPT"
-                          ] else [ ]) ++
-                        # Open individual public ports.
-                        (builtins.map
-                          (port:
-                            "${pkgs.iptables}/bin/ip6tables -A ${network.name}-forward-temp -d ${network.prefix}::${builtins.toString machine.address} -p tcp --dport ${builtins.toString port} -j ACCEPT"
-                          )
-                          machine.publicPorts ++ [ "179" ]))
-                      otherMachines) ++
-                    [
-                      "${pkgs.iptables}/bin/ip6tables -A ${network.name}-forward-temp -m state --state RELATED,ESTABLISHED -j ACCEPT"
-                      "${pkgs.iptables}/bin/ip6tables -A ${network.name}-forward-temp -j DROP"
-                      "${pkgs.iptables}/bin/ip6tables -A ${network.name}-input-temp -j RETURN"
-                      # Add the new chain
-                      "${pkgs.iptables}/bin/ip6tables -A FORWARD -i ${network.name} -j ${network.name}-forward-temp"
-                      "${pkgs.iptables}/bin/ip6tables -A FORWARD -o ${network.name} -j ${network.name}-forward-temp"
-                      "${pkgs.iptables}/bin/ip6tables -I INPUT 1 -i ${network.name} -j ${network.name}-input-temp"
-                      # Delete the previous chain
-                      "${pkgs.iptables}/bin/ip6tables -D FORWARD -i ${network.name} -j ${network.name}-forward || true"
-                      "${pkgs.iptables}/bin/ip6tables -D FORWARD -o ${network.name} -j ${network.name}-forward || true"
-                      "${pkgs.iptables}/bin/ip6tables -D INPUT -i ${network.name} -j ${network.name}-input || true"
-                      # Give the real name to the new chain
-                      "${pkgs.iptables}/bin/ip6tables -E ${network.name}-forward-temp ${network.name}-forward || true"
-                      "${pkgs.iptables}/bin/ip6tables -E ${network.name}-input-temp ${network.name}-input || true"
-                      "true"
-                    ]) else [ ])
-                );
-
-              # Tear down firewall rules
-              postShutdown =
-                builtins.concatStringsSep "\n"
-                  (
-                    [
-                      ''
-                        set -x
-                        set +e
-                        # ip -6 addr delete ${network.prefix}::${builtins.toString thisMachine.address}/${network.size} dev ${network.name} noprefixroute || true
-                      ''
-                    ] ++ (if isServer thisMachine then
-                      ([
-                        # Remove and delete the chains
-                        "${pkgs.iptables}/bin/ip6tables -D FORWARD -i ${network.name} -j ${network.name}-forward || true"
-                        "${pkgs.iptables}/bin/ip6tables -D FORWARD -o ${network.name} -j ${network.name}-forward || true"
-                        "${pkgs.iptables}/bin/ip6tables -D INPUT -i ${network.name} -j ${network.name}-input || true"
-                        "${pkgs.iptables}/bin/ip6tables -F ${network.name}-forward || true"
-                        "${pkgs.iptables}/bin/ip6tables -F ${network.name}-input || true"
-                        "${pkgs.iptables}/bin/ip6tables -X ${network.name}-forward || true"
-                        "${pkgs.iptables}/bin/ip6tables -X ${network.name}-input || true"
-                        "true"
-                      ] ++ [
-                        # Do the same for the temp chains, if they exist (they should not, but just in case)
-                        "${pkgs.iptables}/bin/ip6tables -D FORWARD -i ${network.name} -j ${network.name}-forward-temp || true"
-                        "${pkgs.iptables}/bin/ip6tables -D FORWARD -o ${network.name} -j ${network.name}-forward-temp || true"
-                        "${pkgs.iptables}/bin/ip6tables -D INPUT -i ${network.name} -j ${network.name}-input-temp || true"
-                        "${pkgs.iptables}/bin/ip6tables -F ${network.name}-forward-temp || true"
-                        "${pkgs.iptables}/bin/ip6tables -F ${network.name}-input-temp || true"
-                        "${pkgs.iptables}/bin/ip6tables -X ${network.name}-forward-temp || true"
-                        "${pkgs.iptables}/bin/ip6tables -X ${network.name}-input-temp || true"
-                        "true"
-                      ]) else [ ]
-                    )
-                  );
+              postSetup = "ip -6 route add ${network.otherAddress}/128 dev ${network.name} || true";
+              postShutdown = "ip -6 route delete ${network.otherAddress}/128 dev ${network.name} || true";
             };
           })
           networks);
