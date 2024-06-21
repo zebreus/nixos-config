@@ -248,6 +248,10 @@ let
       bird-lg = {
         enable = mkEnableOption "Enable bird-lg frontend";
       };
+
+      routedbitsDn42 = {
+        enable = mkEnableOption "Enable this server for peering with routedbits";
+      };
     };
   };
 in

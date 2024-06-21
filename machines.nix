@@ -33,6 +33,7 @@ in
       publicPorts = [ 53 ];
       trustedPorts = [ 9100 ];
       monitoring.enable = true;
+      routedbitsDn42.enable = true;
       matrixServer = {
         enable = true;
         baseDomain = "zebre.us";
