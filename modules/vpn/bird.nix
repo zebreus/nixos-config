@@ -44,7 +44,7 @@ in
             # BGP port
             allowedTCPPorts = [ 179 ];
             # BFD port
-            allowedUDPPorts = [ 3784 ];
+            allowedUDPPorts = [ 3784 6696 ];
           };
         })
         networks);
@@ -71,47 +71,11 @@ in
 
           # Forbid synchronizing BIRD routing tables with the OS kernel.
           protocol kernel {
-            metric 0;
           	ipv6 {
               import none;
               export all;
             };
             learn;
-          }
-
-          protocol bfd {
-                  accept ipv6;
-                  interface "antibuilding*" {
-                          min rx interval 200 ms;
-                          min tx interval 500 ms;
-                          idle tx interval 3000 ms;
-                  };
-          }
-
-          template bgp antibuilding_peer {
-                strict bind on;
-                direct;
-
-                advertise hostname on;
-                bfd on;
-
-                ipv6 {
-                        next hop self on;
-                        gateway direct;
-                        import filter {
-                            if net ~ [ fe80::/64 ] then {
-                              reject;
-                            }
-                            krt_metric = 32;
-                            accept;
-                        };
-                        export filter {
-                            if source !~ [RTS_STATIC, RTS_BGP] then {
-                              reject;
-                            }
-                            accept;
-                        };
-                };
           }
 
            # Add a static route to self
@@ -121,25 +85,23 @@ in
                         accept;
                       };
                     };
-                    route ${ipv6Prefix}::${builtins.toString thisMachine.address}/128 via "antibuilding" {
-                      krt_metric = 16;
+                    route ${ipv6Prefix}::${builtins.toString thisMachine.address}/128 via "antibuilding";
+            }
+
+            protocol babel {
+                    interface "antibuilding*" {
+                            type tunnel;
                     };
+                    ipv6 {
+                      import filter {
+                        accept;
+                      };
+                      export all;
+                    };
+         
             }
         ''
-      ]
-      ++ (
-        builtins.map
-          (network: ''
-            # BGP hub
-            protocol bgp ${network.name} from antibuilding_peer {
-                  description "BGP ${network.name}";
-                  local ${network.thisAddress} as ${builtins.toString (thisMachine.address + 10000)};
-                  neighbor ${network.otherAddress}%${network.name} as ${builtins.toString (network.otherMachine.address + 10000)};
-                  interface "${network.name}";
-            }
-          '')
-          networks
-      ));
+      ]);
     };
   };
 }
