@@ -22,7 +22,7 @@ in
           allowedIPsAsRoutes = false;
           listenPort = 57319;
 
-          privateKeyFile = config.age.secrets.wireguard_private_key.path;
+          privateKeyFile = config.age.secrets.routedbits_de1.path;
 
           peers = [
             {
