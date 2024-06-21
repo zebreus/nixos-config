@@ -169,4 +169,5 @@ with import ./public-keys.nix;
 
   # Other keys
   "pogopeering.age".publicKeys = [ recovery sempriaq ];
+  "routedbits_de1.age".publicKeys = [ recovery kashenblade ];
 }
