@@ -1,15 +1,18 @@
 { config, lib, ... }:
 let
-
   machines = lib.attrValues config.machines;
-  isServer = machine: ((machine.vpnHub.staticIp4 != null) || (machine.vpnHub.staticIp6 != null));
-  servers = lib.filter (machine: isServer machine) machines;
+  thisMachine = config.machines."${config.networking.hostName}";
+  # isServer = thisMachine.staticIp != null;
+  isServer = machine: ((machine.staticIp4 != null) || (machine.staticIp6 != null));
+
+  otherMachines = builtins.filter (machine: machine.name != config.networking.hostName) machines;
+  connectedMachines = builtins.filter (otherMachine: (isServer thisMachine) || (isServer otherMachine)) otherMachines;
 
   networks = lib.imap
-    (index: server: {
-      name = "antibuilding${builtins.toString server.vpnHub.id}";
+    (index: otherMachine: {
+      name = "antibuilding${builtins.toString otherMachine.address}";
     })
-    servers;
+    connectedMachines;
 
   lgServer = lib.head (lib.filter (machine: machine.bird-lg.enable) machines);
 in
@@ -18,6 +21,9 @@ in
     networking.firewall = lib.mkMerge (builtins.map
       (network: {
         interfaces."${network.name}" = {
+          allowedTCPPorts = [ 18000 ];
+        };
+        interfaces.antibuilding = {
           allowedTCPPorts = [ 18000 ];
         };
       })
