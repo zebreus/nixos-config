@@ -5,9 +5,6 @@
       mode = "0444";
     };
     networking = {
-      domain = "antibuild.ing";
-
-
       # Open firewall port for WireGuard.
       firewall = {
         allowedTCPPorts = [ 1 ];

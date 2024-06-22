@@ -35,8 +35,6 @@ in
 {
   config = {
     networking = {
-      domain = "antibuild.ing";
-
       # Open firewall port for WireGuard.
       firewall = lib.mkMerge (builtins.map
         (network: {

@@ -7,9 +7,6 @@ in
   config = lib.mkIf cfg.enable {
     age.secrets.kioubit_de2 = {
       file = ../../../secrets/kioubit_de2.age;
-      owner = "bird2";
-      group = "bird2";
-      mode = "0400";
     };
 
     networking = {
