@@ -5,8 +5,8 @@ let
 in
 {
   config = lib.mkIf cfg.enable {
-    age.secrets.routedbits_de1 = {
-      file = ../../../secrets/routedbits_de1.age;
+    age.secrets.kioubit_de2 = {
+      file = ../../../secrets/kioubit_de2.age;
       owner = "bird2";
       group = "bird2";
       mode = "0400";
@@ -21,7 +21,7 @@ in
           ips = [ "fe80::1920:4444/64" ];
           allowedIPsAsRoutes = false;
 
-          privateKeyFile = config.age.secrets.routedbits_de1.path;
+          privateKeyFile = config.age.secrets.kioubit_de2.path;
 
           peers = [
             {
