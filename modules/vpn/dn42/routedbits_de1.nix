@@ -1,8 +1,8 @@
 # Establishes wireguard tunnels with all nodes with static IPs as hubs.
 { config, lib, ... }:
-let
-  cfg = config.machines.${config.networking.hostName}.routedbitsDn42;
-in
+# let
+#   cfg = config.machines.${config.networking.hostName}.routedbitsDn42;
+# in
 {
   # TODO: Reenable if routedbits works
   # config = lib.mkIf cfg.enable {
@@ -14,35 +14,37 @@ in
     networking = {
       firewall.allowedTCPPorts = [ 57319 ];
       firewall.interfaces.routedbits_de1.allowedTCPPorts = [ 179 ];
+    };
 
-      # Configure the WireGuard interface.
-      wireguard.interfaces = {
-        routedbits_de1 = {
-          ips = [ "fe80::1920:3289/64" ];
-          allowedIPsAsRoutes = false;
-          listenPort = 57319;
-
-          privateKeyFile = config.age.secrets.routedbits_de1.path;
-
-          peers = [
-            {
-              name = "router.fra1.routedbits.com";
-              publicKey = "FIk95vqIJxf2ZH750lsV1EybfeC9+V8Bnhn8YWPy/l8=";
-              persistentKeepalive = 25;
-              allowedIPs = [ "0::/0" "0.0.0.0/0" ];
-
-              # Set this to the server IP and port.
-              endpoint = "router.fra1.routedbits.com:51403";
-              dynamicEndpointRefreshSeconds = 60;
-            }
-          ];
-
-          postSetup = ''
-            ip -6 route add fe80::207/128 dev routedbits_de1 || true
-          '';
-          postShutdown = ''
-            ip -6 route delete fe80::207/128 dev routedbits_de1 || true
-          '';
+    systemd.network = {
+      netdevs = {
+        "50-routedbits_de1" = {
+          netdevConfig = {
+            Kind = "wireguard";
+            Name = "routedbits_de1";
+            MTUBytes = "1420";
+          };
+          wireguardConfig = {
+            PrivateKeyFile = config.age.secrets.routedbits_de1.path;
+            ListenPort = 57319;
+          };
+          wireguardPeers = [{
+            PublicKey = "FIk95vqIJxf2ZH750lsV1EybfeC9+V8Bnhn8YWPy/l8=";
+            AllowedIPs = [ "::/0" "0.0.0.0/0" ];
+            Endpoint = "router.fra1.routedbits.com:51403";
+            PersistentKeepalive = 25;
+          }];
+        };
+      };
+      networks.routedbits_de1 = {
+        matchConfig.Name = "routedbits_de1";
+        address = [ "fe80::1920:3289/64" ];
+        routes = [{
+          Destination = "fe80::207/128";
+          Scope = "link";
+        }];
+        networkConfig = {
+          IPForward = true;
         };
       };
     };

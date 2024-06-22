@@ -11,34 +11,36 @@ in
 
     networking = {
       firewall.interfaces.kioubit_de2.allowedTCPPorts = [ 179 ];
+    };
 
-      # Configure the WireGuard interface.
-      wireguard.interfaces = {
-        kioubit_de2 = {
-          ips = [ "fe80::1920:4444/64" ];
-          allowedIPsAsRoutes = false;
-
-          privateKeyFile = config.age.secrets.kioubit_de2.path;
-
-          peers = [
-            {
-              name = "de2.g-load.eu";
-              publicKey = "B1xSG/XTJRLd+GrWDsB06BqnIq8Xud93YVh/LYYYtUY=";
-              persistentKeepalive = 25;
-              allowedIPs = [ "0::/0" "0.0.0.0/0" ];
-
-              # Set this to the server IP and port.
-              endpoint = "de2.g-load.eu:21403";
-              dynamicEndpointRefreshSeconds = 60;
-            }
-          ];
-
-          postSetup = ''
-            ip -6 route add fe80::ade0/128 dev kioubit_de2 || true
-          '';
-          postShutdown = ''
-            ip -6 route delete fe80::ade0/128 dev kioubit_de2 || true
-          '';
+    systemd.network = {
+      netdevs = {
+        "50-kioubit_de2" = {
+          netdevConfig = {
+            Kind = "wireguard";
+            Name = "kioubit_de2";
+            MTUBytes = "1420";
+          };
+          wireguardConfig = {
+            PrivateKeyFile = config.age.secrets.kioubit_de2.path;
+          };
+          wireguardPeers = [{
+            PublicKey = "B1xSG/XTJRLd+GrWDsB06BqnIq8Xud93YVh/LYYYtUY=";
+            AllowedIPs = [ "::/0" "0.0.0.0/0" ];
+            Endpoint = "de2.g-load.eu:21403";
+            PersistentKeepalive = 25;
+          }];
+        };
+      };
+      networks.kioubit_de2 = {
+        matchConfig.Name = "kioubit_de2";
+        address = [ "fe80::1920:4444/64" ];
+        routes = [{
+          Destination = "fe80::ade0/128";
+          Scope = "link";
+        }];
+        networkConfig = {
+          IPForward = true;
         };
       };
     };
