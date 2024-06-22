@@ -146,20 +146,15 @@ in
       hosts = builtins.listToAttrs
         (
           builtins.map
-            (
-              address: {
+            (address: {
                 name = address;
                 value = builtins.map (e: e.name) (builtins.filter (e: e.address == address) allHostNames);
-              }
-            )
+            })
             (lib.unique (builtins.map (e: e.address) allHostNames)));
 
       # Prevent networkmanager from doing weird stuff with the wireguard interface.
-      networkmanager =
-        lib.mkIf config.networking.networkmanager.enable {
-          unmanaged = (builtins.map
-            (network: network.name)
-            networks);
+      networkmanager = lib.mkIf config.networking.networkmanager.enable {
+        unmanaged = (builtins.map (network: network.name) networks);
         };
     };
 
@@ -198,12 +193,16 @@ in
               ListenPort = network.thisPort;
             };
             wireguardPeers = [
-              {
+              (lib.mkMerge
+                ([{
                 PresharedKeyFile = config.age.secrets.shared_wireguard_psk.path;
                 PublicKey = network.otherMachine.wireguardPublicKey;
                 AllowedIPs = [ "::/0" "0.0.0.0/0" ];
                 PersistentKeepalive = 25;
               }
+                  (lib.mkIf (network.connectTo != null) {
+                    Endpoint = network.connectTo;
+                  })]))
             ];
           };
         };
