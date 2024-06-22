@@ -36,11 +36,9 @@ in
 
           postSetup = ''
             ip -6 route add fe80::ade0/128 dev kioubit_de2 || true
-            ip addr add 192.168.221.245/32 peer 172.20.53.97/32 dev kioubit_de2 || true
           '';
           postShutdown = ''
             ip -6 route delete fe80::ade0/128 dev kioubit_de2 || true
-            ip addr delete 192.168.221.245/32 peer 172.20.53.97/32 dev kioubit_de2 
           '';
         };
       };

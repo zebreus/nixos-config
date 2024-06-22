@@ -154,8 +154,11 @@ in
         template bgp dnpeers {
             local as OWNAS;
             path metric 1;
+            
+            enable extended messages on;
           
             ipv4 {
+                extended next hop on;
                 next hop self on;
                 import filter {
                   if is_valid_network() && !is_self_net() then {
@@ -172,6 +175,7 @@ in
             };
           
             ipv6 {
+                extended next hop on;
                 next hop self on;
                 import filter {
                   if is_valid_network_v6() && !is_self_net_v6() then {
