@@ -108,11 +108,13 @@ in
   config = {
     age.secrets.wireguard_private_key = {
       file = ../../secrets + "/${config.networking.hostName}_wireguard.age";
-      mode = "0444";
+      owner = "systemd-network";
+      group = "systemd-network";
     };
     age.secrets.shared_wireguard_psk = {
       file = ../../secrets/shared_wireguard_psk.age;
-      mode = "0444";
+      owner = "systemd-network";
+      group = "systemd-network";
     };
 
     # Add known ssh keys to the known_hosts file.
@@ -209,12 +211,10 @@ in
         networks.${network.name} = {
           matchConfig.Name = "${network.name}";
           address = [ "${network.thisAddress}/64" ];
-          routes = [
-            {
+          routes = [{
               Destination = "${network.otherAddress}/128";
               Scope = "link";
-            }
-          ];
+          }];
           networkConfig = {
             IPForward = true;
             # # TODO: Why arent the options called IPv6Forwarding (like in systemd) but IPForward?
