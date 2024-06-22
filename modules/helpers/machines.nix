@@ -252,6 +252,10 @@ let
       routedbitsDn42 = {
         enable = mkEnableOption "Enable this server for peering with routedbits";
       };
+
+      kioubitDn42 = {
+        enable = mkEnableOption "Enable this server for peering with kioubit";
+      };
     };
   };
 in

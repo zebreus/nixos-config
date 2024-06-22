@@ -53,55 +53,72 @@ in
     services.bird2 = {
       enable = true;
       autoReload = true;
-      config = lib.mkMerge ([
-        ''
-          # Enable a lot of logging
-          log syslog {info, warning,error,fatal,trace, debug, remote, auth };
-          debug protocols { states, routes, filters, interfaces, events, packets };
-          debug tables all
-          debug channels all;
+      config = lib.mkOrder 1 ''
+        # Enable a lot of logging
+        log syslog {info, warning,error,fatal,trace, debug, remote, auth };
+        debug protocols { states, routes, filters, interfaces, events, packets };
+        debug tables all
+        debug channels all;
 
-          router id 10.20.30.${builtins.toString thisMachine.address};
+        define OWNIP = 172.20.179.${builtins.toString (thisMachine.address + 128)};
+        define OWNIPv6 = ${ipv6Prefix}::${builtins.toString thisMachine.address};
 
-          # Disable automatically generating direct routes to all network interfaces.
-          protocol direct {
-                  disabled;
-          }
-          protocol device {}
+        router id OWNIP;
 
-          # Forbid synchronizing BIRD routing tables with the OS kernel.
-          protocol kernel {
-          	ipv6 {
-              import none;
-              export all;
+        # Disable automatically generating direct routes to all network interfaces.
+        protocol direct {
+                disabled;
+        }
+        protocol device {}
+
+        protocol kernel {
+            scan time 20;
+            
+            ipv6 {
+                import none;
+                export filter {
+                    if source = RTS_STATIC then reject;
+                    krt_prefsrc = OWNIPv6;
+                    accept;
+                };
             };
-            learn;
+        };
+            
+        protocol kernel {
+            scan time 20;
+            ipv4 {
+                import none;
+                export filter {
+                    if source = RTS_STATIC then reject;
+                    krt_prefsrc = OWNIP;
+                    accept;
+                };
+            };
+        }
+
+         # Add a static route to self
+          protocol static antibuilding${builtins.toString thisMachine.address} {
+                  ipv6 {
+                    import filter {
+                      accept;
+                    };
+                  };
+                  route ${ipv6Prefix}::${builtins.toString thisMachine.address}/128 via "antibuilding";
           }
 
-           # Add a static route to self
-            protocol static antibuilding${builtins.toString thisMachine.address} {
-                    ipv6 {
-                      import filter {
-                        accept;
-                      };
+          protocol babel {
+                  interface "antibuilding*" {
+                          type tunnel;
+                  };
+                  ipv6 {
+                    import filter {
+                      accept;
                     };
-                    route ${ipv6Prefix}::${builtins.toString thisMachine.address}/128 via "antibuilding";
-            }
-
-            protocol babel {
-                    interface "antibuilding*" {
-                            type tunnel;
-                    };
-                    ipv6 {
-                      import filter {
-                        accept;
-                      };
-                      export all;
-                    };
+                    export all;
+                  };
          
-            }
-        ''
-      ]);
+          }
+      '';
     };
   };
 }

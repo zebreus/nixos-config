@@ -1,8 +1,8 @@
 { ... }: {
   imports = [
+    ./dn42
+    ./babel.nix
     ./bird-proxy.nix
-    ./bird.nix
-    ./routedbits.nix
     ./wireguard.nix
   ];
 }
