@@ -31,6 +31,10 @@
       imagemagick
       agenix
       age
+      mtr
+      inetutils
+      dnsutils
+      iputils
     ];
   environment.shellAliases = {
     sl = "${lib.getExe pkgs.sl} -w -5 -e";
