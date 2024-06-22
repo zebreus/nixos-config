@@ -7,7 +7,9 @@ in
   config = lib.mkIf cfg.enable {
     age.secrets.routedbits_de1 = {
       file = ../../../secrets/routedbits_de1.age;
-      mode = "0444";
+      owner = "bird2";
+      group = "bird2";
+      mode = "0400";
     };
 
     networking = {
