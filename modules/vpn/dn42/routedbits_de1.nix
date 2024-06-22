@@ -4,7 +4,9 @@ let
   cfg = config.machines.${config.networking.hostName}.routedbitsDn42;
 in
 {
-  config = lib.mkIf cfg.enable {
+  # TODO: Reenable if routedbits works
+  # config = lib.mkIf cfg.enable {
+  config = lib.mkIf false {
     age.secrets.routedbits_de1 = {
       file = ../../../secrets/routedbits_de1.age;
       owner = "bird2";
