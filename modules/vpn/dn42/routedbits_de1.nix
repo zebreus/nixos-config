@@ -9,6 +9,7 @@
   config = lib.mkIf false {
     age.secrets.routedbits_de1 = {
       file = ../../../secrets/routedbits_de1.age;
+      mode = "0444";
     };
 
     networking = {
