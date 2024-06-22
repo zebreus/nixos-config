@@ -18,7 +18,7 @@ in
           domain = "lg.antibuild.ing";
           enable = true;
           servers = (builtins.map (machine: machine.name) machines);
-          protocolFilter = [ "bgp" "static" ];
+          protocolFilter = [ "bgp" "static" "babel" ];
           listenAddress = "127.0.0.1:15000";
           proxyPort = 18000;
           navbar = {
