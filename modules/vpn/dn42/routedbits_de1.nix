@@ -51,7 +51,7 @@ in
     services.bird2 = {
       config = lib.mkAfter ''
         protocol bgp routedbits_de1 from dnpeers {
-                neighbor fe80::207%routedbits_de1 as 4242420207;
+            neighbor fe80::207%routedbits_de1 as 4242420207;
         }
       '';
     };

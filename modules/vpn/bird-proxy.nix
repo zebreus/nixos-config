@@ -2,7 +2,6 @@
 let
   machines = lib.attrValues config.machines;
   thisMachine = config.machines."${config.networking.hostName}";
-  # isServer = thisMachine.staticIp != null;
   isServer = machine: ((machine.staticIp4 != null) || (machine.staticIp6 != null));
 
   otherMachines = builtins.filter (machine: machine.name != config.networking.hostName) machines;

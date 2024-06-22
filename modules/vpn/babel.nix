@@ -54,7 +54,7 @@ in
       enable = true;
       autoReload = true;
       config = lib.mkOrder 1 ''
-        # Enable a lot of logging
+        # # Enable a lot of logging
         # log syslog {info, warning,error,fatal,trace, debug, remote, auth };
         # debug protocols { states, routes, filters, interfaces, events, packets };
         # debug tables all;
@@ -67,13 +67,12 @@ in
 
         # Disable automatically generating direct routes to all network interfaces.
         protocol direct {
-                disabled;
+            disabled;
         }
         protocol device {}
 
         protocol kernel {
             scan time 20;
-            
             ipv6 {
                 import none;
                 export filter {
@@ -83,7 +82,6 @@ in
                 };
             };
         };
-            
         protocol kernel {
             scan time 20;
             ipv4 {
@@ -96,34 +94,33 @@ in
             };
         }
 
-         # Add a static route to self
-          protocol static antibuilding${builtins.toString thisMachine.address}_v6 {
-                  ipv6 {
-                    import all;
-                  };
-                  route ${ipv6Prefix}::${builtins.toString thisMachine.address}/128 via "antibuilding";
-          }
-          protocol static antibuilding${builtins.toString thisMachine.address}_v4 {
-                  ipv4 {
-                    import all;
-                  };
-                  route 172.20.179.${builtins.toString (128 + thisMachine.address)}/32 via "antibuilding";
-          }
+        # Add a static route to self
+        protocol static antibuilding${builtins.toString thisMachine.address}_v6 {
+            route ${ipv6Prefix}::${builtins.toString thisMachine.address}/128 via "antibuilding";
+            ipv6 {
+                import all;
+            };
+        }
+        protocol static antibuilding${builtins.toString thisMachine.address}_v4 {
+            route 172.20.179.${builtins.toString (128 + thisMachine.address)}/32 via "antibuilding";
+            ipv4 {
+                import all;
+            };
+        }
 
-          protocol babel {
-                  interface "antibuilding*" {
-                          type tunnel;
-                  };
-                  ipv4 {
-                    import all;
-                    export all;
-                  };
-                  ipv6 {
-                    import all;
-                    export all;
-                  };
-         
-          }
+        protocol babel {
+            interface "antibuilding*" {
+                type tunnel;
+            };
+            ipv4 {
+                import all;
+                export all;
+            };
+            ipv6 {
+                import all;
+                export all;
+            };
+        }
       '';
     };
   };

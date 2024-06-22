@@ -3,7 +3,6 @@
 let
   machines = lib.attrValues config.machines;
   thisMachine = config.machines."${config.networking.hostName}";
-  # isServer = thisMachine.staticIp != null;
   isServer = machine: ((machine.staticIp4 != null) || (machine.staticIp6 != null));
 
   inherit (config.antibuilding) ipv6Prefix;
@@ -29,7 +28,6 @@ let
 
       size = builtins.toString 64;
 
-      # Information about the other hosts in the network
       thisHostIsServer = isServer thisMachine;
     })
     connectedMachines;

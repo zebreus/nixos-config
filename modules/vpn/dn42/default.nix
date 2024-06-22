@@ -64,29 +64,11 @@ in
         cat -n bird2.conf
       '';
       config = ''
-        ################################################
-        #               Variable header                #
-        ################################################
-
         define OWNAS =  4242421403;
         define OWNNET = 172.20.179.128/27;
         define OWNNETv6 = ${ipv6Prefix}::/48;
         define OWNNETSET = [ 172.20.179.128/27 ];
         define OWNNETSETv6 = [ ${ipv6Prefix}::/48 ];
-
-        ################################################
-        #                 Header end                   #
-        ################################################
-
-        # router id OWNIP;
-
-        # protocol device {
-        #     scan time 10;
-        # }
-
-        /*
-         *  Utility functions
-         */
 
         function is_self_net() {
           return net ~ OWNNETSET;
@@ -110,6 +92,12 @@ in
           ];
         }
 
+        function is_valid_network_v6() {
+          return net ~ [
+            fd00::/8{44,64} # ULA address space as per RFC 4193
+          ];
+        }
+
         roa4 table dn42_roa;
         roa6 table dn42_roa_v6;
 
@@ -122,17 +110,6 @@ in
             roa6 { table dn42_roa_v6; };
             include "/etc/bird/roa_dn42_v6.conf";
         };
-
-        function is_valid_network_v6() {
-          return net ~ [
-            fd00::/8{44,64} # ULA address space as per RFC 4193
-          ];
-        }
-
-        ipv4 table routedbits_master4;
-        ipv6 table routedbits_master6;
-
-
 
         protocol static {
             route OWNNET unreachable;
@@ -193,91 +170,6 @@ in
                 import limit 9000 action block; 
             };
         }
-
-        # template bgp dnpeers {
-        #     local as OWNAS;
-        #     path metric 1;
-        #     # graceful restart off;
-
-        #     # ipv4 {
-        #     #     table routedbits_master4;
-        #     #     extended next hop on;
-        #     #     next hop self on;
-        #     #     gateway direct;
-
-        #     #     import filter {
-        #     #       if is_valid_network() && !is_self_net() then {
-        #     #         if (roa_check(dn42_roa, net, bgp_path.last) != ROA_VALID) then {
-        #     #           # Reject when unknown or invalid according to ROA
-        #     #           print "[dn42] ROA check failed for ", net, " ASN ", bgp_path.last;
-        #     #           reject;
-        #     #         } else accept;
-        #     #       } else reject;
-        #     #     };
-
-        #     #     export filter { if is_valid_network() && source ~ [RTS_STATIC] then accept; else reject; };
-        #     #     import limit 9000 action block;
-        #     # };
-
-        #     ipv4 {
-        #         # extended next hop on;
-        #         # require extended next hop on;
-        #         next hop self on;
-        #         # gateway direct;
-        #         # export table on;
-                  
-
-        #         import filter {
-        #           if !is_self_net() then {
-        #             accept;
-        #           }
-        #               print "[dn42] ROA check failed for ", net, " ASN ", bgp_path.last;
-        #               reject;
-
-        #           # if is_valid_network() && !is_self_net() then {
-        #           #   if (roa_check(dn42_roa, net, bgp_path.last) != ROA_VALID) then {
-        #           #     # Reject when unknown or invalid according to ROA
-        #           #     print "[dn42] ROA check failed for ", net, " ASN ", bgp_path.last;
-        #           #     reject;
-        #           #   } else accept;
-        #           # } else reject;
-        #         };
-
-        #         export filter { if is_valid_network() && source ~ [RTS_STATIC] then accept; else reject; };
-        #         import limit 9000 action block;
-        #     };
-
-        #     ipv6 {   
-        #         # extended next hop on;
-        #         # require extended next hop on;
-        #         next hop self on;
-        #         # gateway direct;
-        #         # export table on;
-                  
-        #         import filter {
-        #             # reject;
-                    
-        #           if !is_self_net_v6() then {
-        #             # if (roa_check(dn42_roa_v6, net, bgp_path.last) != ROA_VALID) then {
-        #             #   # Reject when unknown or invalid according to ROA
-        #             #   print "[dn42] ROA check failed for ", net, " ASN ", bgp_path.last;
-        #             #   reject;
-        #             # } else {
-        #               print "[dn42] Accept import of ", net, " ASN ", bgp_path.last;
-        #               accept;
-        #             # }
-        #           } else {
-        #             print "that path";
-        #             reject;
-        #           }
-        #         };
-        #         export filter { if source ~ [RTS_STATIC] then {
-        #           print "[dn42] Exporting ", net, " ASN ", bgp_path.last;
-        #           accept;
-        #         } else reject; };
-        #         import limit 9000 action block; 
-        #     };
-        # }
       '';
     };
   };
