@@ -256,6 +256,10 @@ let
       kioubitDn42 = {
         enable = mkEnableOption "Enable this server for peering with kioubit";
       };
+
+      pogopeering = {
+        enable = mkEnableOption "Enable this server for peering with pilz";
+      };
     };
   };
 in

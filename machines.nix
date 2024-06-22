@@ -88,6 +88,7 @@ in
       authoritativeDns.name = "ns3";
       publicPorts = [ 53 ];
       staticIp4 = "192.227.228.220";
+      pogopeering.enable = true;
       mailServer = {
         enable = true;
         baseDomain = "zebre.us";

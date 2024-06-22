@@ -1,7 +1,8 @@
 # Establishes wireguard tunnels with all nodes with static IPs as hubs.
 { config, lib, pkgs, ... }:
 let
-  cfg = config.machines.${config.networking.hostName}.routedbitsDn42;
+  thisMachine = config.machines.${config.networking.hostName};
+  peeringEnabled = thisMachine.kioubitDn42.enable || thisMachine.routedbitsDn42.enable || thisMachine.pogopeering.enable;
   inherit (config.antibuilding) ipv6Prefix;
 
   script = pkgs.writeShellScriptBin "update-roa" ''
@@ -15,10 +16,11 @@ in
 {
   imports = [
     ./kioubit_de2.nix
+    ./pogopeering.nix
     ./routedbits_de1.nix
   ];
 
-  config = lib.mkIf cfg.enable {
+  config = lib.mkIf peeringEnabled {
     systemd = {
       timers.dn42-roa = {
         description = "Trigger a ROA table update";
