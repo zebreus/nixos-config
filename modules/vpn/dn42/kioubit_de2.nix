@@ -48,7 +48,7 @@ in
 
     services.bird2 = {
       config = lib.mkAfter ''
-        protocol bgp kioubit_de1 from dnpeers {
+        protocol bgp kioubit_de2 from dnpeers {
                 neighbor fe80::ade0%kioubit_de2 as 4242423914;
         }
       '';

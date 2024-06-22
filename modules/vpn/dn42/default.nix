@@ -14,7 +14,7 @@ let
 in
 {
   imports = [
-    ./kioubit_de1.nix
+    ./kioubit_de2.nix
     ./routedbits_de1.nix
   ];
 
