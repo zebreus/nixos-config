@@ -157,6 +157,8 @@ in
             path metric 1;
             
             enable extended messages on;
+            graceful restart on;
+            long lived graceful restart on;
           
             ipv4 {
                 extended next hop on;
