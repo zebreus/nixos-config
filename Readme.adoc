@@ -22,3 +22,6 @@ Each machine uses its ed25519 SSH host key to decrypt its secrets. That SSH host
 - Manage vscode config
 - Upstream the part that chmods the paths created by agenix
 - Unify nginx acme certs to use `enableACME` on the virtualhosts and set a default email
+- connect janek-backup again
+- Export a independent vpn module
+- Peer with more people
