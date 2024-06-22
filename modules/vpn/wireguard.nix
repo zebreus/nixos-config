@@ -149,15 +149,15 @@ in
         (
           builtins.map
             (address: {
-                name = address;
-                value = builtins.map (e: e.name) (builtins.filter (e: e.address == address) allHostNames);
+              name = address;
+              value = builtins.map (e: e.name) (builtins.filter (e: e.address == address) allHostNames);
             })
             (lib.unique (builtins.map (e: e.address) allHostNames)));
 
       # Prevent networkmanager from doing weird stuff with the wireguard interface.
       networkmanager = lib.mkIf config.networking.networkmanager.enable {
         unmanaged = (builtins.map (network: network.name) networks);
-        };
+      };
     };
 
     systemd.network = lib.mkMerge ([{
@@ -197,11 +197,11 @@ in
             wireguardPeers = [
               (lib.mkMerge
                 ([{
-                PresharedKeyFile = config.age.secrets.shared_wireguard_psk.path;
-                PublicKey = network.otherMachine.wireguardPublicKey;
-                AllowedIPs = [ "::/0" "0.0.0.0/0" ];
-                PersistentKeepalive = 25;
-              }
+                  PresharedKeyFile = config.age.secrets.shared_wireguard_psk.path;
+                  PublicKey = network.otherMachine.wireguardPublicKey;
+                  AllowedIPs = [ "::/0" "0.0.0.0/0" ];
+                  PersistentKeepalive = 25;
+                }
                   (lib.mkIf (network.connectTo != null) {
                     Endpoint = network.connectTo;
                   })]))
@@ -212,24 +212,14 @@ in
           matchConfig.Name = "${network.name}";
           address = [ "${network.thisAddress}/64" ];
           routes = [{
-              Destination = "${network.otherAddress}/128";
-              Scope = "link";
+            Destination = "${network.otherAddress}/128";
+            Scope = "link";
           }];
           networkConfig = {
             IPForward = true;
-            # # TODO: Why arent the options called IPv6Forwarding (like in systemd) but IPForward?
-            # IPv4Forwarding = true;
-            # IPv6Forwarding = true;
           };
         };
       })
       networks));
-
-    # Enable IP forwarding on the server so peers can communicate with each other.
-    boot =
-      if isServer thisMachine then {
-        kernel.sysctl."net.ipv6.conf.all.forwarding" = true;
-        kernel.sysctl."net.ipv4.ip_forward" = true;
-      } else { };
   };
 }

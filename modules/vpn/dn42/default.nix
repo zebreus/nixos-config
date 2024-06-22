@@ -19,12 +19,6 @@ in
   ];
 
   config = lib.mkIf cfg.enable {
-    # Enable IP forwarding
-    boot = {
-      kernel.sysctl."net.ipv6.conf.all.forwarding" = lib.mkDefault true;
-      kernel.sysctl."net.ipv4.ip_forward" = lib.mkDefault true;
-    };
-
     systemd = {
       timers.dn42-roa = {
         description = "Trigger a ROA table update";
