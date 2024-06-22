@@ -1,5 +1,5 @@
 # Establishes wireguard tunnels with all nodes with static IPs as hubs.
-{ config, lib, ... }:
+{ config, lib, pkgs, ... }:
 let
   machines = lib.attrValues config.machines;
   thisMachine = config.machines."${config.networking.hostName}";
@@ -125,26 +125,9 @@ in
       { }
       (builtins.filter (e: e.sshPublicKey != null) allHostNames);
 
-    systemd.network = {
-      wait-online.enable = false;
-      wait-online.anyInterface = false;
-      enable = true;
-
-      netdevs = {
-        "50-antibuilding" = {
-          enable = true;
-          netdevConfig = {
-            Kind = "dummy";
-            Name = "antibuilding";
-          };
-        };
-      };
-
-      networks.antibuilding = {
-        matchConfig.Name = "antibuilding";
-        address = [ "fd10:2030::${builtins.toString thisMachine.address}/112" "172.20.179.${builtins.toString (128 + thisMachine.address)}/27" ];
-      };
-    };
+    environment.systemPackages = [
+      pkgs.wireguard-tools
+    ];
 
     networking = {
       domain = "antibuild.ing";
@@ -178,42 +161,70 @@ in
             (network: network.name)
             networks);
         };
-
-      # Configure the WireGuard interface.
-      wireguard.interfaces = builtins.listToAttrs
-        (builtins.map
-          (network: {
-            name = network.name;
-            value = {
-              ips = [ "${network.thisAddress}/64" ];
-              allowedIPsAsRoutes = false;
-              listenPort = network.thisPort;
-
-              # Path to the private key file.
-              privateKeyFile = config.age.secrets.wireguard_private_key.path;
-
-              peers = [
-                {
-                  inherit (network.otherMachine) name;
-                  publicKey = network.otherMachine.wireguardPublicKey;
-                  presharedKeyFile = config.age.secrets.shared_wireguard_psk.path;
-                  # Send keepalives every 25 seconds.
-                  persistentKeepalive = 25;
-
-                  allowedIPs = [ "${network.otherAddress}/128" "0::/0" "0.0.0.0/0" ];
-
-                  # Set this to the server IP and port.
-                  endpoint = network.connectTo;
-                  dynamicEndpointRefreshSeconds = 60;
-                }
-              ];
-
-              postSetup = "ip -6 route add ${network.otherAddress}/128 dev ${network.name} || true";
-              postShutdown = "ip -6 route delete ${network.otherAddress}/128 dev ${network.name} || true";
-            };
-          })
-          networks);
     };
+
+    systemd.network = lib.mkMerge ([{
+      wait-online.enable = false;
+      wait-online.anyInterface = false;
+      enable = true;
+
+      netdevs = {
+        "50-antibuilding" = {
+          enable = true;
+          netdevConfig = {
+            Kind = "dummy";
+            Name = "antibuilding";
+          };
+        };
+      };
+
+      networks.antibuilding = {
+        matchConfig.Name = "antibuilding";
+        address = [ "fd10:2030::${builtins.toString thisMachine.address}/112" "172.20.179.${builtins.toString (128 + thisMachine.address)}/27" ];
+      };
+    }]
+    ++
+    (builtins.map
+      (network: {
+        netdevs = {
+          "50-${network.name}" = {
+            netdevConfig = {
+              Kind = "wireguard";
+              Name = network.name;
+              MTUBytes = "1420";
+            };
+            wireguardConfig = {
+              PrivateKeyFile = config.age.secrets.wireguard_private_key.path;
+              ListenPort = network.thisPort;
+            };
+            wireguardPeers = [
+              {
+                PresharedKeyFile = config.age.secrets.shared_wireguard_psk.path;
+                PublicKey = network.otherMachine.wireguardPublicKey;
+                AllowedIPs = [ "::/0" "0.0.0.0/0" ];
+                PersistentKeepalive = 25;
+              }
+            ];
+          };
+        };
+        networks.${network.name} = {
+          matchConfig.Name = "${network.name}";
+          address = [ "${network.thisAddress}/64" ];
+          routes = [
+            {
+              Destination = "${network.otherAddress}/128";
+              Scope = "link";
+            }
+          ];
+          networkConfig = {
+            IPForward = true;
+            # # TODO: Why arent the options called IPv6Forwarding (like in systemd) but IPForward?
+            # IPv4Forwarding = true;
+            # IPv6Forwarding = true;
+          };
+        };
+      })
+      networks));
 
     # Enable IP forwarding on the server so peers can communicate with each other.
     boot =
