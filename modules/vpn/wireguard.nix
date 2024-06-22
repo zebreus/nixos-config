@@ -1,5 +1,5 @@
 # Establishes wireguard tunnels with all nodes with static IPs as hubs.
-{ pkgs, config, lib, ... }:
+{ config, lib, ... }:
 let
   machines = lib.attrValues config.machines;
   thisMachine = config.machines."${config.networking.hostName}";
@@ -142,7 +142,7 @@ in
 
       networks.antibuilding = {
         matchConfig.Name = "antibuilding";
-        address = [ "fd10:2030::${builtins.toString thisMachine.address}/112" ];
+        address = [ "fd10:2030::${builtins.toString thisMachine.address}/112" "172.20.179.${builtins.toString (128 + thisMachine.address)}/27" ];
       };
     };
 
@@ -219,6 +219,7 @@ in
     boot =
       if isServer thisMachine then {
         kernel.sysctl."net.ipv6.conf.all.forwarding" = true;
+        kernel.sysctl."net.ipv4.ip_forward" = true;
       } else { };
   };
 }
