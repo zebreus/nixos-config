@@ -1,7 +1,7 @@
 # Establishes wireguard tunnels with all nodes with static IPs as hubs.
 { config, lib, pkgs, ... }:
 let
-  cfg = config.machines.${config.networking.hostName}.kioubitDn42;
+  cfg = config.machines.${config.networking.hostName}.routedbitsDn42;
   inherit (config.antibuilding) ipv6Prefix;
 
   script = pkgs.writeShellScriptBin "update-roa" ''
@@ -15,6 +15,7 @@ in
 {
   imports = [
     ./kioubit_de1.nix
+    ./routedbits_de1.nix
   ];
 
   config = lib.mkIf cfg.enable {
