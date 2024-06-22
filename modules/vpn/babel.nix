@@ -55,10 +55,10 @@ in
       autoReload = true;
       config = lib.mkOrder 1 ''
         # Enable a lot of logging
-        log syslog {info, warning,error,fatal,trace, debug, remote, auth };
-        debug protocols { states, routes, filters, interfaces, events, packets };
-        debug tables all
-        debug channels all;
+        # log syslog {info, warning,error,fatal,trace, debug, remote, auth };
+        # debug protocols { states, routes, filters, interfaces, events, packets };
+        # debug tables all;
+        # debug channels all;
 
         define OWNIP = 172.20.179.${builtins.toString (thisMachine.address + 128)};
         define OWNIPv6 = ${ipv6Prefix}::${builtins.toString thisMachine.address};
@@ -97,23 +97,29 @@ in
         }
 
          # Add a static route to self
-          protocol static antibuilding${builtins.toString thisMachine.address} {
+          protocol static antibuilding${builtins.toString thisMachine.address}_v6 {
                   ipv6 {
-                    import filter {
-                      accept;
-                    };
+                    import all;
                   };
                   route ${ipv6Prefix}::${builtins.toString thisMachine.address}/128 via "antibuilding";
+          }
+          protocol static antibuilding${builtins.toString thisMachine.address}_v4 {
+                  ipv4 {
+                    import all;
+                  };
+                  route 172.20.179.${builtins.toString (128 + thisMachine.address)}/32 via "antibuilding";
           }
 
           protocol babel {
                   interface "antibuilding*" {
                           type tunnel;
                   };
+                  ipv4 {
+                    import all;
+                    export all;
+                  };
                   ipv6 {
-                    import filter {
-                      accept;
-                    };
+                    import all;
                     export all;
                   };
          

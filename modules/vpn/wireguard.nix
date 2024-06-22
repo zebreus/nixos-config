@@ -22,6 +22,8 @@ let
 
       thisAddress = "fe80::${builtins.toString otherMachine.address}:${builtins.toString thisMachine.address}";
       otherAddress = "fe80::${builtins.toString thisMachine.address}:${builtins.toString otherMachine.address}";
+      # thisAddress4 = "169.254.${builtins.toString (otherMachine.address + 128)}.${builtins.toString (thisMachine.address + 128)}";
+      # otherAddress4 = "169.254.${builtins.toString (thisMachine.address + 128)}.${builtins.toString (otherMachine.address + 128)}";
 
       connectTo = if (isServer otherMachine) then "${otherMachine.name}.outside.antibuild.ing:${builtins.toString (51820 + thisMachine.address)}" else null;
 
@@ -200,7 +202,7 @@ in
                   # Send keepalives every 25 seconds.
                   persistentKeepalive = 25;
 
-                  allowedIPs = [ "${network.otherAddress}/128" "0::/0" ];
+                  allowedIPs = [ "${network.otherAddress}/128" "0::/0" "0.0.0.0/0" ];
 
                   # Set this to the server IP and port.
                   endpoint = network.connectTo;
