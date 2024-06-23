@@ -13,7 +13,6 @@ in
     environment.systemPackages = with pkgs;
       [
         vscode
-        slack
         spotify
         wayland-chrome
         firefox
