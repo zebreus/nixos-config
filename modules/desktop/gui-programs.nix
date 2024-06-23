@@ -27,6 +27,7 @@ in
         anki
         evolution
         fractal
+        libreoffice
       ];
   };
 }
