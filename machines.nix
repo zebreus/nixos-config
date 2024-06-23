@@ -23,10 +23,6 @@ in
       wireguardPublicKey = publicKeys.kashenblade_wireguard;
       staticIp4 = "167.235.154.30";
       staticIp6 = "2a01:4f8:c0c:d91f::1";
-      vpnHub = {
-        id = 0;
-        enable = true;
-      };
       sshPublicKey = publicKeys.kashenblade;
       authoritativeDns.enable = true;
       authoritativeDns.name = "ns1";
@@ -108,10 +104,6 @@ in
       trustedPorts = [ 18000 ];
       staticIp4 = "49.13.8.171";
       staticIp6 = "2a01:4f8:c013:29b1::1";
-      vpnHub = {
-        id = 1;
-        enable = true;
-      };
       bird-lg.enable = true;
       headscale = {
         enable = true;
