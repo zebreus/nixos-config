@@ -174,6 +174,15 @@
           };
         };
 
+      nixosModules = {
+        vpn = { ... }: {
+          imports = [
+            ./machines.nix
+            ./modules/vpn
+          ];
+        };
+      };
+
       packages.x86_64-linux = {
         # Helper scripts
         gen-host-keys = pkgs.callPackage ./scripts/gen-host-keys.nix { };
