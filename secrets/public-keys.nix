@@ -53,6 +53,7 @@ rec {
   blanderdash_wireguard = "yFx4AJXOdeuJWXh49DX2/ZO49hIanWJb0Jskuo4p63Y=";
   prandtl_wireguard = "nAN30SXneQcSandzacBYO8cqIA0e2z+5ejukDzruDGo=";
   leon_wireguard = "rZcYbQkYucVu/fPnAK6ciB3OiwAvlddmsxoaC+Apc0I=";
+  trolltop_wireguard = "iUGYUvG5vOBWkiLedMjSAnRcqtYoP2cwocarfRbgf0M";
   # MARKER_WIREGUARD_PUBLIC_KEYS
 
   # VPN mail DKIM public keys

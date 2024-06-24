@@ -128,6 +128,11 @@ in
         { name = "leon"; size = "2T"; }
       ];
     };
+    trolltop = {
+      name = "trolltop";
+      address = 11;
+      wireguardPublicKey = publicKeys.trolltop_wireguard;
+    };
     # MARKER_MACHINE_CONFIGURATIONS
   };
 }
