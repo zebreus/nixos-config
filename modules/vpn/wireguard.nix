@@ -150,6 +150,9 @@ in
             })
             (lib.unique (builtins.map (e: e.address) allHostNames)));
 
+      # Enable systemd networkd
+      useNetworkd = true;
+
       # Prevent networkmanager from doing weird stuff with the wireguard interface.
       networkmanager = lib.mkIf config.networking.networkmanager.enable {
         unmanaged = (builtins.map (network: network.name) networks);
