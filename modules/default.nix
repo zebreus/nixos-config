@@ -3,6 +3,7 @@
   imports = [
     ./common
     ./desktop
+    ./dn42
     ./vpn
     ./workstation
     ./authoritative-dns.nix
