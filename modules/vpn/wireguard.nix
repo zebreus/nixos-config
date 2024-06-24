@@ -94,28 +94,24 @@ in
       };
       customWireguardPrivateKeyFile = mkOption {
         default = null;
-        description = "The wireguard private key for this machine. Should only be set if the secrets of that machine are not managed in this repo";
+        description = "Path to a file containing the wireguard private key for this machine at run time. Should only be set if the secrets of that machine are not managed in this repo";
         type = types.nullOr types.str;
       };
-      customWireguardPskFile = mkOption {
-        default = null;
-        description = "Information about the machines in the network. Should only be set if the secrets of that machine are not managed in this repo";
-        type = types.nullOr types.str;
-      };
+    };
+    age.dummy = lib.mkOption {
+      type = lib.types.raw;
     };
   };
 
   config = {
-    age.secrets.wireguard_private_key = {
-      file = ../../secrets + "/${config.networking.hostName}_wireguard.age";
-      owner = "systemd-network";
-      group = "systemd-network";
-    };
-    age.secrets.shared_wireguard_psk = {
-      file = ../../secrets/shared_wireguard_psk.age;
-      owner = "systemd-network";
-      group = "systemd-network";
-    };
+    age =
+      if config.antibuilding.customWireguardPrivateKeyFile == null then {
+        secrets.wireguard_private_key = {
+          file = ../../secrets + "/${config.networking.hostName}_wireguard.age";
+          owner = "systemd-network";
+          group = "systemd-network";
+        };
+      } else { };
 
     # Add known ssh keys to the known_hosts file.
     services.openssh.knownHosts = builtins.foldl'
@@ -191,13 +187,15 @@ in
               MTUBytes = "1420";
             };
             wireguardConfig = {
-              PrivateKeyFile = config.age.secrets.wireguard_private_key.path;
+              PrivateKeyFile =
+                if config.antibuilding.customWireguardPrivateKeyFile != null then
+                  config.antibuilding.customWireguardPrivateKeyFile else
+                  config.age.secrets.wireguard_private_key.path;
               ListenPort = network.thisPort;
             };
             wireguardPeers = [
               (lib.mkMerge
                 ([{
-                  PresharedKeyFile = config.age.secrets.shared_wireguard_psk.path;
                   PublicKey = network.otherMachine.wireguardPublicKey;
                   AllowedIPs = [ "::/0" "0.0.0.0/0" ];
                   PersistentKeepalive = 25;
