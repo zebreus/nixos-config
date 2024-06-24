@@ -4,6 +4,23 @@ NixOS configs for various machines.
 
 NOTE: This document is more of a unstructured notepad for me than an actual readme.
 
+== Joining the antibuilding VPN
+
+To join the VPN just add your device to machines.nix. There is a script for that in this repo. cd into the root of this repo and run
+
+.Add your config to the repo
+----
+nix run .#add-antibuilding-peer -- 'YOUR HOSTNAME' 'YOUR WIREGUARD PUBLIC KEY'
+----
+
+commit the changes and open a PR. One hour after the PR gets merged, you can connect to the network. Just import the nixos module into your config.
+
+.Generate a wireguard keypair
+----
+wg genkey | tee wireguard_private.key
+cat wireguard_private.key | wg pubkey | tee wireguard_private.key
+----
+
 == Usage
 
 The flake exports configurations for all my machines.
@@ -25,3 +42,4 @@ Each machine uses its ed25519 SSH host key to decrypt its secrets. That SSH host
 - connect janek-backup again
 - Export a independent vpn module
 - Peer with more people
+- Write documentation for the VPN module

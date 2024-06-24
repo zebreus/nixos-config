@@ -193,6 +193,7 @@
         deploy-hosts = pkgs.callPackage ./scripts/deploy-hosts.nix { };
         fast-deploy = pkgs.callPackage ./scripts/fast-deploy.nix { };
         setup-host = pkgs.callPackage ./scripts/setup-host.nix { };
+        add-antibuilding-peer = pkgs.callPackage ./scripts/add-antibuilding-peer.nix { };
         add-workstation = pkgs.callPackage ./scripts/add-workstation.nix { };
 
         generate-docs = pkgs.callPackage ./scripts/generate-docs.nix { };
