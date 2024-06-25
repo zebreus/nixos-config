@@ -16,11 +16,9 @@ nix run .#add-antibuilding-peer -- 'YOUR HOSTNAME' 'YOUR WIREGUARD PUBLIC KEY'
 commit the changes and open a PR. One hour after the PR gets merged, you can connect to the network. Just import the nixos module into your config.
 
 [source,nix]
-.Example for using the module after you added your machine to the repo
+.Example for using the VPN module
 ----
 {
-  description = "A very basic flake";
-
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs?ref=nixos-unstable";
     antibuilding = {
