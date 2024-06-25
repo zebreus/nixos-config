@@ -6,7 +6,7 @@ in
 {
   config = lib.mkIf cfg.enable {
     age.secrets.kioubit_de2 = {
-      file = ../../../secrets/kioubit_de2.age;
+      file = ../../secrets/kioubit_de2.age;
       owner = "systemd-network";
       group = "systemd-network";
     };

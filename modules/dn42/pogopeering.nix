@@ -6,7 +6,7 @@ in
 {
   config = lib.mkIf cfg.enable {
     age.secrets.pogopeering = {
-      file = ../../../secrets/pogopeering.age;
+      file = ../../secrets/pogopeering.age;
       owner = "systemd-network";
       group = "systemd-network";
     };

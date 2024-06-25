@@ -8,7 +8,7 @@
   # config = lib.mkIf cfg.enable {
   config = lib.mkIf false {
     age.secrets.routedbits_de1 = {
-      file = ../../../secrets/routedbits_de1.age;
+      file = ../../secrets/routedbits_de1.age;
       owner = "systemd-network";
       group = "systemd-network";
     };
