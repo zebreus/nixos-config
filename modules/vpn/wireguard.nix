@@ -159,66 +159,118 @@ in
       };
     };
 
-    systemd.network = lib.mkMerge ([{
-      wait-online.enable = false;
-      wait-online.anyInterface = false;
-      enable = true;
+    systemd = lib.mkMerge ([{
+      network = {
+        wait-online.enable = false;
+        wait-online.anyInterface = false;
+        enable = true;
 
-      netdevs = {
-        "50-antibuilding" = {
-          enable = true;
-          netdevConfig = {
-            Kind = "dummy";
-            Name = "antibuilding";
+        netdevs = {
+          "50-antibuilding" = {
+            enable = true;
+            netdevConfig = {
+              Kind = "dummy";
+              Name = "antibuilding";
+            };
           };
+        };
+
+        networks.antibuilding = {
+          matchConfig.Name = "antibuilding";
+          address = [ "fd10:2030::${builtins.toString thisMachine.address}/112" "172.20.179.${builtins.toString (128 + thisMachine.address)}/27" ];
         };
       };
 
-      networks.antibuilding = {
-        matchConfig.Name = "antibuilding";
-        address = [ "fd10:2030::${builtins.toString thisMachine.address}/112" "172.20.179.${builtins.toString (128 + thisMachine.address)}/27" ];
-      };
+
     }]
     ++
     (builtins.map
       (network: {
-        netdevs = {
-          "50-${network.name}" = {
-            netdevConfig = {
-              Kind = "wireguard";
-              Name = network.name;
-              MTUBytes = "1420";
+        network = {
+          netdevs = {
+            "50-${network.name}" = {
+              netdevConfig = {
+                Kind = "wireguard";
+                Name = network.name;
+                MTUBytes = "1420";
+              };
+              wireguardConfig = {
+                PrivateKeyFile =
+                  if config.antibuilding.customWireguardPrivateKeyFile != null then
+                    config.antibuilding.customWireguardPrivateKeyFile else
+                    config.age.secrets.wireguard_private_key.path;
+                ListenPort = network.thisPort;
+              };
+              wireguardPeers = [
+                (lib.mkMerge
+                  ([{
+                    PublicKey = network.otherMachine.wireguardPublicKey;
+                    AllowedIPs = [ "::/0" "0.0.0.0/0" ];
+                    PersistentKeepalive = 25;
+                  }
+                    (lib.mkIf (network.connectTo != null) {
+                      Endpoint = network.connectTo;
+                    })]))
+              ];
             };
-            wireguardConfig = {
-              PrivateKeyFile =
-                if config.antibuilding.customWireguardPrivateKeyFile != null then
-                  config.antibuilding.customWireguardPrivateKeyFile else
-                  config.age.secrets.wireguard_private_key.path;
-              ListenPort = network.thisPort;
+          };
+          networks.${network.name} = {
+            matchConfig.Name = "${network.name}";
+            address = [ "${network.thisAddress}/64" ];
+            routes = [{
+              Destination = "${network.otherAddress}/128";
+              Scope = "link";
+            }];
+            networkConfig = {
+              IPForward = true;
             };
-            wireguardPeers = [
-              (lib.mkMerge
-                ([{
-                  PublicKey = network.otherMachine.wireguardPublicKey;
-                  AllowedIPs = [ "::/0" "0.0.0.0/0" ];
-                  PersistentKeepalive = 25;
-                }
-                  (lib.mkIf (network.connectTo != null) {
-                    Endpoint = network.connectTo;
-                  })]))
-            ];
           };
         };
-        networks.${network.name} = {
-          matchConfig.Name = "${network.name}";
-          address = [ "${network.thisAddress}/64" ];
-          routes = [{
-            Destination = "${network.otherAddress}/128";
-            Scope = "link";
-          }];
-          networkConfig = {
-            IPForward = true;
+        services."wireguard-refresh-endpoint-for-${network.name}" = lib.mkIf (network.connectTo != null) {
+          enable = true;
+          description = "WireGuard Endpoint refresh service";
+          # requires = [ "wireguard-${interfaceName}.service" ];
+          # wants = [ "network-online.target" ];
+          # after = [ "wireguard-${interfaceName}.service" "network-online.target" ];
+          # wantedBy = [ "wireguard-${interfaceName}.service" ];
+          requires = [ "systemd-networkd.service" ];
+          wants = [ "network-online.target" ];
+          after = [ "systemd-networkd.service" "network-online.target" ];
+          # wantedBy = [ "wireguard-${interfaceName}.service" ];
+          environment.DEVICE = network.name;
+          environment.WG_ENDPOINT_RESOLUTION_RETRIES = "infinity";
+          path = with pkgs; [ iproute2 wireguard-tools ];
+
+          serviceConfig = {
+            Type = "simple"; # re-executes 'wg' indefinitely
+            # Note that `Type = "oneshot"` services with `RemainAfterExit = true`
+            # cannot be used with systemd timers (see `man systemd.timer`),
+            # which is why `simple` with a loop is the best choice here.
+            # It also makes starting and stopping easiest.
+            #
+            # Restart if the service exits (e.g. when wireguard gives up after "Name or service not known" dns failures):
+            Restart = "always";
+            RestartSec = 60;
           };
+          unitConfig = {
+            StartLimitIntervalSec = 0;
+          };
+
+          script =
+            let
+              wg = lib.getExe pkgs.wireguard-tools;
+              wg_setup = ''${wg} set ${network.name} peer "${network.otherMachine.wireguardPublicKey}" endpoint "${network.connectTo}"'';
+            in
+            ''
+              ${wg_setup}
+              # Re-execute 'wg' periodically to notice DNS / hostname changes.
+              # Note this will not time out on transient DNS failures such as DNS names
+              # because we have set 'WG_ENDPOINT_RESOLUTION_RETRIES=infinity'.
+              # Also note that 'wg' limits its maximum retry delay to 20 seconds as of writing.
+              while ${wg_setup}; do
+                sleep 60;
+              done
+            '';
         };
       })
       networks));
