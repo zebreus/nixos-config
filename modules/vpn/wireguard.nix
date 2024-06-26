@@ -236,7 +236,7 @@ in
           requires = [ "systemd-networkd.service" ];
           wants = [ "network-online.target" ];
           after = [ "systemd-networkd.service" "network-online.target" ];
-          # wantedBy = [ "wireguard-${interfaceName}.service" ];
+          wantedBy = [ "systemd-networkd.service" ];
           environment.DEVICE = network.name;
           environment.WG_ENDPOINT_RESOLUTION_RETRIES = "infinity";
           path = with pkgs; [ iproute2 wireguard-tools ];
