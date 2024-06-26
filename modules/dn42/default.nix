@@ -147,7 +147,12 @@ in
                   } else reject;
                 };
           
-                export filter { if is_valid_network() && source ~ [RTS_STATIC, RTS_BGP, RTS_BABEL] then accept; else reject; };
+                export filter {
+                  if source ~ [RTS_BABEL] then {
+                    bgp_path.prepend(4242420663);
+                  }
+                  if is_valid_network() && source ~ [RTS_STATIC, RTS_BGP, RTS_BABEL] then accept; else reject;
+                };
                 import limit 9000 action block;
             };
           
@@ -163,7 +168,12 @@ in
                     } else accept;
                   } else reject;
                 };
-                export filter { if is_valid_network_v6() && source ~ [RTS_STATIC, RTS_BGP, RTS_BABEL] then accept; else reject; };
+                export filter {
+                  if source ~ [RTS_BABEL] then {
+                    bgp_path.prepend(4242420663);
+                  }
+                  if is_valid_network_v6() && source ~ [RTS_STATIC, RTS_BGP, RTS_BABEL] then accept; else reject;
+                };
                 import limit 9000 action block; 
             };
         }
