@@ -235,6 +235,10 @@ let
       pogopeering = {
         enable = mkEnableOption "Enable this server for peering with pilz";
       };
+
+      sebastiansDn42 = {
+        enable = mkEnableOption "Enable this server for peering with pilz";
+      };
     };
   };
 in
