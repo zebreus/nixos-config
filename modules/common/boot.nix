@@ -60,7 +60,7 @@
             };
 
             # Enable systemd in stage 1
-            initrd.systemd.enable = true;
+            # initrd.systemd.enable = true;
           }
         else
           { }
