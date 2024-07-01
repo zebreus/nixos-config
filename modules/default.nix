@@ -1,12 +1,12 @@
 { ... }:
 {
   imports = [
+    ./authoritative-dns
     ./common
     ./desktop
     ./dn42
     ./vpn
     ./workstation
-    ./authoritative-dns.nix
     ./auto-maintenance.nix
     ./bird-lg.nix
     ./borg-repo.nix
