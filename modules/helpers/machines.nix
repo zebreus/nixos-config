@@ -237,7 +237,11 @@ let
       };
 
       sebastiansDn42 = {
-        enable = mkEnableOption "Enable this server for peering with pilz";
+        enable = mkEnableOption "Enable this server for peering with sebastians";
+      };
+
+      adhdDn42 = {
+        enable = mkEnableOption "Enable this server for peering with void";
       };
     };
   };

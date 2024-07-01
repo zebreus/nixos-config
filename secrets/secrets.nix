@@ -172,4 +172,5 @@ with import ./public-keys.nix;
   "routedbits_de1.age".publicKeys = [ recovery kashenblade ];
   "kioubit_de2.age".publicKeys = [ recovery kashenblade ];
   "sebastians_dn42.age".publicKeys = [ recovery kashenblade blanderdash sempriaq ];
+  "adhd_dn42.age".publicKeys = [ recovery kashenblade blanderdash sempriaq ];
 }

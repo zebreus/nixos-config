@@ -2,7 +2,7 @@
 { config, lib, pkgs, ... }:
 let
   machines = lib.attrValues config.machines;
-  isRouter = machine: machine.kioubitDn42.enable || machine.routedbitsDn42.enable || machine.pogopeering.enable || machine.sebastiansDn42.enable;
+  isRouter = machine: machine.kioubitDn42.enable || machine.routedbitsDn42.enable || machine.pogopeering.enable || machine.sebastiansDn42.enable || machine.adhdDn42.enable;
   routers = builtins.filter isRouter machines;
 
   otherMachines = builtins.filter (machine: machine.name != config.networking.hostName) machines;
@@ -12,7 +12,7 @@ let
 
 
   thisMachine = config.machines.${config.networking.hostName};
-  peeringEnabled = thisMachine.kioubitDn42.enable || thisMachine.routedbitsDn42.enable || thisMachine.pogopeering.enable || thisMachine.sebastiansDn42.enable;
+  peeringEnabled = isRouter thisMachine;
   inherit (config.antibuilding) ipv6Prefix;
 
   script = pkgs.writeShellScriptBin "update-roa" ''
@@ -38,6 +38,7 @@ in
     ./pogopeering.nix
     ./routedbits_de1.nix
     ./sebastians_dn42.nix
+    ./adhd_dn42.nix
   ];
 
   config = lib.mkIf peeringEnabled {

@@ -31,6 +31,7 @@ in
       monitoring.enable = true;
       routedbitsDn42.enable = true;
       kioubitDn42.enable = true;
+      adhdDn42.enable = true;
       matrixServer = {
         enable = true;
         baseDomain = "zebre.us";
