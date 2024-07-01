@@ -3,7 +3,6 @@ let
   inherit (import ./helper.nix { inherit lib; }) quoteTxtEntry;
 
   thisServer = lib.head (lib.attrValues (lib.filterAttrs (name: machine: name == config.networking.hostName) config.machines));
-  headscaleServer = lib.head (lib.attrValues (lib.filterAttrs (name: machine: machine.headscale.enable) config.machines));
   routedbitsDn42Server = lib.head (lib.attrValues (lib.filterAttrs (name: machine: machine.routedbitsDn42.enable) config.machines));
 in
 {
@@ -11,10 +10,6 @@ in
     {
       # Used for infrastructure and internal names
       "antibuild.ing" = ''
-        ; headscale
-        headscale IN A ${headscaleServer.staticIp4}
-        headscale IN AAAA ${headscaleServer.staticIp6}
-
         ; routedbits peering
         de1.routedbits IN A ${routedbitsDn42Server.staticIp4}
         de1.routedbits IN AAAA ${routedbitsDn42Server.staticIp6}

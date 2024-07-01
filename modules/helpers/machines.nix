@@ -231,10 +231,6 @@ let
         default = [ ];
       };
 
-      headscale = {
-        enable = mkEnableOption "Enable headscale server";
-      };
-
       bird-lg = {
         enable = mkEnableOption "Enable bird-lg frontend";
       };
@@ -293,7 +289,6 @@ in
 
   config =
     let
-      headscaleServers = (lib.attrValues (lib.filterAttrs (name: machine: machine.headscale.enable) config.machines));
       monitoringServers = (lib.attrValues (lib.filterAttrs (name: machine: machine.monitoring.enable) config.machines));
       birdLgServers = (lib.attrValues (lib.filterAttrs (name: machine: machine.bird-lg.enable) config.machines));
       exactlyOne = servers: ((lib.length servers) == 1);
@@ -301,18 +296,6 @@ in
     in
     {
       assertions = [
-        {
-          assertion = exactlyOne headscaleServers;
-          message = "You need exactly one headscale server, you have ${builtins.toString (lib.length headscaleServers)} (${lib.concatStringsSep ", " (builtins.map (machine: machine.name) headscaleServers)})";
-        }
-        {
-          assertion = hasAttribute headscaleServers "staticIp6";
-          message = "Your headscale server needs a static ipv6";
-        }
-        {
-          assertion = hasAttribute headscaleServers "staticIp4";
-          message = "Your headscale server needs a static ipv4";
-        }
         {
           assertion = exactlyOne monitoringServers;
           message = "You need exactly one monitoring server, you have ${builtins.toString (lib.length monitoringServers)} (${lib.concatStringsSep ", " (builtins.map (machine: machine.name) monitoringServers)})";

@@ -11,7 +11,6 @@
     ./besserestrichliste.nix
     ./bird-lg.nix
     ./borg-repo.nix
-    ./headscale.nix
     ./monitoring.nix
     ./mail.nix
     ./matrix.nix
