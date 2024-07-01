@@ -112,11 +112,23 @@ in
             };
             ipv4 {
                 import all;
-                export all;
+                export filter {
+                  if source !~ [RTS_BABEL, RTS_STATIC] then {
+                    reject;
+                  }
+
+                  accept;
+                };
             };
             ipv6 {
                 import all;
-                export all;
+                export filter {
+                  if source !~ [RTS_BABEL, RTS_STATIC] then {
+                    reject;
+                  }
+
+                  accept;
+                };
             };
         }
       '';

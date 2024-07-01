@@ -1,6 +1,16 @@
 # Establishes wireguard tunnels with all nodes with static IPs as hubs.
 { config, lib, pkgs, ... }:
 let
+  machines = lib.attrValues config.machines;
+  isRouter = machine: machine.kioubitDn42.enable || machine.routedbitsDn42.enable || machine.pogopeering.enable || machine.sebastiansDn42.enable;
+  routers = builtins.filter isRouter machines;
+
+  otherMachines = builtins.filter (machine: machine.name != config.networking.hostName) machines;
+  otherRouters = builtins.filter (machine: machine.name != config.networking.hostName) routers;
+  isServer = machine: ((machine.staticIp4 != null) || (machine.staticIp6 != null));
+  connectedMachines = builtins.filter (otherMachine: (isServer thisMachine) || (isServer otherMachine)) otherMachines;
+
+
   thisMachine = config.machines.${config.networking.hostName};
   peeringEnabled = thisMachine.kioubitDn42.enable || thisMachine.routedbitsDn42.enable || thisMachine.pogopeering.enable || thisMachine.sebastiansDn42.enable;
   inherit (config.antibuilding) ipv6Prefix;
@@ -12,6 +22,15 @@ let
     ${pkgs.bird2}/bin/birdc c 
     ${pkgs.bird2}/bin/birdc reload in all
   '';
+
+  networks = lib.imap
+    (index: otherMachine: {
+      # General information about the network
+      name = "antibuilding${builtins.toString otherMachine.address}";
+      id = index;
+      otherMachine = otherMachine;
+    })
+    connectedMachines;
 in
 {
   imports = [
@@ -22,6 +41,10 @@ in
   ];
 
   config = lib.mkIf peeringEnabled {
+    networking = {
+      firewall.interfaces = lib.mkMerge (builtins.map (network: { ${network.name}.allowedTCPPorts = [ 12411 ]; }) networks);
+    };
+
     systemd = {
       timers.dn42-roa = {
         description = "Trigger a ROA table update";
@@ -138,20 +161,34 @@ in
                 extended next hop on;
                 next hop self on;
                 import filter {
-                  if is_valid_network() && !is_self_net() then {
-                    if (roa_check(dn42_roa, net, bgp_path.last) != ROA_VALID) then {
-                      # Reject when unknown or invalid according to ROA
-                      print "[dn42] ROA check failed for ", net, " ASN ", bgp_path.last;
-                      reject;
-                    } else accept;
-                  } else reject;
-                };
-          
-                export filter {
-                  if source ~ [RTS_BABEL] then {
-                    bgp_path.prepend(4242420663);
+                  if !is_valid_network() then {
+                    print "[dn42v4] Not importing ", net, " because it is not a valid IPv6 network", bgp_path;
+                    reject;
                   }
-                  if is_valid_network() && source ~ [RTS_STATIC, RTS_BGP, RTS_BABEL] then accept; else reject;
+                  if is_self_net() then {
+                    print "[dn42v4] Not importing ", net, " because it is selfnet ", bgp_path;
+                    reject;
+                  }
+                  if (roa_check(dn42_roa, net, bgp_path.last) != ROA_VALID) then {
+                    print "[dn42v4] Not importing ", net, " because the ROA check failed for ASN ", bgp_path.last, " Full ASN path: ", bgp_path;
+                    reject;
+                  }
+                  
+                  print "[dn42v4] Importing ", net, " AS PATH: ", bgp_path;
+                  accept;
+                };
+                export filter {
+                  if !is_valid_network() then {
+                    print "[dn42v4] Not exporting ", net, " because it isnt a valid network";
+                    reject;
+                  }
+                  if source !~ [RTS_STATIC, RTS_BGP] then {
+                    print "[dn42v4] Not exporting ", net, " because it is not static or BGP, but ", source;
+                    reject;
+                  }
+
+                  print "[dn42v4] Exporting ", net, " via ", bgp_path;
+                  accept;
                 };
                 import limit 9000 action block;
             };
@@ -160,24 +197,98 @@ in
                 extended next hop on;
                 next hop self on;
                 import filter {
-                  if is_valid_network_v6() && !is_self_net_v6() then {
-                    if (roa_check(dn42_roa_v6, net, bgp_path.last) != ROA_VALID) then {
-                      # Reject when unknown or invalid according to ROA
-                      print "[dn42] ROA check failed for ", net, " ASN ", bgp_path.last;
-                      reject;
-                    } else accept;
-                  } else reject;
+                  if !is_valid_network_v6() then {
+                    print "[dn42] Not importing ", net, " because it is not a valid IPv6 network", bgp_path;
+                    reject;
+                  }
+                  if is_self_net_v6() then {
+                    print "[dn42] Not importing ", net, " because it is selfnet ", bgp_path;
+                    reject;
+                  }
+
+                  if (roa_check(dn42_roa_v6, net, bgp_path.last) != ROA_VALID) then {
+                    print "[dn42] Not importing ", net, " because the ROA check failed for ASN ", bgp_path.last, " Full ASN path: ", bgp_path;
+                    reject;
+                  }
+
+                  print "[dn42] Importing ", net, " AS PATH: ", bgp_path;
+                  accept;
                 };
                 export filter {
-                  if source ~ [RTS_BABEL] then {
-                    bgp_path.prepend(4242420663);
+                  if !is_valid_network_v6() then {
+                    print "[dn42] Not exporting ", net, " because it isnt a valid network";
+                    reject;
                   }
-                  if is_valid_network_v6() && source ~ [RTS_STATIC, RTS_BGP, RTS_BABEL] then accept; else reject;
+                  if source !~ [RTS_STATIC, RTS_BGP] then {
+                    print "[dn42] Not exporting ", net, " because it is not static or BGP, but ", source;
+                    reject;
+                  }
+
+                  print "[dn42] Exporting ", net, " via ", bgp_path;
+                  accept;
                 };
                 import limit 9000 action block; 
             };
         }
-      '';
+
+        template bgp ibgp_router {
+            local as OWNAS;
+
+            enable extended messages on;
+            graceful restart on;
+            long lived graceful restart on;
+        
+            ipv4 {
+                extended next hop on;
+                import filter {
+                  if source != RTS_BGP then {
+                    print "[ibgpv4] Not importing ", net, " because it is not RTS_BGP, but ", source; 
+                    reject; 
+                  }
+                  if !is_valid_network() then {
+                    print "[ibgpv4] Not importing ", net, " because it is not a valid network"; 
+                    reject; 
+                  }
+                  if is_self_net() then {
+                    print "[ibgpv4] Not importing ", net, " because it is selfnet";
+                    reject; 
+                  }
+                  print "[ibgpv4] Importing ", net, " with source ", source;
+                  accept;
+                };
+                export where source = RTS_BGP && is_valid_network() && !is_self_net();
+                next hop self;
+            };
+        
+            ipv6 {
+                extended next hop on;
+                import filter {
+                  if source != RTS_BGP then {
+                    print "[ibgp] Not importing ", net, " because it is not RTS_BGP, but ", source; 
+                    reject; 
+                  }
+                  if !is_valid_network_v6() then {
+                    print "[ibgp] Not importing ", net, " because it is not a valid network"; 
+                    reject; 
+                  }
+                  if is_self_net_v6() then {
+                    print "[ibgp] Not importing ", net, " because it is selfnet";
+                    reject; 
+                  }
+                  print "[ibgp] Importing ", net, " with source ", source;
+                  accept;
+                };
+                export where source = RTS_BGP && is_valid_network_v6() && !is_self_net_v6();
+                next hop self;
+            };
+        }
+      '' + (lib.concatMapStrings
+        (router: ''
+          protocol bgp ibgp_${router.name} from ibgp_router {
+              neighbor ${ipv6Prefix}::${builtins.toString router.address} as OWNAS;
+          }
+        '')
+        otherRouters);
     };
   };
 }
