@@ -20,5 +20,5 @@
   };
   # programs.xwayland.enable = true;
   # services.xserver.displayManager.gdm.wayland = true;
-  hardware.opengl.enable = true;
+  hardware.graphics.enable = true;
 }

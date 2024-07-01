@@ -38,11 +38,6 @@
 
   services.xserver.videoDrivers = lib.mkDefault [ "modesetting" ];
 
-  hardware.opengl = {
-    driSupport = lib.mkDefault true;
-    driSupport32Bit = lib.mkDefault true;
-  };
-
   # For fingerprint support
   # services.fprintd.enable = lib.mkDefault true;
 
