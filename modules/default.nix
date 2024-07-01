@@ -8,6 +8,7 @@
     ./vpn
     ./workstation
     ./auto-maintenance.nix
+    ./besserestrichliste.nix
     ./bird-lg.nix
     ./borg-repo.nix
     ./headscale.nix

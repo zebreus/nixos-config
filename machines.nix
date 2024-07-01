@@ -110,6 +110,7 @@ in
       headscale = {
         enable = true;
       };
+      besserestrichlisteServer.enable = true;
     };
     prandtl = {
       name = "prandtl";

@@ -187,12 +187,27 @@ let
         # TODO: Move this somewhere else
         baseDomain = mkOption {
           type = types.str;
-          description = "Base domain for the matrix server. You need to setup the DNS records for this domain and for the matrix, element, and turn subdomains.";
+          description = "Base domain for the matrix server.";
         };
         # TODO: Move this somewhere else
         certEmail = mkOption {
           type = types.str;
           description = "Email address to use for Let's Encrypt certificates.";
+        };
+      };
+
+      besserestrichlisteServer = {
+        enable = mkEnableOption "Enable the besserestrichliste server";
+        # TODO: Move this somewhere else
+        baseDomain = mkOption {
+          type = types.str;
+          description = "Base domain for the besserestrichliste server";
+          default = "wirs.ing";
+        };
+        subDomain = mkOption {
+          type = types.str;
+          description = "Subdomain domain for the besserestrichliste server";
+          default = "besserer";
         };
       };
 
