@@ -85,11 +85,14 @@ in
         cat -n bird2.conf
       '';
       config = ''
-        define OWNAS =  4242421403;
+        define OWNAS = 4242421403;
         define OWNNET = 172.20.179.128/27;
         define OWNNETv6 = ${ipv6Prefix}::/48;
         define OWNNETSET = [ 172.20.179.128/27 ];
         define OWNNETSETv6 = [ ${ipv6Prefix}::/48 ];
+
+        ipv4 table bgp4;
+        ipv6 table bgp6;
 
         function is_self_net() {
           return net ~ OWNNETSET;
@@ -150,6 +153,78 @@ in
             };
         }
 
+        protocol pipe bgp6_to_master6 {
+                table bgp6;
+                peer table master6;
+                export filter {
+                        print "THIS got route to ", net , " from ", from , " with gateway ", gw, " on ", ifname;
+                        if source !~ [RTS_BGP] then {
+                          reject;
+                        }
+                        # Crude test if we are using EBGP or BGP.
+                        # I think routes are aggregated before, so this should only match if we have a direct connection to the shortest AS path
+                        if ifname = "antibuilding" ${lib.concatMapStrings (machine: ''|| ifname = "antibuilding${builtins.toString machine.address}" '') machines} then {
+                          print "Rejecting ", net , ", because it is not a direct connection. We will import this route into the master table via babel";
+                          reject;
+                        }
+                        # # TODO: Maybe this can replace the previous statement
+                        # if from !~ [ ${ipv6Prefix}::/48{48,128} ] then {
+                        #   reject;
+                        # }
+
+                        # We have a direct connection with (I think) the lowest number of hops
+                        accept;
+                };
+                import filter {
+                        # Import routes to other devices in our network to the BGP table, because bird2 fails to resolve the nexthop on received routes otherwise
+                        if source !~ [RTS_BABEL, RTS_STATIC] then {
+                          reject;
+                        }
+                        if net !~ [ ${ipv6Prefix}::/48{48,128} ] then {
+                          reject;
+                        }
+                        # Lowest preference
+                        preference = 0;
+                        accept;
+                };
+        }
+        protocol pipe bgp4_to_master4 {
+                table bgp6;
+                peer table master6;
+                export filter {
+                        print "THIS got route to ", net , " from ", from , " with gateway ", gw, " on ", ifname;
+                        if source !~ [RTS_BGP] then {
+                          reject;
+                        }
+                        # Crude test if we are using EBGP or BGP.
+                        # I think routes are aggregated before, so this should only match if we have a direct connection to the shortest AS path
+                        if ifname = "antibuilding" ${lib.concatMapStrings (machine: ''|| ifname = "antibuilding${builtins.toString machine.address}" '') machines} then {
+                          print "Rejecting ", net , ", because it is not a direct connection. We will import this route into the master table via babel";
+                          reject;
+                        }
+                        # TODO: Maybe this can replace the previous statement
+                        # if from !~ [ ${ipv6Prefix}::/48{48,128} ] then {
+                        #   reject;
+                        # }
+                        
+                        # We have a direct connection with (I think) the lowest number of hops
+                        accept;
+                };
+                import filter {
+                        # Import routes to other devices in our network to the BGP table, because bird2 fails to resolve the nexthop on received routes otherwise
+                        if source !~ [RTS_BABEL, RTS_STATIC] then {
+                          reject;
+                        }
+                        if net !~ [ ${ipv6Prefix}::/48{48,128} ] then {
+                          reject;
+                        }
+                        # Lowest preference
+                        preference = 0;
+                        accept;
+                };
+        }
+
+
         template bgp dnpeers {
             local as OWNAS;
             path metric 1;
@@ -159,6 +234,7 @@ in
             long lived graceful restart on;
           
             ipv4 {
+                table bgp4;
                 extended next hop on;
                 next hop self on;
                 import filter {
@@ -195,6 +271,7 @@ in
             };
           
             ipv6 {
+                table bgp6;
                 extended next hop on;
                 next hop self on;
                 import filter {
@@ -240,6 +317,7 @@ in
             long lived graceful restart on;
         
             ipv4 {
+                table bgp4;
                 extended next hop on;
                 import filter {
                   if source != RTS_BGP then {
@@ -262,6 +340,8 @@ in
             };
         
             ipv6 {
+                debug all;
+                table bgp6;
                 extended next hop on;
                 import filter {
                   if source != RTS_BGP then {

@@ -113,7 +113,7 @@ in
             ipv4 {
                 import all;
                 export filter {
-                  if source !~ [RTS_BABEL, RTS_STATIC] then {
+                  if source !~ [RTS_BABEL, RTS_STATIC, RTS_BGP] then {
                     reject;
                   }
 
@@ -123,7 +123,7 @@ in
             ipv6 {
                 import all;
                 export filter {
-                  if source !~ [RTS_BABEL, RTS_STATIC] then {
+                  if source !~ [RTS_BABEL, RTS_STATIC, RTS_BGP] then {
                     reject;
                   }
 
