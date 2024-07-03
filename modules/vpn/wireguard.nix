@@ -133,6 +133,7 @@ in
       # Open firewall port for WireGuard.
       firewall = lib.mkMerge (builtins.map
         (network: {
+          rejectPackets = true;
           allowedUDPPorts = (builtins.map (network: network.thisPort) networks);
           interfaces."${network.name}" = {
             allowedTCPPorts = [ 22 ];
