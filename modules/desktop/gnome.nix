@@ -84,12 +84,12 @@
       "text/calendar" = "org.gnome.Evolution.desktop";
     };
 
-    environment.systemPackages = with pkgs; [
-      gnome.gnome-tweaks
-      gnome.dconf-editor
-      gnomeExtensions.appindicator
-      headsetcontrol
-      headset-charge-indicator
+    environment.systemPackages = [
+      pkgs.gnome-tweaks
+      pkgs.dconf-editor
+      pkgs.gnomeExtensions.appindicator
+      pkgs.headsetcontrol
+      pkgs.headset-charge-indicator
       pkgs.nixos-wallpaper
     ];
 
