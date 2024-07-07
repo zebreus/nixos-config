@@ -21,7 +21,7 @@ jobs:
 
           echo "🔍 Checking for flake input updates"
           PREVIOUS_HEAD="$(git rev-parse HEAD)"
-          nix flake update --commit-lock-file --commit-lockfile-summary "Update flake inputs"
+          nix --option commit-lockfile-summary "Update flake inputs" flake update --commit-lock-file
           NEW_HEAD="$(git rev-parse HEAD)"
           if [ "$PREVIOUS_HEAD" == "$NEW_HEAD" ]; then
             echo "✅ No updates found, everything is up to date"
@@ -29,7 +29,10 @@ jobs:
           fi
 
           echo "🔄 Updates found, testing if it still evals successfully"
-          nix flake check -v --no-build --show-trace
+          # If we dont eval prandtl here, the next step will fail because some files are missing. I suspect this to be the fault of IFD, but not sure.
+          # TODO: Check if the nixos-rebuild is still required
+          nix run nixpkgs#nixos-rebuild -- --flake .#prandtl dry-build --print-build-logs
+          nix --option allow-import-from-derivation true flake check -v --no-build --show-trace
           echo "✨ Updated configuration evaluated successfully"
 
           git push
