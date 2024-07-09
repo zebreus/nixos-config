@@ -12,6 +12,7 @@
     ./node-exporter.nix
     ./openssh.nix
     ./root.nix
+    ./tmp.nix
     ./zsh.nix
   ];
 }
