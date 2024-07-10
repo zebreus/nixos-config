@@ -4,26 +4,29 @@
       Clean the /tmp directory if there are less than this much KB left on the disk.
     '';
     type = lib.types.str;
-    default = "3000000";
+    default = "2000000";
   };
 
   config = {
     systemd.tmpfiles = {
       settings = {
-        "10-clean-tmp-regularly" = {
+        "00-clean-on-reboot" = {
           "/tmp" = {
-            # Delete files in /tmp older than 5 days
-            "d" = {
+            # Delete everything in /tmp on boot
+            "D!" = {
+              user = "root";
               group = "root";
               mode = "1777";
-              user = "root";
-              age = "5d";
+              age = "0";
             };
-            # Delete everythin in /tmp on boot
-            "d!" = {
+          };
+          "/var/tmp" = {
+            # Delete everything in /tmp on boot
+            "D!" = {
+              user = "root";
               group = "root";
               mode = "1777";
-              user = "root";
+              age = "0";
             };
           };
         };
@@ -35,8 +38,8 @@
       enable = true;
       wantedBy = [ "timers.target" ];
       timerConfig = {
-        OnBootSec = "1h";
-        OnUnitActiveSec = "1h";
+        OnBootSec = "15m";
+        OnUnitActiveSec = "15m";
         Unit = "clean-tmp-if-disk-is-full.service";
       };
     };
@@ -50,9 +53,14 @@
         fi
         if test "$SIZE_LEFT" -lt "${config.modules.tmp.cleanTmpIfThereIsLessSpaceLeft}" ; then
           echo "Cleaning tmp because the disk is full"
+          set -x
+          shopt -s dotglob
           ${pkgs.coreutils}/bin/rm -rf /tmp/*
+          ${pkgs.coreutils}/bin/rm -rf /var/tmp/*
+          ${pkgs.systemd}/bin/systemd-tmpfiles --clean
           # nix store gc
           # nix store optimise
+          set +x
         else
           echo "Disk is not full"
         fi
