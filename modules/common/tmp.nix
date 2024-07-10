@@ -12,12 +12,14 @@
       settings = {
         "10-clean-tmp-regularly" = {
           "/tmp" = {
+            # Delete files in /tmp older than 5 days
             "d" = {
               group = "root";
               mode = "1777";
               user = "root";
               age = "5d";
             };
+            # Delete everythin in /tmp on boot
             "d!" = {
               group = "root";
               mode = "1777";
@@ -28,6 +30,7 @@
       };
     };
 
+    # Delete everything in /tmp if the disk gets too full
     systemd.timers."clean-tmp-if-disk-is-full" = {
       enable = true;
       wantedBy = [ "timers.target" ];
@@ -37,7 +40,6 @@
         Unit = "clean-tmp-if-disk-is-full.service";
       };
     };
-
     systemd.services."clean-tmp-if-disk-is-full" = {
       enable = true;
       script = ''
