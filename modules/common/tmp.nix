@@ -29,6 +29,7 @@
     };
 
     systemd.timers."clean-tmp-if-disk-is-full" = {
+      enable = true;
       wantedBy = [ "timers.target" ];
       timerConfig = {
         OnBootSec = "1h";
@@ -38,6 +39,7 @@
     };
 
     systemd.services."clean-tmp-if-disk-is-full" = {
+      enable = true;
       script = ''
         SIZE_LEFT="$(${pkgs.coreutils}/bin/df / --output="avail"  -B1024 | ${pkgs.coreutils}/bin/tail -n 1)"
         if test -z "$SIZE_LEFT" ; then
@@ -46,9 +48,11 @@
         fi
         if test "$SIZE_LEFT" -lt "${config.modules.tmp.cleanTmpIfThereIsLessSpaceLeft}" ; then
           echo "Cleaning tmp because the disk is full"
-          ${pkgs.coreutils}/bin/rm -r /tmp/*
+          ${pkgs.coreutils}/bin/rm -rf /tmp/*
           # nix store gc
           # nix store optimise
+        else
+          echo "Disk is not full"
         fi
       '';
       serviceConfig = {
