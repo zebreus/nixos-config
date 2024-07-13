@@ -4,6 +4,7 @@
     ./boot.nix
     ./cli-programs.nix
     ./fail2ban.nix
+    ./firewall.nix
     ./git.nix
     ./host_keys.nix
     ./locales.nix
