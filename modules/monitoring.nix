@@ -23,7 +23,7 @@ in
         settings.server = {
           domain = "grafana.antibuild.ing";
           http_port = 2342;
-          http_addr = "[::]";
+          http_addr = "::1";
         };
       };
       prometheus = {
