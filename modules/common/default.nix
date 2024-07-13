@@ -1,6 +1,7 @@
 { ... }:
 {
   imports = [
+    ./bird-exporter.nix
     ./boot.nix
     ./cli-programs.nix
     ./fail2ban.nix

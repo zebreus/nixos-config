@@ -30,12 +30,27 @@ in
         enable = true;
         scrapeConfigs = [
           {
-            job_name = config.networking.hostName;
+            job_name = "node";
             static_configs = [
               {
-                targets = (builtins.map
+                targets = (builtins.concatMap
                   # (machine: "${machine.name}:9100")
-                  (machine: "[${config.antibuilding.ipv6Prefix}::${builtins.toString machine.address}]:9100")
+                  (machine: [
+                    "[${config.antibuilding.ipv6Prefix}::${builtins.toString machine.address}]:${builtins.toString config.services.prometheus.exporters.node.port}"
+                  ])
+                  accessibleMachines);
+              }
+            ];
+          }
+          {
+            job_name = "bird";
+            static_configs = [
+              {
+                targets = (builtins.concatMap
+                  # (machine: "${machine.name}:9100")
+                  (machine: [
+                    "[${config.antibuilding.ipv6Prefix}::${builtins.toString machine.address}]:${builtins.toString config.services.prometheus.exporters.bird.port}"
+                  ])
                   accessibleMachines);
               }
             ];

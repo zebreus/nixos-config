@@ -52,6 +52,7 @@ in
       enable = true;
       autoReload = true;
       config = lib.mkOrder 1 ''
+        timeformat protocol iso long;
         # # Enable a lot of logging
         # log syslog {info, warning,error,fatal,trace, debug, remote, auth };
         # debug protocols { states, routes, filters, interfaces, events, packets };
