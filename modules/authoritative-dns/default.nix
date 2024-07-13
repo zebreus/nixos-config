@@ -5,10 +5,10 @@
     ./common.nix
     ./externally-managed.nix
     ./knot.nix
+    ./machines.nix
     ./mail.nix
     ./matrix.nix
     ./monitoring.nix
-    ./outside.nix
     ./root.nix
   ];
 }
