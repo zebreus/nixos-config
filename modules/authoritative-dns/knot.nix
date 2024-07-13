@@ -76,8 +76,6 @@ in
               # https://www.knot-dns.cz/docs/2.8/html/operation.html#example-3
               # prevents modification of the zonefiles, since the zonefiles are immutable
               zonefile-sync = -1;
-              zonefile-load = "difference";
-              journal-content = "changes";
             };
             acl = [
               {
@@ -99,7 +97,7 @@ in
                 id = "normal-signatures";
                 signing-threads = 2;
                 algorithm = "ECDSAP256SHA256";
-                zsk-lifetime = "1d";
+                zsk-lifetime = "17d";
                 ksk-lifetime = "0";
                 reproducible-signing = true;
               }
@@ -112,11 +110,18 @@ in
                 acl = "transfer_antibuilding";
                 dnssec-signing = true;
                 dnssec-policy = "normal-signatures";
+
+                zonefile-load = "difference-no-serial";
+                journal-content = "changes";
+                serial-policy = "dateserial";
               } else {
                 file = "${name}.zone";
                 master = builtins.map (machine: machine.name) primaryServers;
                 acl = "notify_antibuilding";
                 dnssec-signing = false;
+
+                zonefile-load = "none";
+                journal-content = "all";
               }))
               config.modules.dns.zones);
           };

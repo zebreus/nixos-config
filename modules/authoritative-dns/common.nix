@@ -39,7 +39,7 @@ in
           (lib.mkBefore ''
             $TTL 60
             $ORIGIN ${zone}.
-            @ SOA ${primaryServer.authoritativeDns.name}.${config.modules.dns.mainDomain}. lennart.zebre.us. 1710300000 14400 3600 604800 300
+            @ SOA ${primaryServer.authoritativeDns.name}.${config.modules.dns.mainDomain}. lennart.zebre.us. 0 14400 3600 604800 300
           '')
           ''
             ; TXT for keyoxide
