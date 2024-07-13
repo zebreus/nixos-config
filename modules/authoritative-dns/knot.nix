@@ -105,7 +105,7 @@ in
                 storage = knotZonesEnv;
                 file = "${name}.zone";
                 notify = builtins.map (machine: machine.name) secondaryServers;
-                acl = "transfer_antibuilding";
+                acl = [ "transfer_antibuilding" ];
                 dnssec-signing = true;
                 dnssec-policy = "normal-signatures";
 
@@ -116,7 +116,7 @@ in
                 storage = knotZonesEnv;
                 file = "${name}.zone";
                 master = builtins.map (machine: machine.name) primaryServers;
-                acl = "notify_antibuilding";
+                acl = [ "notify_antibuilding" ];
                 dnssec-signing = false;
 
                 zonefile-load = "none";
