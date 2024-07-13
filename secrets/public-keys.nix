@@ -72,4 +72,5 @@ rec {
   allMachines = [ prandtl blanderdash sempriaq erms kashenblade kappril ];
   workstations = [ prandtl erms ];
   dnsServers = [ kashenblade blanderdash sempriaq ];
+  primaryDnsServers = [ blanderdash ];
 }

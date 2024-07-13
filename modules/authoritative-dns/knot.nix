@@ -69,9 +69,6 @@ in
             };
             log.syslog.any = "info";
             template.default = {
-              storage = knotZonesEnv;
-              dnssec-signing = true;
-
               # Input-only zone files
               # https://www.knot-dns.cz/docs/2.8/html/operation.html#example-3
               # prevents modification of the zonefiles, since the zonefiles are immutable
@@ -105,6 +102,7 @@ in
 
             zone = (lib.mapAttrs
               (name: _: (if thisServer.authoritativeDns.primary then {
+                storage = knotZonesEnv;
                 file = "${name}.zone";
                 notify = builtins.map (machine: machine.name) secondaryServers;
                 acl = "transfer_antibuilding";
@@ -112,9 +110,10 @@ in
                 dnssec-policy = "normal-signatures";
 
                 zonefile-load = "difference-no-serial";
-                journal-content = "changes";
+                journal-content = "all";
                 serial-policy = "dateserial";
               } else {
+                storage = knotZonesEnv;
                 file = "${name}.zone";
                 master = builtins.map (machine: machine.name) primaryServers;
                 acl = "notify_antibuilding";

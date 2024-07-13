@@ -10,5 +10,6 @@
     ./matrix.nix
     ./monitoring.nix
     ./root.nix
+    ./voidspace.nix
   ];
 }

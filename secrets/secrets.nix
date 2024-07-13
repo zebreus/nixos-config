@@ -156,6 +156,7 @@ with import ./public-keys.nix;
   # Authoritative DNS server transport key
   # Used for transfering the changed signature records form the primary to the secondary DNS servers
   "knot_transport_key.age".publicKeys = [ recovery ] ++ dnsServers;
+  "dns_voidspace_antibuilding_tsig_key.age".publicKeys = [ recovery ] ++ primaryDnsServers;
 
   # PGP private keys
   # For 2D53CFEA1AB4017BB327AFE310A46CC3152D49C5
