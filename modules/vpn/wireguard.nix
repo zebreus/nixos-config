@@ -121,7 +121,7 @@ in
         };
       })
       { }
-      (builtins.filter (e: e.sshPublicKey != null) allHostNames);
+      (builtins.filter (host: host.sshPublicKey != null) allHostNames);
 
     environment.systemPackages = [
       pkgs.wireguard-tools
@@ -147,9 +147,9 @@ in
           builtins.map
             (address: {
               name = address;
-              value = builtins.map (e: e.name) (builtins.filter (e: e.address == address) allHostNames);
+              value = builtins.map (host: host.name) (builtins.filter (host: host.address == address && host.name != host.address) allHostNames);
             })
-            (lib.unique (builtins.map (e: e.address) allHostNames)));
+            (lib.unique (builtins.map (host: host.address) allHostNames)));
 
       # Enable systemd networkd
       useNetworkd = true;

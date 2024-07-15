@@ -29,7 +29,8 @@ let
         ; Internal for ${machine.name}
         ${machine.name} IN AAAA ${config.antibuilding.ipv6Prefix}::${builtins.toString machine.address}
         ${machine.name} IN A 172.20.179.${builtins.toString (machine.address + 128)}
-        ; No ipv4 for ${machine.name} entry on purpose
+        ; For the bird2 lookingglass
+        ${machine.name}.lg IN AAAA ${config.antibuilding.ipv6Prefix}::${builtins.toString machine.address}
       '')
       machines)
     );
