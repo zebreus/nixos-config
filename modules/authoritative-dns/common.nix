@@ -31,6 +31,10 @@ let
     "antibuilding.dn42"
     # dn42 for other stuff
     "zebreus.dn42"
+    # ipv6 reverse DNS
+    "0.0.0.0.0.3.0.2.0.1.d.f.ip6.arpa"
+    # ipv4 reverse DNS
+    "128/27.179.20.172.in-addr.arpa"
   ];
 
   zoneContent = zone: nameservers: lib.mkMerge ([
