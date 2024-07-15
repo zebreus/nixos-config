@@ -112,6 +112,15 @@ let
             Whether this machine is the primary authoritative DNS server. This one is responsible for DNSSEC signing. There should be only one primary authoritative DNS server.
           '';
         };
+        secondary = mkOption {
+          type = types.bool;
+          default = self.config.authoritativeDns.enable && !self.config.authoritativeDns.primary;
+          defaultText = "enable && !primary";
+          readOnly = true;
+          description = ''
+            Whether this machine is a secondary authoritative DNS server. Secondaries get all their zones from the primary.
+          '';
+        };
         name = mkOption {
           type = types.nullOr types.str;
           description = "Name of this DNS server. Should be like ns1, ns2, ns3, ";

@@ -16,8 +16,8 @@ let
   ];
 in
 {
-  config = lib.mkIf thisServer.authoritativeDns.enable
-    {
+  config = lib.mkMerge [
+    (lib.mkIf thisServer.authoritativeDns.primary {
       age.secrets.dns_voidspace_antibuilding_tsig_key = {
         file = ../../secrets/dns_voidspace_antibuilding_tsig_key.age;
         owner = "knot";
@@ -44,7 +44,7 @@ in
               }
               {
                 id = "transfer_voidspace";
-                key = "knot_transfer_key";
+                key = "dns_voidspace_antibuilding_tsig_key";
                 address = [ "fd49:7a7a:6965:1::1" ];
                 action = [ "transfer" ];
               }
@@ -55,33 +55,46 @@ in
               (builtins.listToAttrs (map
                 (zone: {
                   name = zone;
-                  value = (if thisServer.authoritativeDns.primary then {
+                  value = {
                     master = [ "ns1_izzie" ];
                     acl = [ "notify_voidspace" "transfer_antibuilding" ];
 
                     zonefile-load = "none";
                     journal-content = "all";
-                  } else {
-                    master = builtins.map (machine: machine.name) primaryServers;
-                    acl = "notify_antibuilding";
-
-                    zonefile-load = "none";
-                    journal-content = "all";
-                  });
+                  };
                 })
                 voidspaceZones))
               //
               # Send notifies and allow transfers to the voidspace
-              (if thisServer.authoritativeDns.primary then
-                (builtins.listToAttrs (map
-                  (zone: {
-                    name = zone;
-                    value = {
-                      acl = [ "transfer_voidspace" ];
-                    };
-                  })
-                  (builtins.attrNames config.modules.dns.zones))) else { });
+              (builtins.listToAttrs (map
+                (zone: {
+                  name = zone;
+                  value = {
+                    acl = [ "transfer_voidspace" ];
+                  };
+                })
+                (builtins.attrNames config.modules.dns.zones)));
           };
       };
-    };
+    })
+    (lib.mkIf thisServer.authoritativeDns.secondary {
+      services.knot = {
+        settings =
+          {
+            # Allow secondaries to be notified by the primary of voidspace zones
+            zone = builtins.listToAttrs (map
+              (zone: {
+                name = zone;
+                value = {
+                  master = builtins.map (machine: machine.name) primaryServers;
+                  acl = "notify_antibuilding";
+                  zonefile-load = "none";
+                  journal-content = "all";
+                };
+              })
+              voidspaceZones);
+          };
+      };
+    })
+  ];
 }
