@@ -189,8 +189,8 @@ in
                 };
         }
         protocol pipe bgp4_to_master4 {
-                table bgp6;
-                peer table master6;
+                table bgp4;
+                peer table master4;
                 export filter {
                         print "THIS got route to ", net , " from ", from , " with gateway ", gw, " on ", ifname;
                         if source !~ [RTS_BGP] then {
@@ -215,7 +215,7 @@ in
                         if source !~ [RTS_BABEL, RTS_STATIC] then {
                           reject;
                         }
-                        if net !~ [ ${ipv6Prefix}::/48{48,128} ] then {
+                        if net !~ [ 172.20.179.128/27{27,32} ] then {
                           reject;
                         }
                         # Lowest preference
@@ -223,7 +223,6 @@ in
                         accept;
                 };
         }
-
 
         template bgp dnpeers {
             local as OWNAS;
