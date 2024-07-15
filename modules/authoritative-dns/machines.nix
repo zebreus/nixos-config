@@ -28,6 +28,7 @@ let
       (machine: ''
         ; Internal for ${machine.name}
         ${machine.name} IN AAAA ${config.antibuilding.ipv6Prefix}::${builtins.toString machine.address}
+        ${machine.name} IN A 172.20.179.${builtins.toString (machine.address + 128)}
         ; No ipv4 for ${machine.name} entry on purpose
       '')
       machines)
@@ -36,4 +37,16 @@ in
 {
   config.modules.dns.zones.${config.modules.dns.mainDomain} = records;
   config.modules.dns.zones."antibuilding.dn42" = records;
+
+  # dn42 reverse dns
+  config.modules.dns.zones."128/27.179.20.172.in-addr.arpa" = lib.mkMerge (builtins.map
+    (machine: ''
+      ${builtins.toString (machine.address + 128)} PTR ${machine.name}.antibuilding.dn42
+    '')
+    machines);
+  config.modules.dns.zones."0.0.0.0.0.3.0.2.0.1.d.f.ip6.arpa" = lib.mkMerge (builtins.map
+    (machine: ''
+      ${lib.concatStringsSep "." (lib.reverseList (lib.stringToCharacters (lib.fixedWidthString 20 "0" (builtins.toString machine.address))))} PTR ${machine.name}.antibuilding.dn42
+    '')
+    machines);
 }
