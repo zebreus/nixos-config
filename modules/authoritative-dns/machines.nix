@@ -3,9 +3,8 @@ let
   machines = lib.attrValues config.machines;
   serversWithStaticIpv4 = lib.filter (machine: machine.staticIp4 != null) machines;
   serversWithStaticIpv6 = lib.filter (machine: machine.staticIp6 != null) machines;
-in
-{
-  config.modules.dns.zones.${config.modules.dns.mainDomain} = lib.mkMerge
+
+  records = lib.mkMerge
     ([
       ''
         ; Records for globally reachable static ips
@@ -29,8 +28,12 @@ in
       (machine: ''
         ; Internal for ${machine.name}
         ${machine.name} IN AAAA ${config.antibuilding.ipv6Prefix}::${builtins.toString machine.address}
-        ; No ipv4 ${machine.name} entry on purpose
+        ; No ipv4 for ${machine.name} entry on purpose
       '')
       machines)
     );
+in
+{
+  config.modules.dns.zones.${config.modules.dns.mainDomain} = records;
+  config.modules.dns.zones."antibuilding.dn42" = records;
 }
