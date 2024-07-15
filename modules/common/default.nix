@@ -4,6 +4,7 @@
     ./bird-exporter.nix
     ./boot.nix
     ./cli-programs.nix
+    ./dns-resolver.nix
     ./fail2ban.nix
     ./firewall.nix
     ./git.nix

@@ -65,7 +65,9 @@ in
               machinesThatAreAuthoritativeDnsServers;
 
             server = {
-              listen = [ "0.0.0.0@53" "::@53" ];
+              listen = builtins.map (addr: "${addr}@53") (builtins.filter
+                (e: e != null)
+                [ thisServer.staticIp4 thisServer.staticIp6 "${config.antibuilding.ipv6Prefix}::${builtins.toString thisServer.address}" ]);
             };
             log.syslog.any = "info";
             template.default = {
