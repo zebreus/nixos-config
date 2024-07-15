@@ -58,6 +58,14 @@ Secrets are managed with `agenix`. They are stored in the secrets directory.
 
 Each machine uses its ed25519 SSH host key to decrypt its secrets. That SSH host key is also stored as a secret. Before deploying a machine for the first time the ed25519 SSH host key must be on it. For now I just copied the key over manually, but nixos-anywhere has a option to copy files to a machine, I think.
 
+== DNS / DNSSEC readme
+
+1. Add a new zone to knot
+2. Deploy the primary DNS server
+3. Set the NS records in the domain registrar
+4. Get the DS records from the primary DNS server by running `keymgr <zone> ds`
+5. Add the DS records to the domain registrar
+
 == TODO
 
 - Manage SSH config

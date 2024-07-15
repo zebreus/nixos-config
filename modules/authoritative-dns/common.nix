@@ -2,10 +2,7 @@
 let
   inherit (import ./helper.nix { inherit lib; }) quoteTxtEntry;
   machines = lib.attrValues config.machines;
-
   machinesThatAreAuthoritativeDnsServers = builtins.filter (machine: machine.authoritativeDns.enable) machines;
-
-  primaryServer = lib.head (lib.filter (machine: machine.authoritativeDns.primary) machinesThatAreAuthoritativeDnsServers);
   thisServer = config.machines.${config.networking.hostName};
 
   managedZones = [
@@ -29,39 +26,69 @@ let
     # Maybe I will use this for an url shortener or something. nothing for now
     "zeb.rs"
   ];
+  managedZonesDn42 = [
+    # dn42 domain for internal services
+    "antibuilding.dn42"
+    # dn42 for other stuff
+    "zebreus.dn42"
+  ];
+
+  zoneContent = zone: nameservers: lib.mkMerge ([
+    (lib.mkBefore ''
+      $TTL 60
+      $ORIGIN ${zone}.
+      @ SOA ${(lib.findSingle (nameserver: nameserver.primary) null null nameservers).name}. lennart.zebre.us. 0 14400 3600 604800 300
+    '')
+    ''
+      ; TXT for keyoxide
+      @ IN TXT ${quoteTxtEntry "openpgp4fpr:2D53CFEA1AB4017BB327AFE310A46CC3152D49C5"}
+    ''
+  ]
+  ++
+  # Nameservers
+  (lib.map
+    (nameserver: "@ NS ${nameserver.name}.")
+    nameservers)
+  ++
+  # A and AAAA entries for the nameservers, if this is the main domain
+  (lib.concatMap
+    (nameserver:
+      (if nameserver.ip4 != null then [ "${lib.removeSuffix ".${zone}" nameserver.name} A ${nameserver.ip4}" ] else [ ])
+        ++
+        (if nameserver.ip6 != null then [ "${lib.removeSuffix ".${zone}" nameserver.name} AAAA ${nameserver.ip6}" ] else [ ])
+    )
+    (lib.filter (nameserver: lib.hasSuffix ".${zone}" nameserver.name) nameservers)
+  ));
 in
 {
   config.modules.dns.zones = lib.mkIf thisServer.authoritativeDns.enable
-    (builtins.listToAttrs (builtins.map
-      (zone: {
-        name = zone;
-        value = (lib.mkMerge ([
-          (lib.mkBefore ''
-            $TTL 60
-            $ORIGIN ${zone}.
-            @ SOA ${primaryServer.authoritativeDns.name}.${config.modules.dns.mainDomain}. lennart.zebre.us. 0 14400 3600 604800 300
-          '')
-          ''
-            ; TXT for keyoxide
-            @ IN TXT ${quoteTxtEntry "openpgp4fpr:2D53CFEA1AB4017BB327AFE310A46CC3152D49C5"}
-          ''
-        ]
-        ++
-        # Nameservers
-        (lib.map
-          (machine: "@ NS ${machine.authoritativeDns.name}.${config.modules.dns.mainDomain}.")
-          machinesThatAreAuthoritativeDnsServers)
-        ++
-        # A and AAAA entries for the nameservers, if this is the main domain
-        (if zone == config.modules.dns.mainDomain then
-          (lib.concatMap
-            (machine:
-              (if machine.staticIp4 != null then [ "${machine.authoritativeDns.name} A ${machine.staticIp4}" ] else [ ])
-                ++
-                (if machine.staticIp6 != null then [ "${machine.authoritativeDns.name} AAAA ${machine.staticIp6}" ] else [ ])
-            )
-            machinesThatAreAuthoritativeDnsServers) else [ ]
-        )));
-      })
-      managedZones));
+    (
+      (builtins.listToAttrs (builtins.map
+        (zone: {
+          name = zone;
+          value = zoneContent zone (lib.map
+            (machine: {
+              name = machine.authoritativeDns.name + "." + config.modules.dns.mainDomain;
+              ip4 = machine.staticIp4;
+              ip6 = machine.staticIp6;
+              primary = machine.authoritativeDns.primary;
+            })
+            machinesThatAreAuthoritativeDnsServers);
+        })
+        managedZones))
+      //
+      (builtins.listToAttrs (builtins.map
+        (zone: {
+          name = zone;
+          value = zoneContent zone (lib.map
+            (machine: {
+              name = machine.authoritativeDns.name + ".antibuilding.dn42";
+              ip4 = "172.20.179.${builtins.toString (machine.address + 128)}";
+              ip6 = "${config.antibuilding.ipv6Prefix}::${builtins.toString machine.address}";
+              primary = machine.authoritativeDns.primary;
+            })
+            machinesThatAreAuthoritativeDnsServers);
+        })
+        managedZonesDn42))
+    );
 }
