@@ -13,6 +13,10 @@
   };
   networking.resolvconf.useLocalResolver = true;
 
+  # TODO: This does not belong here
+  # Obtained from https://ca.dn42.us/crt/root-ca.crt
+  security.pki.certificateFiles = [ ../../resources/dn42-ca.crt ];
+
   services.pdns-recursor =
     {
       enable = true;
