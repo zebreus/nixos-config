@@ -22,12 +22,4 @@
       options thinkpad_acpi fan_control=1
     '';
   };
-
-  # Temporary for pentesting course at uni
-  networking.hosts = {
-    "10.2.17.8" = [
-      "friends.connect.usd"
-      "connect.usd"
-    ];
-  };
 }

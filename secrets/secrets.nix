@@ -99,9 +99,6 @@ with import ./public-keys.nix;
   # This is secret because it contains information about the infrastructure of other people
   "extra_config.age".publicKeys = [ recovery ] ++ workstations;
 
-  # OpenVPN config for the pentest lab VPN
-  "pentest_lab_ovpn.conf.age".publicKeys = [ recovery ] ++ workstations;
-
   # Shared secret for coturn.
   # Matrix does not support a file option, but can load extra config files, so we use a config file that only sets the secret
   "coturn_static_auth_secret.age".publicKeys = [ recovery kashenblade ];
