@@ -93,16 +93,16 @@ in
         branding = element-branding;
       };
     };
-    # Patch the welcome strings on the login page to say the domain instead of element
-    nixpkgs.overlays = [
-      (final: prev: {
-        element-web-unwrapped = prev.element-web-unwrapped.overrideAttrs (old: {
-          prePatch = ''
-            sed -Ei 's/("welcome_to_element": ")([^"]*)Element([^"]*")/\1\2${baseDomain}\3/' src/i18n/strings/*.json
-          '';
-        });
-      })
-    ];
+    # # Patch the welcome strings on the login page to say the domain instead of element
+    # nixpkgs.overlays = [
+    #   (final: prev: {
+    #     element-web-unwrapped = prev.element-web-unwrapped.overrideAttrs (old: {
+    #       prePatch = ''
+    #         sed -Ei 's/("welcome_to_element": ")([^"]*)Element([^"]*")/\1\2${baseDomain}\3/' src/i18n/strings/*.json
+    #       '';
+    #     });
+    #   })
+    # ];
 
     # Enable the PostgreSQL service.
     services = {
