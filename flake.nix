@@ -198,6 +198,7 @@
 
         generate-docs = pkgs.callPackage ./scripts/generate-docs.nix { };
         generate-installer = pkgs.callPackage ./scripts/generate-installer.nix { };
+        generate-raspi-image = pkgs.callPackage ./scripts/generate-raspi-image.nix { };
       };
 
       formatter.x86_64-linux = pkgs.nixpkgs-fmt;
