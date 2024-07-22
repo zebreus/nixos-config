@@ -82,6 +82,24 @@
       "x-scheme-handler/unknown" = "google-chrome.desktop";
       "x-scheme-handler/mailto" = "userapp-Evolution-CXJPK2.desktop";
       "text/calendar" = "org.gnome.Evolution.desktop";
+      "text/english" = "code.desktop";
+      "text/plain" = "code.desktop";
+      "text/x-makefile" = "code.desktop";
+      "text/x-c++hdr" = "code.desktop";
+      "text/x-c++src" = "code.desktop";
+      "text/x-chdr" = "code.desktop";
+      "text/x-csrc" = "code.desktop";
+      "text/x-java" = "code.desktop";
+      "text/x-moc" = "code.desktop";
+      "text/x-pascal" = "code.desktop";
+      "text/x-tcl" = "code.desktop";
+      "text/x-tex" = "code.desktop";
+      "application/x-shellscript" = "code.desktop";
+      "application/javascript" = "code.desktop";
+      "application/typescript" = "code.desktop";
+      "text/x-c" = "code.desktop";
+      "text/x-c++" = "code.desktop";
+
     };
 
     environment.systemPackages = [
