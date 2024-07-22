@@ -281,7 +281,7 @@ in
                 };
                 environment.BORG_RSH = "ssh -i ${config.age.secrets.matrix_backup_append_only_ed25519.path}";
                 environment.BORG_RELOCATED_REPO_ACCESS_IS_OK = "yes";
-                extraCreateArgs = "--stats --checkpoint-interval 600";
+                extraCreateArgs = "--stats --checkpoint-interval 300";
                 repo = "${borgRepo.backupHost.locationPrefix}matrix";
                 startAt = "*-*-* 00/1:00:00";
                 user = "root";

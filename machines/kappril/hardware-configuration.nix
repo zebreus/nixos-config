@@ -44,16 +44,16 @@
     options = [ "defaults" "noatime" ];
   };
 
-  # fileSystems."/storage" = {
-  #   device = "/dev/disk/by-uuid/9cb27da6-d189-4f8d-8070-6ea445d0cd50";
-  #   fsType = "bcachefs";
-  #   options = [ "defaults" "nofail" "x-systemd.device-timeout=600" "x-systemd.mount-timeout=600" "verbose" ];
-  # };
+  fileSystems."/storage" = {
+    device = "/dev/disk/by-uuid/bb251994-31e7-4018-bd96-3cae7569dbb8";
+    fsType = "ext4";
+    options = [ "defaults" "nofail" "x-systemd.device-timeout=300" "x-systemd.mount-timeout=300" "data=journal" "nodiscard" "journal_checksum" ];
+  };
 
   # swapDevices = [{
   #   device = "/swapfile";
   #   # 12 GB
-  #   size = 1000 * 12;
+  #   size = 1000 * 6;
   # }];
 
   # Enables DHCP on each ethernet and wireless interface. In case of scripted networking
