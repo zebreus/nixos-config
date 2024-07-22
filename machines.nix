@@ -45,6 +45,7 @@ in
       publicPorts = [ 22 ];
       sshPublicKey = publicKeys.kappril;
       backupHost.enable = true;
+      auto-maintenance.enable = false;
     };
     # Janeks laptop
     janek = {
