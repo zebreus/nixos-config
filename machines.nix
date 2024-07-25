@@ -134,6 +134,15 @@ in
       address = 11;
       wireguardPublicKey = publicKeys.trolltop_wireguard;
     };
+    # Void's laptop
+    void-mendax = {
+      name = "void-mendax";
+      address = 12;
+      wireguardPublicKey = publicKeys.void-mendax_wireguard;
+      extraBorgRepos = [
+        { name = "void-mendax"; size = "2T"; }
+      ];
+    };
     # MARKER_MACHINE_CONFIGURATIONS
   };
 }
