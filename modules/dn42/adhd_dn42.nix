@@ -54,7 +54,8 @@ in
           Scope = "link";
         }];
         networkConfig = {
-          IPForward = true;
+          IPv4Forwarding = true;
+          IPv6Forwarding = true;
         };
       };
     };
