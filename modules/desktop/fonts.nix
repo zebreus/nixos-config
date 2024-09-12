@@ -13,6 +13,9 @@
         dina-font
         proggyfonts
         monaspace
+        corefonts
+        vistafonts
+        carlito
       ];
 
       fontconfig = {
