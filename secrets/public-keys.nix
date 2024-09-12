@@ -39,8 +39,8 @@ rec {
   lennart_prandtl_backup_trusted = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIDg8GlQVRU4aC2oDCkDtEd5ENKMRAMtJNgWWye2Eau0Z";
   leon_backup_trusted = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHDDQCsVnX67JHU006N7v/smtzghvUC3MKA5+h+O6CDs";
   leon_backup_append_only = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHDDQCsVnX47JHU006N7v/smtzghvUC3MKA5+h+O6CDs";
-  void-mendax_backup_trusted = "sk-ssh-ed25519@openssh.com AAAAGnNrLXNzaC1lZDI1NTE5QG9wZW5zc2guY29tAAAAIAuz43JrMmTGjlR9BEw9XVH78VG9u6hORpQt2lhRSxKyAAAACHNzaDphdXRo";
-  void-mendax_backup_append_only = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMDslaqP8Vx42iJbXVnoGz+EFWm6QpiDa0OQIs3rY1Zu";
+  void-mendax_backup_trusted = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPnNyOCX+PopTHuNrfBwEmPM7FC6oM7nFgW/2tvW7ddT";
+  void-mendax_backup_append_only = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICpBvmwPIZnxyxdSf5fUy1h97RdsPZ6edbiZTC/hrKc2";
   # MARKER_BORG_BACKUP_KEYS
 
   # Wireguard public keys
