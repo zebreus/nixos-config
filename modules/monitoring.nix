@@ -24,6 +24,11 @@ in
           domain = "grafana.antibuild.ing";
           http_port = 2342;
           http_addr = "::1";
+          "auth.anonymous" = {
+            enabled = true;
+            org_name = "Main Org.";
+            org_role = "Viewer";
+          };
         };
       };
       prometheus = {
