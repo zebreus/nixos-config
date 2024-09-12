@@ -20,10 +20,12 @@ in
     services = {
       grafana = {
         enable = true;
-        settings.server = {
-          domain = "grafana.antibuild.ing";
-          http_port = 2342;
-          http_addr = "::1";
+        settings = {
+          server = {
+            domain = "grafana.antibuild.ing";
+            http_port = 2342;
+            http_addr = "::1";
+          };
           "auth.anonymous" = {
             enabled = true;
             org_name = "Main Org.";
