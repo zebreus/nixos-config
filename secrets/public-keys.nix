@@ -40,7 +40,7 @@ rec {
   leon_backup_trusted = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHDDQCsVnX67JHU006N7v/smtzghvUC3MKA5+h+O6CDs";
   leon_backup_append_only = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHDDQCsVnX47JHU006N7v/smtzghvUC3MKA5+h+O6CDs";
   void-mendax_backup_trusted = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPnNyOCX+PopTHuNrfBwEmPM7FC6oM7nFgW/2tvW7ddT";
-  void-mendax_backup_append_only = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICpBvmwPIZnxyxdSf5fUy1h97RdsPZ6edbiZTC/hrKc2";
+  void-mendax_backup_append_only = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAxW+Kyt3spM3uAtM8NwBYcplZ+OsZ1drHklGGmAiI0m";
   # MARKER_BORG_BACKUP_KEYS
 
   # Wireguard public keys
