@@ -30,6 +30,7 @@ in
         search IN CNAME zebreus.github.io.
         second IN CNAME zebreus.github.io.
         coreboot IN CNAME zebreus.github.io.
+        custom IN CNAME zebreus.github.io.
         _github-pages-challenge-zebreus IN TXT ${quoteTxtEntry "3a57be146a6065e7abbae1a5783afa"}
       '';
 
