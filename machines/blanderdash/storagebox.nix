@@ -13,6 +13,6 @@
         # this line prevents hanging on network split
         automount_opts = "x-systemd.automount,noauto,x-systemd.idle-timeout=60,x-systemd.device-timeout=5s,x-systemd.mount-timeout=5s";
       in
-      [ "${automount_opts},seal,credentials=${config.age.secrets.blanderdash_storagebox_smb_secrets.path}" ];
+      [ "${automount_opts},seal,uid=borg,gid=borg,credentials=${config.age.secrets.blanderdash_storagebox_smb_secrets.path}" ];
   };
 }
