@@ -147,7 +147,7 @@ in
       name = "void-hortorum";
       address = 13;
       wireguardPublicKey = publicKeys.void-hortorum_wireguard;
-      extraBorgrepos = [
+      extraBorgRepos = [
         { name = "void-hortorum"; size = "2T"; }
       ];
     };
