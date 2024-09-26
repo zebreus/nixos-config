@@ -5,7 +5,7 @@
 
   # Mount storage box as smb share
   environment.systemPackages = [ pkgs.cifs-utils ];
-  fileSystems."/mnt/storagebox" = {
+  fileSystems."/storage/storagebox" = {
     device = "//u425538.your-storagebox.de/backup";
     fsType = "cifs";
     options =

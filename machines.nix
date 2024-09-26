@@ -110,6 +110,10 @@ in
       staticIp6 = "2a01:4f8:c013:29b1::1";
       bird-lg.enable = true;
       besserestrichlisteServer.enable = true;
+      backupHost = {
+        enable = true;
+        storagePath = "/storage/storagebox/borg";
+      };
     };
     prandtl = {
       name = "prandtl";
