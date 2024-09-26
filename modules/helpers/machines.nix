@@ -225,10 +225,22 @@ let
       };
 
       auto-maintenance = {
-        enable = mkOption {
+        upgrade = mkOption {
+          type = types.bool;
+          default = false;
+          description = "Enable automatic upgrades for this machine";
+        };
+        cleanup = mkOption {
           type = types.bool;
           default = true;
-          description = "Enable automatic maintenance for this machine";
+          description = "Enable nightly store optimise, garbage collection and /tmp clearing";
+        };
+        cleanTmpIfThereIsLessSpaceLeft = mkOption {
+          type = lib.types.str;
+          description = ''
+            Clean the /tmp directory if there are less than this much KB left on the disk.
+          '';
+          default = "2000000";
         };
       };
 

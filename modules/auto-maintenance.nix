@@ -1,13 +1,13 @@
 # Tries to perform some maintenance tasks between 3 and 5 AM
-{ config, lib, ... }:
+{ config, ... }:
 let
   hostname = config.networking.hostName;
   thisMachine = config.machines."${config.networking.hostName}";
 in
 {
-  config = lib.mkIf thisMachine.auto-maintenance.enable {
+  config = {
     system.autoUpgrade = {
-      enable = true;
+      enable = thisMachine.auto-maintenance.upgrade;
       flake = ''github:zebreus/nixos-config#${hostname}'';
       flags = [
         "--refresh"
@@ -23,13 +23,13 @@ in
     };
 
     nix.gc = {
-      automatic = true;
+      automatic = thisMachine.auto-maintenance.cleanup;
       dates = "03:25";
       options = "--delete-older-than 30d";
     };
 
     nix.optimise = {
-      automatic = true;
+      automatic = thisMachine.auto-maintenance.cleanup;
       dates = [ "03:40" ];
     };
   };

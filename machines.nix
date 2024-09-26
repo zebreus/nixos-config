@@ -15,7 +15,6 @@ in
       sshPublicKey = publicKeys.erms;
       workstation.enable = true;
       desktop.enable = true;
-      auto-maintenance.enable = false;
     };
     kashenblade = {
       name = "kashenblade";
@@ -48,7 +47,6 @@ in
         enable = true;
         storagePath = "/storage/borg";
       };
-      auto-maintenance.enable = false;
     };
     # Janeks laptop
     janek = {
@@ -121,7 +119,6 @@ in
       sshPublicKey = publicKeys.prandtl;
       workstation.enable = true;
       desktop.enable = true;
-      auto-maintenance.enable = false;
     };
     # Leon (friend of basilikum) laptop
     leon = {
