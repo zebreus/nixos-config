@@ -165,6 +165,10 @@ in
         wait-online.enable = false;
         wait-online.anyInterface = false;
         enable = true;
+        config.networkConfig = {
+          IPv4Forwarding = true;
+          IPv6Forwarding = true;
+        };
 
         netdevs = {
           "50-antibuilding" = {
