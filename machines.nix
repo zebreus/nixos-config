@@ -143,6 +143,14 @@ in
         { name = "void-mendax"; size = "2T"; }
       ];
     };
+    void-hortorum = {
+      name = "void-hortorum";
+      address = 13;
+      wireguardPublicKey = publicKeys.void-hortorum_wireguard;
+      extraBorgrepos = [
+        { name = "void-hortorum"; size = "2T"; }
+      ];
+    };
     # MARKER_MACHINE_CONFIGURATIONS
   };
 }
