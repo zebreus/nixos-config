@@ -142,7 +142,7 @@ let
           description = ''
             The prefix of the path to the backup repos. This should be a path on a separate disk.
           '';
-          default = "/storage/borg";
+          default = null;
           example = "/backups/lennart";
         };
         locationPrefix = mkOption {

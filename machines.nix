@@ -44,7 +44,10 @@ in
       wireguardPublicKey = publicKeys.kappril_wireguard;
       publicPorts = [ 22 ];
       sshPublicKey = publicKeys.kappril;
-      backupHost.enable = true;
+      backupHost = {
+        enable = true;
+        storagePath = "/storage/borg";
+      };
       auto-maintenance.enable = false;
     };
     # Janeks laptop
