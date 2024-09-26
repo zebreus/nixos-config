@@ -22,7 +22,7 @@ in
         gitg
         piper
         virt-manager
-        gnome.gnome-boxes
+        gnome-boxes
         anki
         evolution
         fractal

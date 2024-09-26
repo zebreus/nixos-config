@@ -174,7 +174,7 @@ in
       mxMasterConfigurationUdev
       ddcUdev
       pkgs.headsetcontrol
-      pkgs.gnome.gnome-settings-daemon
+      pkgs.gnome-settings-daemon
     ];
   };
 }
