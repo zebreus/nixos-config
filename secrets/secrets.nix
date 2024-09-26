@@ -171,4 +171,7 @@ with import ./public-keys.nix;
   "kioubit_de2.age".publicKeys = [ recovery kashenblade ];
   "sebastians_dn42.age".publicKeys = [ recovery kashenblade blanderdash sempriaq ];
   "adhd_dn42.age".publicKeys = [ recovery kashenblade blanderdash sempriaq ];
+
+  # Hetzner storage box credentials
+  "blanderdash_storagebox_smb_secrets.age".publicKeys = [ recovery blanderdash ];
 }
