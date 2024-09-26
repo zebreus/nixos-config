@@ -1,6 +1,7 @@
 { lib, config, ... }:
 let
   cfg = config.machines.${config.networking.hostName}.backupHost;
+  thisMachine = config.machines."${config.networking.hostName}";
 
   publicKeys = import ../secrets/public-keys.nix;
 
@@ -13,7 +14,7 @@ in
       (builtins.listToAttrs (builtins.map
         (repo: lib.nameValuePair repo.name {
           quota = repo.size;
-          path = "/storage/borg/${repo.name}";
+          path = "${thisMachine.backupHost.storagePath}/${repo.name}";
           authorizedKeysAppendOnly = [
             publicKeys."${repo.name}_backup_append_only"
           ];
