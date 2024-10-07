@@ -90,6 +90,14 @@ in
     security.acme.acceptTerms = true;
     security.acme.defaults.email = certEmail;
 
+    services.rspamd.extraConfig = ''
+      actions {
+        reject = null; # Disable rejects, default is 15
+        add_header = 13; # Add header when reaching this score
+        greylist = 10; # Apply greylisting when reaching this score
+      }
+    '';
+
     services.borgbackup.jobs = builtins.listToAttrs
       (builtins.map
         (borgRepo: {
