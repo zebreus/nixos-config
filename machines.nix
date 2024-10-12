@@ -123,6 +123,7 @@ in
       sshPublicKey = publicKeys.prandtl;
       workstation.enable = true;
       desktop.enable = true;
+      auto-maintenance.cleanup = false;
     };
     # Leon (friend of basilikum) laptop
     leon = {
