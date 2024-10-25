@@ -174,4 +174,6 @@ with import ./public-keys.nix;
 
   # Hetzner storage box credentials
   "blanderdash_storagebox_smb_secrets.age".publicKeys = [ recovery blanderdash ];
+
+  "pentest_lab_ovpn.conf.age".publicKeys = [ recovery ] ++ workstations;
 }
