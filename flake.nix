@@ -1,6 +1,6 @@
 {
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable-small";
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
     gimp-nixpkgs.url = "github:nixos/nixpkgs/nixos-23.11";
     home-manager = {
       url = "github:zebreus/home-manager?ref=init-secret-service";

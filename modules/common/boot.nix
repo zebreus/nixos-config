@@ -23,7 +23,7 @@
 
     boot = lib.mkMerge [
       {
-        kernelPackages = pkgs.linuxPackages_latest;
+        kernelPackages = pkgs.linuxPackages_testing;
 
         loader =
           {
@@ -47,7 +47,7 @@
               # for now.
               systemd-boot.enable = lib.mkForce false;
               # Editor is not secure
-              systemd-boot.editor = false;
+              systemd-boot.editor = true;
             };
           }.${config.modules.boot.type};
       }

@@ -16,8 +16,8 @@
       desktopManager.gnome.enable = true;
     };
     services.gnome = {
-      tracker.enable = true;
-      tracker-miners.enable = true;
+      tinysparql.enable = true;
+      localsearch.enable = true;
     };
 
     home-manager.users.lennart = {
