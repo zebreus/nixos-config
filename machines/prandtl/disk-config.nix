@@ -33,13 +33,18 @@
                 type = "filesystem";
                 format = "bcachefs";
                 mountpoint = "/";
-                # mountOptions = [
-                #   "defaults"
-                #   "verbose"
-                #   "nofail"
-                #   "x-systemd.device-timeout=10s"
-                #   "x-systemd.mount-timeout=10s"
-                # ];
+                mountOptions = [
+                  "defaults"
+                  "verbose"
+                  # "fsck"
+                  # "fix errors"
+                  "degraded"
+                  "very_degraded"
+                  "continue"
+                  "x-systemd.device-timeout=300s"
+                  "x-systemd.mount-timeout=300s"
+                  # "version_upgrade=compatible"
+                ];
               };
             };
           };

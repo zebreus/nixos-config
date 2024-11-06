@@ -11,4 +11,6 @@
   networking.hostName = "prandtl";
   modules.boot.type = "secure";
   nix.settings.max-jobs = lib.mkDefault 12;
+
+  boot.initrd.systemd.enable = true;
 }
