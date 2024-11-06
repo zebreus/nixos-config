@@ -79,4 +79,5 @@ rec {
   workstations = [ prandtl erms ];
   dnsServers = [ kashenblade blanderdash sempriaq ];
   primaryDnsServers = [ blanderdash ];
+  mailServers = [ blanderdash sempriaq ];
 }
