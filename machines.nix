@@ -63,7 +63,7 @@ in
       address = 5;
       wireguardPublicKey = publicKeys.janek-proxmox_wireguard;
       extraBorgRepos = [
-        { name = "janek-proxmox"; size = "2T"; }
+        { name = "janek-proxmox"; size = "3T"; }
       ];
     };
     # Janeks backup server
