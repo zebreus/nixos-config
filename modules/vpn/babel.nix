@@ -48,6 +48,13 @@ in
         networks);
     };
 
+    # Some protocol continously accumulates memory until the system runs out of memory. I spend 2 hours trying to debug it but was not able to fix it. So for now we just limit the memory usage for the bird2 service.
+    # TODO: Find a proper solution
+    systemd.services.bird2.serviceConfig = {
+      MemoryHigh = "35%";
+      MemoryMax = "40%";
+    };
+
     services.bird2 = {
       enable = true;
       autoReload = true;
@@ -110,9 +117,16 @@ in
         protocol babel {
             interface "antibuilding*" {
                 type tunnel;
+                limit 16;
             };
             ipv4 {
-                import all;
+                import filter {
+                  if source !~ [RTS_BABEL, RTS_STATIC, RTS_BGP] then {
+                    reject;
+                  }
+
+                  accept;
+                };
                 export filter {
                   if source !~ [RTS_BABEL, RTS_STATIC, RTS_BGP] then {
                     reject;
@@ -122,7 +136,13 @@ in
                 };
             };
             ipv6 {
-                import all;
+                import filter {
+                  if source !~ [RTS_BABEL, RTS_STATIC, RTS_BGP] then {
+                    reject;
+                  }
+                  
+                  accept;
+                };
                 export filter {
                   if source !~ [RTS_BABEL, RTS_STATIC, RTS_BGP] then {
                     reject;
