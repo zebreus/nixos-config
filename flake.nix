@@ -28,7 +28,8 @@
     };
     besserestrichliste = {
       url = "github:zebreus/besserestrichliste";
-      inputs.nixpkgs.follows = "nixpkgs";
+      # Prisma engines is currently not compatible with the rust version in the latest nixpkgs
+      inputs.nixpkgs.follows = "gimp-nixpkgs";
     };
     lanzaboote = {
       url = "github:nix-community/lanzaboote/v0.4.1";

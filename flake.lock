@@ -27,7 +27,7 @@
       "inputs": {
         "flake-utils": "flake-utils",
         "nixpkgs": [
-          "nixpkgs"
+          "gimp-nixpkgs"
         ]
       },
       "locked": {
