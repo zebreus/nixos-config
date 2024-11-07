@@ -89,11 +89,6 @@ in
       staticIp4 = "192.227.228.220";
       pogopeering.enable = true;
       sebastiansDn42.enable = true;
-      mailServer = {
-        enable = true;
-        baseDomain = "zebre.us";
-        certEmail = "lennarteichhorn@googlemail.com";
-      };
     };
 
     blanderdash = {
@@ -113,6 +108,11 @@ in
       backupHost = {
         enable = true;
         storagePath = "/storage/storagebox/borg";
+      };
+      mailServer = {
+        enable = true;
+        baseDomain = "zebre.us";
+        certEmail = "lennarteichhorn@googlemail.com";
       };
     };
     prandtl = {
