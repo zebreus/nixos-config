@@ -7,6 +7,8 @@ let
 
   machines = lib.attrValues config.machines;
   machinesThatCanReceiveMail = builtins.filter (machine: machine.managed) machines;
+
+  mailServer = builtins.head (builtins.filter (machine: machine.mailServer.enable) machines);
 in
 {
   config.modules.dns.zones = lib.mkIf thisServer.authoritativeDns.enable ({
@@ -45,7 +47,8 @@ in
     # Used for my external stuff. Matrix, mail, etc.
     "zebre.us" = ''
       ; Main mail entry
-      mail IN A ${config.machines.sempriaq.staticIp4}
+      mail IN A ${mailServer.staticIp4}
+      mail IN AAAA ${mailServer.staticIp6}
 
       ; Records for mail
       @ IN TXT ${quoteTxtEntry "v=spf1 a:mail.zebre.us -all"}
