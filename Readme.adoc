@@ -78,3 +78,19 @@ Each machine uses its ed25519 SSH host key to decrypt its secrets. That SSH host
 - Export a independent vpn module
 - Peer with more people
 - Write documentation for the VPN module
+
+== Protocols
+
+=== Moving the mailserver
+
+1. Change the mailserver in `machines.nix`
+2. Add the new mailserver to the mailServers in `secrets/public-keys.nix`
+3. Rekey all secrets
+4. Add reverse DNS entry for `mail.zebre.us`
+5. Deploy both machines
+6. Wonder why certificates fail to renew
+7. Deploy DNS primary and wait a few minutes for the entries to propagate
+8. Redeploy the new mailserver
+9. Run the backup restore script on the new mailserver
+10. Make sure the ACME certificate for `mail.zebre.us` was issued.
+11. Reboot the new mailserver
