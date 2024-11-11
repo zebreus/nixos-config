@@ -128,7 +128,35 @@ in
       writeScriptBin "restore-mail-from-backup" ''
         #!${bash}/bin/bash
 
-        # Mail restore script tested at 08.04.2024
+        # Mail restore script tested at 11.11.2024
+        set -ex
+
+        export BORG_RSH="ssh -i ${config.age.secrets."mail_backup_append_only_ed25519".path}"
+        export BORG_PASSCOMMAND="cat ${config.age.secrets."mail_backup_passphrase".path}"
+        ALL_BORG_REPOS=( ${ lib.concatStringsSep " " (builtins.map (machine: "'${machine.backupHost.locationPrefix}mail'") config.allBackupHosts)} )
+
+        MODE="$1"
+        if [ "$MODE" == list ] ; then
+          for TEST_BORG_REPO in "''${ALL_BORG_REPOS[@]}"; do
+            echo "Available snapshots at $TEST_BORG_REPO"
+            borg list --sort timestamp $TEST_BORG_REPO | cut -d" " -f1 | grep -Po '^mail-[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}$' || true
+            echo ""
+          done
+          echo "Please use '$0 restore TIMESTAMP' to restore from a specific timestamp "
+          exit 0
+        fi
+
+        if [ "$MODE" != restore ] ; then
+          echo "Usage: $0 COMMAND"
+          echo ""
+          echo "Commands:"
+          echo "  list                 List all available timestamps"
+          echo "  restore TIMESTAMP    Restore from a specific timestamp"
+          echo "  restore              Restore from the latest timestamp"
+          exit 0
+        fi
+
+        TIMESTAMP="$2"
 
         read -r -p "Are you sure you want to restore from the latest backup? This will destroy the current data. [y/N]" -n 1
         echo # (optional) move to a new line
@@ -136,21 +164,20 @@ in
             echo "Operation aborted"
             exit 1
         fi
-        set -ex
         
         systemctl stop dovecot2
 
-        export BORG_RSH="ssh -i ${config.age.secrets."mail_backup_append_only_ed25519".path}"
-        export BORG_PASSCOMMAND="cat ${config.age.secrets."mail_backup_passphrase".path}"
-
-        ALL_BORG_REPOS=( ${ lib.concatStringsSep " " (builtins.map (machine: "'${machine.backupHost.locationPrefix}mail'") config.allBackupHosts)} )
         LATEST_TIMESTAMP=mail-0
+        BORG_LIST_FILTER="--last 1"
+        if [ -n "$TIMESTAMP" ] ; then
+          BORG_LIST_FILTER="-a $TIMESTAMP"
+        fi
         for TEST_BORG_REPO in "''${ALL_BORG_REPOS[@]}"; do
-          THIS_REPO_TIMESTAMP="$(borg list --sort timestamp --last 1 $TEST_BORG_REPO | cut -d" " -f1 | grep -Po '^mail-[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}$' | tail -1 || true)"
+          THIS_REPO_TIMESTAMP="$(borg list --sort timestamp $BORG_LIST_FILTER $TEST_BORG_REPO | cut -d" " -f1 | grep -Po '^mail-[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}$' | tail -1 || true)"
           if [ -z "$THIS_REPO_TIMESTAMP" ] ; then
             continue
           fi
-          if [ "$LATEST_TIMESTAMP" \> "$THIS_REPO_TIMESTAMP" ] ; then
+          if  [ "$LATEST_TIMESTAMP" \> "$THIS_REPO_TIMESTAMP" ] ; then
             continue
           fi
           export LATEST_TIMESTAMP="$THIS_REPO_TIMESTAMP"
