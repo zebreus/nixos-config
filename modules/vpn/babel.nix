@@ -51,7 +51,6 @@ in
     # Some protocol continously accumulates memory until the system runs out of memory. I spend 2 hours trying to debug it but was not able to fix it. So for now we just limit the memory usage for the bird2 service.
     # TODO: Find a proper solution
     systemd.services.bird2.serviceConfig = {
-      MemoryHigh = "35%";
       MemoryMax = "40%";
     };
 
