@@ -29,7 +29,7 @@ in
             ListenPort = 1;
           };
           wireguardPeers = [{
-            PublicKey = "DZ75UrnScBQlqPKH2vxzIcYJmbJ9rYKmEXc0J2+jgAs=";
+            PublicKey = "NxHkdwZPVL+3HdrHTFOslUpUckTf0dzEG9qpZ0FTBnA=";
             AllowedIPs = [ "::/0" "0.0.0.0/0" ];
             PersistentKeepalive = 25;
           }];
