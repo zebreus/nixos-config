@@ -7,6 +7,10 @@ let
   inherit (cfg) certEmail;
   domain = baseDomain;
   name = builtins.replaceStrings [ "." "-" ] [ "_" "_" ] baseDomain;
+
+  thisMachine = config.machines."${config.networking.hostName}";
+  machines = lib.attrValues config.machines;
+  grafanaServers = lib.filter (machine: machine.monitoring.enable) machines;
 in
 {
   config = mkIf cfg.enable {
@@ -97,6 +101,33 @@ in
         greylist = 10; # Apply greylisting when reaching this score
       }
     '';
+
+    # Open firewall port 9100 for traffic from the grafana server
+    networking.firewall.extraInputRules = lib.mkMerge (builtins.map
+      (machine: ''
+        ip6 saddr { ${config.antibuilding.ipv6Prefix}::${builtins.toString machine.address}/128 } tcp dport ${builtins.toString config.services.prometheus.exporters.rspamd.port} accept
+        ip6 saddr { ${config.antibuilding.ipv6Prefix}::${builtins.toString machine.address}/128 } tcp dport ${builtins.toString config.services.prometheus.exporters.postfix.port} accept
+        ip6 saddr { ${config.antibuilding.ipv6Prefix}::${builtins.toString machine.address}/128 } tcp dport ${builtins.toString config.services.prometheus.exporters.mail.port} accept
+      '')
+      grafanaServers);
+    services.prometheus = {
+      exporters.rspamd = {
+        enable = true;
+        listenAddress = "[${config.antibuilding.ipv6Prefix}::${builtins.toString thisMachine.address}]";
+        port = 9256;
+      };
+      exporters.postfix = {
+        enable = true;
+        listenAddress = "[${config.antibuilding.ipv6Prefix}::${builtins.toString thisMachine.address}]";
+        port = 9257;
+      };
+
+      exporters.mail = {
+        enable = true;
+        listenAddress = "[${config.antibuilding.ipv6Prefix}::${builtins.toString thisMachine.address}]";
+        port = 9258;
+      };
+    };
 
     services.borgbackup.jobs = builtins.listToAttrs
       (builtins.map
