@@ -52,6 +52,7 @@ in
     # TODO: Find a proper solution
     systemd.services.bird2.serviceConfig = {
       MemoryMax = "40%";
+      MemoryAccounting = "true";
     };
 
     services.bird2 = {
