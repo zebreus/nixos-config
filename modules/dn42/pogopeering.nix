@@ -39,7 +39,7 @@ in
         matchConfig.Name = "pogopeering";
         address = [ "fe80::acab/64" ];
         routes = [{
-          Destination = "fe80::1213/128";
+          Destination = "fe80::1312/128";
           Scope = "link";
         }];
         networkConfig = {
@@ -52,7 +52,7 @@ in
     services.bird2 = {
       config = lib.mkAfter ''
         protocol bgp pogopeering from dnpeers {
-            neighbor fe80::1213%pogopeering as 4242420663;
+            neighbor fe80::1312%pogopeering as 4242420663 external;
         }
       '';
     };
