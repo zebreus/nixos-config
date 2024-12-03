@@ -107,8 +107,8 @@ in
       (machine: ''
         ip6 saddr { ${config.antibuilding.ipv6Prefix}::${builtins.toString machine.address}/128 } tcp dport ${builtins.toString config.services.prometheus.exporters.rspamd.port} accept
         ip6 saddr { ${config.antibuilding.ipv6Prefix}::${builtins.toString machine.address}/128 } tcp dport ${builtins.toString config.services.prometheus.exporters.postfix.port} accept
-        ip6 saddr { ${config.antibuilding.ipv6Prefix}::${builtins.toString machine.address}/128 } tcp dport ${builtins.toString config.services.prometheus.exporters.mail.port} accept
       '')
+      # ip6 saddr { ${config.antibuilding.ipv6Prefix}::${builtins.toString machine.address}/128 } tcp dport ${builtins.toString config.services.prometheus.exporters.mail.port} accept
       grafanaServers);
     services.prometheus = {
       exporters.rspamd = {
@@ -121,12 +121,11 @@ in
         listenAddress = "[${config.antibuilding.ipv6Prefix}::${builtins.toString thisMachine.address}]";
         port = 9257;
       };
-
-      exporters.mail = {
-        enable = true;
-        listenAddress = "[${config.antibuilding.ipv6Prefix}::${builtins.toString thisMachine.address}]";
-        port = 9258;
-      };
+      # exporters.mail = {
+      #   enable = true;
+      #   listenAddress = "[${config.antibuilding.ipv6Prefix}::${builtins.toString thisMachine.address}]";
+      #   port = 9258;
+      # };
     };
 
     services.borgbackup.jobs = builtins.listToAttrs
