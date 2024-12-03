@@ -3,6 +3,7 @@
     ./besserestrichliste.nix
     ./bird-lg.nix
     ./common.nix
+    ./essen-jetzt.nix
     ./externally-managed.nix
     ./knot.nix
     ./machines.nix

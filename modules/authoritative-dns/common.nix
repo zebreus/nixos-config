@@ -19,6 +19,8 @@ let
     "del.blue"
     # Hosts a badly drawn picture of a unicorn
     "einhorn.jetzt"
+    # Hosts a simplified version of the TU Darmstadt Mensa menu
+    "essen.jetzt"
     # Hosts a now defunct and unfinished project for ai generated shirts
     "generated.fashion"
     # Hosts a broken test of a gunjs based blog

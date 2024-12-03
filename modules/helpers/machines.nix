@@ -220,6 +220,10 @@ let
         };
       };
 
+      essenJetztServer = {
+        enable = mkEnableOption "Enable the essen.jetzt server";
+      };
+
       monitoring = {
         enable = mkEnableOption "Run grafana and the prometheus collector on this machine";
       };

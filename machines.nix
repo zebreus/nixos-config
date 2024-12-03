@@ -114,6 +114,7 @@ in
         baseDomain = "zebre.us";
         certEmail = "lennarteichhorn@googlemail.com";
       };
+      essenJetztServer.enable = true;
     };
     prandtl = {
       name = "prandtl";

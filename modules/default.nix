@@ -11,6 +11,7 @@
     ./besserestrichliste.nix
     ./bird-lg.nix
     ./borg-repo.nix
+    ./essen-jetzt.nix
     ./monitoring.nix
     ./mail.nix
     ./matrix.nix
