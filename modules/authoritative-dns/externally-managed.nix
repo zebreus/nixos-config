@@ -38,14 +38,7 @@ in
       # I use this domains for hosting random stuff with github pages
       "essen.jetzt" = ''
         ; various github pages
-        katzenohren	IN A 185.199.108.153
-        katzenohren	IN A 185.199.109.153
-        katzenohren	IN A 185.199.110.153
-        katzenohren	IN A 185.199.111.153
-        katzenohren	IN AAAA 2606:50c0:8000::153
-        katzenohren	IN AAAA 2606:50c0:8001::153
-        katzenohren	IN AAAA 2606:50c0:8002::153
-        katzenohren	IN AAAA 2606:50c0:8003::153
+        katzenohren	IN A zebreus.github.io.
         _github-pages-challenge-zebreus IN TXT ${quoteTxtEntry "efa5b694f67911424ba8ab8cd50321"}
       '';
 
