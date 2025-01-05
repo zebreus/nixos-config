@@ -4,7 +4,7 @@
     # Enable printing on HP printers
     services.printing = {
       enable = true;
-      #  drivers = [ pkgs.hplip ];
+      drivers = [ pkgs.hplip pkgs.brlaser ];
     };
 
     # Enable scanning
