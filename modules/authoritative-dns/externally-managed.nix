@@ -38,8 +38,18 @@ in
       # I use this domains for hosting random stuff with github pages
       "essen.jetzt" = ''
         ; various github pages
-        katzenohren	IN A zebreus.github.io.
+        katzenohren IN CNAME zebreus.github.io.
         _github-pages-challenge-zebreus IN TXT ${quoteTxtEntry "efa5b694f67911424ba8ab8cd50321"}
+      '';
+
+      # I use this domains for hosting random stuff with github pages
+      "rudelb.link" = ''
+        ; deno deploy
+        @ IN A 34.120.54.55
+        @ IN AAAA 2600:1901:0:6d85::
+        _acme-challenge IN CNAME 61e1a5bc5ccdb1942ca99c10._acme.deno.dev.
+
+        _github-pages-challenge-zebreus IN TXT ${quoteTxtEntry "35f0ff4e1cb553289300913bdcd0cf"}
       '';
 
       # Hosts a badly drawn picture of a unicorn
