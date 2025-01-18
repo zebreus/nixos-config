@@ -53,7 +53,7 @@ function generateKeys {
 }
 
 function generateConfig {
-    sed -i 's/dn42Peerings = [/dn42Peerings = [ '"$PEERING_NAME"'/' machines.nix # ]] <-- needed because of Argbash
+    sed -i 's/dn42Peerings = \[/dn42Peerings = \[ "'"$PEERING_NAME"'"/' machines.nix # ]] <-- needed because of Argbash
 
     VPN_CONFIG=$(
         cat <<END_HEREDOC
