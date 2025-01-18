@@ -166,9 +166,9 @@ with import ./public-keys.nix;
   "497a_homed.age".publicKeys = [ recovery ] ++ workstations;
 
   # Other keys
-  "pogopeering.age".publicKeys = [ recovery sempriaq ];
-  "routedbits_de1.age".publicKeys = [ recovery kashenblade ];
-  "kioubit_de2.age".publicKeys = [ recovery kashenblade ];
+  "pogopeering_dn42.age".publicKeys = [ recovery sempriaq ];
+  "routedbits_de1_dn42.age".publicKeys = [ recovery kashenblade ];
+  "kioubit_de2_dn42.age".publicKeys = [ recovery kashenblade ];
   "sebastians_dn42.age".publicKeys = [ recovery kashenblade blanderdash sempriaq ];
   "adhd_dn42.age".publicKeys = [ recovery kashenblade blanderdash sempriaq ];
   "larede01_dn42.age".publicKeys = [ recovery kashenblade blanderdash sempriaq ];

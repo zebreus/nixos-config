@@ -2,14 +2,13 @@
 { config, lib, pkgs, ... }:
 let
   machines = lib.attrValues config.machines;
-  isRouter = machine: machine.kioubitDn42.enable || machine.routedbitsDn42.enable || machine.pogopeering.enable || machine.sebastiansDn42.enable || machine.adhdDn42.enable || machine.larede01Dn42.enable;
+  isRouter = machine: ((builtins.length machine.dn42Peerings) > 0);
   routers = builtins.filter isRouter machines;
 
   otherMachines = builtins.filter (machine: machine.name != config.networking.hostName) machines;
   otherRouters = builtins.filter (machine: machine.name != config.networking.hostName) routers;
   isServer = machine: ((machine.staticIp4 != null) || (machine.staticIp6 != null));
   connectedMachines = builtins.filter (otherMachine: (isServer thisMachine) || (isServer otherMachine)) otherMachines;
-
 
   thisMachine = config.machines.${config.networking.hostName};
   peeringEnabled = isRouter thisMachine;
@@ -34,13 +33,15 @@ let
 in
 {
   imports = [
-    ./kioubit_de2.nix
-    ./pogopeering.nix
-    ./larede01_dn42.nix
-    ./routedbits_de1.nix
-    ./sebastians_dn42.nix
-    ./adhd_dn42.nix
-    ./echonet_dn42.nix
+    ./peerings.nix
+    # ./kioubit_de2.nix
+    # ./pogopeering.nix
+    # ./larede01_dn42.nix
+    # ./routedbits_de1.nix
+    # ./sebastians_dn42.nix
+    # ./adhd_dn42.nix
+    # ./echonet_dn42.nix
+    ./common.nix
   ];
 
   config = lib.mkIf peeringEnabled {

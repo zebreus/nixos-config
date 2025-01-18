@@ -260,32 +260,10 @@ let
         enable = mkEnableOption "Enable bird-lg frontend";
       };
 
-      routedbitsDn42 = {
-        enable = mkEnableOption "Enable this server for peering with routedbits";
-      };
-
-      kioubitDn42 = {
-        enable = mkEnableOption "Enable this server for peering with kioubit";
-      };
-
-      pogopeering = {
-        enable = mkEnableOption "Enable this server for peering with pilz";
-      };
-
-      sebastiansDn42 = {
-        enable = mkEnableOption "Enable this server for peering with sebastians";
-      };
-
-      adhdDn42 = {
-        enable = mkEnableOption "Enable this server for peering with void";
-      };
-
-      larede01Dn42 = {
-        enable = mkEnableOption "Enable this server for peering with lare";
-      };
-
-      echonetDn42 = {
-        enable = mkEnableOption "Enable this server for peering with echonet";
+      dn42Peerings = mkOption {
+        type = types.listOf types.string;
+        description = ''Names of the dn42 peerings that are active on this machine.'';
+        default = [ ];
       };
     };
   };

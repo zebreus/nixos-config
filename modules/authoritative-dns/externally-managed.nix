@@ -3,18 +3,10 @@ let
   inherit (import ./helper.nix { inherit lib; }) quoteTxtEntry;
 
   thisServer = lib.head (lib.attrValues (lib.filterAttrs (name: machine: name == config.networking.hostName) config.machines));
-  routedbitsDn42Server = lib.head (lib.attrValues (lib.filterAttrs (name: machine: machine.routedbitsDn42.enable) config.machines));
 in
 {
   config.modules.dns.zones = lib.mkIf thisServer.authoritativeDns.enable (
     {
-      # Used for infrastructure and internal names
-      "antibuild.ing" = ''
-        ; routedbits peering
-        de1.routedbits IN A ${routedbitsDn42Server.staticIp4}
-        de1.routedbits IN AAAA ${routedbitsDn42Server.staticIp6}
-      '';
-
       # I use this domains for hosting random stuff with github pages
       "wirs.ing" = ''
         ; various github pages

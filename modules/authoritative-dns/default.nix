@@ -12,5 +12,6 @@
     ./monitoring.nix
     ./root.nix
     ./voidspace.nix
+    ./dn42-peers.nix
   ];
 }
