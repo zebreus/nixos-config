@@ -59,8 +59,8 @@
         publicWireguardPort = "2";
       };
       aprl = {
-        peerLinkLocal = "fe80::1234:9320";
-        ownLinkLocal = "fe80::1442:1";
+        peerLinkLocal = "fe80::1442:1";
+        ownLinkLocal = "fe80::1234:9320";
         asNumber = "4242422593";
 
         publicWireguardKey = "ZOuvH1ZzCxZR+MHCAGkLdZCkO3/tF0hbHTdI7NNzVik=";

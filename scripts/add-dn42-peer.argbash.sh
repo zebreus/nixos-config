@@ -62,8 +62,8 @@ function generateConfig {
     VPN_CONFIG=$(
         cat <<END_HEREDOC
       ${PEERING_NAME} = {
-        peerLinkLocal = "${MY_LINK_LOCAL}";
-        ownLinkLocal = "${THEIR_LINK_LOCAL}";
+        peerLinkLocal = "${THEIR_LINK_LOCAL}";
+        ownLinkLocal = "${MY_LINK_LOCAL}";
         asNumber = "${THEIR_AS}";
         ${THEIR_WIREGUARD_ENDPOINT_LINE}
         publicWireguardKey = "${THEIR_WIREGUARD_PUBLIC_KEY}";
