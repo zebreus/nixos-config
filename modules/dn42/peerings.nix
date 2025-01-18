@@ -58,6 +58,7 @@
         publicWireguardKey = "saICY1kV8JbuPOQNQLtm9TnVP2CuxC0qFSkd69pEKQQ=";
         publicWireguardPort = "2";
       };
+      # MARKER_PEERING_CONFIGURATIONS
       # example = {
       #   peerLinkLocal = "fe80";
       #   ownLinkLocal = "fe80";

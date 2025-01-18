@@ -196,6 +196,7 @@
         fast-deploy = pkgs.callPackage ./scripts/fast-deploy.nix { };
         setup-host = pkgs.callPackage ./scripts/setup-host.nix { };
         add-antibuilding-peer = pkgs.callPackage ./scripts/add-antibuilding-peer.nix { };
+        add-dn42-peer = pkgs.callPackage ./scripts/add-dn42-peer.nix { };
         add-workstation = pkgs.callPackage ./scripts/add-workstation.nix { };
 
         generate-docs = pkgs.callPackage ./scripts/generate-docs.nix { };
