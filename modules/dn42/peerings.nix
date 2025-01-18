@@ -64,7 +64,7 @@
         asNumber = "4242422593";
 
         publicWireguardKey = "ZOuvH1ZzCxZR+MHCAGkLdZCkO3/tF0hbHTdI7NNzVik=";
-        publicWireguardPort = "";
+        publicWireguardPort = "29362";
         # My public key: IR9h1sRdPK+yyzOCpy93axXTs4aLbUaVskniguYMIw0=
         # My endpoint: aprl.dn42.antibuild.ing:29362
         # My link local: fe80::1234:9320

@@ -131,7 +131,6 @@ in
                     [{
                       PublicKey = peering.publicWireguardKey;
                       AllowedIPs = [ "::/0" "0.0.0.0/0" ];
-                      Endpoint = peering.publicWireguardEndpoint;
                       PersistentKeepalive = 25;
                     }
                       (
