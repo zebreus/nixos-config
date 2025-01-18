@@ -173,6 +173,7 @@ with import ./public-keys.nix;
   "adhd_dn42.age".publicKeys = [ recovery kashenblade blanderdash sempriaq ];
   "larede01_dn42.age".publicKeys = [ recovery kashenblade blanderdash sempriaq ];
   "echonet_dn42.age".publicKeys = [ recovery kashenblade blanderdash sempriaq ];
+  "aprl_dn42.age".publicKeys = [ recovery kashenblade blanderdash sempriaq ];
   # MARKER_WIREGUARD_DN42_KEYS
 
   # Hetzner storage box credentials
