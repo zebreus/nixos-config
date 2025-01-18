@@ -63,12 +63,9 @@
         ownLinkLocal = "fe80::1234:9320";
         asNumber = "4242422593";
 
-        publicWireguardKey = "ZOuvH1ZzCxZR+MHCAGkLdZCkO3/tF0hbHTdI7NNzVik=";
+        publicWireguardKey = "d/cmokBfb0WatQ+xHxe02YOcrV2vuZtKeJp4H0pseTg=";
         publicWireguardPort = "29362";
         # My public key: IR9h1sRdPK+yyzOCpy93axXTs4aLbUaVskniguYMIw0=
-        # My endpoint: aprl.dn42.antibuild.ing:29362
-        # My link local: fe80::1234:9320
-        # My AS: 4242421403
       };
       # MARKER_PEERING_CONFIGURATIONS
       # example = {

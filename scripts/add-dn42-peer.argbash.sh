@@ -70,7 +70,6 @@ function generateConfig {
         publicWireguardPort = "${MY_WIREGUARD_PORT}";
         # My public key: ${PUBLIC_KEY}
         # My endpoint: ${MY_WIREGUARD_HOST}:${MY_WIREGUARD_PORT}
-        # My link local: ${MY_LINK_LOCAL}
         # My AS: ${MY_AS}
       };
 END_HEREDOC
