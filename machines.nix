@@ -28,11 +28,7 @@ in
       publicPorts = [ 53 ];
       trustedPorts = [ 9100 ];
       monitoring.enable = true;
-      # routedbitsDn42.enable = true;
-      # kioubitDn42.enable = true;
-      # adhdDn42.enable = true;
-      # echonetDn42.enable = true;
-      dn42Peerings = [ "echonet" "kioubit_de2" "routedbits_de1" "adhd" ];
+      dn42Peerings = [ "echonet" "kioubit_de2" "routedbits_de1" "adhd" "pogopeering" "sebastians" "larede01" ];
       matrixServer = {
         enable = true;
         baseDomain = "zebre.us";
@@ -89,8 +85,6 @@ in
       authoritativeDns.name = "ns3";
       publicPorts = [ 53 ];
       staticIp4 = "192.227.228.220";
-      dn42Peerings = [ "pogopeering" "sebastians" ];
-
     };
 
     blanderdash = {
@@ -105,7 +99,6 @@ in
       trustedPorts = [ 18000 ];
       staticIp4 = "49.13.8.171";
       staticIp6 = "2a01:4f8:c013:29b1::1";
-      dn42Peerings = [ "larede01" ];
       bird-lg.enable = true;
       besserestrichlisteServer.enable = true;
       backupHost = {
