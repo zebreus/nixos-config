@@ -90,13 +90,16 @@ in
           let
             peering = config.modules.dn42.peerings.${networkName};
           in
-          {
-            interfaces."${networkName}".allowedTCPPorts = [ 179 ];
-          } // (
-            lib.mkIf (peering.publicWireguardPort != null) {
-              allowedUDPPorts = [ (lib.strings.toInt peering.publicWireguardPort) ];
+          (lib.mkMerge [
+            {
+              interfaces."${networkName}".allowedTCPPorts = [ 179 ];
             }
-          )
+            (
+              lib.mkIf (peering.publicWireguardPort != null) {
+                allowedUDPPorts = [ (lib.strings.toInt peering.publicWireguardPort) ];
+              }
+            )
+          ])
         )
         activePeerings);
 
@@ -114,24 +117,28 @@ in
                   Name = "${networkName}";
                   MTUBytes = "1420";
                 };
-                wireguardConfig = ({
-                  PrivateKeyFile = config.age.secrets."${networkName}".path;
-                } // (
-                  lib.mkIf (peering.publicWireguardPort != null) {
-                    ListenPort = lib.strings.toInt peering.publicWireguardPort;
+                wireguardConfig = (lib.mkMerge
+                  [{
+                    PrivateKeyFile = config.age.secrets."${networkName}".path;
                   }
-                ));
-                wireguardPeers = lib.mkAfter [
-                  ({
-                    PublicKey = peering.publicWireguardKey;
-                    AllowedIPs = [ "::/0" "0.0.0.0/0" ];
-                    Endpoint = peering.publicWireguardEndpoint;
-                    PersistentKeepalive = 25;
-                  } // (
-                    lib.mkIf (peering ? "publicWireguardEndpoint") {
+                    (
+                      lib.mkIf (peering.publicWireguardPort != null) {
+                        ListenPort = lib.strings.toInt peering.publicWireguardPort;
+                      }
+                    )]);
+                wireguardPeers = [
+                  (lib.mkMerge
+                    [{
+                      PublicKey = peering.publicWireguardKey;
+                      AllowedIPs = [ "::/0" "0.0.0.0/0" ];
                       Endpoint = peering.publicWireguardEndpoint;
+                      PersistentKeepalive = 25;
                     }
-                  )
+                      (
+                        lib.mkIf (peering.publicWireguardEndpoint != null) {
+                          Endpoint = peering.publicWireguardEndpoint;
+                        }
+                      )]
                   )
                 ];
               };
