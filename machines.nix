@@ -31,6 +31,7 @@ in
       routedbitsDn42.enable = true;
       kioubitDn42.enable = true;
       adhdDn42.enable = true;
+      echonetDn42.enable = true;
       matrixServer = {
         enable = true;
         baseDomain = "zebre.us";
@@ -103,6 +104,7 @@ in
       trustedPorts = [ 18000 ];
       staticIp4 = "49.13.8.171";
       staticIp6 = "2a01:4f8:c013:29b1::1";
+      larede01Dn42.enable = true;
       bird-lg.enable = true;
       besserestrichlisteServer.enable = true;
       backupHost = {

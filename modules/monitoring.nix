@@ -162,6 +162,11 @@ in
         group = "grafana";
         user = "grafana";
       };
+      "grafana-dashboards/bird2.json" = {
+        source = ../resources/dashboards/bird2.json;
+        group = "grafana";
+        user = "grafana";
+      };
       # "grafana-dashboards/restic.json" = {
       #   source = ./grafana-dashboards/restic.json;
       #   group = "grafana";

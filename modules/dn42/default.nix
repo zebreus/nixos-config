@@ -2,7 +2,7 @@
 { config, lib, pkgs, ... }:
 let
   machines = lib.attrValues config.machines;
-  isRouter = machine: machine.kioubitDn42.enable || machine.routedbitsDn42.enable || machine.pogopeering.enable || machine.sebastiansDn42.enable || machine.adhdDn42.enable;
+  isRouter = machine: machine.kioubitDn42.enable || machine.routedbitsDn42.enable || machine.pogopeering.enable || machine.sebastiansDn42.enable || machine.adhdDn42.enable || machine.larede01Dn42.enable;
   routers = builtins.filter isRouter machines;
 
   otherMachines = builtins.filter (machine: machine.name != config.networking.hostName) machines;
@@ -36,9 +36,11 @@ in
   imports = [
     ./kioubit_de2.nix
     ./pogopeering.nix
+    ./larede01_dn42.nix
     ./routedbits_de1.nix
     ./sebastians_dn42.nix
     ./adhd_dn42.nix
+    ./echonet_dn42.nix
   ];
 
   config = lib.mkIf peeringEnabled {

@@ -14,8 +14,8 @@
       [
 
         sane-backends
-        xsane
-
+        # TODO: Reenable this once the package is fixed
+        # xsane
       ];
 
     users.extraGroups.lp.members = [ "lennart" ];

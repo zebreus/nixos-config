@@ -279,6 +279,14 @@ let
       adhdDn42 = {
         enable = mkEnableOption "Enable this server for peering with void";
       };
+
+      larede01Dn42 = {
+        enable = mkEnableOption "Enable this server for peering with lare";
+      };
+
+      echonetDn42 = {
+        enable = mkEnableOption "Enable this server for peering with echonet";
+      };
     };
   };
 in
