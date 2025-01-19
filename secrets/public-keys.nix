@@ -76,6 +76,7 @@ rec {
   # MARKER_VPN_MAIL_DKIM_PUBLIC_KEYS
 
   aprl_dn42 = "IR9h1sRdPK+yyzOCpy93axXTs4aLbUaVskniguYMIw0=";
+  lgcl_dn42 = "jW8LkLPgcCM16I1fUfWrkjP9nP7XguOkjsslPWts2BQ=";
   # MARKER_WIREGUARD_DN42_PUBLIC_KEYS
 
   allMachines = [ prandtl blanderdash sempriaq erms kashenblade kappril ];

@@ -67,6 +67,17 @@
         publicWireguardPort = "29362";
         # My public key: IR9h1sRdPK+yyzOCpy93axXTs4aLbUaVskniguYMIw0=
       };
+      lgcl = {
+        peerLinkLocal = "fe80::4d:6172:6379";
+        ownLinkLocal = "fe80::1234:9320";
+        asNumber = "4242421825";
+
+        publicWireguardKey = "5EW7R+x2LUsfKT8kf9mh2cvaEM/J9TB8LTEOI6GsQgg=";
+        publicWireguardPort = "10933";
+        # My public key: jW8LkLPgcCM16I1fUfWrkjP9nP7XguOkjsslPWts2BQ=
+        # My endpoint: lgcl.dn42.antibuild.ing:10933
+        # My AS: 4242421403
+      };
       # MARKER_PEERING_CONFIGURATIONS
       # example = {
       #   peerLinkLocal = "fe80";
