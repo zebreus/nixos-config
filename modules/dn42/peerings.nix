@@ -78,6 +78,17 @@
         # My endpoint: lgcl.dn42.antibuild.ing:10933
         # My AS: 4242421403
       };
+      ellie = {
+        peerLinkLocal = "fe80::8943:2034:2342";
+        ownLinkLocal = "fe80::1234:9320";
+        asNumber = "4242421111";
+
+        publicWireguardKey = "/68diNYU0Lsa+gQ/FS8uaRoU0eYICc/xvaLo7yFSgCA=";
+        publicWireguardPort = "17230";
+        # My public key: l0Vzs8CKYTJooVtkKJlS7WRtSN9umo9EHodv9FnCCko=
+        # My endpoint: ellie.dn42.antibuild.ing:17230
+        # My AS: 4242421403
+      };
       # MARKER_PEERING_CONFIGURATIONS
       # example = {
       #   peerLinkLocal = "fe80";

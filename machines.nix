@@ -28,7 +28,7 @@ in
       publicPorts = [ 53 ];
       trustedPorts = [ 9100 ];
       monitoring.enable = true;
-      dn42Peerings = [ "lgcl" "aprl" "echonet" "kioubit_de2" "routedbits_de1" "adhd" "pogopeering" "sebastians" "larede01" ];
+      dn42Peerings = [ "ellie" "lgcl" "aprl" "echonet" "kioubit_de2" "routedbits_de1" "adhd" "pogopeering" "sebastians" "larede01" ];
       matrixServer = {
         enable = true;
         baseDomain = "zebre.us";
