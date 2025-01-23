@@ -67,6 +67,9 @@ in
       recommendedOptimisation = true;
       recommendedGzipSettings = true;
       recommendedProxySettings = true;
+      commonHttpConfig = ''
+        limit_req_zone $binary_remote_addr zone=mylimit:10m rate=6r/m;
+      '';
       virtualHosts = {
         "essen.jetzt" = {
           enableACME = true;
@@ -77,6 +80,7 @@ in
               extraConfig = ''
                 proxy_cache_key $scheme://$host$uri$is_args$query_string;
                 proxy_cache_valid 200 10m;
+                limit_req zone=mylimit burst=10;
               '';
             };
           };
