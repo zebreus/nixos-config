@@ -21,6 +21,8 @@ let
     "einhorn.jetzt"
     # Hosts a simplified version of the TU Darmstadt Mensa menu
     "essen.jetzt"
+    # Hosts a dumb joke
+    "skyfeedlol.lol"
     # Hosts rudelblinken stuff
     "rudelb.link"
     # Hosts a now defunct and unfinished project for ai generated shirts

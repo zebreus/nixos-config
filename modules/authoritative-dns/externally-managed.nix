@@ -35,6 +35,21 @@ in
       '';
 
       # I use this domains for hosting random stuff with github pages
+      "skyfeedlol.lol" = ''
+        ; various github pages
+        @	IN A 185.199.108.153
+        @	IN A 185.199.109.153
+        @	IN A 185.199.110.153
+        @	IN A 185.199.111.153
+        @	IN AAAA 2606:50c0:8000::153
+        @	IN AAAA 2606:50c0:8001::153
+        @	IN AAAA 2606:50c0:8002::153
+        @	IN AAAA 2606:50c0:8003::153
+        www IN CNAME zebreus.github.io.
+        _github-pages-challenge-zebreus IN TXT ${quoteTxtEntry "0f60074220ca67788318fee0ceab68"}
+      '';
+
+      # I use this domains for hosting random stuff with github pages
       "rudelb.link" = ''
         ; deno deploy
         @ IN A 34.120.54.55
