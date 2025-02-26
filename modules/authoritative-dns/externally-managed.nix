@@ -47,6 +47,9 @@ in
         @	IN AAAA 2606:50c0:8003::153
         www IN CNAME zebreus.github.io.
         _github-pages-challenge-zebreus IN TXT ${quoteTxtEntry "0f60074220ca67788318fee0ceab68"}
+
+        monitoring.indexer IN A 188.34.166.167
+        dev.indexer IN A 157.90.147.232
       '';
 
       # I use this domains for hosting random stuff with github pages
