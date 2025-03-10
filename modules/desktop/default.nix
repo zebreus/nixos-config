@@ -14,6 +14,7 @@ in
     ./printer.nix
     ./steam.nix
     ./udev-rules.nix
+    ./wireshark.nix
     ./networkmanager.nix
   ];
 
