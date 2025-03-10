@@ -1,10 +1,10 @@
 # Various gui programs I like to use
 { lib, config, pkgs, ... }:
-let
-  wayland-chrome = pkgs.google-chrome.override {
-    commandLineArgs = "--ozone-platform=wayland --enable-features=UseOzonePlatform,WebRTCPipeWireCapturer,TouchpadOverscrollHistoryNavigation";
-  };
-in
+# let
+#   wayland-chrome = pkgs.google-chrome.override {
+#     commandLineArgs = "--ozone-platform=wayland --enable-features=UseOzonePlatform,WebRTCPipeWireCapturer,TouchpadOverscrollHistoryNavigation";
+#   };
+# in
 {
   config = lib.mkIf config.machines.${config.networking.hostName}.desktop.enable {
 
@@ -14,7 +14,8 @@ in
       [
         vscode
         spotify
-        wayland-chrome
+        # wayland-chrome
+        google-chrome
         firefox
         gnome-secrets
         inkscape
