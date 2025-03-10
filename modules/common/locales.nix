@@ -6,13 +6,18 @@
   # Select internationalisation properties.
   i18n.defaultLocale = "en_US.utf8";
   i18n.extraLocaleSettings = {
-    # LC_ADDRESS = "de_DE.utf8";
-    # LC_IDENTIFICATION = "de_DE.utf8";
+    LANG = "en_US.utf8";
+    LANGUAGE = "en_US.utf8";
+    LC_ADDRESS = "en_US.utf8";
+    LC_COLLATE = "C.utf8";
+    LC_CTYPE = "en_US.utf8";
+    LC_IDENTIFICATION = "en_US.utf8";
     LC_MEASUREMENT = "de_DE.utf8";
+    LC_MESSAGES = "en_US.utf8";
     LC_MONETARY = "de_DE.utf8";
-    # LC_NAME = "de_DE.utf8";
+    LC_NAME = "en_US.utf8";
     LC_NUMERIC = "de_DE.utf8";
-    # LC_PAPER = "de_DE.utf8";
+    LC_PAPER = "de_DE.utf8";
     LC_TELEPHONE = "de_DE.utf8";
     LC_TIME = "de_DE.utf8";
   };
@@ -21,7 +26,7 @@
   services.xserver.xkb = {
     layout = "us";
     variant = "altgr-intl";
-    options = "caps:swapescape";
+    # options = "caps:swapescape";
   };
 
   # Configure console keymap
