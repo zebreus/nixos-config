@@ -15,6 +15,7 @@
         vscode
         spotify
         # wayland-chrome
+        rivalcfg
         google-chrome
         firefox
         gnome-secrets

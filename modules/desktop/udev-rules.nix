@@ -450,6 +450,7 @@ in
       esp32Udev
       pkgs.headsetcontrol
       pkgs.gnome-settings-daemon
+      pkgs.rivalcfg
     ];
   };
 }
