@@ -49,6 +49,7 @@ in
         _github-pages-challenge-zebreus IN TXT ${quoteTxtEntry "0f60074220ca67788318fee0ceab68"}
 
         monitoring.indexer IN A 188.34.166.167
+        pgadmin.indexer IN A 188.34.166.167
         dev.indexer IN A 157.90.147.232
       '';
 
