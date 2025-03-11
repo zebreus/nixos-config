@@ -1,4 +1,4 @@
-{ pkgs, config, ... }:
+{ pkgs, config, lib, ... }:
 let
   new-any-nix-shell = pkgs.any-nix-shell.overrideAttrs (old: {
     version = "gitt"; # usually harmless to omit
@@ -22,8 +22,8 @@ in
       enable = true;
       plugins = [
         "git"
-        "history-substring-search"
-        "web-search"
+        # "history-substring-search"
+        # "web-search"
         "zoxide"
       ];
       theme = "fishy";
@@ -33,19 +33,20 @@ in
   users.defaultUserShell = pkgs.zsh;
   environment.binsh = "${pkgs.zsh}/bin/zsh";
 
-  home-manager.users = {
-    root = { pkgs, ... }: {
-      programs.zsh = {
-        enable = true;
-        initExtra = ''
-          any-nix-shell zsh --info-right | source /dev/stdin
-        '';
-      };
-      home.stateVersion = "22.11";
-    };
-
-  } // (if builtins.hasAttr "lennart" config.users.users then
+  home-manager.users = lib.mkMerge [
     {
+      root = { pkgs, ... }: {
+        programs.zsh = {
+          enable = true;
+          initExtra = ''
+            any-nix-shell zsh --info-right | source /dev/stdin
+          '';
+        };
+        home.stateVersion = "22.11";
+      };
+
+    }
+    (lib.mkIf (builtins.hasAttr "lennart" config.users.users) {
       lennart = { pkgs, ... }: {
         programs.zsh = {
           enable = true;
@@ -55,7 +56,39 @@ in
         };
         home.stateVersion = "22.11";
       };
-    } else { });
+    })
+
+    (lib.mkIf (builtins.hasAttr "lennart" config.users.users) {
+      lennart = { pkgs, ... }: {
+        programs.atuin = {
+          enable = true;
+          settings = {
+            # Enable auto sync every 5 minutes
+            auto_sync = true;
+            sync_frequency = "5m";
+            sync_address = "https://api.atuin.sh";
+            # Enable fuzzy search
+            search_mode = "fuzzy";
+            # Disable syncing dotfiles, as you are already using home-manager
+            dotfiles.enabled = false;
+            # 
+            session_path = config.age.secrets."atuin_session".path;
+            key_path = config.age.secrets."atuin_key".path;
+          };
+        };
+      };
+    })
+
+  ];
+
+  age.secrets."atuin_key" = {
+    file = ../../secrets + "/atuin_key.age";
+    mode = "0444";
+  };
+  age.secrets."atuin_session" = {
+    file = ../../secrets + "/atuin_session.age";
+    mode = "0444";
+  };
 
 
   environment.systemPackages = with pkgs; [

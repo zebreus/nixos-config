@@ -178,6 +178,9 @@ with import ./public-keys.nix;
   "ellie_dn42.age".publicKeys = [ recovery kashenblade blanderdash sempriaq ];
   # MARKER_WIREGUARD_DN42_KEYS
 
+  "atuin_key.age".publicKeys = [ recovery ] ++ workstations;
+  "atuin_session.age".publicKeys = [ recovery ] ++ workstations;
+
   # Hetzner storage box credentials
   "blanderdash_storagebox_smb_secrets.age".publicKeys = [ recovery blanderdash ];
 }
