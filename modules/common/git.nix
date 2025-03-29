@@ -31,6 +31,46 @@
         packSizeLimit = "1024m";
         windowMemory = "1024m";
       };
+      column = {
+        ui = "auto";
+      };
+      branch = {
+        sort = "-committerdate";
+      };
+      tag = {
+        sort = "version:refname";
+      };
+      diff = {
+        algorithm = "histogram";
+        colorMoved = "plain";
+        mnemonicPrefix = "true";
+        renames = "true";
+      };
+      push = {
+        default = "simple";
+        autoSetupRemote = "true";
+        followTags = "true";
+      };
+      fetch = {
+        prune = "true";
+        pruneTags = "true";
+        all = "true";
+      };
+      help = {
+        autocorrect = "prompt";
+      };
+      commit = {
+        verbose = "true";
+      };
+      rerere = {
+        enabled = "true";
+        autoupdate = "true";
+      };
+      rebase = {
+        updateRefs = "true";
+      };
+
+
     };
   };
 }
