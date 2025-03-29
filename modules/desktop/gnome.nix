@@ -111,6 +111,11 @@
       pkgs.nixos-wallpaper
     ];
 
+    services.input-remapper = {
+      enable = true;
+      enableUdevRules = true;
+    };
+
     environment.sessionVariables.NIXOS_OZONE_WL = "1";
 
     # GDMs does not work well
