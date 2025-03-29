@@ -22,7 +22,7 @@ in
       enable = true;
       plugins = [
         "git"
-        # "history-substring-search"
+        "history-substring-search"
         # "web-search"
         "zoxide"
       ];
@@ -60,6 +60,7 @@ in
 
     (lib.mkIf (builtins.hasAttr "lennart" config.users.users) {
       lennart = { pkgs, ... }: {
+        # programs.bash.enable = true;
         programs.atuin = {
           enable = true;
           settings = {
@@ -71,10 +72,11 @@ in
             search_mode = "fuzzy";
             # Disable syncing dotfiles, as you are already using home-manager
             dotfiles.enabled = false;
-            # 
+            # Load secrets from nix
             session_path = config.age.secrets."atuin_session".path;
             key_path = config.age.secrets."atuin_key".path;
           };
+          flags = [ "--disable-up-arrow" ];
         };
       };
     })
