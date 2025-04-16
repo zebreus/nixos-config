@@ -71,6 +71,8 @@ function generateConfig {
         # My public key: ${PUBLIC_KEY}
         # My endpoint: ${MY_WIREGUARD_HOST}:${MY_WIREGUARD_PORT}
         # My AS: ${MY_AS}
+        #
+        # !!! Make sure to restart the other sides wireguard AFTER we deployed our DNS config
       };
 END_HEREDOC
     )

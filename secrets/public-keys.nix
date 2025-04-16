@@ -78,6 +78,7 @@ rec {
   aprl_dn42 = "IR9h1sRdPK+yyzOCpy93axXTs4aLbUaVskniguYMIw0=";
   lgcl_dn42 = "jW8LkLPgcCM16I1fUfWrkjP9nP7XguOkjsslPWts2BQ=";
   ellie_dn42 = "l0Vzs8CKYTJooVtkKJlS7WRtSN9umo9EHodv9FnCCko=";
+  tech9_de02_dn42 = "khMFUGJIHcuUHJln3PmcSHv1kv+ZR/HmBbRkCI1XGyU=";
   # MARKER_WIREGUARD_DN42_PUBLIC_KEYS
 
   allMachines = [ prandtl blanderdash sempriaq erms kashenblade kappril ];

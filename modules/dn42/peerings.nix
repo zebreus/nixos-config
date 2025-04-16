@@ -89,6 +89,17 @@
         # My endpoint: ellie.dn42.antibuild.ing:17230
         # My AS: 4242421403
       };
+      tech9_de02 = {
+        peerLinkLocal = "fe80::1588";
+        ownLinkLocal = "fe80::100";
+        asNumber = "4242421588";
+        publicWireguardEndpoint = "de-fra02.dn42.tech9.io:52172";
+        publicWireguardKey = "MD1EdVe9a0yycUdXCH3A61s3HhlDn17m5d07e4H33S0=";
+        publicWireguardPort = "12913";
+        # My public key: khMFUGJIHcuUHJln3PmcSHv1kv+ZR/HmBbRkCI1XGyU=
+        # My endpoint: tech9_de02.dn42.antibuild.ing:12913
+        # My AS: 4242421403
+      };
       # MARKER_PEERING_CONFIGURATIONS
       # example = {
       #   peerLinkLocal = "fe80";

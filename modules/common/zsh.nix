@@ -83,14 +83,16 @@ in
 
   ];
 
-  age.secrets."atuin_key" = {
-    file = ../../secrets + "/atuin_key.age";
-    mode = "0444";
-  };
-  age.secrets."atuin_session" = {
-    file = ../../secrets + "/atuin_session.age";
-    mode = "0444";
-  };
+  age.secrets = (lib.mkIf (builtins.hasAttr "lennart" config.users.users) {
+    "atuin_key" = {
+      file = ../../secrets + "/atuin_key.age";
+      mode = "0444";
+    };
+    "atuin_session" = {
+      file = ../../secrets + "/atuin_session.age";
+      mode = "0444";
+    };
+  });
 
 
   environment.systemPackages = with pkgs; [
