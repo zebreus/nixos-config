@@ -60,6 +60,8 @@ in
       fqdn = mailFqdn;
       domains = [ domain "madmanfred.com" "antibuild.ing" ];
 
+      messageSizeLimit = (1024 + 1) * 1024 * 1024; # 1 GiB + 1 MiB
+
       # According to the simple nix mailserver doc it is a good idea to run a local DNS resolver on the mail server
       # However, I also want to run an authoritative DNS server on the mail server, so for now I will disable the local DNS resolver (kresd)
       # TODO: Enable local DNS resolver again
