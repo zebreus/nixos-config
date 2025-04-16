@@ -6,6 +6,7 @@
 # ARG_POSITIONAL_SINGLE([hostname], [hostname of the new machine])
 # ARG_POSITIONAL_SINGLE([target], [ssh hostname to the target machine. Usually like "root@1.2.3.4"])
 # ARG_OPTIONAL_SINGLE([boot], [], [bootloader type. Can be "auto", "efi", or "legacy". Auto will ssh into the target host and autodetect the boot type], [auto])
+# ARG_OPTIONAL_SINGLE([architecture], [], [bootloader type. Can be "auto", "x86_64-linux", or "aarch64-linux". Auto will ssh into the target host and autodetect the architecture], [auto])
 # ARG_OPTIONAL_BOOLEAN([secrets], , [Generate new secrets.], [on])
 # ARG_OPTIONAL_BOOLEAN([machine], , [Insert a template for the new machine into machines and flake.nix.], [on])
 # ARG_OPTIONAL_BOOLEAN([workstation], , [Set to true if this machine should be used interactivly.], [off])
@@ -75,17 +76,12 @@ END_HEREDOC
     FLAKE_NIXOS_CONFIGURATION=$(
         cat <<END_HEREDOC
 ${TARGET_HOST_NAME} = nixpkgs.lib.nixosSystem {
-  system = "x86_64-linux";
+  system = "${TARGET_ARCHITECTURE}";
   modules = [
-    agenix.nixosModules.default
     disko.nixosModules.disko
-    overlayNixpkgs
-    informationAboutOtherMachines
-    home-manager.nixosModules.home-manager
-    simple-nix-mailserver.nixosModules.default
-    gnome-online-accounts-config.nixosModules.default
+    # lanzaboote.nixosModules.lanzaboote
     ./machines/${TARGET_HOST_NAME}
-  ];
+  ] ++ commonModules;
 };
 END_HEREDOC
     )
@@ -164,6 +160,19 @@ if [ "$_arg_boot" == "auto" ]; then
     fi
 else
     BOOT_TYPE=$_arg_boot
+fi
+
+if [ "$_arg_architecture" == "auto" ]; then
+    echo "Figuring out architecture"
+    TARGET_ARCHITECTURE=$(ssh "$SSH_TARGET" sh -c "'uname -m'")
+    if test -z "$TARGET_ARCHITECTURE"; then
+        echo "Failed to determine architecture"
+        exit 1
+    fi
+    TARGET_ARCHITECTURE=${TARGET_ARCHITECTURE}-linux
+    echo "Architecture type is $TARGET_ARCHITECTURE"
+else
+    TARGET_ARCHITECTURE=$_arg_architecture
 fi
 
 if [ "$BOOT_TYPE" != "legacy" ] && [ "$BOOT_TYPE" != "efi" ]; then

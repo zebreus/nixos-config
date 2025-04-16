@@ -140,6 +140,7 @@
             system = "aarch64-linux";
             modules = [ ./machines/blanderdash ] ++ commonModules;
           };
+
           prandtl = nixpkgs.lib.nixosSystem {
             system = "x86_64-linux";
             modules = [

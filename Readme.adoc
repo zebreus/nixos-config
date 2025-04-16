@@ -94,3 +94,11 @@ Each machine uses its ed25519 SSH host key to decrypt its secrets. That SSH host
 9. Run the backup restore script on the new mailserver
 10. Make sure the ACME certificate for `mail.zebre.us` was issued.
 11. Reboot the new mailserver
+
+=== Adding a new machine
+
+1. Figure out a good name
+2. Make sure your git repo is clean
+3. Run something like `nix run .#setup-host -- glouble root@172.20.64.21`
+4. Manually set the address to the next number in `machines.nix`
+5. Check the config in `machines.nix`, `flake.nix`, and `machines/YOUR_NAME`
