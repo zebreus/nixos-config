@@ -15,6 +15,7 @@
       "legacy"
       "raspi"
       "secure"
+      "secure-firstboot"
     ];
     default = "efi";
   };
@@ -38,6 +39,7 @@
               grub.enable = false;
               generic-extlinux-compatible.enable = true;
             };
+            # IMPORTANT: When configuring a new machine with secureboot use secure-firstboot for the install
             secure = {
               grub.enable = false;
 
@@ -49,6 +51,16 @@
               # Editor is not secure
               systemd-boot.editor = true;
             };
+            secure-firstboot = {
+              grub.enable = false;
+
+              # We need to use the normal systemd-boot when installing a secureboot machine
+              systemd-boot.enable = true;
+              # Editor is not secure
+              systemd-boot.editor = true;
+            };
+
+
           }.${config.modules.boot.type};
       }
       (
@@ -67,6 +79,6 @@
       )
     ];
 
-    environment.systemPackages = lib.mkIf (config.modules.boot.type == "secure") [ pkgs.sbctl ];
+    environment.systemPackages = lib.mkIf (config.modules.boot.type == "secure" || config.modules.boot.type == "secure-firstboot") [ pkgs.sbctl ];
   };
 }
