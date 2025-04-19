@@ -85,6 +85,15 @@ in
             };
           };
         };
+        "man.rudel.blink" = {
+          enableACME = true;
+          forceSSL = true;
+          locations."/" = {
+            extraConfig = ''
+              return 307 https://md.darmstadt.ccc.de/rudelblinken-38c3;
+            '';
+          };
+        };
       };
     };
   };

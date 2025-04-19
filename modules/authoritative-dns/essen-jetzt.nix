@@ -9,4 +9,9 @@ in
     @ IN A ${essenJetztServer.staticIp4}
     @ IN AAAA ${essenJetztServer.staticIp6}
   '';
+  config.modules.dns.zones."rudel.blink" = ''
+    ; Records for essen.jetzt
+    man IN A ${essenJetztServer.staticIp4}
+    man IN AAAA ${essenJetztServer.staticIp6}
+  '';
 }
