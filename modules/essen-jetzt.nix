@@ -85,7 +85,7 @@ in
             };
           };
         };
-        "man.rudel.blink" = {
+        "man.rudelb.link" = {
           enableACME = true;
           forceSSL = true;
           locations."/" = {
