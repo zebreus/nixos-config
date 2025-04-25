@@ -100,6 +100,20 @@
         # My endpoint: tech9_de02.dn42.antibuild.ing:12913
         # My AS: 4242421403
       };
+      stephanj = {
+        peerLinkLocal = "fe80::8943:2034:2342";
+        ownLinkLocal = "fe80::1234:9320";
+        asNumber = "64674";
+
+        publicWireguardEndpoint = "proxyvm.stejau.de:56415";
+        publicWireguardKey = "N2GzXIVIxHTZpyPOkw1D8DX6Hyo6YWQOdMXJ2DswgW0=";
+        publicWireguardPort = "15133";
+        # My public key: vZyOA4Kj+Si9OmakDnEKiS1kWYmjkkui4jdeI+iraSg=
+        # My endpoint: stephanj.dn42.antibuild.ing:15133
+        # My AS: 4242421403
+        #
+        # !!! Make sure to restart the other sides wireguard AFTER we deployed our DNS config
+      };
       # MARKER_PEERING_CONFIGURATIONS
       # example = {
       #   peerLinkLocal = "fe80";
