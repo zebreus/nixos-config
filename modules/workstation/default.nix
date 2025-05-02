@@ -8,6 +8,7 @@
     ./homed.nix
     ./lennart.nix
     ./libvirt.nix
+    ./nix-locate.nix
     ./openvpn.nix
     ./pgp.nix
     ./ssh-config.nix
