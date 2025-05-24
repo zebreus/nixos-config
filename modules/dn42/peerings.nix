@@ -114,6 +114,19 @@
         #
         # !!! Make sure to restart the other sides wireguard AFTER we deployed our DNS config
       };
+      decade = {
+        peerLinkLocal = "fe80::8943:2034:2342";
+        ownLinkLocal = "fe80::1234:9320";
+        asNumber = "4242420069";
+
+        publicWireguardKey = "TODO";
+        publicWireguardPort = "5241";
+        # My public key: 7lS7x+2NVx7FQgdN6qpioF8nJn95mBkctv3Gg4h/lDA=
+        # My endpoint: decade.dn42.antibuild.ing:5241
+        # My AS: 4242421403
+        #
+        # !!! Make sure to restart the other sides wireguard AFTER we deployed our DNS config
+      };
       # MARKER_PEERING_CONFIGURATIONS
       # example = {
       #   peerLinkLocal = "fe80";
