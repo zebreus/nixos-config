@@ -31,11 +31,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1715618130,
-        "narHash": "sha256-ygcr7uRAReEf/Pq5tYCeUYo0yfWLC8q0BKdqagJXITo=",
+        "lastModified": 1748116180,
+        "narHash": "sha256-SYBxQcuMsQaKm1H8TfuOvR71KKV7FAf0gk7iWSAuVs4=",
         "owner": "zebreus",
         "repo": "besserestrichliste",
-        "rev": "4fb2e3822f1109ef05df0cc5b9e85cc1e131f242",
+        "rev": "57a81c3843b65a9ea180762f11326133b99dee95",
         "type": "github"
       },
       "original": {
