@@ -265,6 +265,15 @@ let
         description = ''Names of the dn42 peerings that are active on this machine.'';
         default = [ ];
       };
+
+      ollama = {
+        enable = mkEnableOption "Enable ollama";
+        acceleration = mkOption {
+          type = lib.types.str;
+          description = "Select the accelerator. See services.ollama.acceleration for details";
+          default = "rocm";
+        };
+      };
     };
   };
 in

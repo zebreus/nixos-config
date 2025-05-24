@@ -12,8 +12,9 @@
     ./bird-lg.nix
     ./borg-repo.nix
     ./essen-jetzt.nix
-    ./monitoring.nix
     ./mail.nix
     ./matrix.nix
+    ./monitoring.nix
+    ./ollama.nix
   ];
 }

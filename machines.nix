@@ -121,6 +121,7 @@ in
       workstation.enable = true;
       desktop.enable = true;
       auto-maintenance.cleanup = false;
+      ollama.enable = true;
     };
     # Leon (friend of basilikum) laptop
     leon = {
