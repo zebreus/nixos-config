@@ -119,7 +119,7 @@
         ownLinkLocal = "fe80::1234:9320";
         asNumber = "4242420069";
 
-        publicWireguardKey = "TODO";
+        publicWireguardKey = "IRkZN2ZvfDBG/EZwH1ak/8047mIK4FPgke53cOibDkw=";
         publicWireguardPort = "5241";
         # My public key: 7lS7x+2NVx7FQgdN6qpioF8nJn95mBkctv3Gg4h/lDA=
         # My endpoint: decade.dn42.antibuild.ing:5241
