@@ -67,10 +67,8 @@ in
         dn42-roa = {
           after = [ "network.target" ];
           description = "DN42 ROA Updated";
-          unitConfig = {
-            Type = "one-shot";
-          };
           serviceConfig = {
+            Type = "oneshot";
             ExecStart = "${script}/bin/update-roa";
           };
         };
