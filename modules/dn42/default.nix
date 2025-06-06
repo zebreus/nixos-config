@@ -55,7 +55,7 @@ in
 
         timerConfig = {
           OnBootSec = "5m";
-          OnUnitInactiveSec = "1h";
+          OnUnitInactiveSec = "10m";
           Unit = "dn42-roa.service";
         };
 
