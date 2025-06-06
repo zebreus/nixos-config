@@ -154,8 +154,8 @@ with import ./public-keys.nix;
   "prandtl_mail_passwordhash.age".publicKeys = [ recovery prandtl ] ++ mailServers;
   "antibuild_ing_dkim_rsa.age".publicKeys = [ recovery ] ++ mailServers;
   "antibuild_ing_dkim_rsa_pub.age".publicKeys = [ recovery ] ++ mailServers;
-  "glouble_dkim_rsa.age".publicKeys = [ recovery sempriaq ];
-  "glouble_dkim_rsa_pub.age".publicKeys = [ recovery sempriaq ];
+  "glouble_dkim_rsa.age".publicKeys = [ recovery ] ++ mailServers;
+  "glouble_dkim_rsa_pub.age".publicKeys = [ recovery ] ++ mailServers;
   "glouble_mail_password.age".publicKeys = [ recovery glouble ];
   "glouble_mail_passwordhash.age".publicKeys = [ recovery glouble ] ++ mailServers;
   # MARKER_VPN_MAIL_SECRETS

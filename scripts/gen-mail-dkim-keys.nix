@@ -2,13 +2,11 @@
 with pkgs; writeScriptBin "gen-mail-dkim-keys" ''
   #!${bash}/bin/bash
   DOMAIN_NAME=$1
-  MAIL_SERVER_HOST_NAME=$2
 
-  if [[ -z "$DOMAIN_NAME" || -z "$MAIL_SERVER_HOST_NAME" ]]; then
-    echo "Usage: gen-mail-dkim-keys <DOMAIN_NAME> <MAIL_SERVER_HOST_NAME>"
+  if [[ -z "$DOMAIN_NAME" ]]; then
+    echo "Usage: gen-mail-dkim-keys <DOMAIN_NAME>"
     echo "DOMAIN_NAME name of the domain you want to generate DKIM keys for."
-    echo "MAIL_SERVER_HOST_NAME is the name of the host that runs the mail server (the DKIM keys will be encrypted for that host)"
-    echo "Example: gen-mail-dkim-keys zebre_us sempriaq"
+    echo "Example: gen-mail-dkim-keys zebre_us"
     exit 1
   fi
   set -x
@@ -46,8 +44,8 @@ with pkgs; writeScriptBin "gen-mail-dkim-keys" ''
 
 
     ${perl}/bin/perl -pi -e '$_ = q(  '$PUBLIC_KEY_NAME' = "'"$PUBLIC_KEY"'";) . qq(\n) . $_ if /'"$VPN_MAIL_PUBLIC_KEYS_MARKER"'/' public-keys.nix
-    ${perl}/bin/perl -pi -e '$_ = q(  "'$PRIVATE_KEY_SECRETS_NAME'".publicKeys = [ recovery '"$MAIL_SERVER_HOST_NAME"' ];) . qq(\n) . $_ if /'"$VPN_MAIL_SECRETS_MARKER"'/' secrets.nix
-    ${perl}/bin/perl -pi -e '$_ = q(  "'$PUBLIC_KEY_SECRETS_NAME'".publicKeys = [ recovery '"$MAIL_SERVER_HOST_NAME"' ];) . qq(\n) . $_ if /'"$VPN_MAIL_SECRETS_MARKER"'/' secrets.nix
+    ${perl}/bin/perl -pi -e '$_ = q(  "'$PRIVATE_KEY_SECRETS_NAME'".publicKeys = [ recovery ] ++ mailServers ;) . qq(\n) . $_ if /'"$VPN_MAIL_SECRETS_MARKER"'/' secrets.nix
+    ${perl}/bin/perl -pi -e '$_ = q(  "'$PUBLIC_KEY_SECRETS_NAME'".publicKeys = [ recovery ] ++ mailServers ;) . qq(\n) . $_ if /'"$VPN_MAIL_SECRETS_MARKER"'/' secrets.nix
 
     echo "$PRIVATE_KEY" | ${pkgs.agenix}/bin/agenix -e "$PRIVATE_KEY_SECRETS_NAME"
     echo "$PUBLIC_KEY" | ${pkgs.agenix}/bin/agenix -e "$PUBLIC_KEY_SECRETS_NAME"
