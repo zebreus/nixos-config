@@ -130,6 +130,8 @@ if [ -z "$THEIR_AS" ]; then
     THEIR_AS="12345"
 fi
 
+THEIR_AS=$(echo "$THEIR_AS" | tr -cd '[:digit:]')
+
 generateKeys
 generateConfig
 
@@ -159,6 +161,5 @@ else
     echo "Your AS is \`${THEIR_AS}\`"
 fi
 
-echo "My public key"
-
+echo "You can debug out peering at https://lg.antibuild.ing/detail/kashenblade/${PEERING_NAME}"
 # ] <-- needed because of Argbash
