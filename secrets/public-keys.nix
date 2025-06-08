@@ -84,6 +84,7 @@ rec {
   tech9_de02_dn42 = "khMFUGJIHcuUHJln3PmcSHv1kv+ZR/HmBbRkCI1XGyU=";
   stephanj_dn42 = "vZyOA4Kj+Si9OmakDnEKiS1kWYmjkkui4jdeI+iraSg=";
   decade_dn42 = "7lS7x+2NVx7FQgdN6qpioF8nJn95mBkctv3Gg4h/lDA=";
+  zaphyra_dn42 = "vambITMGGpA7kxCRGFlY1X36bevxXYELT/ORNgZ72ms=";
   # MARKER_WIREGUARD_DN42_PUBLIC_KEYS
 
   allMachines = [ glouble prandtl blanderdash sempriaq erms kashenblade kappril ];

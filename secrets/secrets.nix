@@ -189,6 +189,7 @@ with import ./public-keys.nix;
   "tech9_de02_dn42.age".publicKeys = [ recovery kashenblade blanderdash sempriaq ];
   "stephanj_dn42.age".publicKeys = [ recovery kashenblade blanderdash sempriaq ];
   "decade_dn42.age".publicKeys = [ recovery kashenblade blanderdash sempriaq ];
+  "zaphyra_dn42.age".publicKeys = [ recovery kashenblade blanderdash sempriaq ];
   # MARKER_WIREGUARD_DN42_KEYS
 
   "atuin_key.age".publicKeys = [ recovery ] ++ workstations;

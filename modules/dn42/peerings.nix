@@ -127,6 +127,19 @@
         #
         # !!! Make sure to restart the other sides wireguard AFTER we deployed our DNS config
       };
+      zaphyra = {
+        peerLinkLocal = "fe80::6b61";
+        ownLinkLocal = "fe80::1234:9320";
+        asNumber = "4242421718";
+        publicWireguardEndpoint = "router-a.dn42.zaphyra.eu:51827";
+        publicWireguardKey = "3CB+RLYUkaoaLctU0KLKtCsWacUkNJ0o5FcXfbdLbU0=";
+        publicWireguardPort = "15569";
+        # My public key: vambITMGGpA7kxCRGFlY1X36bevxXYELT/ORNgZ72ms=
+        # My endpoint: zaphyra.dn42.antibuild.ing:15569
+        # My AS: 4242421403
+        #
+        # !!! Make sure to restart the other sides wireguard AFTER we deployed our DNS config
+      };
       # MARKER_PEERING_CONFIGURATIONS
       # example = {
       #   peerLinkLocal = "fe80";
