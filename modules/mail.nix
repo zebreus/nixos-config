@@ -27,20 +27,20 @@ in
       };
       "${name}_dkim_rsa" = {
         file = ../secrets + "/${name}_dkim_rsa.age";
-        owner = config.services.opendkim.user;
-        inherit (config.services.opendkim) group;
+        owner = config.services.rspamd.user;
+        inherit (config.services.rspamd) group;
         path = "${config.mailserver.dkimKeyDirectory}/${domain}.mail.key";
       };
       "madmanfred_com_dkim_rsa" = {
         file = ../secrets + "/madmanfred_com_dkim_rsa.age";
-        owner = config.services.opendkim.user;
-        inherit (config.services.opendkim) group;
+        owner = config.services.rspamd.user;
+        inherit (config.services.rspamd) group;
         path = "${config.mailserver.dkimKeyDirectory}/madmanfred.com.mail.key";
       };
       "antibuild_ing_dkim_rsa" = {
         file = ../secrets + "/antibuild_ing_dkim_rsa.age";
-        owner = config.services.opendkim.user;
-        inherit (config.services.opendkim) group;
+        owner = config.services.rspamd.user;
+        inherit (config.services.rspamd) group;
         path = "${config.mailserver.dkimKeyDirectory}/antibuild.ing.mail.key";
       };
     };
@@ -257,8 +257,8 @@ in
                   };
                   "${name}_dkim_rsa" = {
                     file = ../secrets + "/${name}_dkim_rsa.age";
-                    owner = config.services.opendkim.user;
-                    inherit (config.services.opendkim) group;
+                    owner = config.services.rspamd.user;
+                    inherit (config.services.rspamd) group;
                     path = "${config.mailserver.dkimKeyDirectory}/${domain}.mail.key";
                   };
                 };
