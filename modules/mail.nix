@@ -56,11 +56,12 @@ in
 
     mailserver = {
       enable = true;
+      stateVersion = 1;
       debug = true;
       fqdn = mailFqdn;
       domains = [ domain "madmanfred.com" "antibuild.ing" ];
 
-      messageSizeLimit = (1024 + 1) * 1024 * 1024; # 1 GiB + 1 MiB
+      messageSizeLimit = (2048 + 50) * 1024 * 1024; # 2 GiB + 50 MiB
 
       # According to the simple nix mailserver doc it is a good idea to run a local DNS resolver on the mail server
       # However, I also want to run an authoritative DNS server on the mail server, so for now I will disable the local DNS resolver (kresd)
@@ -82,8 +83,6 @@ in
         enable = true;
         # index new email as they arrive
         autoIndex = true;
-        # this only applies to plain text attachments, binary attachments are never indexed
-        indexAttachments = true;
         enforced = "body";
         # Indexing memory limit in MiB
         memoryLimit = 400;
