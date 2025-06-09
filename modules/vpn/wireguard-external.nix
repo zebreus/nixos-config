@@ -45,7 +45,7 @@ in
         unmanaged = [ "antibuilding99" ];
       };
     };
-    services.bird2.config = lib.mkMerge (builtins.map
+    services.bird.config = lib.mkMerge (builtins.map
       (machine: ''
         protocol static antibuilding99_${builtins.toString machine.address} {
             route ${ipv6Prefix}::${builtins.toString machine.address}/128 via "antibuilding99";

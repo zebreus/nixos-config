@@ -158,7 +158,7 @@ in
         )
         activePeerings);
 
-    services.bird2 = lib.mkMerge
+    services.bird = lib.mkMerge
       (builtins.map
         (networkName:
           let

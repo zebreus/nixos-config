@@ -75,15 +75,16 @@ in
       };
     };
 
-    services.bird2 = {
+    services.bird = {
       enable = true;
+      package = pkgs.bird2;
       autoReload = true;
       preCheckConfig = lib.mkOrder 2 ''
         # Remove roa files for checking, because they are only available at runtime
-        sed -i 's|include "/etc/bird/roa_dn42.conf";||' bird2.conf
-        sed -i 's|include "/etc/bird/roa_dn42_v6.conf";||' bird2.conf
+        sed -i 's|include "/etc/bird/roa_dn42.conf";||' bird.conf
+        sed -i 's|include "/etc/bird/roa_dn42_v6.conf";||' bird.conf
 
-        cat -n bird2.conf
+        cat -n bird.conf
       '';
       config = ''
         define OWNAS = 4242421403;
