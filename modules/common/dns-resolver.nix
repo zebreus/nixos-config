@@ -28,37 +28,59 @@
         ];
       };
       # dont-query = 127.0.0.0/8, 192.168.0.0/16, ::1/128, fe80::/10
-      settings = {
-        server-id = config.networking.hostName;
-        query-local-address = [
-          "::"
-          "0.0.0.0"
-        ];
+      yaml-settings = {
+        outgoing = {
+          dont_query = [
+            "127.0.0.0/8"
+            "10.0.0.0/8"
+            "100.64.0.0/10"
+            "169.254.0.0/16"
+            "192.168.0.0/16"
+            "172.16.0.0/12"
+            "::1/128"
+            "fc00::/7"
+            "fe80::/10"
+            "0.0.0.0/8"
+            "192.0.0.0/24"
+            "192.0.2.0/24"
+            "198.51.100.0/24"
+            "203.0.113.0/24"
+            "240.0.0.0/4"
+            "::/96"
+            "::ffff:0:0/96"
+            "100::/64"
+            "2001:db8::/32"
+            "!172.20.0.0/14"
+            "!fc00::/7"
+          ];
+          source_address = [
+            "::"
+            "0.0.0.0"
+          ];
+        };
         # Default values from https://docs.powerdns.com/recursor/settings.html#dont-query
         # Minus dn42 ranges
-        dont-query = [
-          "127.0.0.0/8"
-          "10.0.0.0/8"
-          "100.64.0.0/10"
-          "169.254.0.0/16"
-          "192.168.0.0/16"
-          "172.16.0.0/12"
-          "::1/128"
-          "fc00::/7"
-          "fe80::/10"
-          "0.0.0.0/8"
-          "192.0.0.0/24"
-          "192.0.2.0/24"
-          "198.51.100.0/24"
-          "203.0.113.0/24"
-          "240.0.0.0/4"
-          "::/96"
-          "::ffff:0:0/96"
-          "100::/64"
-          "2001:db8::/32"
-          "!172.20.0.0/14"
-          "!fc00::/7"
-        ];
+        recursor = {
+          server_id = config.networking.hostName;
+          forward_zones = builtins.map
+            (zone: {
+              zone = zone;
+              # k.delegation-servers.dn42.
+              # b.delegation-servers.dn42.
+              # j.delegation-servers.dn42.
+              # l.delegation-servers.dn42.
+              forwarders = [ "fdcf:8538:9ad5:1111::2" "fd42:4242:2601:ac53::1" "fd42:5d71:219:0:216:3eff:fe1e:22d6" "fd86:bad:11b7:53::1" ];
+            })
+            [
+              "dn42"
+              "20.172.in-addr.arpa"
+              "21.172.in-addr.arpa"
+              "22.172.in-addr.arpa"
+              "23.172.in-addr.arpa"
+              "10.in-addr.arpa"
+              "d.f.ip6.arpa"
+            ];
+        };
         # loglevel = "7";
         # trace = "yes";
       };
@@ -95,22 +117,6 @@
         zoneToCache(".", "url", "https://www.internic.net/domain/root.zone", { refreshPeriod = 0 })
       '';
 
-      forwardZones =
-        let
-          # k.delegation-servers.dn42.
-          # b.delegation-servers.dn42.
-          # j.delegation-servers.dn42.
-          # l.delegation-servers.dn42.
-          dn42roots = "fdcf:8538:9ad5:1111::2;fd42:4242:2601:ac53::1;fd42:5d71:219:0:216:3eff:fe1e:22d6;fd86:bad:11b7:53::1";
-        in
-        {
-          "dn42" = dn42roots;
-          "20.172.in-addr.arpa" = dn42roots;
-          "21.172.in-addr.arpa" = dn42roots;
-          "22.172.in-addr.arpa" = dn42roots;
-          "23.172.in-addr.arpa" = dn42roots;
-          "10.in-addr.arpa" = dn42roots;
-          "d.f.ip6.arpa" = dn42roots;
-        };
+
     };
 }
