@@ -7,6 +7,12 @@
         inherit (config.users.users.lennart) group;
         mode = "0400";
       };
+      himmel_mail_password = {
+        file = ../../secrets/himmel_mail_password.age;
+        owner = "lennart";
+        inherit (config.users.users.lennart) group;
+        mode = "0400";
+      };
       gmail_password = {
         file = ../../secrets/gmail_password.age;
         owner = "lennart";
@@ -44,6 +50,14 @@
                 attributes = {
                   "xdg:schema" = "org.gnome.OnlineAccounts";
                   "goa-identity" = "imap_smtp:gen0:lennart_imap_smtp";
+                };
+              }
+              {
+                label = "GOA imap_smtp credentials for identity himmel_imap_smtp";
+                secretCommand = "(password=\"$(${lib.concatStringsSep " " hmConfig.accounts.email.accounts.himmel.passwordCommand})\" ; echo -n \"{'imap-password': <'$password'>, 'smtp-password': <'$password'>}\")";
+                attributes = {
+                  "xdg:schema" = "org.gnome.OnlineAccounts";
+                  "goa-identity" = "imap_smtp:gen0:himmel_imap_smtp";
                 };
               }
               {
@@ -103,6 +117,28 @@
                 enable = true;
                 mailboxType = "imap";
                 mailboxName = "lennart";
+              };
+              thunderbird.enable = true;
+              msmtp.enable = true;
+              gnome-online-accounts.enable = true;
+            };
+            himmel = {
+              address = "himmel@darmfest.de";
+              imap = {
+                host = "mail.zebre.us";
+                port = 993;
+              };
+              smtp = {
+                host = "mail.zebre.us";
+                port = 465;
+              };
+              realName = "Engelsystem";
+              userName = "himmel@darmfest.de";
+              passwordCommand = "cat ${config.age.secrets.himmel_mail_password.path}";
+              neomutt = {
+                enable = true;
+                mailboxType = "imap";
+                mailboxName = "himmel";
               };
               thunderbird.enable = true;
               msmtp.enable = true;

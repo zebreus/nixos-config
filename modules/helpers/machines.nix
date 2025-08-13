@@ -205,6 +205,21 @@ let
         };
       };
 
+      eventServer = {
+        enable = mkEnableOption "Enable event server with various services";
+        # Base domain for the event
+        baseDomain = mkOption {
+          type = types.str;
+          description = "Base domain for the event.";
+        };
+        # TODO: Move this somewhere else
+        certEmail = mkOption {
+          type = types.str;
+          description = "Email address to use for Let's Encrypt certificates.";
+        };
+        # Everything else event related is hardcoded in the module
+      };
+
       besserestrichlisteServer = {
         enable = mkEnableOption "Enable the besserestrichliste server";
         # TODO: Move this somewhere else

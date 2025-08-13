@@ -105,3 +105,9 @@ Each machine uses its ed25519 SSH host key to decrypt its secrets. That SSH host
 6. Encryption: Place the encryption secret at /tmp/secret/tmp/secret.key on the target machine. You can probably use nixos-anywhere for this
 7. Secureboot: Generate keys with `sbctl --disable-landlock --debug create-keys --database-path /tmp/secret/var/lib/sbctl/GUID --export /tmp/secret/var/lib/sbctl/keys` ???
 8. Secureboot: Do the 
+
+=== Add a new domain to the mailserver
+
+1. Add the domain to `modules/mail.nix`
+2. Add the domain in `modules/authoritative-dns/mail.nix`
+3. Run `nix run .#gen-mail-dkim-keys domain_tld`

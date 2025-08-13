@@ -110,6 +110,11 @@ in
         baseDomain = "zebre.us";
         certEmail = "lennarteichhorn@googlemail.com";
       };
+      eventServer = {
+        enable = true;
+        baseDomain = "darmfest.de";
+        certEmail = "lennarteichhorn@googlemail.com";
+      };
       essenJetztServer.enable = true;
     };
     prandtl = {

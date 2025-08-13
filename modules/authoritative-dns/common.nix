@@ -31,6 +31,10 @@ let
     "xn--f87c.cc"
     # Maybe I will use this for an url shortener or something. nothing for now
     "zeb.rs"
+    # Used for a shitty event that wont happen anyway
+    "darmfest.de"
+    # Used for a personal blog
+    "dumb.place"
   ];
   managedZonesDn42 = [
     # dn42 domain for internal services

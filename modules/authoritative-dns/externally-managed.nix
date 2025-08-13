@@ -101,7 +101,7 @@ in
 
       "darmfest.de" = ''
         ; github pages
-        # _github-pages-challenge-zebreus IN TXT ${quoteTxtEntry "039c1f2cef900279d730d61bbf2295"}
+        ; _github-pages-challenge-zebreus IN TXT ${quoteTxtEntry "039c1f2cef900279d730d61bbf2295"}
         @	IN A 185.199.108.153
         @	IN A 185.199.109.153
         @	IN A 185.199.110.153
@@ -114,6 +114,11 @@ in
 
         ; google site verification
         @ IN TXT ${quoteTxtEntry "google-site-verification=MALeUxuBug7rgptrtijQWhfIWCJ_AraTZwS00xUnAXQ"}
+      '';
+
+      "dumb.place" = ''
+        ; just testing
+        @	IN A 1.1.1.1
       '';
     }
   );

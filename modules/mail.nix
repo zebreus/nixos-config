@@ -19,6 +19,10 @@ in
         file = ../secrets/lennart_mail_passwordhash.age;
         mode = "0444";
       };
+      himmel_mail_passwordhash = {
+        file = ../secrets/himmel_mail_passwordhash.age;
+        mode = "0444";
+      };
       "mail_backup_passphrase" = {
         file = ../secrets + "/mail_backup_passphrase.age";
       };
@@ -59,7 +63,7 @@ in
       stateVersion = 1;
       debug = true;
       fqdn = mailFqdn;
-      domains = [ domain "madmanfred.com" "antibuild.ing" ];
+      domains = [ domain "madmanfred.com" "antibuild.ing" "darmfest.de" ];
 
       messageSizeLimit = (2048 + 50) * 1024 * 1024; # 2 GiB + 50 MiB
 
@@ -72,6 +76,10 @@ in
         "lennart@${domain}" = {
           hashedPasswordFile = config.age.secrets.lennart_mail_passwordhash.path;
           aliases = [ "postmaster@${domain}" "dmarc-reports@${domain}" "abuse@${domain}" "@${domain}" "@madmanfred.com" "@antibuild.ing" ];
+        };
+        "himmel@darmfest.de" = {
+          hashedPasswordFile = config.age.secrets.himmel_mail_passwordhash.path;
+          aliases = [ "@darmfest.de" ];
         };
       };
 

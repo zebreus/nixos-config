@@ -158,6 +158,10 @@ with import ./public-keys.nix;
   "glouble_dkim_rsa_pub.age".publicKeys = [ recovery ] ++ mailServers;
   "glouble_mail_password.age".publicKeys = [ recovery glouble ];
   "glouble_mail_passwordhash.age".publicKeys = [ recovery glouble ] ++ mailServers;
+  "darmfest_de_dkim_rsa.age".publicKeys = [ recovery ] ++ mailServers;
+  "darmfest_de_dkim_rsa_pub.age".publicKeys = [ recovery ] ++ mailServers;
+  "himmel_mail_password.age".publicKeys = [ recovery blanderdash kashenblade prandtl ];
+  "himmel_mail_passwordhash.age".publicKeys = [ recovery ] ++ mailServers;
   # MARKER_VPN_MAIL_SECRETS
 
   # Authoritative DNS server transport key
@@ -194,6 +198,10 @@ with import ./public-keys.nix;
 
   "atuin_key.age".publicKeys = [ recovery ] ++ workstations;
   "atuin_session.age".publicKeys = [ recovery ] ++ workstations;
+
+  # Event keys
+  "engelsystem_database_password.age".publicKeys = [ recovery kashenblade blanderdash sempriaq ];
+  "pretix_extra_secrets.age".publicKeys = [ recovery kashenblade blanderdash sempriaq ];
 
   # Hetzner storage box credentials
   "blanderdash_storagebox_smb_secrets.age".publicKeys = [ recovery blanderdash ];

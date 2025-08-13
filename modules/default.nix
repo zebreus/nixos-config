@@ -12,6 +12,7 @@
     ./bird-lg.nix
     ./borg-repo.nix
     ./essen-jetzt.nix
+    ./event.nix
     ./mail.nix
     ./matrix.nix
     ./monitoring.nix

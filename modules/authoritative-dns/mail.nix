@@ -77,6 +77,21 @@ in
       _imap._tcp IN SRV 0 5 143 mail.zebreu.us.
       _imaps._tcp IN SRV 0 5 993 mail.zebreu.us.
     '';
+
+    # An event domain
+    "darmfest.de" = ''
+      ; Records for mail
+      @ IN TXT ${quoteTxtEntry "v=spf1 a:mail.zebre.us -all"}
+      mail IN TXT ${quoteTxtEntry "v=spf1 a:mail.zebre.us -all"}
+      _dmarc IN TXT ${quoteTxtEntry "v=DMARC1; p=reject; fo=1; adkim=s; aspf=s; ri=86400; rua=mailto:dmarc-reports@zebre.us; ruf=mailto:dmarc-reports@zebre.us"}
+      mail._domainkey IN TXT ${quoteTxtEntry "v=DKIM1; k=rsa; s=email; p=${publicKeys.darmfest_de_dkim}"}
+      @ IN MX 30 mail.zebre.us.
+      ; Autodiscovery:
+      _submission._tcp IN SRV 0 5 587 mail.zebreu.us.
+      _submissions._tcp IN SRV 0 5 465 mail.zebreu.us.
+      _imap._tcp IN SRV 0 5 143 mail.zebreu.us.
+      _imaps._tcp IN SRV 0 5 993 mail.zebreu.us.
+    '';
   });
 
 }

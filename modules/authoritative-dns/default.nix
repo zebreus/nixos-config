@@ -4,6 +4,7 @@
     ./bird-lg.nix
     ./common.nix
     ./essen-jetzt.nix
+    ./event.nix
     ./externally-managed.nix
     ./knot.nix
     ./machines.nix
