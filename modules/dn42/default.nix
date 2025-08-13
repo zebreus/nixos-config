@@ -34,20 +34,18 @@ in
 {
   imports = [
     ./peerings.nix
-    # ./kioubit_de2.nix
-    # ./pogopeering.nix
-    # ./larede01_dn42.nix
-    # ./routedbits_de1.nix
-    # ./sebastians_dn42.nix
-    # ./adhd_dn42.nix
-    # ./echonet_dn42.nix
     ./common.nix
   ];
 
   config = lib.mkIf peeringEnabled {
     networking = {
-      firewall.interfaces = lib.mkMerge (builtins.map (network: { ${network.name}.allowedTCPPorts = [ 12411 ]; }) networks);
+      firewall = {
+        interfaces = lib.mkMerge (builtins.map (network: { ${network.name}.allowedTCPPorts = [ 12411 ]; }) networks);
+      };
     };
+
+    # TODO: Add proper IP filtering https://dn42.eu/howto/networksettings#other-non-trivial-pitfalls
+    boot.kernel.sysctl = lib.mkMerge (builtins.map (network: { "net.ipv4.conf.${network.name}.rp_filter" = 0; }) networks);
 
     systemd = {
       timers.dn42-roa = {
@@ -228,7 +226,7 @@ in
 
         template bgp dnpeers {
             local as OWNAS;
-            path metric 1;
+            # path metric 1;
             
             enable extended messages on;
             graceful restart on;
@@ -240,7 +238,7 @@ in
                 next hop self on;
                 import filter {
                   if !is_valid_network() then {
-                    print "[dn42v4] Not importing ", net, " because it is not a valid IPv6 network", bgp_path;
+                    print "[dn42v4] Not importing ", net, " because it is not a valid IPv4 network", bgp_path;
                     reject;
                   }
                   if is_self_net() then {
@@ -251,6 +249,9 @@ in
                     print "[dn42v4] Not importing ", net, " because the ROA check failed for ASN ", bgp_path.last, " Full ASN path: ", bgp_path;
                     reject;
                   }
+                  # if bgp_path.last = bgp_path.first then {
+                  #   bgp_path = [ bgp_path.last ];
+                  # }
                   
                   print "[dn42v4] Importing ", net, " AS PATH: ", bgp_path;
                   accept;
