@@ -98,6 +98,23 @@ in
         www	IN CNAME cname.vercel-dns.com.
         testing IN NS ns1.vercel-dns.com.
       '';
+
+      "darmfest.de" = ''
+        ; github pages
+        # _github-pages-challenge-zebreus IN TXT ${quoteTxtEntry "039c1f2cef900279d730d61bbf2295"}
+        @	IN A 185.199.108.153
+        @	IN A 185.199.109.153
+        @	IN A 185.199.110.153
+        @	IN A 185.199.111.153
+        @	IN AAAA 2606:50c0:8000::153
+        @	IN AAAA 2606:50c0:8001::153
+        @	IN AAAA 2606:50c0:8002::153
+        @	IN AAAA 2606:50c0:8003::153
+        www IN CNAME darmfest.de.
+
+        ; google site verification
+        @ IN TXT ${quoteTxtEntry "google-site-verification=MALeUxuBug7rgptrtijQWhfIWCJ_AraTZwS00xUnAXQ"}
+      '';
     }
   );
 }
