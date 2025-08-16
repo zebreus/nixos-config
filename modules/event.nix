@@ -102,15 +102,17 @@ in
           from = "himmel@darmfest.de";
           host = "mail.zebre.us";
           port = 465;
-          tls = true;
+          tls = false;
+          ssl = true;
           user = "himmel@darmfest.de";
           admins = "pretix-bugs@darmfest.de";
         };
       };
       environmentFile = config.age.secrets.pretix_extra_secrets.path;
-      # plugins = with config.services.pretix.package.plugins; [
-      #   pages
-      # ];
+      plugins = with config.services.pretix.package.plugins; [
+        pages
+        passbook
+      ];
     };
 
     services.hedgedoc = {
@@ -134,6 +136,10 @@ in
         "${ticketsDomain}" = {
           enableACME = true;
           forceSSL = true;
+          # Redirect to /darmfest-orga/darmfest2000
+          locations."= /".extraConfig = ''
+            return 302 $scheme://${ticketsDomain}/darmfest-orga/darmfest2000;
+          '';
         };
         "${padDomain}" = {
           enableACME = true;
@@ -153,4 +159,6 @@ in
     };
   };
 }
+
+
 
