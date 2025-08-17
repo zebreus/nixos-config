@@ -60,7 +60,7 @@ in
 
     mailserver = {
       enable = true;
-      stateVersion = 1;
+      # stateVersion = 1;
       debug = true;
       fqdn = mailFqdn;
       domains = [ domain "madmanfred.com" "antibuild.ing" "darmfest.de" ];

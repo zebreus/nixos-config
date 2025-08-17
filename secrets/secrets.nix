@@ -202,6 +202,7 @@ with import ./public-keys.nix;
   # Event keys
   "engelsystem_database_password.age".publicKeys = [ recovery kashenblade blanderdash sempriaq ];
   "pretix_extra_secrets.age".publicKeys = [ recovery kashenblade blanderdash sempriaq ];
+  "mediawiki_password.age".publicKeys = [ recovery kashenblade blanderdash sempriaq ];
 
   # Hetzner storage box credentials
   "blanderdash_storagebox_smb_secrets.age".publicKeys = [ recovery blanderdash ];

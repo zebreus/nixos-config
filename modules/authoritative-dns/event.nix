@@ -13,6 +13,8 @@ in
     pad IN AAAA ${eventServer.staticIp6}
     tickets IN A ${eventServer.staticIp4}
     tickets IN AAAA ${eventServer.staticIp6}
+    wiki IN A ${eventServer.staticIp4}
+    wiki IN AAAA ${eventServer.staticIp6}
     himmel IN CNAME engel.${baseDomain}
   '';
 }

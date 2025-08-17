@@ -6,6 +6,7 @@ let
   engelDomain = "engel.${baseDomain}";
   ticketsDomain = "tickets.${baseDomain}";
   padDomain = "pad.${baseDomain}";
+  wikiDomain = "wiki.${baseDomain}";
   email = cfg.certEmail;
 in
 {
@@ -33,6 +34,10 @@ in
       };
       pretix_extra_secrets = {
         file = ../secrets/pretix_extra_secrets.age;
+        mode = "0444";
+      };
+      mediawiki_password = {
+        file = ../secrets/mediawiki_password.age;
         mode = "0444";
       };
     };
@@ -115,6 +120,49 @@ in
       ];
     };
 
+    services.mediawiki = {
+      enable = true;
+      # Prior to NixOS 24.05, there is a admin name bug that prevents using spaces in the mediawiki name https://github.com/NixOS/nixpkgs/issues/298902
+      name = "Darmfest Wiki";
+      # hostName = "${wikiDomain}";
+      url = "https://${wikiDomain}";
+      webserver = "nginx";
+      nginx = {
+        hostName = "${wikiDomain}";
+      };
+      database.type = "postgres";
+      # Administrator account username is admin.
+      # Set initial password to "cardbotnine" for the account admin.
+      passwordFile = config.age.secrets.mediawiki_password.path;
+      extraConfig = ''
+        # Disable anonymous editing
+        $wgGroupPermissions['*']['edit'] = true;
+        $wgPasswordSender = 'himmel@darmfest.de';
+        $wgEmergencyContact = 'himmel@darmfest.de';
+
+        $wgSMTP = [
+            'host'      => 'tls://mail.zebre.us', // could also be an IP address. Where the SMTP server is located. If using SSL or TLS, add the prefix "ssl://" or "tls://".
+            'IDHost'    => '${wikiDomain}',      // Generally this will be the domain name of your website (aka mywiki.org)
+            'localhost' => '${wikiDomain}',      // Same as IDHost above; required by some mail servers
+            'port'      => 465,                // Port to use when connecting to the SMTP server
+            'auth'      => true,               // Should we use SMTP authentication (true or false)
+            'username'  => 'himmel@darmfest.de',     // Username to use for SMTP authentication (if being used)
+            'password'  => file_get_contents('${config.age.secrets.himmel_mail_password.path}')       // Password to use for SMTP authentication (if being used)
+        ];
+      '';
+
+      extensions = {
+        # some extensions are included and can enabled by passing null
+        VisualEditor = null;
+
+        # https://www.mediawiki.org/wiki/Extension:TemplateStyles
+        # TemplateStyles = pkgs.fetchzip {
+        #   url = "https://extdist.wmflabs.org/dist/extensions/TemplateStyles-REL1_40-c639c7a.tar.gz";
+        #   hash = "sha256-YBL0Cs4hDSNnoutNJSJBdLsv9zFWVkzo7m5osph8QiY=";
+        # };
+      };
+    };
+
     services.hedgedoc = {
       enable = true;
       settings.domain = padDomain;
@@ -125,11 +173,20 @@ in
         "localhost"
         padDomain
       ];
+      settings.allowEmailRegister = true;
+      settings.email = true;
+      settings.allowAnonymous = true;
+      settings.allowAnonymousEdits = true;
+      settings.allowFreeURL = true;
     };
 
     services.nginx = {
       virtualHosts = {
         "${engelDomain}" = {
+          enableACME = true;
+          forceSSL = true;
+        };
+        "${wikiDomain}" = {
           enableACME = true;
           forceSSL = true;
         };
