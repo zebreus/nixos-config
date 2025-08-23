@@ -33,6 +33,8 @@ let
     "zeb.rs"
     # Used for a shitty event that wont happen anyway
     "darmfest.de"
+    # Maybe also used for a shitty event that wont happen anyway
+    "darmfe.st"
     # Used for a personal blog
     "dumb.place"
   ];

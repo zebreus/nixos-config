@@ -8,6 +8,8 @@ let
   padDomain = "pad.${baseDomain}";
   wikiDomain = "wiki.${baseDomain}";
   email = cfg.certEmail;
+  # Extra domains that redirect to the main domain
+  extraDomains = [ "darmfe.st" ];
 in
 {
   config = mkIf cfg.enable {
@@ -131,6 +133,13 @@ in
         hostName = "${wikiDomain}";
       };
       database.type = "postgres";
+
+      skins = {
+        Citizen = pkgs.fetchzip {
+          url = "https://github.com/StarCitizenTools/mediawiki-skins-Citizen/archive/refs/tags/v3.5.0.zip";
+          sha256 = "sha256-uW22eaXJ8ZHbKHVV4msth+V1VrfoPGseez2jg8f4Vo0=";
+        };
+      };
       # Administrator account username is admin.
       # Set initial password to "cardbotnine" for the account admin.
       passwordFile = config.age.secrets.mediawiki_password.path;
@@ -149,6 +158,8 @@ in
             'username'  => 'himmel@darmfest.de',     // Username to use for SMTP authentication (if being used)
             'password'  => file_get_contents('${config.age.secrets.himmel_mail_password.path}')       // Password to use for SMTP authentication (if being used)
         ];
+
+        $wgDefaultSkin = 'citizen';
       '';
 
       extensions = {
@@ -181,7 +192,7 @@ in
     };
 
     services.nginx = {
-      virtualHosts = {
+      virtualHosts = lib.mkMerge ([{
         "${engelDomain}" = {
           enableACME = true;
           forceSSL = true;
@@ -211,8 +222,19 @@ in
             ;
           };
         };
-      };
-
+      }] ++ (
+        builtins.map
+          (domain: {
+            "${domain}" = {
+              enableACME = true;
+              forceSSL = true;
+              locations."/".extraConfig = ''
+                return 301 $scheme://${baseDomain}$request_uri;
+              '';
+            };
+          })
+          extraDomains
+      ));
     };
   };
 }
