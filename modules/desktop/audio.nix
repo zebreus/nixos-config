@@ -4,6 +4,7 @@
     # sound.enable = true;
     # Enable sound with pipewire.
     services.pulseaudio.enable = false;
+    services.pulseaudio.zeroconf.discovery.enable = true;
     security.rtkit.enable = true;
     services.pipewire = {
       enable = true;
@@ -11,6 +12,8 @@
       alsa.support32Bit = true;
       pulse.enable = true;
     };
+    services.avahi.enable = true;
+    # services.avahi.openFirewall = true;
 
     users.extraGroups.audio.members = [ "lennart" ];
   };
