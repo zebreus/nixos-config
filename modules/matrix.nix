@@ -248,6 +248,50 @@ in
 
           turn_uris = [ "turn:${config.services.coturn.realm}:3478?transport=udp" "turn:${config.services.coturn.realm}:3478?transport=tcp" ];
           turn_user_lifetime = "1h";
+
+          # log = {
+          #   disable_existing_loggers = false;
+          #   formatters = {
+          #     journal_fmt = {
+          #       format = "%(name)s: [%(request)s] %(message)s";
+          #     };
+          #   };
+          #   handlers = {
+          #     journal = {
+          #       class = "systemd.journal.JournalHandler";
+          #       formatter = "journal_fmt";
+          #     };
+          #   };
+          #   loggers = {
+          #     synapse.federation =
+          #       { level = "DEBUG"; };
+          #     synapse.handlers.federation =
+          #       { level = "DEBUG"; };
+          #     synapse.federation.sender =
+          #       { level = "DEBUG"; };
+          #     synapse.federation.federation_client =
+          #       { level = "DEBUG"; };
+          #     synapse.federation.federation_server =
+          #       { level = "DEBUG"; };
+          #     synapse.federation.transport.client =
+          #       { level = "DEBUG"; };
+          #     synapse.handlers.federation_event =
+          #       { level = "DEBUG"; };
+          #     synapse.handlers.federation_state =
+          #       { level = "DEBUG"; };
+          #     synapse.handlers.room_member =
+          #       { level = "DEBUG"; };
+          #     synapse.storage.databases.main.events =
+          #       { level = "DEBUG"; };
+          #   };
+          #   root = {
+          #     handlers = [
+          #       "journal"
+          #     ];
+          #     level = "INFO";
+          #   };
+          #   version = 1;
+          # };
         };
         # There is no file option for the coturn static auth secret, so we need to add it via extraConfigFiles
         extraConfigFiles = [
