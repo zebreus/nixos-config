@@ -196,6 +196,12 @@ in
         "${engelDomain}" = {
           enableACME = true;
           forceSSL = true;
+          extraConfig = ''
+            proxy_hide_header 'Content-Security-Policy';
+            proxy_hide_header 'X-Frame-Options';
+            add_header Content-Security-Policy "frame-ancestors *;" always;
+            add_header X-Frame-Options "";
+          '';
         };
         "${wikiDomain}" = {
           enableACME = true;
