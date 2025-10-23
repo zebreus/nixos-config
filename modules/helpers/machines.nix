@@ -289,6 +289,10 @@ let
           default = "rocm";
         };
       };
+
+      photosServer = {
+        enable = mkEnableOption "Enable photos server";
+      };
     };
   };
 in

@@ -17,5 +17,6 @@
     ./matrix.nix
     ./monitoring.nix
     ./ollama.nix
+    ./photos.nix
   ];
 }

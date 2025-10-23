@@ -11,6 +11,7 @@
     ./mail.nix
     ./matrix.nix
     ./monitoring.nix
+    ./photos.nix
     ./root.nix
     ./voidspace.nix
     ./dn42-peers.nix

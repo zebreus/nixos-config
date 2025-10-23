@@ -115,6 +115,7 @@ in
         baseDomain = "darmfest.de";
         certEmail = "lennarteichhorn@googlemail.com";
       };
+      photosServer.enable = true;
       essenJetztServer.enable = true;
     };
     prandtl = {
