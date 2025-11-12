@@ -9,7 +9,7 @@ let
   wikiDomain = "wiki.${baseDomain}";
   email = cfg.certEmail;
   # Extra domains that redirect to the main domain
-  extraDomains = [ "darmfe.st" ];
+  extraDomains = [ ];
 in
 {
   config = mkIf cfg.enable {

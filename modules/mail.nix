@@ -63,7 +63,7 @@ in
       # stateVersion = 1;
       debug = true;
       fqdn = mailFqdn;
-      domains = [ domain "madmanfred.com" "antibuild.ing" "darmfest.de" "darmfe.st" ];
+      domains = [ domain "madmanfred.com" "antibuild.ing" "darmfest.de" ];
 
       messageSizeLimit = (2048 + 50) * 1024 * 1024; # 2 GiB + 50 MiB
 
@@ -79,7 +79,7 @@ in
         };
         "himmel@darmfest.de" = {
           hashedPasswordFile = config.age.secrets.himmel_mail_passwordhash.path;
-          aliases = [ "@darmfest.de" "@darmfe.st" ];
+          aliases = [ "@darmfest.de" ];
         };
       };
 
