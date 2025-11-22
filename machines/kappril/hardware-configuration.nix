@@ -31,7 +31,7 @@
   boot.kernelParams =
     [ "console=ttyS0,115200n8" "console=ttyAMA0,115200n8" "console=tty0" ];
 
-  boot.kernelPackages = lib.mkForce pkgs.linuxPackages_6_11;
+  boot.kernelPackages = lib.mkForce pkgs.linuxPackages_6_17;
   boot.loader.grub.enable = false;
   boot.loader.generic-extlinux-compatible.enable = true;
 
