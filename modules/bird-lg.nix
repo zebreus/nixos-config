@@ -31,7 +31,7 @@ in
           forceSSL = true;
           enableACME = true;
           locations."/" = {
-            proxyPass = "http://${config.services.bird-lg.frontend.listenAddress}";
+            proxyPass = "http://${config.services.bird-lg.frontend.listenAddresses}";
             proxyWebsockets = true;
           };
         };

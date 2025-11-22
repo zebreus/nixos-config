@@ -50,7 +50,7 @@ in
     };
 
     services.postfix = {
-      config = {
+      settings.main = {
         smtp_host_lookup = [ "native" "dns" ];
 
         # Some customized error messages
@@ -60,8 +60,7 @@ in
 
     mailserver = {
       enable = true;
-      # stateVersion = 1;
-      debug = true;
+      stateVersion = 3;
       fqdn = mailFqdn;
       domains = [ domain "madmanfred.com" "antibuild.ing" "darmfest.de" ];
 

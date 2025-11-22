@@ -27,7 +27,7 @@
 
         settings = {
           # Set the color scheme to dark.
-          "org/gnome/desktop/interface".color-scheme = "prefer-darkd";
+          "org/gnome/desktop/interface".color-scheme = "prefer-dark";
           # Set the wallpaper to the NixOS wallpaper.
           "org/gnome/desktop/background" = {
             picture-uri = "file://${pkgs.nixos-wallpaper}/share/backgrounds/gnome/thinknix-l.svg";
