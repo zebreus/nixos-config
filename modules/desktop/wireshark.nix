@@ -1,12 +1,8 @@
 # Enable wireshark
-{ lib, config, pkgs, ... }:
+{ lib, config, ... }:
 {
   config = lib.mkIf config.machines.${config.networking.hostName}.desktop.enable {
     programs.wireshark.enable = true;
-
-    environment.systemPackages = [
-      pkgs.wireshark
-    ];
 
     services.udev = {
       extraRules = ''
