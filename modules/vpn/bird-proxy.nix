@@ -32,7 +32,7 @@ in
         proxy = {
           enable = true;
           birdSocket = "/var/run/bird/bird.ctl";
-          listenAddress = "0.0.0.0:18000";
+          listenAddresses = "0.0.0.0:18000";
           allowedIPs = [ "${config.antibuilding.ipv6Prefix}::${builtins.toString lgServer.address}" ];
         };
       };

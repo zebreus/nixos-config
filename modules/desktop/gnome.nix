@@ -8,13 +8,14 @@
   config = lib.mkIf config.machines.${config.networking.hostName}.desktop.enable {
     services.xserver = {
       enable = true;
-      displayManager.gdm = {
-        enable = true;
-        wayland = true;
-        autoSuspend = false;
-      };
-      desktopManager.gnome.enable = true;
     };
+    services.desktopManager.gnome.enable = true;
+    services.displayManager.gdm = {
+      enable = true;
+      wayland = true;
+      autoSuspend = false;
+    };
+
     services.gnome = {
       tinysparql.enable = true;
       localsearch.enable = true;
@@ -26,7 +27,7 @@
 
         settings = {
           # Set the color scheme to dark.
-          "org/gnome/desktop/interface".color-scheme = "prefer-dark";
+          "org/gnome/desktop/interface".color-scheme = "prefer-darkd";
           # Set the wallpaper to the NixOS wallpaper.
           "org/gnome/desktop/background" = {
             picture-uri = "file://${pkgs.nixos-wallpaper}/share/backgrounds/gnome/thinknix-l.svg";

@@ -57,7 +57,7 @@
           final: prev:
             let
               gimp-pkgs = import gimp-nixpkgs {
-                system = prev.system;
+                system = prev.stdenv.hostPlatform.system;
                 # gimp with plugins needs an ancient python version
                 config.permittedInsecurePackages = [
                   "python-2.7.18.7-env"
@@ -67,8 +67,8 @@
               };
             in
             {
-              agenix = agenix.packages.${prev.system}.default;
-              nixos-wallpaper = nixos-wallpaper.packages.${prev.system}.default;
+              agenix = agenix.packages.${prev.stdenv.hostPlatform.system}.default;
+              nixos-wallpaper = nixos-wallpaper.packages.${prev.stdenv.hostPlatform.system}.default;
 
               gimp-with-plugins = gimp-pkgs.gimp-with-plugins;
             }

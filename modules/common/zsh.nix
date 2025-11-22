@@ -38,7 +38,7 @@ in
       root = { pkgs, ... }: {
         programs.zsh = {
           enable = true;
-          initExtra = ''
+          initContent = ''
             any-nix-shell zsh --info-right | source /dev/stdin
           '';
         };
@@ -50,7 +50,7 @@ in
       lennart = { pkgs, ... }: {
         programs.zsh = {
           enable = true;
-          initExtra = ''
+          initContent = ''
             any-nix-shell zsh --info-right | source /dev/stdin
           '';
         };
