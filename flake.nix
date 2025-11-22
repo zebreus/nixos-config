@@ -176,7 +176,7 @@
                   users.users.root.password = nixpkgs.lib.mkForce "54321";
                   users.users.root.initialHashedPassword = nixpkgs.lib.mkForce null;
                   users.users.root.openssh.authorizedKeys.keys = [ publicKeys.lennart ];
-                  boot.kernelPackages = pkgs.linuxPackages_latest;
+                  boot.kernelPackages = pkgs.linuxPackages_6_17;
                   boot.supportedFilesystems.bcachefs = nixpkgs.lib.mkForce true;
                   boot.supportedFilesystems.zfs = nixpkgs.lib.mkForce false;
                 }

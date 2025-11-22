@@ -24,7 +24,7 @@
 
     boot = lib.mkMerge [
       {
-        kernelPackages = pkgs.linuxPackages_testing;
+        kernelPackages = pkgs.linuxPackages_6_17;
 
         loader =
           {
