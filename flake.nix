@@ -1,7 +1,6 @@
 {
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs/nixos-25.05";
-    # nixpkgs.url = "github:Mic92/nixpkgs/matrix-synapse";
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
     gimp-nixpkgs.url = "github:nixos/nixpkgs/nixos-23.11";
     home-manager = {
       url = "github:zebreus/home-manager?ref=init-secret-service";
@@ -12,7 +11,7 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     agenix = {
-      url = "github:ryantm/agenix";
+      url = "github:zebreus/agenix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
     simple-nix-mailserver = {
@@ -22,6 +21,7 @@
     gnome-online-accounts-config = {
       url = "github:zebreus/gnome-online-accounts-config";
       inputs.nixpkgs.follows = "nixpkgs";
+      inputs.home-manager.follows = "home-manager";
     };
     nixos-wallpaper = {
       url = "github:zebreus/nixos-dark-wallpaper";
@@ -33,7 +33,7 @@
       inputs.nixpkgs.follows = "gimp-nixpkgs";
     };
     lanzaboote = {
-      url = "github:nix-community/lanzaboote/v0.4.2";
+      url = "github:nix-community/lanzaboote/v0.4.3";
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };
@@ -96,7 +96,7 @@
             ./machines.nix
             home-manager.nixosModules.home-manager
             simple-nix-mailserver.nixosModules.default
-            gnome-online-accounts-config.nixosModules.default
+            # gnome-online-accounts-config.nixosModules.default
             besserestrichliste.nixosModules.aarch64-linux.default
           ];
         in

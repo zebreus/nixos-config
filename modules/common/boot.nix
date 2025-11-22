@@ -25,9 +25,6 @@
     boot = lib.mkMerge [
       {
         kernelPackages = pkgs.linuxPackages_testing;
-        initrd.systemd.extraConfig = ''
-                
-        '';
 
         loader =
           {

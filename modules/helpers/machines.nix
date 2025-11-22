@@ -276,7 +276,7 @@ let
       };
 
       dn42Peerings = mkOption {
-        type = types.listOf types.string;
+        type = types.listOf types.str;
         description = ''Names of the dn42 peerings that are active on this machine.'';
         default = [ ];
       };

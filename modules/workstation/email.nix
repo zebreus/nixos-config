@@ -97,7 +97,7 @@
             host = {
               primary = lib.mkForce false;
               thunderbird.enable = true;
-              gnome-online-accounts.enable = true;
+              # gnome-online-accounts.enable = true;
             };
             lennart = {
               primary = true;
@@ -120,7 +120,7 @@
               };
               thunderbird.enable = true;
               msmtp.enable = true;
-              gnome-online-accounts.enable = true;
+              # gnome-online-accounts.enable = true;
             };
             himmel = {
               address = "himmel@darmfest.de";
@@ -142,7 +142,7 @@
               };
               thunderbird.enable = true;
               msmtp.enable = true;
-              gnome-online-accounts.enable = true;
+              # gnome-online-accounts.enable = true;
             };
             gmail = {
               primary = false;
@@ -167,10 +167,10 @@
               };
               thunderbird.enable = true;
               msmtp.enable = true;
-              gnome-online-accounts = {
-                enable = true;
-                provider = "google";
-              };
+              # gnome-online-accounts = {
+              #   enable = true;
+              #   provider = "google";
+              # };
             };
             hda = {
               primary = false;
@@ -195,10 +195,10 @@
                 mailboxName = "hda";
               };
               thunderbird.enable = true;
-              gnome-online-accounts = {
-                enable = true;
-                smtp.userName = "stlteich";
-              };
+              # gnome-online-accounts = {
+              #   enable = true;
+              #   smtp.userName = "stlteich";
+              # };
             };
           };
         };
