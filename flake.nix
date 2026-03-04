@@ -17,11 +17,6 @@
       url = "gitlab:simple-nixos-mailserver/nixos-mailserver/master";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    gnome-online-accounts-config = {
-      url = "github:zebreus/gnome-online-accounts-config";
-      inputs.nixpkgs.follows = "nixpkgs";
-      inputs.home-manager.follows = "home-manager";
-    };
     nixos-wallpaper = {
       url = "github:zebreus/nixos-dark-wallpaper";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -43,7 +38,6 @@
     , disko
     , agenix
     , simple-nix-mailserver
-    , gnome-online-accounts-config
     , nixos-wallpaper
     , besserestrichliste
     , lanzaboote
@@ -81,7 +75,6 @@
             ./machines.nix
             home-manager.nixosModules.home-manager
             simple-nix-mailserver.nixosModules.default
-            # gnome-online-accounts-config.nixosModules.default
             besserestrichliste.nixosModules.aarch64-linux.default
           ];
         in
