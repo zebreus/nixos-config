@@ -98,6 +98,11 @@ in
       # Use Let's Encrypt certificates. Note that this needs to set up a stripped
       # down nginx and opens port 80.
       certificateScheme = "acme-nginx";
+
+      # Enable unencrypted imap on port 143
+      enableImap = true;
+      # Enable encrypted imap on port 993
+      enableImapSsl = true;
     };
     security.acme.acceptTerms = true;
     security.acme.defaults.email = certEmail;
