@@ -1,7 +1,6 @@
 {
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
-    gimp-nixpkgs.url = "github:nixos/nixpkgs/nixos-23.11";
     home-manager = {
       url = "github:zebreus/home-manager?ref=init-secret-service";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -30,7 +29,7 @@
     besserestrichliste = {
       url = "github:zebreus/besserestrichliste";
       # Prisma engines is currently not compatible with the rust version in the latest nixpkgs
-      inputs.nixpkgs.follows = "gimp-nixpkgs";
+      inputs.nixpkgs.follows = "nixpkgs";
     };
     lanzaboote = {
       url = "github:nix-community/lanzaboote/v0.4.3";
@@ -40,7 +39,6 @@
 
   outputs =
     { nixpkgs
-    , gimp-nixpkgs
     , home-manager
     , disko
     , agenix
@@ -55,22 +53,9 @@
       overlays = [
         (
           final: prev:
-            let
-              gimp-pkgs = import gimp-nixpkgs {
-                system = prev.stdenv.hostPlatform.system;
-                # gimp with plugins needs an ancient python version
-                config.permittedInsecurePackages = [
-                  "python-2.7.18.7-env"
-                  "python-2.7.18.7"
-                ];
-                overlays = [ (final: prev: { gimp = prev.gimp.override { withPython = true; }; }) ];
-              };
-            in
             {
               agenix = agenix.packages.${prev.stdenv.hostPlatform.system}.default;
               nixos-wallpaper = nixos-wallpaper.packages.${prev.stdenv.hostPlatform.system}.default;
-
-              gimp-with-plugins = gimp-pkgs.gimp-with-plugins;
             }
         )
       ];

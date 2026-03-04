@@ -118,6 +118,7 @@
     };
 
     environment.sessionVariables.NIXOS_OZONE_WL = "1";
+    environment.sessionVariables.QT_QPA_PLATFORM = "wayland";
 
     # GDMs does not work well
     security.pam.services.login.showMotd = lib.mkForce false;
