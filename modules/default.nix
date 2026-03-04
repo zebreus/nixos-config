@@ -18,5 +18,6 @@
     ./monitoring.nix
     ./ollama.nix
     ./photos.nix
+    ./suckmore-org.nix
   ];
 }
