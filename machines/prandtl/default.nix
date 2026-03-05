@@ -18,6 +18,7 @@
   boot = {
     extraModprobeConfig = ''
       options usb-storage quirks=174c:55aa:u
+      options kvm_intel nested=1
     '';
   };
 }
