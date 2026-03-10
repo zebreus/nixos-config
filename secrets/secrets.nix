@@ -31,10 +31,6 @@ with import ./public-keys.nix;
   "prandtl_ed25519_pub.age".publicKeys = [ recovery prandtl ];
   "prandtl_rsa.age".publicKeys = [ recovery prandtl ];
   "prandtl_rsa_pub.age".publicKeys = [ recovery prandtl ];
-  "glouble_ed25519.age".publicKeys = [ recovery glouble ];
-  "glouble_ed25519_pub.age".publicKeys = [ recovery glouble ];
-  "glouble_rsa.age".publicKeys = [ recovery glouble ];
-  "glouble_rsa_pub.age".publicKeys = [ recovery glouble ];
   # MARKER_HOST_KEYS
 
   # Private user keys
@@ -65,8 +61,6 @@ with import ./public-keys.nix;
   "blanderdash_wireguard_pub.age".publicKeys = [ recovery blanderdash ];
   "prandtl_wireguard.age".publicKeys = [ recovery prandtl ];
   "prandtl_wireguard_pub.age".publicKeys = [ recovery prandtl ];
-  "glouble_wireguard.age".publicKeys = [ recovery glouble ];
-  "glouble_wireguard_pub.age".publicKeys = [ recovery glouble ];
   # MARKER_WIREGUARD_KEYS
 
   "shared_wireguard_psk.age".publicKeys = [ recovery ] ++ allMachines;
@@ -154,10 +148,6 @@ with import ./public-keys.nix;
   "prandtl_mail_passwordhash.age".publicKeys = [ recovery prandtl ] ++ mailServers;
   "antibuild_ing_dkim_rsa.age".publicKeys = [ recovery ] ++ mailServers;
   "antibuild_ing_dkim_rsa_pub.age".publicKeys = [ recovery ] ++ mailServers;
-  "glouble_dkim_rsa.age".publicKeys = [ recovery ] ++ mailServers;
-  "glouble_dkim_rsa_pub.age".publicKeys = [ recovery ] ++ mailServers;
-  "glouble_mail_password.age".publicKeys = [ recovery glouble ];
-  "glouble_mail_passwordhash.age".publicKeys = [ recovery glouble ] ++ mailServers;
   "darmfest_de_dkim_rsa.age".publicKeys = [ recovery ] ++ mailServers;
   "darmfest_de_dkim_rsa_pub.age".publicKeys = [ recovery ] ++ mailServers;
   "himmel_mail_password.age".publicKeys = [ recovery blanderdash kashenblade prandtl ];

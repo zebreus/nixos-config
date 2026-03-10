@@ -160,13 +160,6 @@ in
         { name = "void-hortorum"; size = "2T"; }
       ];
     };
-    glouble = {
-      name = "glouble";
-      address = 14;
-      wireguardPublicKey = publicKeys.glouble_wireguard;
-      trusted = true;
-      sshPublicKey = publicKeys.glouble;
-    };
     # MARKER_MACHINE_CONFIGURATIONS
   };
 }

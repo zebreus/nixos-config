@@ -127,14 +127,6 @@
               ./machines/prandtl
             ] ++ commonModules;
           };
-          glouble = nixpkgs.lib.nixosSystem {
-            system = "x86_64-linux";
-            modules = [
-              disko.nixosModules.disko
-              # lanzaboote.nixosModules.lanzaboote
-              ./machines/glouble
-            ] ++ commonModules;
-          };
           # MARKER_NIXOS_CONFIGURATIONS
 
           # ISO image for a up-to-date NixOS installer
