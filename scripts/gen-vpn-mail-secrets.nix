@@ -58,8 +58,8 @@ with pkgs; writeScriptBin "gen-vpn-mail-secrets" ''
 
 
     ${perl}/bin/perl -pi -e '$_ = q(  '$PUBLIC_KEY_NAME' = "'"$PUBLIC_KEY"'";) . qq(\n) . $_ if /'"$VPN_MAIL_PUBLIC_KEYS_MARKER"'/' public-keys.nix
-    ${perl}/bin/perl -pi -e '$_ = q(  "'$PRIVATE_KEY_SECRETS_NAME'".publicKeys = [ recovery '"$MAIL_RELAY_HOST_NAME"' ];) . qq(\n) . $_ if /'"$VPN_MAIL_SECRETS_MARKER"'/' secrets.nix
-    ${perl}/bin/perl -pi -e '$_ = q(  "'$PUBLIC_KEY_SECRETS_NAME'".publicKeys = [ recovery '"$MAIL_RELAY_HOST_NAME"' ];) . qq(\n) . $_ if /'"$VPN_MAIL_SECRETS_MARKER"'/' secrets.nix
+    ${perl}/bin/perl -pi -e '$_ = q(  "'$PRIVATE_KEY_SECRETS_NAME'".publicKeys = [ recovery ] ++ mailServers;) . qq(\n) . $_ if /'"$VPN_MAIL_SECRETS_MARKER"'/' secrets.nix
+    ${perl}/bin/perl -pi -e '$_ = q(  "'$PUBLIC_KEY_SECRETS_NAME'".publicKeys = [ recovery ] ++ mailServers;) . qq(\n) . $_ if /'"$VPN_MAIL_SECRETS_MARKER"'/' secrets.nix
 
     echo "$PRIVATE_KEY" | ${pkgs.agenix}/bin/agenix -e "$PRIVATE_KEY_SECRETS_NAME"
     echo "$PUBLIC_KEY" | ${pkgs.agenix}/bin/agenix -e "$PUBLIC_KEY_SECRETS_NAME"
