@@ -158,10 +158,10 @@ with import ./public-keys.nix;
   "darmfest_de_dkim_rsa_pub.age".publicKeys = [ recovery ] ++ mailServers;
   "himmel_mail_password.age".publicKeys = [ recovery blanderdash kashenblade prandtl ];
   "himmel_mail_passwordhash.age".publicKeys = [ recovery ] ++ mailServers;
-  "glouble_dkim_rsa.age".publicKeys = [ recovery sempriaq ];
-  "glouble_dkim_rsa_pub.age".publicKeys = [ recovery sempriaq ];
+  "glouble_dkim_rsa.age".publicKeys = [ recovery ] ++ mailServers;
+  "glouble_dkim_rsa_pub.age".publicKeys = [ recovery ] ++ mailServers;
   "glouble_mail_password.age".publicKeys = [ recovery glouble ];
-  "glouble_mail_passwordhash.age".publicKeys = [ recovery glouble sempriaq ] ++ mailServers;
+  "glouble_mail_passwordhash.age".publicKeys = [ recovery glouble ] ++ mailServers;
   # MARKER_VPN_MAIL_SECRETS
 
   # Authoritative DNS server transport key
