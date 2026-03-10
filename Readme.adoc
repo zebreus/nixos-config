@@ -111,3 +111,8 @@ Each machine uses its ed25519 SSH host key to decrypt its secrets. That SSH host
 1. Add the domain to `modules/mail.nix`
 2. Add the domain in `modules/authoritative-dns/mail.nix`
 3. Run `nix run .#gen-mail-dkim-keys domain_tld`
+
+=== Provision an installer
+
+1. Generate the iso with `nix run .#generate-installer`
+2. Create a bootable USB drive with `dd if=installer.iso of=/dev/sdX bs=4M status=progress && sync`
