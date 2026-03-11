@@ -293,6 +293,10 @@ let
       photosServer = {
         enable = mkEnableOption "Enable photos server";
       };
+
+      homeassistantServer = {
+        enable = mkEnableOption "Enable homeassistant server";
+      };
     };
   };
 in

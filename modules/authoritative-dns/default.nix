@@ -6,6 +6,7 @@
     ./essen-jetzt.nix
     ./event.nix
     ./externally-managed.nix
+    ./homeassistant.nix
     ./knot.nix
     ./machines.nix
     ./mail.nix

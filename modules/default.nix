@@ -13,6 +13,7 @@
     ./borg-repo.nix
     ./essen-jetzt.nix
     ./event.nix
+    ./homeassistant.nix
     ./mail.nix
     ./matrix.nix
     ./monitoring.nix

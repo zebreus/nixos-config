@@ -166,6 +166,7 @@ in
       wireguardPublicKey = publicKeys.glouble_wireguard;
       trusted = true;
       sshPublicKey = publicKeys.glouble;
+      homeassistantServer.enable = true;
     };
     # MARKER_MACHINE_CONFIGURATIONS
   };
