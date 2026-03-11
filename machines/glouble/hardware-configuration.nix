@@ -1,4 +1,4 @@
-{ lib, modulesPath, ... }:
+{ lib, modulesPath, config, ... }:
 
 {
   imports =
@@ -12,7 +12,16 @@
       kernelModules = [ ];
     };
     kernelModules = [ "kvm-intel" "i2c-dev" ];
+    # extraModulePackages = [
+    #   # config.boot.kernelPackages.rtl8192eu
+    #   config.boot.kernelPackages.rtl8189fs
+    #   config.boot.kernelPackages.rtl8189es
+    #   config.boot.kernelPackages.rtl8852bu
+    #   # config.boot.kernelPackages.rtl8852au
+    #   # config.boot.kernelPackages.rtl8188eus-aircrack
+    # ];
   };
+  nixpkgs.config.allowBroken = true;
 
 
   fileSystems = {
