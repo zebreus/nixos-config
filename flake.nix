@@ -30,6 +30,10 @@
       url = "github:nix-community/lanzaboote/v0.4.3";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    nixvirt = {
+      url = "github:AshleyYakeley/NixVirt";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =
@@ -41,6 +45,7 @@
     , nixos-wallpaper
     , besserestrichliste
     , lanzaboote
+    , nixvirt
     , ...
     }:
     let
@@ -124,6 +129,7 @@
             modules = [
               disko.nixosModules.disko
               lanzaboote.nixosModules.lanzaboote
+              nixvirt.nixosModules.default
               ./machines/prandtl
             ] ++ commonModules;
           };
