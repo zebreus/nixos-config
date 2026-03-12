@@ -115,4 +115,35 @@
   fileSystems."/mnt/delta" = {
     neededForBoot = lib.mkForce false;
   };
+
+  services.autotierfs = {
+    enable = true;
+    settings = {
+      "/mnt/autotier" = {
+        Global = {
+          "Log Level" = 2;
+          "Tier Period" = 30;
+          "Copy Buffer Size" = "512MiB";
+          "Strict Period" = "true";
+          "Metadata Path" = "/var/lib/autotier";
+        };
+        "Tier 1" = {
+          Path = "/mnt/alpha";
+          Quota = "95%";
+        };
+        "Tier 2" = {
+          Path = "/mnt/beta";
+          Quota = "95%";
+        };
+        "Tier 3" = {
+          Path = "/mnt/gamma";
+          Quota = "95%";
+        };
+        "Tier 4" = {
+          Path = "/mnt/delta";
+          Quota = "95%";
+        };
+      };
+    };
+  };
 }
