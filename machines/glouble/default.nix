@@ -1,4 +1,4 @@
-{
+{ lib, pkgs, ... }: {
   imports = [
     ./disk-config.nix
     ./hardware-configuration.nix
@@ -48,6 +48,21 @@
     };
   };
 
+
+  environment.systemPackages = with pkgs; [
+    # For debugging and stuff
+    hdparm
+    nvme-cli
+    sysstat
+  ];
+
+  boot.kernelPackages = lib.mkForce pkgs.linuxPackages_latest;
+  # boot.supportedFilesystems.zfs = lib.mkForce true;
+  boot.supportedFilesystems.bcachefs = lib.mkForce true;
+  # Generated with
+  # head -c4 /dev/urandom | od -A none -t x4
+  networking.hostId = "f608966d";
+
   hardware.bluetooth = {
     enable = true;
     powerOnBoot = true;
@@ -70,4 +85,34 @@
     };
   };
   services.blueman.enable = true;
+
+  # Spin down hard drives after 1 minute of inactivity.
+  services.udev.extraRules =
+    let
+      mkRule = as: lib.concatStringsSep ", " as;
+      mkRules = rs: lib.concatStringsSep "\n" rs;
+    in
+    mkRules ([
+      (mkRule [
+        ''ACTION=="add|change"''
+        ''SUBSYSTEM=="block"''
+        ''KERNEL=="sd[a-z]"''
+        ''ATTR{queue/rotational}=="1"''
+        ''RUN+="${pkgs.hdparm}/bin/hdparm -S 12 /dev/%k"''
+      ])
+    ]);
+
+  # If this is not set to false, the boot fails
+  fileSystems."/mnt/alpha" = {
+    neededForBoot = lib.mkForce false;
+  };
+  fileSystems."/mnt/beta" = {
+    neededForBoot = lib.mkForce false;
+  };
+  fileSystems."/mnt/gamma" = {
+    neededForBoot = lib.mkForce false;
+  };
+  fileSystems."/mnt/delta" = {
+    neededForBoot = lib.mkForce false;
+  };
 }
