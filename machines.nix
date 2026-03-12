@@ -100,7 +100,7 @@ in
       staticIp4 = "49.13.8.171";
       staticIp6 = "2a01:4f8:c013:29b1::1";
       bird-lg.enable = true;
-      besserestrichlisteServer.enable = true;
+      # besserestrichlisteServer.enable = true;
       backupHost = {
         enable = true;
         storagePath = "/storage/storagebox/borg";
