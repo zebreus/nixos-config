@@ -2,6 +2,7 @@
   imports = [
     ./disk-config.nix
     ./hardware-configuration.nix
+    ./ubuntu-vm.nix
     ../../modules
   ];
 

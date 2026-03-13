@@ -194,6 +194,14 @@ in
                     user = "root";
                     identityFile = config.age.secrets.lennart_ed25519.path;
                   };
+                  # Ubuntu VM running on glouble. Contains some stuff that doesn't run on nix.
+                  ubuntuVm = {
+                    hostname = "192.168.135.2";
+                    host = "ubuntu-vm";
+                    user = "root";
+                    proxyJump = "root@glouble";
+                    identityFile = config.age.secrets.lennart_ed25519.path;
+                  };
                 };
               in
               antibuildingHosts // hdaHosts // cccDaHosts // forges // miscHosts // defaultForAll;

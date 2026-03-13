@@ -142,6 +142,8 @@
             modules = [
               disko.nixosModules.disko
               # lanzaboote.nixosModules.lanzaboote
+              nixvirt.nixosModules.default
+
               ./machines/glouble
             ] ++ commonModules;
           };

@@ -51,6 +51,10 @@
                     ];
                     mountpoint = "/nix";
                   };
+                  # The qcow2 volume for the ubuntu vm lives here
+                  "/mnt/ubuntuvm" = {
+                    mountpoint = "/mnt/ubuntuvm";
+                  };
                 };
               };
             };
