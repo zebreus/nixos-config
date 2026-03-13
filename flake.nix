@@ -31,7 +31,7 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     nixvirt = {
-      url = "github:AshleyYakeley/NixVirt";
+      url = "github:zebreus/NixVirt/dnsmasq-passthrough";
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };
@@ -70,6 +70,10 @@
         {
           nixpkgs.overlays = overlays;
         };
+
+      lib = nixpkgs.lib.extend (
+        self: super: { inherit (nixvirt.lib) domain pool network volume xml; }
+      );
     in
     {
       nixosConfigurations =
@@ -84,27 +88,27 @@
           ];
         in
         {
-          erms = nixpkgs.lib.nixosSystem {
+          erms = lib.nixosSystem {
             system = "x86_64-linux";
             modules = [ ./machines/erms ] ++ commonModules;
           };
 
-          kashenblade = nixpkgs.lib.nixosSystem {
+          kashenblade = lib.nixosSystem {
             system = "aarch64-linux";
             modules = [ ./machines/kashenblade ] ++ commonModules;
           };
 
-          kappril = nixpkgs.lib.nixosSystem {
+          kappril = lib.nixosSystem {
             system = "aarch64-linux";
             modules = [ ./machines/kappril ] ++ commonModules;
           };
 
-          sempriaq = nixpkgs.lib.nixosSystem {
+          sempriaq = lib.nixosSystem {
             system = "x86_64-linux";
             modules = [ ./machines/sempriaq ] ++ commonModules;
           };
 
-          hetzner-template = nixpkgs.lib.nixosSystem {
+          hetzner-template = lib.nixosSystem {
             system = "aarch64-linux";
             modules = [
               disko.nixosModules.disko # Remove this after initial setup
@@ -119,12 +123,12 @@
             ];
           };
 
-          blanderdash = nixpkgs.lib.nixosSystem {
+          blanderdash = lib.nixosSystem {
             system = "aarch64-linux";
             modules = [ ./machines/blanderdash ] ++ commonModules;
           };
 
-          prandtl = nixpkgs.lib.nixosSystem {
+          prandtl = lib.nixosSystem {
             system = "x86_64-linux";
             modules = [
               disko.nixosModules.disko
@@ -133,7 +137,7 @@
               ./machines/prandtl
             ] ++ commonModules;
           };
-          glouble = nixpkgs.lib.nixosSystem {
+          glouble = lib.nixosSystem {
             system = "x86_64-linux";
             modules = [
               disko.nixosModules.disko
@@ -144,7 +148,7 @@
           # MARKER_NIXOS_CONFIGURATIONS
 
           # ISO image for a up-to-date NixOS installer
-          installer = nixpkgs.lib.nixosSystem {
+          installer = lib.nixosSystem {
             system = "x86_64-linux";
             modules = [
               "${nixpkgs}/nixos/modules/installer/cd-dvd/installation-cd-minimal.nix"

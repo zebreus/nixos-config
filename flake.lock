@@ -388,15 +388,16 @@
         ]
       },
       "locked": {
-        "lastModified": 1765057211,
-        "narHash": "sha256-PPqZYBZNVNTeJ9s0JGdxkQI6X/Hsy6RGZSmL7dwLvHc=",
-        "owner": "AshleyYakeley",
+        "lastModified": 1773404681,
+        "narHash": "sha256-YvYM9mNPEr2nHSS7Veg/cwL2h35kiGdfVhdfIajfAO8=",
+        "owner": "zebreus",
         "repo": "NixVirt",
-        "rev": "2eeb830dbf5b930c3e4cd32184bd8780459cc8c0",
+        "rev": "e05aab0543565169c63ca242c436d2b9a7d79640",
         "type": "github"
       },
       "original": {
-        "owner": "AshleyYakeley",
+        "owner": "zebreus",
+        "ref": "dnsmasq-passthrough",
         "repo": "NixVirt",
         "type": "github"
       }
