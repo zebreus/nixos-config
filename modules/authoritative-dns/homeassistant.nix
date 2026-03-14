@@ -8,8 +8,10 @@ in
     let homeassistantServer = lib.head homeassistantServers; in {
       modules.dns.zones."zebre.us" = ''
         ; Records for homeassistant
-        hass IN A 192.168.0.43
-        ; hass IN AAAA ${homeassistantServer.staticIp6}
+        ; hass IN A ${homeassistantServer.staticIp4}
+        hass IN AAAA ${homeassistantServer.staticIp6}
+        internal.hass IN A 192.168.178.43
+        internal.hass IN AAAA ${homeassistantServer.staticIp6}
       '';
     }
   );

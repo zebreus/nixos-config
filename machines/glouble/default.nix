@@ -19,6 +19,7 @@
   # networkd
   networking.useNetworkd = true;
   systemd.network.networks.enp3s0 = {
+    # TODO: A lot of these settings are probably not necessary, but whatever, they work 
     matchConfig = {
       MACAddress = "a8:b8:e0:08:05:dc";
     };
@@ -28,26 +29,45 @@
       IPv6PrivacyExtensions = false; # Don't generate a privacy address
     };
     ipv6AcceptRAConfig = {
-      UseAutonomousPrefix = false;
+      UseAutonomousPrefix = true;
       UseOnLinkPrefix = false;
-      # Token = "static:::17";
+      Token = "static:::beef:face";
     };
     dhcpV4Config = {
       DUIDType = "vendor";
       DUIDRawData = "00:00:ca:fe:ca:fe:ca:fe:ca:fe:ca:fe";
+      UseDNS = true;
     };
     dhcpV6Config = {
-      UseAddress = true; # Don't use the /128 assigned via dhcpv6
-      # PrefixDelegationHint = "2a02:8109:d480:2d00::17/128";
-      # SendHostname = true;
-      # Hostname = "glouble2";
-      # DuidType = "link-layer-time:2000-01-01 00:00:01 UTC";
-      DUIDType = "vendor";
-      DUIDRawData = "00:00:ca:fe:ca:fe:ca:fe:ca:fe:ca:fe";
-      # Anonymize = false;
-      # WithoutRA = "solicit";
+      UseAddress = false;
     };
   };
+
+  # Networking for shitty vodafone router
+  # networking.useNetworkd = true;
+  # systemd.network.networks.enp3s0 = {
+  #   matchConfig = {
+  #     MACAddress = "a8:b8:e0:08:05:dc";
+  #   };
+  #   networkConfig = {
+  #     DHCP = "ipv4";
+  #     IPv6AcceptRA = true; # Accept router advertisments to find the gateway and stuff
+  #     IPv6PrivacyExtensions = false; # Don't generate a privacy address
+  #   };
+  #   ipv6AcceptRAConfig = {
+  #     UseAutonomousPrefix = false;
+  #     UseOnLinkPrefix = false;
+  #   };
+  #   dhcpV4Config = {
+  #     DUIDType = "vendor";
+  #     DUIDRawData = "00:00:ca:fe:ca:fe:ca:fe:ca:fe:ca:fe";
+  #   };
+  #   dhcpV6Config = {
+  #     UseAddress = true;
+  #     DUIDType = "vendor";
+  #     DUIDRawData = "00:00:ca:fe:ca:fe:ca:fe:ca:fe:ca:fe";
+  #   };
+  # };
 
 
   environment.systemPackages = with pkgs; [

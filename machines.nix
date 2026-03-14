@@ -163,7 +163,8 @@ in
     glouble = {
       name = "glouble";
       address = 14;
-      staticIp6 = "2a02:8109:d480:2d00:47f2:f896:2bb9:8c90"; # Might change, not sure
+      staticIp4 = "159.195.88.96";
+      staticIp6 = "2a03:4000:20:19d::beef:face";
       wireguardPublicKey = publicKeys.glouble_wireguard;
       trusted = true;
       sshPublicKey = publicKeys.glouble;
