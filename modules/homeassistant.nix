@@ -97,8 +97,10 @@ in
         in
         [
           "--bluetooth-adapter=0"
-          "--paa-root-cert-dir=${cert-dir}/credentials/production/paa-root-certs"
-          "--enable-test-net-dcl"
+          # "--paa-root-cert-dir=${cert-dir}/credentials/production/paa-root-certs"
+          # "--enable-test-net-dcl"
+          "--log-level-sdk=debug"
+          "--log-level=debug"
           "--ota-provider-dir=/var/lib/matter-server/ota-provider"
         ];
     };
@@ -118,6 +120,8 @@ in
     # };
     networking.firewall.allowedTCPPorts = [ 80 443 8123 5540 5541 5353 1900 ];
     networking.firewall.allowedUDPPorts = [ 80 443 5540 5541 5353 1900 ];
+    systemd.network.networks.enp3s0.networkConfig.MulticastDNS = true;
+
     # Get certs
     security.acme = {
       acceptTerms = true;
@@ -137,7 +141,7 @@ in
         enableACME = true;
         # useACMEHost = "hass.zebre.us";
         # forceSSL = false;
-        # addSSL = false;
+        # addSSL = true;
         # rejectSSL = true;
         forceSSL = true;
         locations."/" = {
@@ -157,7 +161,7 @@ in
             allow ::1;
             allow 127.0.0.1;
             allow fe80::/64;
-            allow 192.168.0.0/24;
+            allow 192.168.178.0/24;
             deny all;
           '';
         };
