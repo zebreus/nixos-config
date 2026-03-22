@@ -3,8 +3,9 @@
 {
   disko.devices = {
     disk = {
-      disk1 = {
-        device = lib.mkDefault "/dev/nvme0n1";
+      nvme1 = {
+        # samsung
+        device = lib.mkDefault "/dev/disk/by-id/nvme-eui.0025385751a00c5d";
         type = "disk";
         content = {
           type = "gpt";
@@ -25,72 +26,39 @@
               };
             };
             root = {
-              size = "3T";
-              content = {
-                type = "btrfs";
-                extraArgs = [ "-f" ]; # Override existing partition
-                # Subvolumes must set a mountpoint in order to be mounted,
-                # unless their parent is mounted
-                subvolumes = {
-                  # Root volume
-                  "/rootfs" = {
-                    mountpoint = "/";
-                  };
-                  # tmp is not a tmpfs, so it is a bit more persistent across reboots.
-                  "/tmp" = {
-                    mountpoint = "/tmp";
-                  };
-                  "/home" = {
-                    mountOptions = [ "compress=zstd" ];
-                    mountpoint = "/home";
-                  };
-                  "/nix" = {
-                    mountOptions = [
-                      "compress=zstd"
-                      "noatime"
-                    ];
-                    mountpoint = "/nix";
-                  };
-                  # The qcow2 volume for the ubuntu vm lives here
-                  "/mnt/ubuntuvm" = {
-                    mountpoint = "/mnt/ubuntuvm";
-                  };
-                };
-              };
-            };
-            empty = {
               size = "100%";
-            };
-            ssd_alpha = {
-              size = "140G";
               content = {
                 type = "bcachefs";
-                filesystem = "alpha";
+                filesystem = "mainfs";
                 label = "ssd.ssd1";
+                extraFormatArgs = [
+                  "--durability=1"
+                  # "--discard"
+                  # "--data_allowed=user"
+                ];
               };
             };
-            ssd_beta = {
-              size = "140G";
+          };
+        };
+      };
+      nvme2 = {
+        # lexar
+        device = lib.mkDefault "/dev/disk/by-id/nvme-eui.0000000625094324caf25b036e000385";
+        type = "disk";
+        content = {
+          type = "gpt";
+          partitions = {
+            root = {
+              size = "100%";
               content = {
                 type = "bcachefs";
-                filesystem = "beta";
-                label = "ssd.ssd1";
-              };
-            };
-            ssd_gamma = {
-              size = "140G";
-              content = {
-                type = "bcachefs";
-                filesystem = "gamma";
-                label = "ssd.ssd1";
-              };
-            };
-            ssd_delta = {
-              size = "140G";
-              content = {
-                type = "bcachefs";
-                filesystem = "delta";
-                label = "ssd.ssd1";
+                filesystem = "mainfs";
+                label = "ssd.ssd2";
+                extraFormatArgs = [
+                  "--durability=1"
+                  # "--discard"
+                  # "--data_allowed=user"
+                ];
               };
             };
           };
@@ -107,10 +75,11 @@
               size = "100%";
               content = {
                 type = "bcachefs";
-                filesystem = "alpha";
-                label = "hdd.hdd1";
+                filesystem = "mainfs";
+                label = "hdda.alpha";
                 extraFormatArgs = [
-                  "--discard"
+                  "--durability=1"
+                  "--rotational"
                 ];
               };
             };
@@ -128,10 +97,11 @@
               size = "100%";
               content = {
                 type = "bcachefs";
-                filesystem = "beta";
-                label = "hdd.hdd1";
+                filesystem = "mainfs";
+                label = "hddb.beta";
                 extraFormatArgs = [
-                  "--discard"
+                  "--durability=1"
+                  "--rotational"
                 ];
               };
             };
@@ -149,10 +119,11 @@
               size = "100%";
               content = {
                 type = "bcachefs";
-                filesystem = "gamma";
-                label = "hdd.hdd1";
+                filesystem = "mainfs";
+                label = "hddb.gamma";
                 extraFormatArgs = [
-                  "--discard"
+                  "--durability=1"
+                  "--rotational"
                 ];
               };
             };
@@ -170,10 +141,55 @@
               size = "100%";
               content = {
                 type = "bcachefs";
-                filesystem = "delta";
-                label = "hdd.hdd1";
+                filesystem = "mainfs";
+                label = "hdda.delta";
                 extraFormatArgs = [
-                  "--discard"
+                  "--durability=1"
+                  "--rotational"
+                ];
+              };
+            };
+          };
+        };
+      };
+      epsilon = {
+        device = "/dev/disk/by-id/ata-WDC_WD140EDGZ-11B1PA0_7LGJ8SEK";
+        type = "disk";
+        content = {
+          type = "gpt";
+          partitions = {
+            storage = {
+              name = "storage";
+              size = "100%";
+              content = {
+                type = "bcachefs";
+                filesystem = "mainfs";
+                label = "hdda.epsilon";
+                extraFormatArgs = [
+                  "--durability=1"
+                  "--rotational"
+                ];
+              };
+            };
+          };
+        };
+      };
+      zeta = {
+        device = "/dev/disk/by-id/ata-WDC_WD140EDGZ-11B1PA0_7LGJAD7K";
+        type = "disk";
+        content = {
+          type = "gpt";
+          partitions = {
+            storage = {
+              name = "storage";
+              size = "100%";
+              content = {
+                type = "bcachefs";
+                filesystem = "mainfs";
+                label = "hddb.zeta";
+                extraFormatArgs = [
+                  "--durability=1"
+                  "--rotational"
                 ];
               };
             };
@@ -182,53 +198,80 @@
       };
     };
 
-    bcachefs_filesystems =
-      let
-        template = {
-          type = "bcachefs_filesystem";
-          extraFormatArgs = [
-            "--block_size=4k"
-            "--errors=ro"
-            "--data_replicas=1"
-            "--metadata_replicas=1"
-            "--data_checksum=crc32c"
-            "--metadata_checksum=crc32c"
-            "--compression=none"
-            "--background_compression=none"
-            "--journal_flush_delay=65000" # 65 seconds, because this must be longer than the suspend timeout because the drives otherwise don't spin down.
-            "--promote_target=ssd"
-            "--metadata_target=ssd"
-            "--foreground_target=hdd"
-            "--background_target=hdd"
-          ];
-          mountOptions = [
-            "defaults"
-            "verbose"
-            # "fsck"
-            # "fix errors"
-            # "degraded"
-            # "very_degraded"
-            "continue"
-            "x-systemd.device-timeout=300s"
-            "x-systemd.mount-timeout=300s"
-            # "version_upgrade=compatible"
-          ];
+    bcachefs_filesystems = {
+      mainfs = {
+        type = "bcachefs_filesystem";
+        extraFormatArgs = [
+          "--block_size=4k"
+          "--errors=ro"
+          "--data_replicas=2"
+          "--metadata_replicas=2"
+          "--data_checksum=crc32c"
+          "--metadata_checksum=crc32c"
+          "--compression=none"
+          "--background_compression=none"
+          "--journal_flush_delay=1000" # The default. Works when using hd-idle
+          "--scrub_journal_max_rewind_secs=10" # To align with journal_flush_delay
+          "--prjquota=1"
+
+          "--promote_target=ssd"
+          "--metadata_target=ssd"
+          "--foreground_target=ssd"
+          "--background_target=ssd"
+        ];
+        mountOptions = [
+          "defaults"
+          "verbose"
+
+          # "degraded"
+          # "continue"
+          "x-systemd.device-timeout=300s"
+          "x-systemd.mount-timeout=300s"
+          "fsck"
+          "fix_errors"
+        ];
+        passwordFile = "/tmp/bcachefs_password";
+        mountpoint = "/";
+        subvolumes = {
+          "home" = { };
+          "nix/store" = {
+            inodeOptions = [
+              "--data_replicas=1"
+            ];
+          };
+          "tmp" = {
+            inodeOptions = [
+              "--data_replicas=1"
+              "--data_checksum=none"
+            ];
+          };
+          "root" = { };
+          "var" = { };
+          "storage/tier0" = {
+            inodeOptions = [
+              "--background_target=ssd"
+              "--foreground_target=ssd"
+              "--promote_target=ssd"
+            ];
+          };
+          "storage/tier1" = {
+            inodeOptions = [
+              "--background_target=hdda"
+              "--foreground_target=hdda"
+              "--promote_target=ssd"
+              "--erasure_code=1"
+            ];
+          };
+          "storage/tier2" = {
+            inodeOptions = [
+              "--background_target=hddb"
+              "--foreground_target=hddb"
+              "--promote_target=ssd"
+              "--erasure_code=1"
+            ];
+          };
         };
-      in
-      {
-        # Example showing mounted subvolumes in a multi-disk configuration.
-        alpha = {
-          mountpoint = "/mnt/alpha";
-        } // template;
-        beta = {
-          mountpoint = "/mnt/beta";
-        } // template;
-        gamma = {
-          mountpoint = "/mnt/gamma";
-        } // template;
-        delta = {
-          mountpoint = "/mnt/delta";
-        } // template;
       };
+    };
   };
 }

@@ -2,7 +2,7 @@
   imports = [
     ./disk-config.nix
     ./hardware-configuration.nix
-    ./ubuntu-vm.nix
+    # ./ubuntu-vm.nix
     ../../modules
   ];
 
@@ -34,8 +34,6 @@
       Token = "static:::beef:face";
     };
     dhcpV4Config = {
-      DUIDType = "vendor";
-      DUIDRawData = "00:00:ca:fe:ca:fe:ca:fe:ca:fe:ca:fe";
       UseDNS = true;
     };
     dhcpV6Config = {
@@ -78,91 +76,94 @@
   ];
 
   boot.kernelPackages = lib.mkForce pkgs.linuxPackages_latest;
-  # boot.supportedFilesystems.zfs = lib.mkForce true;
   boot.supportedFilesystems.bcachefs = lib.mkForce true;
-  # Generated with
-  # head -c4 /dev/urandom | od -A none -t x4
-  networking.hostId = "f608966d";
 
   hardware.bluetooth = {
     enable = true;
     powerOnBoot = true;
-    settings = {
-      General = {
-        # Shows battery charge of connected devices on supported
-        # Bluetooth adapters. Defaults to 'false'.
-        Experimental = true;
-        # When enabled other devices can connect faster to us, however
-        # the tradeoff is increased power consumption. Defaults to
-        # 'false'.
-        FastConnectable = true;
-      };
-      Policy = {
-        # Enable all controllers when they are found. This includes
-        # adapters present on start as well as adapters that are plugged
-        # in later on. Defaults to 'true'.
-        AutoEnable = true;
-      };
-    };
   };
   services.blueman.enable = true;
 
-  # Spin down hard drives after 1 minute of inactivity.
-  services.udev.extraRules =
-    let
-      mkRule = as: lib.concatStringsSep ", " as;
-      mkRules = rs: lib.concatStringsSep "\n" rs;
-    in
-    mkRules ([
-      (mkRule [
-        ''ACTION=="add|change"''
-        ''SUBSYSTEM=="block"''
-        ''KERNEL=="sd[a-z]"''
-        ''ATTR{queue/rotational}=="1"''
-        ''RUN+="${pkgs.hdparm}/bin/hdparm -S 12 /dev/%k"''
-      ])
-    ]);
+  # Spin down hard drives after 10 minutes of inactivity
+  systemd.services.hd-idle = {
+    enable = true;
+    description = "Suspend idle hard drives";
 
-  # If this is not set to false, the boot fails
-  fileSystems."/mnt/alpha" = {
-    neededForBoot = lib.mkForce false;
+    after = [ "systemd-modules-load.service" ];
+    wantedBy = [ "multi-user.target" ];
+    serviceConfig = {
+      Nice = 19;
+      Restart = "always";
+      Type = "simple";
+      RestartSec = "30s";
+      ExecStart =
+        let
+          ataDrives = [
+            "/dev/disk/by-id/ata-OOS14000G_000AB2EC"
+            "/dev/disk/by-id/ata-OOS14000G_000AEPBK"
+            "/dev/disk/by-id/ata-OOS14000G_000EMSFT"
+            "/dev/disk/by-id/ata-OOS14000G_000B0BLM"
+          ];
+          scsiDrives = [
+            "/dev/disk/by-id/ata-WDC_WD140EDGZ-11B1PA0_7LGJ8SEK"
+            "/dev/disk/by-id/ata-WDC_WD140EDGZ-11B1PA0_7LGJAD7K"
+          ];
+          suspendAfterSeconds = 60 * 10;
+        in
+        "${lib.getExe pkgs.hd-idle} -i 0 -s 1 ${lib.concatStringsSep " " (map (d: "-a " + d + " -c ata -i " + (builtins.toString suspendAfterSeconds)) ataDrives)} ${lib.concatStringsSep " " (map (d: "-a " + d + " -c scsi -i " + (builtins.toString suspendAfterSeconds)) scsiDrives)}";
+      User = "root";
+      Group = "root";
+    };
   };
-  fileSystems."/mnt/beta" = {
-    neededForBoot = lib.mkForce false;
-  };
-  fileSystems."/mnt/gamma" = {
-    neededForBoot = lib.mkForce false;
-  };
-  fileSystems."/mnt/delta" = {
-    neededForBoot = lib.mkForce false;
-  };
+
+  boot.initrd.systemd.enable = true;
+
+  # # Not sure if this is still necessary
+  # fileSystems."/" = {
+  #   fsType = "bcachefs";
+  #   options = [
+  #     "x-systemd.wants=/dev/disk/by-id/nvme-eui.0025385751a00c5d"
+  #     # "x-systemd.wants=/dev/disk/by-id/nvme-nvme.1e4b-465853383830323530383135313137-46616e7869616e67205338383020345442-00000001"
+  #     "x-systemd.wants=/dev/disk/by-id/ata-OOS14000G_000AB2EC"
+  #     "x-systemd.wants=/dev/disk/by-id/ata-OOS14000G_000AEPBK"
+  #     "x-systemd.wants=/dev/disk/by-id/ata-OOS14000G_000EMSFT"
+  #     "x-systemd.wants=/dev/disk/by-id/ata-OOS14000G_000B0BLM"
+  #     "x-systemd.wants=/dev/disk/by-id/ata-WDC_WD140EDGZ-11B1PA0_7LGJ8SEK"
+  #     "x-systemd.wants=/dev/disk/by-id/ata-WDC_WD140EDGZ-11B1PA0_7LGJAD7K"
+  #     # "x-systemd.wants=/dev/sda1"
+  #     # "x-systemd.wants=/dev/sdb1"
+  #     # "x-systemd.wants=/dev/sdc1"
+  #     # "x-systemd.wants=/dev/sdd1"
+  #   ];
+  # };
+  systemd.enableEmergencyMode = true;
+  boot.initrd.systemd.emergencyAccess = true;
+
+  # boot.initrd.postDeviceCommands = "sleep 10";
+  # boot.initrd.preDeviceCommands = "sleep 5";
 
   services.autotierfs = {
     enable = true;
     settings = {
-      "/mnt/autotier" = {
+      "/storage/autotier" = {
         Global = {
           "Log Level" = 2;
-          "Tier Period" = 30;
+          "Tier Period" = 60 * 30;
           "Copy Buffer Size" = "512MiB";
           "Strict Period" = "true";
-          "Metadata Path" = "/var/lib/autotier";
+          "Metadata Path" = "/storage/autotier-meta";
+        };
+        "Tier 0" = {
+          Path = "/storage/tier0";
+          Quota = "200G";
         };
         "Tier 1" = {
-          Path = "/mnt/alpha";
-          Quota = "95%";
+          Path = "/storage/tier1";
+          Quota = "20T";
         };
         "Tier 2" = {
-          Path = "/mnt/beta";
-          Quota = "95%";
-        };
-        "Tier 3" = {
-          Path = "/mnt/gamma";
-          Quota = "95%";
-        };
-        "Tier 4" = {
-          Path = "/mnt/delta";
-          Quota = "95%";
+          Path = "/storage/tier2";
+          Quota = "20T";
         };
       };
     };

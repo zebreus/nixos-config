@@ -8,21 +8,13 @@
 
   boot = {
     initrd = {
-      availableKernelModules = [ "xhci_pci" "thunderbolt" "nvme" "usb_storage" "usbhid" "sd_mod" "rtsx_pci_sdmmc" ];
-      kernelModules = [ ];
+      # uas is required for the usb hdds
+      availableKernelModules = [ "uas" "ahci" "xhci_pci" "thunderbolt" "nvme" "usb_storage" "usbhid" "ohci_pci" "ehci_pci" "pata_amd" "sata_nv" "sd_mod" "rtsx_pci_sdmmc" ];
+      kernelModules = [ "ahci" "xhci_pci" "thunderbolt" "nvme" "usb_storage" "usbhid" "ohci_pci" "ehci_pci" "pata_amd" "sata_nv" "sd_mod" "rtsx_pci_sdmmc" "bcachefs" ];
     };
-    kernelModules = [ "kvm-intel" "i2c-dev" ];
-    # extraModulePackages = [
-    #   # config.boot.kernelPackages.rtl8192eu
-    #   config.boot.kernelPackages.rtl8189fs
-    #   config.boot.kernelPackages.rtl8189es
-    #   config.boot.kernelPackages.rtl8852bu
-    #   # config.boot.kernelPackages.rtl8852au
-    #   # config.boot.kernelPackages.rtl8188eus-aircrack
-    # ];
-  };
-  nixpkgs.config.allowBroken = true;
 
+    kernelModules = [ "uas" "ahci" "xhci_pci" "thunderbolt" "nvme" "usb_storage" "usbhid" "ohci_pci" "ehci_pci" "pata_amd" "sata_nv" "sd_mod" "rtsx_pci_sdmmc" "kvm-intel" "i2c-dev" ];
+  };
 
   fileSystems = {
     # ...

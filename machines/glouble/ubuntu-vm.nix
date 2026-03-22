@@ -59,7 +59,7 @@ in
                    - xz-utils
 
                   mounts:
-                   - [ autotier, /mnt/autotier, virtiofs, "defaults" ]
+                   - [ autotier, /storage/autotier, virtiofs, "defaults" ]
 
                   users: []
                   ssh_authorized_keys:
@@ -147,7 +147,7 @@ in
                       type = "virtiofs";
                       queue = "1024";
                     };
-                    source = { dir = "/mnt/autotier"; };
+                    source = { dir = "/storage/autotier"; };
                     target = { dir = "autotier"; };
                     binary = {
                       path = "${pkgs.virtiofsd}/bin/virtiofsd";

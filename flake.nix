@@ -1,12 +1,12 @@
 {
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
+    nixpkgs.url = "github:zebreus/nixpkgs/bcachefs-137";
     home-manager = {
       url = "github:zebreus/home-manager?ref=init-secret-service";
       inputs.nixpkgs.follows = "nixpkgs";
     };
     disko = {
-      url = "github:nix-community/disko";
+      url = "github:zebreus/disko/inode-options-for-bcachefs-subvolumes";
       inputs.nixpkgs.follows = "nixpkgs";
     };
     agenix = {
@@ -157,7 +157,7 @@
               (
                 { pkgs, ... }:
                 {
-                  networking.wireless.enable = false;
+                  # networking.wireless.enable = false;
                   networking.networkmanager.enable = true;
                   environment.systemPackages = [
                     pkgs.rsync
@@ -168,7 +168,7 @@
                   users.users.root.password = nixpkgs.lib.mkForce "54321";
                   users.users.root.initialHashedPassword = nixpkgs.lib.mkForce null;
                   users.users.root.openssh.authorizedKeys.keys = [ publicKeys.lennart ];
-                  boot.kernelPackages = pkgs.linuxPackages_latest;
+                  boot.kernelPackages = pkgs.linuxPackages_6_18;
                   boot.supportedFilesystems.bcachefs = nixpkgs.lib.mkForce true;
                   boot.supportedFilesystems.zfs = nixpkgs.lib.mkForce false;
                 }

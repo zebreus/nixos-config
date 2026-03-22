@@ -104,15 +104,16 @@
         ]
       },
       "locked": {
-        "lastModified": 1773025010,
-        "narHash": "sha256-khlHllTsovXgT2GZ0WxT4+RvuMjNeR5OW0UYeEHPYQo=",
-        "owner": "nix-community",
+        "lastModified": 1774182135,
+        "narHash": "sha256-FEzEDAw7Aehe3uuijY7J9bBPe0fjySFGQfTGWz9Pox8=",
+        "owner": "zebreus",
         "repo": "disko",
-        "rev": "7b9f7f88ab3b339f8142dc246445abb3c370d3d3",
+        "rev": "fab24bd6faf599929f7f5b90541a75e41ff0c78b",
         "type": "github"
       },
       "original": {
-        "owner": "nix-community",
+        "owner": "zebreus",
+        "ref": "inode-options-for-bcachefs-subvolumes",
         "repo": "disko",
         "type": "github"
       }
@@ -367,16 +368,16 @@
     },
     "nixpkgs": {
       "locked": {
-        "lastModified": 1763421233,
-        "narHash": "sha256-Stk9ZYRkGrnnpyJ4eqt9eQtdFWRRIvMxpNRf4sIegnw=",
-        "owner": "nixos",
+        "lastModified": 1774205124,
+        "narHash": "sha256-iHin564HmFXjOjy8YWVZIjsxkQG9mU6w9voMwEr6C08=",
+        "owner": "zebreus",
         "repo": "nixpkgs",
-        "rev": "89c2b2330e733d6cdb5eae7b899326930c2c0648",
+        "rev": "b517777a1c3fc7ee6195587120e7480ce4583d8a",
         "type": "github"
       },
       "original": {
-        "owner": "nixos",
-        "ref": "nixos-unstable",
+        "owner": "zebreus",
+        "ref": "bcachefs-137",
         "repo": "nixpkgs",
         "type": "github"
       }
