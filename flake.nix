@@ -1,6 +1,6 @@
 {
   inputs = {
-    nixpkgs.url = "github:zebreus/nixpkgs/bcachefs-137";
+    nixpkgs.url = "github:zebreus/nixpkgs/bcachefs-1375-unstable";
     home-manager = {
       url = "github:zebreus/home-manager?ref=init-secret-service";
       inputs.nixpkgs.follows = "nixpkgs";

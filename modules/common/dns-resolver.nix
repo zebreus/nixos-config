@@ -6,10 +6,10 @@
       "9.9.9.9"
       "1.1.1.1"
     ];
-    extraConfig = ''
-      DNS=[::1]:54
-      DNSStubListener=yes
-    '';
+    settings.Resolve = {
+      DNS = "[::1]:54";
+      DNSStubListener = true;
+    };
   };
   networking.resolvconf.useLocalResolver = true;
 

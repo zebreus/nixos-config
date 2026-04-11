@@ -1,5 +1,5 @@
 # Option definitions for information about the machines in the network
-{ lib, config, ... }:
+{ lib, config, pkgs, ... }:
 with lib;
 let
   backupRepoOpts = self: {
@@ -283,7 +283,7 @@ let
 
       ollama = {
         enable = mkEnableOption "Enable ollama";
-        acceleration = mkOption {
+        package = mkOption {
           type = lib.types.str;
           description = "Select the accelerator. See services.ollama.acceleration for details";
           default = "rocm";

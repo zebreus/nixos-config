@@ -368,16 +368,16 @@
     },
     "nixpkgs": {
       "locked": {
-        "lastModified": 1774205124,
-        "narHash": "sha256-iHin564HmFXjOjy8YWVZIjsxkQG9mU6w9voMwEr6C08=",
+        "lastModified": 1775939621,
+        "narHash": "sha256-tUS4i3J+Ug/k6VyPj/l3jQVqebV4E5iaRJeoI54mtPs=",
         "owner": "zebreus",
         "repo": "nixpkgs",
-        "rev": "b517777a1c3fc7ee6195587120e7480ce4583d8a",
+        "rev": "03ed831e6f6ea41653a3e0ab0f226cc7c1bedd2f",
         "type": "github"
       },
       "original": {
         "owner": "zebreus",
-        "ref": "bcachefs-137",
+        "ref": "bcachefs-1375-unstable",
         "repo": "nixpkgs",
         "type": "github"
       }
