@@ -190,9 +190,9 @@ in
             # Forward all Matrix API calls to the synapse Matrix homeserver. A trailing slash
             # *must not* be used here.
             locations = {
-              "/_matrix".proxyPass = "http://${containerAddress6}:8008";
+              "/_matrix".proxyPass = "http:/[/${containerAddress6}]:8008";
               # Forward requests for e.g. SSO and password-resets.
-              "/_synapse/client".proxyPass = "http://${containerAddress6}:8008";
+              "/_synapse/client".proxyPass = "http://[${containerAddress6}]:8008";
               "/".extraConfig = ''
                 return 301 $scheme://${elementDomain}$request_uri;
               '';
