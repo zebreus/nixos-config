@@ -42,14 +42,14 @@
         publicWireguardKey = "FIk95vqIJxf2ZH750lsV1EybfeC9+V8Bnhn8YWPy/l8=";
         publicWireguardPort = "57319";
       };
-      pogopeering = {
-        peerLinkLocal = "fe80::1312";
-        ownLinkLocal = "fe80::acab";
-        asNumber = "4242420663";
-        publicWireguardEndpoint = "de01.dn42.lare.cc:21403";
-        publicWireguardKey = "NxHkdwZPVL+3HdrHTFOslUpUckTf0dzEG9qpZ0FTBnA=";
-        publicWireguardPort = "1";
-      };
+      # pogopeering = {
+      #   peerLinkLocal = "fe80::1312";
+      #   ownLinkLocal = "fe80::acab";
+      #   asNumber = "4242420663";
+      #   publicWireguardEndpoint = "de01.dn42.lare.cc:21403";
+      #   publicWireguardKey = "NxHkdwZPVL+3HdrHTFOslUpUckTf0dzEG9qpZ0FTBnA=";
+      #   publicWireguardPort = "1";
+      # };
       sebastians = {
         peerLinkLocal = "fe80::cafe";
         ownLinkLocal = "fe80::beef";
