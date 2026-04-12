@@ -42,6 +42,8 @@ in
             from_name = "Antibuilding Grafana";
             from_address = config.services.grafana.settings.smtp.user;
           };
+          # Hard coding the key that was previously default
+          security.secret_key = "SW2YcwTIb9zpOOhoPsMm";
           # security = {
           #   admin_password = "adminadmin";
           #   admin_user = "admin";
