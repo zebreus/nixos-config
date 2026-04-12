@@ -2,13 +2,14 @@
 
   services.resolved = {
     enable = true;
-    fallbackDns = [
-      "9.9.9.9"
-      "1.1.1.1"
-    ];
+
     settings.Resolve = {
       DNS = "[::1]:54";
       DNSStubListener = true;
+      FallbackDns = [
+        "9.9.9.9"
+        "1.1.1.1"
+      ];
     };
   };
   networking.resolvconf.useLocalResolver = true;
@@ -28,7 +29,7 @@
         ];
       };
       # dont-query = 127.0.0.0/8, 192.168.0.0/16, ::1/128, fe80::/10
-      yaml-settings = {
+      settings = {
         outgoing = {
           dont_query = [
             "127.0.0.0/8"
