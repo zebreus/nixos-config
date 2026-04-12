@@ -43,10 +43,10 @@ in
         ${baseDomain}.email = email;
         ${elementDomain}.email = email;
         ${synapseDomain}.email = email;
-        ${turnDomain} = {
-          postRun = "systemctl restart coturn.service";
-          inherit email;
-        };
+        # ${turnDomain} = {
+        #   postRun = "systemctl restart coturn.service";
+        #   inherit email;
+        # };
       };
     };
 
