@@ -204,6 +204,19 @@ let
           description = "Email address to use for Let's Encrypt certificates.";
         };
       };
+      matrixLiteServer = {
+        enable = mkEnableOption "Enable matrix server";
+        # TODO: Move this somewhere else
+        baseDomain = mkOption {
+          type = types.str;
+          description = "Base domain for the matrix server.";
+        };
+        # TODO: Move this somewhere else
+        certEmail = mkOption {
+          type = types.str;
+          description = "Email address to use for Let's Encrypt certificates.";
+        };
+      };
 
       eventServer = {
         enable = mkEnableOption "Enable event server with various services";

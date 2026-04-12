@@ -15,6 +15,7 @@
     ./event.nix
     ./homeassistant.nix
     ./mail.nix
+    ./matrix-lite.nix
     ./matrix.nix
     ./monitoring.nix
     ./ollama.nix

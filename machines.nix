@@ -34,6 +34,11 @@ in
         baseDomain = "zebre.us";
         certEmail = "lennarteichhorn@googlemail.com";
       };
+      matrixLiteServer = {
+        enable = true;
+        baseDomain = "dumb.place";
+        certEmail = "lennarteichhorn@googlemail.com";
+      };
     };
     kappril = {
       name = "kappril";

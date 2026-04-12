@@ -115,11 +115,6 @@ in
         ; google site verification
         @ IN TXT ${quoteTxtEntry "google-site-verification=MALeUxuBug7rgptrtijQWhfIWCJ_AraTZwS00xUnAXQ"}
       '';
-
-      "dumb.place" = ''
-        ; just testing
-        @	IN A 1.1.1.1
-      '';
     }
   );
 }
