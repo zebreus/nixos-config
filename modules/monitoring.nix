@@ -6,17 +6,6 @@ let
 in
 {
   config = lib.mkIf thisMachine.monitoring.enable {
-    networking.firewall = {
-      allowedTCPPorts = [ 80 443 ];
-    };
-
-    security.acme = {
-      acceptTerms = true;
-      certs = {
-        "grafana.antibuild.ing".email = "lennarteichhorn@gmail.com";
-      };
-    };
-
     services = {
       grafana = {
         enable = true;
@@ -139,11 +128,6 @@ in
       };
       nginx = {
         enable = true;
-        # Only allow PFS-enabled ciphers with AES256
-        recommendedTlsSettings = true;
-        recommendedOptimisation = true;
-        recommendedGzipSettings = true;
-        recommendedProxySettings = true;
         virtualHosts = {
           "grafana.antibuild.ing" = {
             enableACME = true;

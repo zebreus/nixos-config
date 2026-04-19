@@ -5,13 +5,6 @@ let
 in
 {
   config = lib.mkIf thisMachine.bird-lg.enable {
-    networking.firewall = {
-      allowedTCPPorts = [ 443 ];
-    };
-    security.acme = {
-      acceptTerms = true;
-      defaults.email = "lennarteichhorn@googlemail.com";
-    };
     services = {
       bird-lg = {
         frontend = {
@@ -26,13 +19,16 @@ in
           };
         };
       };
-      nginx.virtualHosts = {
-        "lg.antibuild.ing" = {
-          forceSSL = true;
-          enableACME = true;
-          locations."/" = {
-            proxyPass = "http://${config.services.bird-lg.frontend.listenAddresses}";
-            proxyWebsockets = true;
+      nginx = {
+        enable = true;
+        virtualHosts = {
+          "lg.antibuild.ing" = {
+            forceSSL = true;
+            enableACME = true;
+            locations."/" = {
+              proxyPass = "http://${config.services.bird-lg.frontend.listenAddresses}";
+              proxyWebsockets = true;
+            };
           };
         };
       };

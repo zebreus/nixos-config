@@ -47,26 +47,8 @@ in
       ];
     };
 
-    networking.firewall = {
-      allowedTCPPorts = [ 80 443 ];
-    };
-
-    # Get certs
-    security.acme = {
-      acceptTerms = true;
-      certs = {
-        "essen.jetzt".email = "lennart@zebre.us";
-      };
-    };
-
     services.nginx = {
       enable = true;
-      # Only allow PFS-enabled ciphers with AES256
-      sslCiphers = "AES256+EECDH:AES256+EDH:!aNULL";
-      recommendedTlsSettings = true;
-      recommendedOptimisation = true;
-      recommendedGzipSettings = true;
-      recommendedProxySettings = true;
       commonHttpConfig = ''
         limit_req_zone $binary_remote_addr zone=mylimit:10m rate=6r/m;
       '';

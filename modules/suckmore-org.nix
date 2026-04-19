@@ -67,42 +67,14 @@ in
       };
     };
 
-    networking.firewall = {
-      allowedTCPPorts = [
-        80
-        443
-      ];
-    };
-
-    security.acme = {
-      acceptTerms = true;
-      defaults.webroot = "/var/lib/acme/acme-challenge/";
-      certs = {
-        "suckmore.org".email = cfg.email;
-        "suckmore.org".group = "nginx";
-        # "suckmore-wildcard" = {
-        #   email = cfg.email;
-        #   group = "nginx";
-        #   domain = "*.suckmore.org";
-        # };
-      };
-    };
-
     services.nginx = {
       enable = true;
-      # Only allow PFS-enabled ciphers with AES256
-      sslCiphers = "AES256+EECDH:AES256+EDH:!aNULL";
-      recommendedTlsSettings = true;
-      recommendedOptimisation = true;
-      recommendedGzipSettings = true;
-      recommendedProxySettings = true;
       commonHttpConfig = lib.mkIf cfg.enableCaching ''
         limit_req_zone $binary_remote_addr zone=mylimit2:10m rate=600r/m;
       '';
       virtualHosts = {
         "${cfg.baseDomain}" = {
-          # enableACME = true;
-          useACMEHost = "suckmore.org";
+          enableACME = true;
           forceSSL = true;
           locations = {
             "/" = {
@@ -113,7 +85,7 @@ in
                 limit_req zone=mylimit2 burst=10;
               '';
             };
-            "/.well-known/".root = "/var/lib/acme/acme-challenge/";
+            # "/.well-known/".root = "/var/lib/acme/acme-challenge/";
           };
         };
         # "*.${cfg.baseDomain}" = {

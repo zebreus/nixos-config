@@ -36,31 +36,6 @@ in
       # };
     };
 
-    # Get certs
-    security.acme = {
-      acceptTerms = true;
-      certs = {
-        ${baseDomain}.email = email;
-        ${elementDomain}.email = email;
-        ${synapseDomain}.email = email;
-        # ${turnDomain} = {
-        #   postRun = "systemctl restart coturn.service";
-        #   inherit email;
-        # };
-      };
-    };
-
-    # open the firewall
-    networking.firewall = {
-      allowedUDPPortRanges = [{
-        from = config.services.coturn.min-port;
-        to = config.services.coturn.max-port;
-      }];
-      allowedUDPPorts = [ ];
-      allowedTCPPortRanges = [ ];
-      allowedTCPPorts = [ 80 443 ];
-    };
-
     # nixpkgs.config.element-web = {
     #   conf = {
     #     show_labs_settings = true;
@@ -103,7 +78,7 @@ in
         # open the firewall
         networking = {
           firewall = {
-            allowedTCPPorts = [ 80 8008 ];
+            allowedTCPPorts = [ 8008 8009 ];
           };
           # Use systemd-resolved inside the container
           # Workaround for bug https://github.com/NixOS/nixpkgs/issues/162686
@@ -156,19 +131,24 @@ in
               config.age.secrets.coturn_static_auth_secret_matrix_config.path
             ];
           };
+          nginx = {
+            enable = true;
+            virtualHosts = {
+              ${elementDomain} = {
+                default = true;
+                listen.port = 8009;
+                enableACME = false;
+                forceSSL = false;
+                root = pkgs.element-web;
+              };
+            };
+          };
         };
       };
     };
     services = {
-
       nginx = {
         enable = true;
-        # Only allow PFS-enabled ciphers with AES256
-        sslCiphers = "AES256+EECDH:AES256+EDH:!aNULL";
-        recommendedTlsSettings = true;
-        recommendedOptimisation = true;
-        recommendedGzipSettings = true;
-        recommendedProxySettings = true;
         virtualHosts = {
           ${baseDomain} = {
             enableACME = true;
@@ -213,10 +193,14 @@ in
           ${elementDomain} = {
             enableACME = true;
             forceSSL = true;
-            serverAliases = [
-              elementDomain
-            ];
-            root = pkgs.element-web;
+            # serverAliases = [
+            #   elementDomain
+            # ];
+            locations."/" = {
+              proxyPass = "http://[${containerAddress6}]:8009";
+              proxyWebsockets = true;
+              recommendedProxySettings = true;
+            };
             # locations = {
             #   "/extra/resources/" = { alias = element-branding-resources + "/"; };
             # };

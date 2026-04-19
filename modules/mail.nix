@@ -104,8 +104,6 @@ in
       # Enable encrypted imap on port 993
       enableImapSsl = true;
     };
-    security.acme.acceptTerms = true;
-    security.acme.defaults.email = certEmail;
 
     services.rspamd.extraConfig = ''
       actions {
@@ -118,17 +116,16 @@ in
     # Open firewall port 9100 for traffic from the grafana server
     networking.firewall.extraInputRules = lib.mkMerge (builtins.map
       (machine: ''
-        ip6 saddr { ${config.antibuilding.ipv6Prefix}::${builtins.toString machine.address}/128 } tcp dport ${builtins.toString config.services.prometheus.exporters.rspamd.port} accept
         ip6 saddr { ${config.antibuilding.ipv6Prefix}::${builtins.toString machine.address}/128 } tcp dport ${builtins.toString config.services.prometheus.exporters.postfix.port} accept
       '')
       # ip6 saddr { ${config.antibuilding.ipv6Prefix}::${builtins.toString machine.address}/128 } tcp dport ${builtins.toString config.services.prometheus.exporters.mail.port} accept
       grafanaServers);
     services.prometheus = {
-      exporters.rspamd = {
-        enable = true;
-        listenAddress = "[${config.antibuilding.ipv6Prefix}::${builtins.toString thisMachine.address}]";
-        port = 9256;
-      };
+      # exporters.rspamd = {
+      #   enable = true;
+      #   listenAddress = "[${config.antibuilding.ipv6Prefix}::${builtins.toString thisMachine.address}]";
+      #   port = 9256;
+      # };
       exporters.postfix = {
         enable = true;
         listenAddress = "[${config.antibuilding.ipv6Prefix}::${builtins.toString thisMachine.address}]";

@@ -13,26 +13,8 @@ in
       origin = "https://besserer.wirs.ing";
     };
 
-    networking.firewall = {
-      allowedTCPPorts = [ 80 443 ];
-    };
-
-    # Get certs
-    security.acme = {
-      acceptTerms = true;
-      certs = {
-        "besserer.wirs.ing".email = "lennart@zebre.us";
-      };
-    };
-
     services.nginx = {
       enable = true;
-      # Only allow PFS-enabled ciphers with AES256
-      sslCiphers = "AES256+EECDH:AES256+EDH:!aNULL";
-      recommendedTlsSettings = true;
-      recommendedOptimisation = true;
-      recommendedGzipSettings = true;
-      recommendedProxySettings = true;
       virtualHosts = {
         "besserer.wirs.ing" = {
           enableACME = true;

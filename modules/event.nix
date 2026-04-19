@@ -44,15 +44,6 @@ in
       };
     };
 
-
-    # Get certs
-    security.acme = {
-      acceptTerms = true;
-      certs = {
-        ${engelDomain}.email = email;
-      };
-    };
-
     services.mysql = {
       enable = true;
       package = pkgs.mariadb;
@@ -192,6 +183,7 @@ in
     };
 
     services.nginx = {
+      enable = true;
       virtualHosts = lib.mkMerge ([{
         "${engelDomain}" = {
           enableACME = true;

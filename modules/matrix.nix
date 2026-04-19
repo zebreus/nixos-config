@@ -60,14 +60,9 @@ in
 
     # Get certs
     security.acme = {
-      acceptTerms = true;
       certs = {
-        ${baseDomain}.email = email;
-        ${elementDomain}.email = email;
-        ${synapseDomain}.email = email;
         ${turnDomain} = {
           postRun = "systemctl restart coturn.service";
-          inherit email;
         };
       };
     };
@@ -79,8 +74,7 @@ in
         to = config.services.coturn.max-port;
       }];
       allowedUDPPorts = [ 3478 5349 ];
-      allowedTCPPortRanges = [ ];
-      allowedTCPPorts = [ 80 443 3478 5349 ];
+      allowedTCPPorts = [ 3478 5349 ];
     };
 
     nixpkgs.config.element-web = {
@@ -119,12 +113,6 @@ in
 
       nginx = {
         enable = true;
-        # Only allow PFS-enabled ciphers with AES256
-        sslCiphers = "AES256+EECDH:AES256+EDH:!aNULL";
-        recommendedTlsSettings = true;
-        recommendedOptimisation = true;
-        recommendedGzipSettings = true;
-        recommendedProxySettings = true;
         virtualHosts = {
           ${baseDomain} = {
             enableACME = true;

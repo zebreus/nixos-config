@@ -118,37 +118,18 @@ in
     #     cmd = [ "--storage-path" "/data" ];
     #   };
     # };
-    networking.firewall.allowedTCPPorts = [ 80 443 8123 5540 5541 5353 1900 ];
-    networking.firewall.allowedUDPPorts = [ 80 443 5540 5541 5353 1900 ];
+    networking.firewall.allowedTCPPorts = [ 8123 5540 5541 5353 1900 ];
+    networking.firewall.allowedUDPPorts = [ 5540 5541 5353 1900 ];
     systemd.network.networks.enp3s0.networkConfig.MulticastDNS = true;
-
-    # Get certs
-    security.acme = {
-      acceptTerms = true;
-      defaults.email = "lennarteichhorn@googlemail.com";
-    };
 
     services.nginx = {
       enable = true;
-      # Only allow PFS-enabled ciphers with AES256
-      sslCiphers = "AES256+EECDH:AES256+EDH:!aNULL";
-      recommendedTlsSettings = true;
-      recommendedOptimisation = true;
-      recommendedGzipSettings = true;
-      recommendedProxySettings = true;
-
       virtualHosts."hass.zebre.us" = {
         enableACME = true;
-        # useACMEHost = "hass.zebre.us";
-        # forceSSL = false;
-        # addSSL = true;
-        # rejectSSL = true;
         forceSSL = true;
         locations."/" = {
           proxyPass = "http://[::1]:8123";
           proxyWebsockets = true;
-          # basicAuth = { user = "password8"; };
-          recommendedProxySettings = true;
 
           # extraConfig = ''
           #   client_max_body_size 50000M;

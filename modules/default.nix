@@ -19,6 +19,7 @@
     ./matrix.nix
     ./monitoring.nix
     ./ollama.nix
+    ./shared.nix
     ./photos.nix
     ./suckmore-org.nix
   ];
