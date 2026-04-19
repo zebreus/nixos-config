@@ -122,6 +122,8 @@ in
       };
       photosServer.enable = true;
       essenJetztServer.enable = true;
+      suckmoreOrgServer.enable = true;
+      suckmoreOrgServer.enableCaching = false;
     };
     prandtl = {
       name = "prandtl";

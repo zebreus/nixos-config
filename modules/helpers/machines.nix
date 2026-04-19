@@ -310,6 +310,20 @@ let
       homeassistantServer = {
         enable = mkEnableOption "Enable homeassistant server";
       };
+
+      suckmoreOrgServer = {
+        enable = mkEnableOption "Enable suckmore.org server";
+        enableCaching = mkOption {
+          type = types.bool;
+          default = true;
+          description = "Enable aggressive caching for suckmore.org. This is not recommended if you are actively developing on the server, because you might not see your changes immediately.";
+        };
+        baseDomain = mkOption {
+          type = types.str;
+          description = "Base domain for the suckmore.org server.";
+          default = "suckmore.org";
+        };
+      };
     };
   };
 in

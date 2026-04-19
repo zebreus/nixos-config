@@ -207,6 +207,24 @@
         "type": "github"
       }
     },
+    "flake-utils_3": {
+      "inputs": {
+        "systems": "systems_4"
+      },
+      "locked": {
+        "lastModified": 1731533236,
+        "narHash": "sha256-l0KFg5HjrsfsO/JpG+r7fRrqm12kzFHyUHqHCVpMMbI=",
+        "owner": "numtide",
+        "repo": "flake-utils",
+        "rev": "11707dc2f618dd54ca8739b309ec4fc024de578b",
+        "type": "github"
+      },
+      "original": {
+        "owner": "numtide",
+        "repo": "flake-utils",
+        "type": "github"
+      }
+    },
     "git-hooks": {
       "inputs": {
         "flake-compat": [
@@ -439,7 +457,8 @@
         "nixos-wallpaper": "nixos-wallpaper",
         "nixpkgs": "nixpkgs",
         "nixvirt": "nixvirt",
-        "simple-nix-mailserver": "simple-nix-mailserver"
+        "simple-nix-mailserver": "simple-nix-mailserver",
+        "suckmore-org": "suckmore-org"
       }
     },
     "rust-overlay": {
@@ -487,6 +506,27 @@
         "type": "gitlab"
       }
     },
+    "suckmore-org": {
+      "inputs": {
+        "flake-utils": "flake-utils_3",
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1776619188,
+        "narHash": "sha256-IqZiuiUtc05aR05hxH9STmhwHp6zaCGdUmkYYHy+kvY=",
+        "owner": "zebreus",
+        "repo": "suckmore-org",
+        "rev": "b3881f8e79b047ad20d66c753e0698f9dd4cfdc1",
+        "type": "github"
+      },
+      "original": {
+        "owner": "zebreus",
+        "repo": "suckmore-org",
+        "type": "github"
+      }
+    },
     "systems": {
       "locked": {
         "lastModified": 1681028828,
@@ -518,6 +558,21 @@
       }
     },
     "systems_3": {
+      "locked": {
+        "lastModified": 1681028828,
+        "narHash": "sha256-Vy1rq5AaRuLzOxct8nz4T6wlgyUR7zLU309k9mBC768=",
+        "owner": "nix-systems",
+        "repo": "default",
+        "rev": "da67096a3b9bf56a91d16901293e51ba5b49a27e",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nix-systems",
+        "repo": "default",
+        "type": "github"
+      }
+    },
+    "systems_4": {
       "locked": {
         "lastModified": 1681028828,
         "narHash": "sha256-Vy1rq5AaRuLzOxct8nz4T6wlgyUR7zLU309k9mBC768=",

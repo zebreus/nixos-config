@@ -34,6 +34,10 @@
       url = "github:zebreus/NixVirt/dnsmasq-passthrough";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    suckmore-org = {
+      url = "github:zebreus/suckmore-org";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =
@@ -46,6 +50,7 @@
     , besserestrichliste
     , lanzaboote
     , nixvirt
+    , suckmore-org
     , ...
     }:
     let
@@ -85,6 +90,7 @@
             home-manager.nixosModules.home-manager
             simple-nix-mailserver.nixosModules.default
             besserestrichliste.nixosModules.aarch64-linux.default
+            suckmore-org.nixosModules.aarch64-linux.default
           ];
         in
         {
