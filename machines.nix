@@ -111,7 +111,7 @@ in
       #   storagePath = "/storage/storagebox/borg";
       # };
       mailServer = {
-        enable = false;
+        enable = true;
         baseDomain = "zebre.us";
         certEmail = "lennarteichhorn@googlemail.com";
       };

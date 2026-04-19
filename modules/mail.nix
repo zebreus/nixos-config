@@ -13,7 +13,9 @@ let
   grafanaServers = lib.filter (machine: machine.monitoring.enable) machines;
 in
 {
-  config = mkIf cfg.enable {
+  # TODO: Reenable
+  # config = mkIf cfg.enable {
+  config = mkIf false {
     age.secrets = {
       lennart_mail_passwordhash = {
         file = ../secrets/lennart_mail_passwordhash.age;
