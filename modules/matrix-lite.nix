@@ -71,6 +71,7 @@ in
               server_name = baseDomain;
               public_baseurl = "https://${synapseDomain}";
               database.args.port = 5433;
+              enable_registration = true;
               registration_requires_token = true;
               listeners = [
                 {
