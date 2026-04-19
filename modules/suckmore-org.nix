@@ -15,6 +15,29 @@ let
       deno run --allow-net --allow-env=PORT ${../resources/suckmore.ts}
     '';
   };
+
+  subdomains = [
+    "wiki"
+    "hg"
+    "oldhg"
+    "dmenu"
+    "wmii"
+    "mx"
+    "gunther"
+    "oldgit"
+    "lists"
+    "core"
+    "dl"
+    "surf"
+    "stagit"
+    "www"
+    "dwm"
+    "ev"
+    "git"
+    "libs"
+    "st"
+    "tools"
+  ];
 in
 {
 
@@ -72,38 +95,25 @@ in
       commonHttpConfig = lib.mkIf cfg.enableCaching ''
         limit_req_zone $binary_remote_addr zone=mylimit2:10m rate=600r/m;
       '';
-      virtualHosts = {
-        "${cfg.baseDomain}" = {
-          enableACME = true;
-          forceSSL = true;
-          locations = {
-            "/" = {
-              proxyPass = "http://[::1]:" + cfg.port;
-              extraConfig = lib.mkIf cfg.enableCaching ''
-                proxy_cache_key $scheme://$host$uri$is_args$query_string;
-                proxy_cache_valid 200 10m;
-                limit_req zone=mylimit2 burst=10;
-              '';
+      virtualHosts = lib.mkMerge (builtins.map
+        (domain: {
+          "${domain}" = {
+            enableACME = true;
+            forceSSL = true;
+            locations = {
+              "/" = {
+                proxyPass = "http://[::1]:" + cfg.port;
+                extraConfig = lib.mkIf cfg.enableCaching ''
+                  proxy_cache_key $scheme://$host$uri$is_args$query_string;
+                  proxy_cache_valid 200 10m;
+                  limit_req zone=mylimit2 burst=10;
+                '';
+              };
             };
-            # "/.well-known/".root = "/var/lib/acme/acme-challenge/";
           };
-        };
-        # "*.${cfg.baseDomain}" = {
-        #   # enableACME = true;
-        #   useACMEHost = "suckmore.org";
-        #   forceSSL = true;
-        #   locations = {
-        #     "/" = {
-        #       proxyPass = "http://[::1]:" + cfg.port;
-        #       extraConfig = lib.mkIf cfg.enableCaching ''
-        #         proxy_cache_key $scheme://$host$uri$is_args$query_string;
-        #         proxy_cache_valid 200 10m;
-        #         limit_req zone=mylimit burst=10;
-        #       '';
-        #     };
-        #   };
-        # };
-      };
+        })
+        ([ cfg.baseDomain ] ++ (builtins.map (subdomain: "${subdomain}.${cfg.baseDomain}") subdomains))
+      );
     };
   };
 }
