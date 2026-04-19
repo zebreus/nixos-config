@@ -85,7 +85,6 @@ in
           useHostResolvConf = lib.mkForce false;
         };
         services.resolved.enable = true;
-
         system.stateVersion = "26.05";
 
         services = {
@@ -111,7 +110,7 @@ in
               listeners = [
                 {
                   port = 8008;
-                  bind_addresses = [ "::1" ];
+                  bind_addresses = [ "${containerAddress6}" ];
                   type = "http";
                   tls = false;
                   x_forwarded = true;
@@ -136,7 +135,7 @@ in
             virtualHosts = {
               ${elementDomain} = {
                 default = true;
-                listen.port = 8009;
+                listen = [{ port = 8009; addr = "[${containerAddress6}]"; }];
                 enableACME = false;
                 forceSSL = false;
                 root = pkgs.element-web;
@@ -170,7 +169,7 @@ in
             # Forward all Matrix API calls to the synapse Matrix homeserver. A trailing slash
             # *must not* be used here.
             locations = {
-              "/_matrix".proxyPass = "http:/[/${containerAddress6}]:8008";
+              "/_matrix".proxyPass = "http://[${containerAddress6}]:8008";
               # Forward requests for e.g. SSO and password-resets.
               "/_synapse/client".proxyPass = "http://[${containerAddress6}]:8008";
               "/".extraConfig = ''
