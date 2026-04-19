@@ -514,11 +514,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1776619188,
-        "narHash": "sha256-IqZiuiUtc05aR05hxH9STmhwHp6zaCGdUmkYYHy+kvY=",
+        "lastModified": 1776621702,
+        "narHash": "sha256-Ja1Yb5prUregBhyceMsGMPCuubKYt6ZeH06vIdODSpM=",
         "owner": "zebreus",
         "repo": "suckmore-org",
-        "rev": "b3881f8e79b047ad20d66c753e0698f9dd4cfdc1",
+        "rev": "847c8dba1944c4b1542867d657b6fbd002fe0252",
         "type": "github"
       },
       "original": {

@@ -90,7 +90,7 @@
             home-manager.nixosModules.home-manager
             simple-nix-mailserver.nixosModules.default
             besserestrichliste.nixosModules.aarch64-linux.default
-            suckmore-org.nixosModules.aarch64-linux.default
+            suckmore-org.nixosModules.default
           ];
         in
         {
