@@ -10,14 +10,6 @@ in
       # I use this domains for hosting random stuff with github pages
       "wirs.ing" = ''
         ; various github pages
-        ; @	IN A 185.199.108.153
-        ; @	IN A 185.199.109.153
-        ; @	IN A 185.199.110.153
-        ; @	IN A 185.199.111.153
-        ; @	IN AAAA 2606:50c0:8000::153
-        ; @	IN AAAA 2606:50c0:8001::153
-        ; @	IN AAAA 2606:50c0:8002::153
-        ; @	IN AAAA 2606:50c0:8003::153
         ofborg IN CNAME zebreus.github.io.
         search IN CNAME zebreus.github.io.
         second IN CNAME zebreus.github.io.

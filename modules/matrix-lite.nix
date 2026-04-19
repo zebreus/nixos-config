@@ -5,6 +5,7 @@ let
   cfg = config.machines.${config.networking.hostName}.matrixLiteServer;
   inherit (cfg) baseDomain;
   elementDomain = "element.${baseDomain}";
+  adminDomain = "admin.${baseDomain}";
   synapseDomain = "matrix.${baseDomain}";
   clientConfig."m.homeserver".base_url = "https://${synapseDomain}";
   serverConfig."m.server" = "${synapseDomain}:443";
@@ -16,7 +17,7 @@ let
   element-branding = {
     welcome_background_url = "/extra/resources/wirsing.webp";
     auth_header_logo_url = "/extra/resources/wirsing-logo.webp";
-    auth_footer_links = [{ "text" = "about"; "url" = "https://de.wikipedia.org/wiki/Wirsing"; }];
+    auth_footer_links = [{ "text" = "Über Wirsing"; "url" = "https://de.wikipedia.org/wiki/Wirsing"; }];
   };
   branded-element-web = pkgs.element-web.override
     {
@@ -29,22 +30,27 @@ let
         branding = element-branding;
       };
     };
+  synapse-admin = pkgs.ketesa.withConfig {
+    restrictBaseUrl = [
+      "https://${synapseDomain}"
+    ];
+  };
 in
 {
   config = mkIf cfg.enable {
     containers.matrix-lite = {
       autoStart = true;
       privateNetwork = false;
-      # bindMounts = {
-      #   "${config.age.secrets.coturn_static_auth_secret_matrix_config.path}" = {
-      #     hostPath = "${config.age.secrets.coturn_static_auth_secret_matrix_config.path}";
-      #     isReadOnly = true;
-      #   };
-      #   "${config.age.secrets.coturn_static_auth_secret.path}" = {
-      #     hostPath = "${config.age.secrets.coturn_static_auth_secret.path}";
-      #     isReadOnly = true;
-      #   };
-      # };
+      bindMounts = {
+        "${config.age.secrets.coturn_static_auth_secret_matrix_config.path}" = {
+          hostPath = "${config.age.secrets.coturn_static_auth_secret_matrix_config.path}";
+          isReadOnly = true;
+        };
+        "${config.age.secrets.coturn_static_auth_secret.path}" = {
+          hostPath = "${config.age.secrets.coturn_static_auth_secret.path}";
+          isReadOnly = true;
+        };
+      };
       config = {
         system.stateVersion = "26.05";
         services = {
@@ -57,12 +63,15 @@ in
                 LC_COLLATE = "C"
                 LC_CTYPE = "C";
             '';
+            settings.port = 5433;
           };
           matrix-synapse = {
             enable = true;
             settings = {
               server_name = baseDomain;
               public_baseurl = "https://${synapseDomain}";
+              database.args.port = 5433;
+              registration_requires_token = true;
               listeners = [
                 {
                   port = 28008;
@@ -81,10 +90,10 @@ in
               turn_uris = [ "turn:${config.services.coturn.realm}:3478?transport=udp" "turn:${config.services.coturn.realm}:3478?transport=tcp" ];
               turn_user_lifetime = "1h";
             };
-            # # There is no file option for the coturn static auth secret, so we need to add it via extraConfigFiles
-            # extraConfigFiles = [
-            #   config.age.secrets.coturn_static_auth_secret_matrix_config.path
-            # ];
+            # There is no file option for the coturn static auth secret, so we need to add it via extraConfigFiles
+            extraConfigFiles = [
+              config.age.secrets.coturn_static_auth_secret_matrix_config.path
+            ];
           };
           nginx = {
             enable = true;
@@ -106,6 +115,13 @@ in
                   "= /vector-icons/180.30b915f.png" = { alias = ../resources/wirsing/180.30b915f.png; };
                   "= /vector-icons/512.7ce350d.png" = { alias = ../resources/wirsing/512.7ce350d.png; };
                 };
+              };
+              "${adminDomain}" = {
+                default = true;
+                listen = [{ port = 28010; addr = "[::1]"; }];
+                enableACME = false;
+                forceSSL = false;
+                root = synapse-admin;
               };
             };
           };
@@ -138,9 +154,26 @@ in
             locations = {
               "/_matrix".proxyPass = "http://[::1]:28008";
               "/_synapse/client".proxyPass = "http://[::1]:28008";
-              "/".extraConfig = ''
-                return 301 $scheme://${elementDomain}$request_uri;
-              '';
+              "/_synapse/admin" = {
+                proxyPass = "http://[::1]:28008";
+                extraConfig = ''
+                  allow ::1;
+                  allow 127.0.0.1;
+                  allow fe80::/64;
+                  allow 192.168.178.0/24;
+                  allow 2a03:4000:20:19d::1/64;
+                  allow 159.195.88.96/32;
+                  deny all;
+                '';
+              };
+              "/" = {
+                proxyPass = "http://[::1]:28010";
+                proxyWebsockets = true;
+                recommendedProxySettings = true;
+              };
+              # "/".extraConfig = ''
+              #   return 301 $scheme://${elementDomain}$request_uri;
+              # '';
             };
           };
           ${elementDomain} = {
