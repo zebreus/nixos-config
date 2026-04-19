@@ -37,6 +37,16 @@ let
     # A list of links to add to the footer during login, registration, etc. Each entry must have a text and url property.
     # auth_footer_links = [ ];
   };
+  branded-element-web = pkgs.element-web.override {
+    conf = {
+      show_labs_settings = true;
+      default_theme = "dark";
+      default_server_config = clientConfig;
+      brand = "zebre.us";
+      permalink_prefix = "https://element.zebre.us";
+      branding = element-branding;
+    };
+  };
 in
 {
   config = mkIf cfg.enable {
@@ -77,16 +87,6 @@ in
       allowedTCPPorts = [ 3478 5349 ];
     };
 
-    nixpkgs.config.element-web = {
-      conf = {
-        show_labs_settings = true;
-        default_theme = "dark";
-        default_server_config = clientConfig;
-        brand = "zebre.us";
-        permalink_prefix = "https://element.zebre.us";
-        branding = element-branding;
-      };
-    };
     # # Patch the welcome strings on the login page to say the domain instead of element
     # nixpkgs.overlays = [
     #   (final: prev: {
@@ -160,7 +160,7 @@ in
             serverAliases = [
               elementDomain
             ];
-            root = pkgs.element-web;
+            root = branded-element-web;
             locations = {
               "/extra/resources/" = { alias = element-branding-resources + "/"; };
             };

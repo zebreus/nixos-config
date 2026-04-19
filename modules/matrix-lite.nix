@@ -3,9 +3,7 @@
 with lib;
 let
   cfg = config.machines.${config.networking.hostName}.matrixLiteServer;
-  # inherit (cfg) baseDomain;
   inherit (cfg) baseDomain;
-  turnDomain = "turn.${baseDomain}";
   elementDomain = "element.${baseDomain}";
   synapseDomain = "matrix.${baseDomain}";
   clientConfig."m.homeserver".base_url = "https://${synapseDomain}";
@@ -15,78 +13,40 @@ let
     add_header Access-Control-Allow-Origin *;
     return 200 '${builtins.toJSON data}';
   '';
-  email = cfg.certEmail;
-
-  hostAddress = "192.168.208.10";
-  containerAddress = "192.168.208.11";
-  hostAddress6 = "fc00:9292::1";
-  containerAddress6 = "fc00:9292::2";
+  element-branding = {
+    welcome_background_url = "/extra/resources/wirsing.webp";
+    auth_header_logo_url = "/extra/resources/wirsing-logo.webp";
+    auth_footer_links = [{ "text" = "about"; "url" = "https://de.wikipedia.org/wiki/Wirsing"; }];
+  };
+  branded-element-web = pkgs.element-web.override
+    {
+      conf = {
+        show_labs_settings = true;
+        default_theme = "dark";
+        default_server_config = clientConfig;
+        brand = "wirsing";
+        permalink_prefix = "https://element.wirs.ing";
+        branding = element-branding;
+      };
+    };
 in
 {
   config = mkIf cfg.enable {
-    # Define the files with the secrets
-    age.secrets = {
-      # coturn_static_auth_secret = {
-      #   file = ../secrets/coturn_static_auth_secret.age;
-      #   owner = "turnserver";
-      # };
-      # coturn_static_auth_secret_matrix_config = {
-      #   file = ../secrets/coturn_static_auth_secret_matrix_config.age;
-      #   owner = "matrix-synapse";
-      # };
-    };
-
-    # nixpkgs.config.element-web = {
-    #   conf = {
-    #     show_labs_settings = true;
-    #     default_theme = "dark";
-    #     default_server_config = clientConfig;
-    #     brand = "wirs.ing";
-    #     permalink_prefix = "https://element.zebre.us";
-    #     branding = element-branding;
-    #   };
-    # };
-    # # Patch the welcome strings on the login page to say the domain instead of element
-    # nixpkgs.overlays = [
-    #   (final: prev: {
-    #     element-web-unwrapped = prev.element-web-unwrapped.overrideAttrs (old: {
-    #       prePatch = ''
-    #         sed -Ei 's/("welcome_to_element": ")([^"]*)Element([^"]*")/\1\2${baseDomain}\3/' src/i18n/strings/*.json
-    #       '';
-    #     });
-    #   })
-    # ];
-
-    networking.nat = {
-      enable = true;
-      internalInterfaces = [ "ve-+" ];
-      # externalInterface = "ens3";
-      # Lazy IPv6 connectivity for the container
-      enableIPv6 = true;
-    };
-
-    # Enable the PostgreSQL service.
     containers.matrix-lite = {
       autoStart = true;
-      privateNetwork = true;
-      hostAddress = hostAddress;
-      localAddress = containerAddress;
-      hostAddress6 = hostAddress6;
-      localAddress6 = containerAddress6;
-
+      privateNetwork = false;
+      # bindMounts = {
+      #   "${config.age.secrets.coturn_static_auth_secret_matrix_config.path}" = {
+      #     hostPath = "${config.age.secrets.coturn_static_auth_secret_matrix_config.path}";
+      #     isReadOnly = true;
+      #   };
+      #   "${config.age.secrets.coturn_static_auth_secret.path}" = {
+      #     hostPath = "${config.age.secrets.coturn_static_auth_secret.path}";
+      #     isReadOnly = true;
+      #   };
+      # };
       config = {
-        # open the firewall
-        networking = {
-          firewall = {
-            allowedTCPPorts = [ 8008 8009 ];
-          };
-          # Use systemd-resolved inside the container
-          # Workaround for bug https://github.com/NixOS/nixpkgs/issues/162686
-          useHostResolvConf = lib.mkForce false;
-        };
-        services.resolved.enable = true;
         system.stateVersion = "26.05";
-
         services = {
           postgresql = {
             enable = true;
@@ -102,15 +62,11 @@ in
             enable = true;
             settings = {
               server_name = baseDomain;
-              # The public base URL value must match the `base_url` value set in `clientConfig` above.
-              # The default value here is based on `server_name`, so if your `server_name` is different
-              # from the value of `fqdn` above, you will likely run into some mismatched domain names
-              # in client applications.
               public_baseurl = "https://${synapseDomain}";
               listeners = [
                 {
-                  port = 8008;
-                  bind_addresses = [ "${containerAddress6}" ];
+                  port = 28008;
+                  bind_addresses = [ "::1" ];
                   type = "http";
                   tls = false;
                   x_forwarded = true;
@@ -125,20 +81,31 @@ in
               turn_uris = [ "turn:${config.services.coturn.realm}:3478?transport=udp" "turn:${config.services.coturn.realm}:3478?transport=tcp" ];
               turn_user_lifetime = "1h";
             };
-            # There is no file option for the coturn static auth secret, so we need to add it via extraConfigFiles
-            extraConfigFiles = [
-              config.age.secrets.coturn_static_auth_secret_matrix_config.path
-            ];
+            # # There is no file option for the coturn static auth secret, so we need to add it via extraConfigFiles
+            # extraConfigFiles = [
+            #   config.age.secrets.coturn_static_auth_secret_matrix_config.path
+            # ];
           };
           nginx = {
             enable = true;
             virtualHosts = {
               ${elementDomain} = {
                 default = true;
-                listen = [{ port = 8009; addr = "[${containerAddress6}]"; }];
+                listen = [{ port = 28009; addr = "[::1]"; }];
                 enableACME = false;
                 forceSSL = false;
-                root = pkgs.element-web;
+                root = branded-element-web;
+                locations = {
+                  "= /extra/resources/wirsing.webp" = { alias = ../resources/wirsing.webp; };
+                  "= /extra/resources/wirsing-logo.webp" = { alias = ../resources/wirsing-logo.webp; };
+                  "= /favicon.ico" = { alias = ../resources/wirsing.ico; };
+                  "= /vector-icons/24.97ab000.png" = { alias = ../resources/wirsing/24.97ab000.png; };
+                  "= /vector-icons/120.570a7f9.png" = { alias = ../resources/wirsing/120.570a7f9.png; };
+                  "= /vector-icons/144.5a63bf2.png" = { alias = ../resources/wirsing/144.5a63bf2.png; };
+                  "= /vector-icons/152.1ccdc8a.png" = { alias = ../resources/wirsing/152.1ccdc8a.png; };
+                  "= /vector-icons/180.30b915f.png" = { alias = ../resources/wirsing/180.30b915f.png; };
+                  "= /vector-icons/512.7ce350d.png" = { alias = ../resources/wirsing/512.7ce350d.png; };
+                };
               };
             };
           };
@@ -169,40 +136,21 @@ in
             # Forward all Matrix API calls to the synapse Matrix homeserver. A trailing slash
             # *must not* be used here.
             locations = {
-              "/_matrix".proxyPass = "http://[${containerAddress6}]:8008";
-              # Forward requests for e.g. SSO and password-resets.
-              "/_synapse/client".proxyPass = "http://[${containerAddress6}]:8008";
+              "/_matrix".proxyPass = "http://[::1]:28008";
+              "/_synapse/client".proxyPass = "http://[::1]:28008";
               "/".extraConfig = ''
                 return 301 $scheme://${elementDomain}$request_uri;
               '';
             };
           };
-          # ${turnDomain} = {
-          #   enableACME = true;
-          #   forceSSL = true;
-          #   # It's also possible to do a redirect here or something else, this vhost is not
-          #   # needed for Matrix. It's recommended though to *not put* element
-          #   # here, see also the section about Element.
-          #   locations = {
-          #     "/".extraConfig = ''
-          #       return 301 $scheme://${elementDomain}$request_uri;
-          #     '';
-          #   };
-          # };
           ${elementDomain} = {
             enableACME = true;
             forceSSL = true;
-            # serverAliases = [
-            #   elementDomain
-            # ];
             locations."/" = {
-              proxyPass = "http://[${containerAddress6}]:8009";
+              proxyPass = "http://[::1]:28009";
               proxyWebsockets = true;
               recommendedProxySettings = true;
             };
-            # locations = {
-            #   "/extra/resources/" = { alias = element-branding-resources + "/"; };
-            # };
           };
         };
       };

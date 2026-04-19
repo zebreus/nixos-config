@@ -36,7 +36,7 @@ in
       };
       matrixLiteServer = {
         enable = true;
-        baseDomain = "dumb.place";
+        baseDomain = "wirs.ing";
         certEmail = "lennarteichhorn@googlemail.com";
       };
     };
