@@ -101,9 +101,10 @@ Each machine uses its ed25519 SSH host key to decrypt its secrets. That SSH host
 3. Run something like `nix run .#setup-host -- glouble root@172.20.64.21`
 4. Manually set the address to the next number in `machines.nix`
 5. Check the config in `machines.nix`, `flake.nix`, and `machines/YOUR_NAME`
-6. Encryption: Place the encryption secret at /tmp/secret/tmp/secret.key on the target machine. You can probably use nixos-anywhere for this
-7. Secureboot: Generate keys with `sbctl --disable-landlock --debug create-keys --database-path /tmp/secret/var/lib/sbctl/GUID --export /tmp/secret/var/lib/sbctl/keys` ???
-8. Secureboot: Do the 
+6. Adjust the config.
+7. The setup-host script should have given you a command to run like `nixos-anywhere --extra-files /tmp/tmp.absdfsad --flake '.#glouble' root@192.168.178.15 --no-substitute-on-destination --build-on local`
+8. Encryption: Place the encryption secret at /tmp/secret/tmp/secret.key on the target machine. You can probably use nixos-anywhere for this
+9. Secureboot: Generate keys with `sbctl --disable-landlock --debug create-keys --database-path /tmp/secret/var/lib/sbctl/GUID --export /tmp/secret/var/lib/sbctl/keys` ??? and more
 
 === Add a new domain to the mailserver
 
@@ -115,3 +116,5 @@ Each machine uses its ed25519 SSH host key to decrypt its secrets. That SSH host
 
 1. Generate the iso with `nix run .#generate-installer`
 2. Create a bootable USB drive with `dd if=installer.iso of=/dev/sdX bs=4M status=progress && sync`
+
+for d in /dev/disk/by-id/ata-*[^part1] /dev/nvme?n1 ; do echo Formatting $d ; (echo -e "g\nw\n" | fdisk $d &) ; done  ; sleep 1 ; while wait -n; do : ; done ; echo done
