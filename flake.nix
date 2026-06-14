@@ -1,6 +1,6 @@
 {
   inputs = {
-    nixpkgs.url = "github:zebreus/nixpkgs/bcachefs-1375-unstable";
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
     home-manager = {
       url = "github:zebreus/home-manager?ref=init-secret-service";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -14,7 +14,7 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     simple-nix-mailserver = {
-      url = "gitlab:simple-nixos-mailserver/nixos-mailserver/master";
+      url = "gitlab:simple-nixos-mailserver/nixos-mailserver/main";
       inputs.nixpkgs.follows = "nixpkgs";
     };
     nixos-wallpaper = {

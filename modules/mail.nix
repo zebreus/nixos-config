@@ -33,19 +33,19 @@ in
         file = ../secrets + "/${name}_dkim_rsa.age";
         owner = config.services.rspamd.user;
         inherit (config.services.rspamd) group;
-        path = "${config.mailserver.dkimKeyDirectory}/${domain}.mail.key";
+        path = "${config.mailserver.dkim.keyDirectory}/${domain}.mail.key";
       };
       "madmanfred_com_dkim_rsa" = {
         file = ../secrets + "/madmanfred_com_dkim_rsa.age";
         owner = config.services.rspamd.user;
         inherit (config.services.rspamd) group;
-        path = "${config.mailserver.dkimKeyDirectory}/madmanfred.com.mail.key";
+        path = "${config.mailserver.dkim.keyDirectory}/madmanfred.com.mail.key";
       };
       "antibuild_ing_dkim_rsa" = {
         file = ../secrets + "/antibuild_ing_dkim_rsa.age";
         owner = config.services.rspamd.user;
         inherit (config.services.rspamd) group;
-        path = "${config.mailserver.dkimKeyDirectory}/antibuild.ing.mail.key";
+        path = "${config.mailserver.dkim.keyDirectory}/antibuild.ing.mail.key";
       };
     };
 
@@ -71,7 +71,7 @@ in
       # TODO: Enable local DNS resolver again
       localDnsResolver = false;
 
-      loginAccounts = {
+      accounts = {
         "lennart@${domain}" = {
           hashedPasswordFile = config.age.secrets.lennart_mail_passwordhash.path;
           aliases = [ "postmaster@${domain}" "dmarc-reports@${domain}" "abuse@${domain}" "@${domain}" "@madmanfred.com" "@antibuild.ing" ];
@@ -83,26 +83,40 @@ in
       };
 
       # Default directory for mail storage
-      mailDirectory = "/var/vmail";
+      storage.path = "/var/vmail";
       # Mail indices do not need to be backed up
       indexDir = "/var/lib/dovecot/indices";
       fullTextSearch = {
         enable = true;
         # index new email as they arrive
         autoIndex = true;
-        enforced = "body";
         # Indexing memory limit in MiB
         memoryLimit = 400;
       };
 
-      # Use Let's Encrypt certificates. Note that this needs to set up a stripped
-      # down nginx and opens port 80.
-      certificateScheme = "acme-nginx";
+      # TLS certificate for the mail FQDN. simple-nixos-mailserver no longer
+      # provisions ACME itself (the old `certificateScheme = "acme-nginx"` is
+      # gone); we obtain the cert via the NixOS ACME module (HTTP-01 through the
+      # nginx vhost defined below) and reference it here by name.
+      x509.useACMEHost = mailFqdn;
 
       # # Enable unencrypted imap on port 143
       # enableImap = true;
       # # Enable encrypted imap on port 993
       # enableImapSsl = true;
+    };
+
+    # Obtain and renew the mail server's TLS certificate via ACME HTTP-01.
+    # This nginx vhost serves the .well-known/acme-challenge and registers
+    # security.acme.certs."${mailFqdn}", which mailserver.x509.useACMEHost
+    # above consumes. nginx, port 80/443 and the ACME defaults are already
+    # configured in modules/shared.nix.
+    services.nginx = {
+      enable = true;
+      virtualHosts.${mailFqdn} = {
+        enableACME = true;
+        forceSSL = true;
+      };
     };
 
     services.rspamd.extraConfig = ''
@@ -268,7 +282,7 @@ in
                     file = ../secrets + "/${name}_dkim_rsa.age";
                     owner = config.services.rspamd.user;
                     inherit (config.services.rspamd) group;
-                    path = "${config.mailserver.dkimKeyDirectory}/${domain}.mail.key";
+                    path = "${config.mailserver.dkim.keyDirectory}/${domain}.mail.key";
                   };
                 };
                 domain = "${name}.antibuild.ing";
@@ -288,7 +302,7 @@ in
           age.secrets = builtins.foldl' (acc: machine: (acc // machine.secrets)) { } machines;
           mailserver = {
             domains = builtins.map (machine: machine.domain) machines;
-            loginAccounts = builtins.foldl' (acc: machine: (acc // machine.loginAccount)) { } machines;
+            accounts = builtins.foldl' (acc: machine: (acc // machine.loginAccount)) { } machines;
           };
         };
       })
