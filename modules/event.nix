@@ -114,7 +114,7 @@ in
     };
 
     services.mediawiki = {
-      enable = true;
+      enable = false;
       # Prior to NixOS 24.05, there is a admin name bug that prevents using spaces in the mediawiki name https://github.com/NixOS/nixpkgs/issues/298902
       name = "Darmfest Wiki";
       # hostName = "${wikiDomain}";
