@@ -3,6 +3,11 @@
 
 
 
+  # Keep the classic dbus-daemon. Recent nixpkgs defaults the implementation to
+  # dbus-broker, which is flagged as a critical component change and blocks
+  # `nixos-rebuild switch`. Pinning "dbus" avoids the switch inhibitor.
+  services.dbus.implementation = "dbus";
+
   security.acme = {
     acceptTerms = true;
     defaults.webroot = "/var/lib/acme/acme-challenge/";
