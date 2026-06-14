@@ -41,9 +41,9 @@
                   # "degraded"
                   # "very_degraded"
                   # "continue"
-                  "x-systemd.device-timeout=300s"
-                  "x-systemd.mount-timeout=300s"
-                  # "version_upgrade=compatible"
+                  "x-systemd.device-timeout=1500s"
+                  "x-systemd.mount-timeout=1500s"
+                  "version_upgrade=compatible"
                 ];
               };
             };
