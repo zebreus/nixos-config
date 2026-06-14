@@ -37,6 +37,34 @@ in
           mode = "storage";
           resources = [ ];
         };
+        # automation = [
+        #   {
+        #     alias = "Wecker";
+        #     description = "";
+        #     mode = "single";
+        #     trigger = [
+        #       {
+        #         platform = "sun";
+        #         event = "sunrise";
+        #         offset = 0;
+        #       }
+        #     ];
+        #     condition = [ ];
+        #     action = [
+        #       {
+        #         action = "light.turn_on";
+        #         metadata = { };
+        #         target = {
+        #           entity_id = "light.hue_white_lamp";
+        #         };
+        #         data = {
+        #           transition = 114;
+        #           brightness_pct = 100;
+        #         };
+        #       }
+        #     ];
+        #   }
+        # ];
       };
       # lovelaceConfig = null;
       # configure the path to your config directory
