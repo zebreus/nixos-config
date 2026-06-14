@@ -13,9 +13,7 @@ let
   grafanaServers = lib.filter (machine: machine.monitoring.enable) machines;
 in
 {
-  # TODO: Reenable
-  # config = mkIf cfg.enable {
-  config = mkIf false {
+  config = mkIf cfg.enable {
     age.secrets = {
       lennart_mail_passwordhash = {
         file = ../secrets/lennart_mail_passwordhash.age;
@@ -101,10 +99,10 @@ in
       # down nginx and opens port 80.
       certificateScheme = "acme-nginx";
 
-      # Enable unencrypted imap on port 143
-      enableImap = true;
-      # Enable encrypted imap on port 993
-      enableImapSsl = true;
+      # # Enable unencrypted imap on port 143
+      # enableImap = true;
+      # # Enable encrypted imap on port 993
+      # enableImapSsl = true;
     };
 
     services.rspamd.extraConfig = ''
