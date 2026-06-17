@@ -43,7 +43,7 @@
                   # "continue"
                   "x-systemd.device-timeout=1500s"
                   "x-systemd.mount-timeout=1500s"
-                  "version_upgrade=compatible"
+                  # "version_upgrade=compatible"
                 ];
               };
             };
