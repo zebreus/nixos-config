@@ -35,6 +35,10 @@ let
     "darmfest.de"
     # Used for a personal blog
     "dumb.place"
+    # N50 camp event server (containerized event services)
+    "n50.camp"
+    # N50 camp under the n50.lat org domain (delegated subzone)
+    "camp.n50.lat"
   ];
   managedZonesDn42 = [
     # dn42 domain for internal services

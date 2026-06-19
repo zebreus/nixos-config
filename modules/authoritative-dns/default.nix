@@ -13,6 +13,7 @@
     ./matrix-lite.nix
     ./matrix.nix
     ./monitoring.nix
+    ./n50camp.nix
     ./photos.nix
     ./root.nix
     ./voidspace.nix

@@ -233,6 +233,28 @@ let
         # Everything else event related is hardcoded in the module
       };
 
+      n50campServer = {
+        enable = mkEnableOption "Enable the N50 camp event server (containerized) with various services";
+        # All base domains the event is reachable under. Every HTTP service is
+        # served on all of these; services that cannot serve multiple domains are
+        # served on primaryBaseDomain and the secondaries redirect to it.
+        baseDomains = mkOption {
+          type = types.listOf types.str;
+          description = "Base domains for the N50 camp event.";
+        };
+        # The canonical base domain. Must be an element of baseDomains.
+        primaryBaseDomain = mkOption {
+          type = types.str;
+          description = "Canonical base domain for the N50 camp event. Secondaries redirect here for services that cannot serve multiple domains.";
+        };
+        # TODO: Move this somewhere else
+        certEmail = mkOption {
+          type = types.str;
+          description = "Email address to use for Let's Encrypt certificates.";
+        };
+        # Everything else event related is hardcoded in the module
+      };
+
       besserestrichlisteServer = {
         enable = mkEnableOption "Enable the besserestrichliste server";
         # TODO: Move this somewhere else

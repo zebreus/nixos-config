@@ -38,6 +38,10 @@
       url = "github:zebreus/suckmore-org";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    n50-camp = {
+      url = "github:zebreus/n50-camp";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =
@@ -51,6 +55,7 @@
     , lanzaboote
     , nixvirt
     , suckmore-org
+    , n50-camp
     , ...
     }:
     let
@@ -91,6 +96,8 @@
             simple-nix-mailserver.nixosModules.default
             besserestrichliste.nixosModules.aarch64-linux.default
             suckmore-org.nixosModules.default
+            # Make flake inputs available to modules as module arguments.
+            { _module.args = { inherit n50-camp; }; }
           ];
         in
         {

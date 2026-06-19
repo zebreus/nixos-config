@@ -120,6 +120,12 @@ in
         baseDomain = "darmfest.de";
         certEmail = "lennarteichhorn@googlemail.com";
       };
+      n50campServer = {
+        enable = true;
+        baseDomains = [ "camp.n50.lat" "n50.camp" ];
+        primaryBaseDomain = "camp.n50.lat";
+        certEmail = "lennarteichhorn@googlemail.com";
+      };
       photosServer.enable = true;
       essenJetztServer.enable = true;
       suckmoreOrgServer.enable = true;

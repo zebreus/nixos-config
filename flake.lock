@@ -363,6 +363,26 @@
         "type": "github"
       }
     },
+    "n50-camp": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1781661023,
+        "narHash": "sha256-xkfO1oBB6R20I5P4Bs2RPGrC7Qz/5cmPjKCFuBJwk8Q=",
+        "owner": "zebreus",
+        "repo": "n50-camp",
+        "rev": "7b5de6a61fc6a07ecb96b39b12bf236049ef091e",
+        "type": "github"
+      },
+      "original": {
+        "owner": "zebreus",
+        "repo": "n50-camp",
+        "type": "github"
+      }
+    },
     "nixos-wallpaper": {
       "inputs": {
         "flake-utils": "flake-utils_2",
@@ -454,6 +474,7 @@
         "disko": "disko",
         "home-manager": "home-manager_2",
         "lanzaboote": "lanzaboote",
+        "n50-camp": "n50-camp",
         "nixos-wallpaper": "nixos-wallpaper",
         "nixpkgs": "nixpkgs",
         "nixvirt": "nixvirt",
