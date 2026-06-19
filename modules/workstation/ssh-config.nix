@@ -52,33 +52,6 @@ in
                     })
                     accessibleMachines
                 );
-                # SSH hosts from university
-                hdaHosts = {
-                  hdaGitlab = {
-                    host = "code.fbi.h-da.de";
-                    identityFile = config.age.secrets.lennart_ed25519.path;
-                  };
-                  gsiLogin = {
-                    host = "gsi-login lx-pool.gsi.de";
-                    hostname = "lx-pool.gsi.de";
-                    user = "leichhor";
-                    identityFile = config.age.secrets.lennart_ed25519.path;
-                  };
-                  gsiSubmit = {
-                    proxyJump = "gsi-login";
-                    host = "gsi-submit vae22.hpc.gsi.de";
-                    hostname = "vae22.hpc.gsi.de";
-                    user = "leichhor";
-                    identityFile = config.age.secrets.lennart_ed25519.path;
-                  };
-                  gsiVirgo = {
-                    proxyJump = "gsi-login";
-                    host = "gsi-virgo virgo.hpc.gsi.de";
-                    hostname = "virgo.hpc.gsi.de";
-                    user = "leichhor";
-                    identityFile = config.age.secrets.lennart_ed25519.path;
-                  };
-                };
                 # SSH hosts from cccda
                 cccDaHosts = {
                   lounge = {
@@ -204,7 +177,7 @@ in
                   };
                 };
               in
-              antibuildingHosts // hdaHosts // cccDaHosts // forges // miscHosts // defaultForAll;
+              antibuildingHosts // cccDaHosts // forges // miscHosts // defaultForAll;
           };
         };
     };
