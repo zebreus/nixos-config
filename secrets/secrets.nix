@@ -204,6 +204,11 @@ with import ./public-keys.nix;
   "pretix_extra_secrets.age".publicKeys = [ recovery kashenblade blanderdash sempriaq ];
   "mediawiki_password.age".publicKeys = [ recovery kashenblade blanderdash sempriaq ];
 
+  # N50 camp keys (separate from the darmfest event above; n50campServer runs on blanderdash, but may move to a different machine in the future)
+  "n50_himmel_mail_password.age".publicKeys = [ recovery kashenblade blanderdash sempriaq ];
+  "n50_pretalx_extra_secrets.age".publicKeys = [ recovery kashenblade blanderdash sempriaq ];
+  "n50_mediawiki_password.age".publicKeys = [ recovery kashenblade blanderdash sempriaq ];
+
   # Hetzner storage box credentials
   "blanderdash_storagebox_smb_secrets.age".publicKeys = [ recovery blanderdash ];
 }

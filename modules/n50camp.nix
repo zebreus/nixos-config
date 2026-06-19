@@ -35,10 +35,9 @@ let
   # into the container at the very same paths, so the service config inside the
   # container can reference them transparently.
   secretPaths = {
-    himmelMail = config.age.secrets.himmel_mail_password.path;
-    engelsystemDb = config.age.secrets.engelsystem_database_password.path;
-    pretalxExtra = config.age.secrets.pretalx_extra_secrets.path;
-    mediawiki = config.age.secrets.mediawiki_password.path;
+    himmelMail = config.age.secrets.n50_himmel_mail_password.path;
+    pretalxExtra = config.age.secrets.n50_pretalx_extra_secrets.path;
+    mediawiki = config.age.secrets.n50_mediawiki_password.path;
   };
   mkSecretBind = path: { ${path} = { hostPath = path; isReadOnly = true; }; };
 
@@ -54,23 +53,22 @@ in
     # Define the files with the secrets. These are decrypted on the host and then
     # bind-mounted into the container below.
     age.secrets = {
-      himmel_mail_password = {
-        file = ../secrets/himmel_mail_password.age;
-        mode = "0444";
-      };
-      engelsystem_database_password = {
-        file = ../secrets/engelsystem_database_password.age;
+      # The himmel@n50.lat mail account password (raw, no newline). Used by
+      # engelsystem and mediawiki for SMTP. pretalx uses the same account but
+      # gets its password via the PRETALX_MAIL_PASSWORD env file below.
+      n50_himmel_mail_password = {
+        file = ../secrets/n50_himmel_mail_password.age;
         mode = "0444";
       };
       # Holds pretalx's secret env vars using the PRETALX_<SECTION>_<KEY>
       # pattern, e.g. PRETALX_MAIL_PASSWORD=...  Create/edit it with
-      # `agenix -e pretalx_extra_secrets.age`.
-      pretalx_extra_secrets = {
-        file = ../secrets/pretalx_extra_secrets.age;
+      # `agenix -e n50_pretalx_extra_secrets.age`.
+      n50_pretalx_extra_secrets = {
+        file = ../secrets/n50_pretalx_extra_secrets.age;
         mode = "0444";
       };
-      mediawiki_password = {
-        file = ../secrets/mediawiki_password.age;
+      n50_mediawiki_password = {
+        file = ../secrets/n50_mediawiki_password.age;
         mode = "0444";
       };
     };
@@ -80,7 +78,6 @@ in
       privateNetwork = false;
       bindMounts = lib.mkMerge [
         (mkSecretBind secretPaths.himmelMail)
-        (mkSecretBind secretPaths.engelsystemDb)
         (mkSecretBind secretPaths.pretalxExtra)
         (mkSecretBind secretPaths.mediawiki)
       ];
@@ -111,26 +108,25 @@ in
             autoarrive = true;
             database = {
               database = "engelsystem";
-              # host = "127.0.0.1";
-              # password = {
-              #   _secret = secretPaths.engelsystemDb;
-              # };
+              # The engelsystem DB user authenticates over the local MariaDB unix
+              # socket (services.mysql.ensureUsers), so no host/password is needed.
               username = "engelsystem";
             };
             default_locale = "de_DE";
             email = {
               driver = "smtp";
-              encryption = "tls";
+              # Port 465 is implicit TLS (SMTPS), so PHPMailer wants "ssl".
+              encryption = "ssl";
               from = {
-                address = "himmel@darmfest.de";
+                address = "himmel@n50.lat";
                 name = "N50 Camp Engelsystem";
               };
-              host = "mail.zebre.us";
+              host = "mail.stapatum.dev";
               password = {
                 _secret = secretPaths.himmelMail;
               };
               port = 465;
-              username = "himmel@darmfest.de";
+              username = "himmel";
             };
             maintenance = false;
             min_password_length = 6;
@@ -159,7 +155,7 @@ in
               port = 465;
               tls = false;
               ssl = true;
-              user = "himmel@n50.lat";
+              user = "himmel";
             };
           };
           # The mail password (and any other secrets) come from this env file
@@ -195,16 +191,16 @@ in
           extraConfig = ''
             # Disable anonymous editing
             $wgGroupPermissions['*']['edit'] = true;
-            $wgPasswordSender = 'himmel@darmfest.de';
-            $wgEmergencyContact = 'himmel@darmfest.de';
+            $wgPasswordSender = 'himmel@n50.lat';
+            $wgEmergencyContact = 'himmel@n50.lat';
 
             $wgSMTP = [
-                'host'      => 'tls://mail.zebre.us', // could also be an IP address. Where the SMTP server is located. If using SSL or TLS, add the prefix "ssl://" or "tls://".
+                'host'      => 'ssl://mail.stapatum.dev', // could also be an IP address. Where the SMTP server is located. If using SSL or TLS, add the prefix "ssl://" or "tls://".
                 'IDHost'    => '${wikiDomain}',      // Generally this will be the domain name of your website (aka mywiki.org)
                 'localhost' => '${wikiDomain}',      // Same as IDHost above; required by some mail servers
                 'port'      => 465,                // Port to use when connecting to the SMTP server
                 'auth'      => true,               // Should we use SMTP authentication (true or false)
-                'username'  => 'himmel@darmfest.de',     // Username to use for SMTP authentication (if being used)
+                'username'  => 'himmel',     // Username to use for SMTP authentication (if being used)
                 'password'  => file_get_contents('${secretPaths.himmelMail}')       // Password to use for SMTP authentication (if being used)
             ];
 
