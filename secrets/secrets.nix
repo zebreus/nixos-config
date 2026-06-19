@@ -116,7 +116,6 @@ with import ./public-keys.nix;
   "lennart_mail_password.age".publicKeys = [ recovery ] ++ workstations;
   "gmail_password.age".publicKeys = [ recovery ] ++ workstations;
   "gmail_oauth2_token.age".publicKeys = [ recovery ] ++ workstations;
-  "hda_mail_password.age".publicKeys = [ recovery ] ++ workstations;
 
   # VPN mail secrets
   # Secrets for the mail accounts inside the antibuilding
