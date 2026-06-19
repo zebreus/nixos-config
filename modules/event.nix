@@ -113,7 +113,7 @@ in
     };
 
     services.mediawiki = {
-      enable = false;
+      enable = true;
       # Prior to NixOS 24.05, there is a admin name bug that prevents using spaces in the mediawiki name https://github.com/NixOS/nixpkgs/issues/298902
       name = "Darmfest Wiki";
       # hostName = "${wikiDomain}";
@@ -150,11 +150,28 @@ in
         ];
 
         $wgDefaultSkin = 'citizen';
+
+        # Anti-spam captcha (ConfirmEdit is loaded via the `extensions` attr).
+        wfLoadExtension('ConfirmEdit/QuestyCaptcha');
+        $wgCaptchaClass = 'QuestyCaptcha';
+        $wgCaptchaQuestions = [
+            'Where is the darmfest not happening' => 'darmstadt',
+        ];
+        $wgCaptchaTriggers['createaccount'] = true;
+        $wgCaptchaTriggers['badlogin']      = true;
+        $wgCaptchaTriggers['sendemail']     = true;
+        $wgCaptchaTriggers['edit']          = false;
+        $wgGroupPermissions['autoconfirmed']['skipcaptcha'] = true;
+        $wgRateLimits['createaccount']['ip'] = [ 5, 86400 ];
+        $wgRateLimits['emailuser']['ip']     = [ 5, 86400 ];
       '';
 
       extensions = {
         # some extensions are included and can enabled by passing null
         VisualEditor = null;
+
+        # Official MediaWiki anti-spam captcha extension (bundled in core).
+        ConfirmEdit = null;
 
         # https://www.mediawiki.org/wiki/Extension:TemplateStyles
         # TemplateStyles = pkgs.fetchzip {
