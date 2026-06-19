@@ -2,7 +2,6 @@
 with lib;
 let
   cfg = config.machines.${config.networking.hostName}.n50campServer;
-  email = cfg.certEmail;
 
   # The event is reachable under several base domains. Apps run inside the
   # container only on the canonical (primary) base domain; the other base domains

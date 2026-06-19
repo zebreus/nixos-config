@@ -7,7 +7,6 @@ let
   ticketsDomain = "tickets.${baseDomain}";
   padDomain = "pad.${baseDomain}";
   wikiDomain = "wiki.${baseDomain}";
-  email = cfg.certEmail;
   # Extra domains that redirect to the main domain
   extraDomains = [ ];
 in

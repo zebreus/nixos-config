@@ -14,7 +14,6 @@ let
     add_header Access-Control-Allow-Origin *;
     return 200 '${builtins.toJSON data}';
   '';
-  email = cfg.certEmail;
 
   element-branding-resources = pkgs.runCommand "element-branding-resources"
     {

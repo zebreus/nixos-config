@@ -184,11 +184,6 @@ let
             an additional SPF record for the mail subdomain.
           '';
         };
-        # TODO: Move this somewhere else
-        certEmail = mkOption {
-          type = types.str;
-          description = "Email address to use for Let's Encrypt certificates.";
-        };
       };
 
       matrixServer = {
@@ -198,11 +193,6 @@ let
           type = types.str;
           description = "Base domain for the matrix server.";
         };
-        # TODO: Move this somewhere else
-        certEmail = mkOption {
-          type = types.str;
-          description = "Email address to use for Let's Encrypt certificates.";
-        };
       };
       matrixLiteServer = {
         enable = mkEnableOption "Enable matrix server";
@@ -210,11 +200,6 @@ let
         baseDomain = mkOption {
           type = types.str;
           description = "Base domain for the matrix server.";
-        };
-        # TODO: Move this somewhere else
-        certEmail = mkOption {
-          type = types.str;
-          description = "Email address to use for Let's Encrypt certificates.";
         };
       };
 
@@ -224,11 +209,6 @@ let
         baseDomain = mkOption {
           type = types.str;
           description = "Base domain for the event.";
-        };
-        # TODO: Move this somewhere else
-        certEmail = mkOption {
-          type = types.str;
-          description = "Email address to use for Let's Encrypt certificates.";
         };
         # Everything else event related is hardcoded in the module
       };
@@ -246,11 +226,6 @@ let
         primaryBaseDomain = mkOption {
           type = types.str;
           description = "Canonical base domain for the N50 camp event. Secondaries redirect here for services that cannot serve multiple domains.";
-        };
-        # TODO: Move this somewhere else
-        certEmail = mkOption {
-          type = types.str;
-          description = "Email address to use for Let's Encrypt certificates.";
         };
         # Everything else event related is hardcoded in the module
       };

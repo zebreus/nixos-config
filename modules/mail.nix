@@ -4,7 +4,6 @@ let
   cfg = config.machines.${config.networking.hostName}.mailServer;
   inherit (cfg) baseDomain;
   mailFqdn = "mail.${baseDomain}";
-  inherit (cfg) certEmail;
   domain = baseDomain;
   name = builtins.replaceStrings [ "." "-" ] [ "_" "_" ] baseDomain;
 

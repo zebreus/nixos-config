@@ -32,12 +32,10 @@ in
       matrixServer = {
         enable = true;
         baseDomain = "zebre.us";
-        certEmail = "lennarteichhorn@googlemail.com";
       };
       matrixLiteServer = {
         enable = true;
         baseDomain = "wirs.ing";
-        certEmail = "lennarteichhorn@googlemail.com";
       };
     };
     kappril = {
@@ -113,18 +111,15 @@ in
       mailServer = {
         enable = true;
         baseDomain = "zebre.us";
-        certEmail = "lennarteichhorn@googlemail.com";
       };
       eventServer = {
         enable = true;
         baseDomain = "darmfest.de";
-        certEmail = "lennarteichhorn@googlemail.com";
       };
       n50campServer = {
         enable = true;
         baseDomains = [ "camp.n50.lat" "n50.camp" ];
         primaryBaseDomain = "camp.n50.lat";
-        certEmail = "lennarteichhorn@googlemail.com";
       };
       photosServer.enable = true;
       essenJetztServer.enable = true;
