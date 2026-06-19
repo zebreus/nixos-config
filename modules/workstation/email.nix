@@ -13,6 +13,12 @@
         inherit (config.users.users.lennart) group;
         mode = "0400";
       };
+      n50_himmel_mail_password = {
+        file = ../../secrets/n50_himmel_mail_password.age;
+        owner = "lennart";
+        inherit (config.users.users.lennart) group;
+        mode = "0400";
+      };
       gmail_password = {
         file = ../../secrets/gmail_password.age;
         owner = "lennart";
@@ -128,6 +134,28 @@
               thunderbird.enable = true;
               msmtp.enable = true;
               # gnome-online-accounts.enable = true;
+            };
+            himmelN50 = {
+              address = "himmel@n50.lat";
+              imap = {
+                host = "mail.stapatum.dev";
+                port = 993;
+              };
+              smtp = {
+                host = "mail.stapatum.dev";
+                port = 465;
+              };
+              realName = "N50 Camp";
+              # The mail server logs in with the bare local part, not the full address.
+              userName = "himmel";
+              passwordCommand = "cat ${config.age.secrets.n50_himmel_mail_password.path}";
+              neomutt = {
+                enable = true;
+                mailboxType = "imap";
+                mailboxName = "himmelN50";
+              };
+              thunderbird.enable = true;
+              msmtp.enable = true;
             };
             gmail = {
               primary = false;
