@@ -158,6 +158,11 @@ in
           enable = true;
           settings = {
             autoarrive = true;
+            # Canonical external URL. engelsystem builds asset/link URLs from this
+            # (config('url')); without it it falls back to the request scheme, which
+            # is http here (the host terminates TLS), producing http:// asset URLs
+            # that the browser blocks as mixed content on the https page.
+            url = "https://${engelDomain}";
             database = {
               database = "engelsystem";
               username = "engelsystem";
