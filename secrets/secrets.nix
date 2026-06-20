@@ -207,6 +207,8 @@ with import ./public-keys.nix;
   "n50_himmel_mail_password.age".publicKeys = [ recovery kashenblade blanderdash sempriaq ] ++ workstations;
   "n50_pretalx_extra_secrets.age".publicKeys = [ recovery kashenblade blanderdash sempriaq ];
   "n50_mediawiki_password.age".publicKeys = [ recovery kashenblade blanderdash sempriaq ];
+  # Personal n50.lat mailboxes, only viewed from workstations.
+  "n50_camp_mail_password.age".publicKeys = [ recovery ] ++ workstations;
 
   # Hetzner storage box credentials
   "blanderdash_storagebox_smb_secrets.age".publicKeys = [ recovery blanderdash ];

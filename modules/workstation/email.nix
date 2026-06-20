@@ -19,6 +19,12 @@
         inherit (config.users.users.lennart) group;
         mode = "0400";
       };
+      n50_camp_mail_password = {
+        file = ../../secrets/n50_camp_mail_password.age;
+        owner = "lennart";
+        inherit (config.users.users.lennart) group;
+        mode = "0400";
+      };
       gmail_password = {
         file = ../../secrets/gmail_password.age;
         owner = "lennart";
@@ -153,6 +159,27 @@
                 enable = true;
                 mailboxType = "imap";
                 mailboxName = "himmelN50";
+              };
+              thunderbird.enable = true;
+              msmtp.enable = true;
+            };
+            campN50 = {
+              address = "camp@n50.lat";
+              imap = {
+                host = "mail.stapatum.dev";
+                port = 993;
+              };
+              smtp = {
+                host = "mail.stapatum.dev";
+                port = 465;
+              };
+              realName = "N50 Camp";
+              userName = "camp";
+              passwordCommand = "cat ${config.age.secrets.n50_camp_mail_password.path}";
+              neomutt = {
+                enable = true;
+                mailboxType = "imap";
+                mailboxName = "campN50";
               };
               thunderbird.enable = true;
               msmtp.enable = true;
