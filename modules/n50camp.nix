@@ -61,6 +61,29 @@ let
     proxyWebsockets = true;
     recommendedProxySettings = true;
   };
+
+  # Headers the container nginx must pass to the apps it proxies. The host nginx
+  # terminates TLS and sets the real Host + X-Forwarded-* before forwarding here;
+  # this inner hop must propagate them (especially X-Forwarded-Proto: it must be
+  # carried through as the host set it, NOT regenerated from this hop's http
+  # $scheme) so apps build correct https URLs instead of http ones.
+  innerProxyHeaders = ''
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $http_x_forwarded_proto;
+    proxy_set_header X-Forwarded-Host $host;
+  '';
+
+  # The fastcgi apps (engelsystem, mediawiki) get the real Host via fastcgi's
+  # HTTP_HOST, but HTTPS/REQUEST_SCHEME come from this inner hop's $scheme (http,
+  # since the host terminates TLS). Override them from the forwarded proto so PHP
+  # detects https (secure cookies, https URL generation) instead of plain http.
+  # Appended after the modules' `include fastcgi_params`, so it wins.
+  fastcgiForwardScheme = ''
+    fastcgi_param HTTPS $forwardedHttps if_not_empty;
+    fastcgi_param REQUEST_SCHEME $http_x_forwarded_proto if_not_empty;
+  '';
 in
 {
   config = mkIf cfg.enable {
@@ -322,30 +345,37 @@ in
           # redirects lets the browser resolve them against the real https origin.
           commonHttpConfig = ''
             absolute_redirect off;
+            # Derive an HTTPS on/off flag from the proto the host forwarded, for
+            # the fastcgi apps below (see fastcgiForwardScheme).
+            map $http_x_forwarded_proto $forwardedHttps {
+              https on;
+              default "";
+            }
           '';
           virtualHosts = {
             # Main camp website on the primary base domain's apex.
             "${primaryBaseDomain}" = {
-              locations."/".proxyPass = "http://[::1]:${toString websitePort}";
+              locations."/" = {
+                proxyPass = "http://[::1]:${toString websitePort}";
+                extraConfig = innerProxyHeaders;
+              };
             };
             # hedgedoc is not served by its own module's nginx, so proxy it here.
-            # It needs WebSocket support for socket.io, plus the original Host and
-            # the https scheme the host set (X-Forwarded-Proto must be preserved,
-            # not overwritten with this inner hop's http $scheme) so hedgedoc's
-            # realtime upgrade and secure cookies work exactly as a single-hop
-            # setup would.
+            # It additionally needs WebSocket support for socket.io.
             "${padDomain}" = {
               locations."/" = {
                 proxyPass = "http://127.0.0.1:${toString hedgedocPort}";
                 proxyWebsockets = true;
-                extraConfig = ''
-                  proxy_set_header Host $host;
-                  proxy_set_header X-Real-IP $remote_addr;
-                  proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-                  proxy_set_header X-Forwarded-Proto $http_x_forwarded_proto;
-                '';
+                extraConfig = innerProxyHeaders;
               };
             };
+            # engelsystem and mediawiki register their own fastcgi vhosts; append
+            # the forwarded scheme to their php locations (keys mirror those
+            # modules) so PHP sees https rather than this inner hop's http.
+            "${engelDomain}".locations."~ \\.php$".extraConfig =
+              lib.mkAfter fastcgiForwardScheme;
+            "${wikiDomain}".locations."~ ^/w/(index|load|api|thumb|opensearch_desc|rest|img_auth)\\.php$".extraConfig =
+              lib.mkAfter fastcgiForwardScheme;
           };
         };
       };
