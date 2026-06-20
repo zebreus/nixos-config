@@ -110,6 +110,10 @@ in
                     host = "gitea.com";
                     user = "git";
                     identityFile = config.age.secrets.lennart_ed25519.path;
+                    # gitea.com (a Go SSH server) only offers an RSA host key, so the
+                    # global ssh-ed25519-only hostKeyAlgorithms restriction breaks it.
+                    # Re-enable the SHA-2 RSA host key algorithms for this host only.
+                    extraOptions.HostKeyAlgorithms = "ssh-ed25519,rsa-sha2-512,rsa-sha2-256";
                   };
                   codeberg = {
                     hostname = "codeberg.org";
@@ -151,22 +155,6 @@ in
                 };
                 # Miscellaneous hosts
                 miscHosts = {
-                  # Strato server. Cancelled for 07.09.2024 because I don't need it anymore.
-                  # Currently runs a tor bridge
-                  stratoAlpha = {
-                    host = "h2903394.stratoserver.net h2903394 85.214.55.42";
-                    hostname = "85.214.55.42";
-                    user = "root";
-                    identityFile = config.age.secrets.lennart_ed25519.path;
-                  };
-                  # Strato server. Cancelled for 07.09.2024 because I don't need it anymore.
-                  # Currently runs a tor relay
-                  stratoBeta = {
-                    host = "h2903395.stratoserver.net h2903395 85.214.52.114";
-                    hostname = "85.214.52.114";
-                    user = "root";
-                    identityFile = config.age.secrets.lennart_ed25519.path;
-                  };
                   # Ubuntu VM running on glouble. Contains some stuff that doesn't run on nix.
                   ubuntuVm = {
                     hostname = "192.168.135.2";
