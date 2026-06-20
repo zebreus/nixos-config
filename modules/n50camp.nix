@@ -87,6 +87,26 @@ in
       };
     };
 
+    systemd.network.netdevs."40-br-n50camp".netdevConfig = {
+      Name = containerBridge;
+      Kind = "bridge";
+    };
+    systemd.network.networks."40-br-n50camp" = {
+      matchConfig.Name = containerBridge;
+      address = [ "${containerHostAddress}/30" ];
+      networkConfig.IPMasquerade = "ipv4";
+    };
+    systemd.network.networks."45-ve-n50camp" = {
+      matchConfig.Name = "ve-n50camp";
+      networkConfig.Bridge = containerBridge;
+    };
+    systemd.services."container@n50camp" =
+      let dev = "sys-subsystem-net-devices-${utils.escapeSystemdPath containerBridge}.device";
+      in {
+        after = [ dev ];
+        wants = [ dev ];
+      };
+
     containers.n50camp = {
       autoStart = true;
       # Own network namespace; see the addressing/NAT notes in the let block.
@@ -107,20 +127,14 @@ in
 
         system.stateVersion = "26.05";
 
-        # Container networking is declarative systemd-networkd: eth0 (the renamed
-        # host0 veth peer) sits on the host bridge's /30, with the bridge as its
-        # default gateway. Outbound is masqueraded by IPMasquerade on the bridge.
         networking.useNetworkd = true;
         systemd.network.networks."20-eth0" = {
           matchConfig.Name = "eth0";
           address = [ "${containerLocalAddress}/30" ];
           gateway = [ containerHostAddress ];
         };
-        # The host's resolv.conf points at a loopback resolver unreachable from
-        # the container's netns; use public resolvers instead.
         networking.useHostResolvConf = lib.mkForce false;
         networking.nameservers = [ "1.1.1.1" "9.9.9.9" ];
-        # Only the host (over the bridge) talks to the internal nginx; open just it.
         networking.firewall.allowedTCPPorts = [ internalPort ];
 
         # Main camp website, served on the primary base domain's apex. It only
@@ -331,38 +345,6 @@ in
         };
       };
     };
-
-    # The container's host-side veth is enslaved to this bridge (hostBridge). The
-    # bridge holds the host end of the /30 and masquerades the container's
-    # outbound traffic via systemd's native IPMasquerade (no networking.nat).
-    systemd.network.netdevs."40-br-n50camp".netdevConfig = {
-      Name = containerBridge;
-      Kind = "bridge";
-    };
-    systemd.network.networks."40-br-n50camp" = {
-      matchConfig.Name = containerBridge;
-      address = [ "${containerHostAddress}/30" ];
-      # Masquerades the whole 192.168.207.0/30, which contains the container.
-      networkConfig.IPMasquerade = "ipv4";
-    };
-    # Mark the container veth as a bridge port so systemd's shipped
-    # 80-container-ve.network does not give it an address. "45-" sorts before
-    # "80-", so networkd picks this file for ve-n50camp.
-    systemd.network.networks."45-ve-n50camp" = {
-      matchConfig.Name = "ve-n50camp";
-      networkConfig.Bridge = containerBridge;
-    };
-
-    # nixos-containers only orders the container after the device units of
-    # `interfaces`, not `hostBridge`. nspawn's --network-bridge needs the bridge
-    # to exist first, so wait for its .device unit (active once networkd has
-    # created the netdev).
-    systemd.services."container@n50camp" =
-      let dev = "sys-subsystem-net-devices-${utils.escapeSystemdPath containerBridge}.device";
-      in {
-        after = [ dev ];
-        wants = [ dev ];
-      };
 
     # Host nginx: terminate TLS for every public domain and reverse-proxy to the
     # container's internal nginx. The apps only exist on the primary base domain;
