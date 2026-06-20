@@ -13,6 +13,7 @@
     ./borg-repo.nix
     ./essen-jetzt.nix
     ./event.nix
+    ./gulasch-sites.nix
     ./homeassistant.nix
     ./mail.nix
     ./matrix-lite.nix

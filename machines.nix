@@ -125,6 +125,7 @@ in
       essenJetztServer.enable = true;
       suckmoreOrgServer.enable = true;
       suckmoreOrgServer.enableCaching = false;
+      gulaschSitesServer.enable = true;
     };
     prandtl = {
       name = "prandtl";

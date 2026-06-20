@@ -321,6 +321,15 @@ let
           default = "suckmore.org";
         };
       };
+
+      gulaschSitesServer = {
+        enable = mkEnableOption "Enable the static gulasch.site web properties";
+        baseDomain = mkOption {
+          type = types.str;
+          description = "Base domain for the exported static gulasch sites.";
+          default = "gulasch.site";
+        };
+      };
     };
   };
 in

@@ -42,6 +42,10 @@
       url = "github:zebreus/n50-camp";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    gulasch-site = {
+      url = "github:zebreus/gulasch-site";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =
@@ -56,6 +60,7 @@
     , nixvirt
     , suckmore-org
     , n50-camp
+    , gulasch-site
     , ...
     }:
     let
@@ -96,6 +101,7 @@
             simple-nix-mailserver.nixosModules.default
             besserestrichliste.nixosModules.aarch64-linux.default
             suckmore-org.nixosModules.default
+            gulasch-site.nixosModules.default
             # Make flake inputs available to modules as module arguments.
             { _module.args = { inherit n50-camp; }; }
           ];

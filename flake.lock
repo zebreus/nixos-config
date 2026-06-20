@@ -295,6 +295,26 @@
         "type": "github"
       }
     },
+    "gulasch-site": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1781985202,
+        "narHash": "sha256-TLqGlLldfrXj+D7SiKB766VRSCjFfDc4Zgy06Y1an2U=",
+        "owner": "zebreus",
+        "repo": "gulasch-site",
+        "rev": "81451362c94f3b9740f8a20868665be7309d4081",
+        "type": "github"
+      },
+      "original": {
+        "owner": "zebreus",
+        "repo": "gulasch-site",
+        "type": "github"
+      }
+    },
     "home-manager": {
       "inputs": {
         "nixpkgs": [
@@ -472,6 +492,7 @@
         "agenix": "agenix",
         "besserestrichliste": "besserestrichliste",
         "disko": "disko",
+        "gulasch-site": "gulasch-site",
         "home-manager": "home-manager_2",
         "lanzaboote": "lanzaboote",
         "n50-camp": "n50-camp",
