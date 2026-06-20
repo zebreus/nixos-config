@@ -197,6 +197,16 @@ in
   services.ollama = {
     enable = cfg.enable;
     package = pkgs."ollama-${cfg.package}";
+    environmentVariables = {
+      ROCR_VISIBLE_DEVICES = "0";
+      OLLAMA_FLASH_ATTENTION = "1";
+      # Smaller KV cache keeps more layers on the 8 GB GPU.
+      OLLAMA_KV_CACHE_TYPE = "q8_0";
+      # Single-user: don't split 8 GB across parallel slots / multiple models.
+      OLLAMA_NUM_PARALLEL = "1";
+      OLLAMA_MAX_LOADED_MODELS = "1";
+      OLLAMA_KEEP_ALIVE = "30m";
+    };
     # Optional: preload models, see https://ollama.com/library
     # (SmolLM3-3B would belong here but isn't on Ollama — built separately above.)
     loadModels = [ "qwen3.5:2b" "qwen3.5:9b" "qwen3.6:35b-a3b" ];
