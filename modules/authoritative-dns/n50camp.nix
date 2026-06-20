@@ -23,6 +23,7 @@ let
   '' +
   (staticRecord "@" n50Server) +
   (staticRecord "engel" n50Server) +
+  (staticRecord "cfp" n50Server) +
   (staticRecord "tickets" n50Server) +
   (staticRecord "pad" n50Server) +
   (staticRecord "wiki" n50Server);

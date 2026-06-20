@@ -10,9 +10,10 @@ let
   primaryBaseDomain = cfg.primaryBaseDomain;
   secondaryBaseDomains = lib.filter (d: d != primaryBaseDomain) cfg.baseDomains;
   # Subdomain prefixes that every base domain exposes.
-  subdomains = [ "engel" "tickets" "pad" "wiki" ];
+  subdomains = [ "engel" "cfp" "tickets" "pad" "wiki" ];
 
   engelDomain = "engel.${primaryBaseDomain}";
+  cfpDomain = "cfp.${primaryBaseDomain}";
   ticketsDomain = "tickets.${primaryBaseDomain}";
   padDomain = "pad.${primaryBaseDomain}";
   wikiDomain = "wiki.${primaryBaseDomain}";
@@ -146,9 +147,9 @@ in
             "--workers=8"
           ];
           nginx.enable = true;
-          nginx.domain = ticketsDomain;
+          nginx.domain = cfpDomain;
           settings = {
-            site.url = "https://${ticketsDomain}";
+            site.url = "https://${cfpDomain}";
             mail = {
               from = "himmel@n50.lat";
               host = "mail.stapatum.dev";
@@ -306,15 +307,20 @@ in
             forceSSL = true;
             locations."/" = proxyToContainer;
           };
+          # pretalx (the call for papers) is served on the cfp subdomain.
+          "${cfpDomain}" = {
+            enableACME = true;
+            forceSSL = true;
+            locations."/" = proxyToContainer;
+          };
+          # Ticketing is handled by pretix on tickets.n50.lat; keep this name
+          # reachable but permanently redirect it there.
           "${ticketsDomain}" = {
             enableACME = true;
             forceSSL = true;
-            # Redirect the bare domain to the pretalx event page (/<event-slug>/).
-            # TODO: adjust the slug to the actual N50 camp event.
-            locations."= /".extraConfig = ''
-              return 302 $scheme://${ticketsDomain}/n50camp/;
+            locations."/".extraConfig = ''
+              return 301 https://tickets.n50.lat$request_uri;
             '';
-            locations."/" = proxyToContainer;
           };
           "${padDomain}" = {
             enableACME = true;
