@@ -104,8 +104,10 @@ in
         # points at a loopback resolver the container cannot reach.
         networking.useHostResolvConf = lib.mkForce false;
         networking.nameservers = [ "1.1.1.1" "9.9.9.9" ];
-        # Only the host (over the veth) talks to the internal nginx; open just it.
-        networking.firewall.allowedTCPPorts = [ internalPort ];
+        # internalPort: the container nginx, where the host reverse-proxies most
+        # apps. hedgedocPort: hedgedoc itself, which the host proxies directly
+        # (WebSockets behave badly through the double proxy).
+        networking.firewall.allowedTCPPorts = [ internalPort hedgedocPort ];
 
         # Main camp website, served on the primary base domain's apex. It only
         # listens on localhost; the host nginx terminates TLS and proxies to it
@@ -260,7 +262,10 @@ in
           enable = true;
           settings.domain = padDomain;
           settings.port = hedgedocPort;
-          settings.host = "127.0.0.1"; # container-local; reached via the container nginx
+          # Listen on all container interfaces so the host nginx can reach hedgedoc
+          # over the veth and proxy the pad vhost straight to it — a single WS hop,
+          # bypassing the container nginx (see the host pad vhost below).
+          settings.host = "0.0.0.0";
           settings.protocolUseSSL = true; # TLS is terminated by the host nginx
           settings.allowOrigin = [
             "localhost"
@@ -293,17 +298,8 @@ in
             "${primaryBaseDomain}" = {
               locations."/".proxyPass = "http://[::1]:${toString websitePort}";
             };
-            # hedgedoc is not served by its module, so wire up its vhost here
-            # (this mirrors what event.nix did on the host).
-            "${padDomain}" = {
-              root = "/var/www/hedgedoc";
-              locations."/".proxyPass = "http://127.0.0.1:${toString hedgedocPort}";
-              locations."/socket.io/" = {
-                proxyPass = "http://127.0.0.1:${toString hedgedocPort}";
-                proxyWebsockets = true;
-                extraConfig = "proxy_ssl_server_name on;";
-              };
-            };
+            # Note: pad/hedgedoc is NOT served here — the host nginx proxies it
+            # directly to hedgedoc over the veth (single WS hop).
           };
         };
       };
@@ -365,10 +361,17 @@ in
               return 301 https://tickets.n50.lat$request_uri;
             '';
           };
+          # Pad is proxied straight to hedgedoc in the container (a single WS hop).
+          # The double proxy via the container nginx made the browser's socket.io
+          # upgrade flaky (intermittent 499s), so hedgedoc gets its own direct hop.
           "${padDomain}" = {
             enableACME = true;
             forceSSL = true;
-            locations."/" = proxyToContainer;
+            locations."/" = {
+              proxyPass = "http://${containerLocalAddress}:${toString hedgedocPort}";
+              proxyWebsockets = true;
+              recommendedProxySettings = true;
+            };
           };
         }
       ] ++ (
