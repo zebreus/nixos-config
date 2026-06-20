@@ -109,9 +109,14 @@ in
             autoarrive = true;
             database = {
               database = "engelsystem";
-              # The engelsystem DB user authenticates over the local MariaDB unix
-              # socket (services.mysql.ensureUsers), so no host/password is needed.
               username = "engelsystem";
+              # Connect over the local MariaDB unix socket. The engelsystem DB user
+              # authenticates via unix_socket auth (services.mysql.ensureUsers),
+              # matching the engelsystem service user, so no password is needed.
+              # This must be set explicitly: engelsystem's Illuminate bootstrap
+              # defaults the DB host to "" when unset, producing an invalid DSN
+              # (mysql:host=;dbname=...) and a 500 on every request.
+              unix_socket = "/run/mysqld/mysqld.sock";
             };
             default_locale = "de_DE";
             email = {
