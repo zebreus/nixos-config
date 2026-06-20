@@ -190,7 +190,6 @@ in
           # Set initial password to "cardbotnine" for the account admin.
           passwordFile = secretPaths.mediawiki;
           extraConfig = ''
-            # Disable anonymous editing
             $wgGroupPermissions['*']['edit'] = true;
             $wgPasswordSender = 'himmel@n50.lat';
             $wgEmergencyContact = 'himmel@n50.lat';
@@ -255,6 +254,14 @@ in
         services.nginx = {
           enable = true;
           defaultListen = [{ addr = internalAddr; port = internalPort; }];
+          # The host terminates TLS and reverse-proxies here on an internal http
+          # port (28080). Without this, nginx turns relative redirects (e.g.
+          # MediaWiki's "/" -> "/wiki/") into absolute ones using the internal
+          # socket, leaking "http://wiki.camp.n50.lat:28080/...". Emitting relative
+          # redirects lets the browser resolve them against the real https origin.
+          commonHttpConfig = ''
+            absolute_redirect off;
+          '';
           virtualHosts = {
             # Main camp website on the primary base domain's apex.
             "${primaryBaseDomain}" = {
