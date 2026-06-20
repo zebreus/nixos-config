@@ -46,6 +46,12 @@ in
         inherit (config.services.rspamd) group;
         path = "${config.mailserver.dkim.keyDirectory}/antibuild.ing.mail.key";
       };
+      "darmfest_de_dkim_rsa" = {
+        file = ../secrets + "/darmfest_de_dkim_rsa.age";
+        owner = config.services.rspamd.user;
+        inherit (config.services.rspamd) group;
+        path = "${config.mailserver.dkim.keyDirectory}/darmfest.de.mail.key";
+      };
     };
 
     services.postfix = {
