@@ -39,6 +39,8 @@ let
     "n50.camp"
     # N50 camp under the n50.lat org domain (delegated subzone)
     "camp.n50.lat"
+    # Static gulasch.site web properties (see authoritative-dns/gulasch.nix)
+    "gulasch.site"
   ];
   managedZonesDn42 = [
     # dn42 domain for internal services
