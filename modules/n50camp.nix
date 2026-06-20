@@ -18,15 +18,22 @@ let
   padDomain = "pad.${primaryBaseDomain}";
   wikiDomain = "wiki.${primaryBaseDomain}";
 
-  # Unlike event.nix, every service here runs inside a NixOS container (see
-  # matrix-lite.nix for the same pattern). The container shares the host network
-  # namespace (privateNetwork = false) and exposes a single internal nginx that
-  # serves all app vhosts on one localhost port. The host nginx terminates TLS
-  # and reverse-proxies each domain to that port, preserving the Host header so
-  # the container nginx can route by server_name.
-  internalAddr = "[::1]";
+  # Every service here runs inside a NixOS container with its OWN network
+  # namespace (privateNetwork = true). Isolation is required because the host
+  # runs a parallel darmfest event stack (event.nix) on the same default ports
+  # (MariaDB 3306, PostgreSQL 5432, HedgeDoc 23943); a shared namespace collides
+  # on all of them. The container is reachable from the host over a private /30
+  # veth link. The host nginx terminates TLS and reverse-proxies each domain to
+  # the container's single internal nginx, preserving the Host header so it can
+  # route by server_name. Container outbound traffic (SMTP etc.) is NAT'd through
+  # the host (see networking.nat below).
+  containerHostAddress = "192.168.207.1"; # host side of the veth
+  containerLocalAddress = "192.168.207.2"; # container side of the veth
+  # The container nginx binds all interfaces within its own netns; the host
+  # reaches it at containerLocalAddress:internalPort.
+  internalListenAddr = "0.0.0.0";
   internalPort = 28080;
-  internalUrl = "http://${internalAddr}:${toString internalPort}";
+  internalUrl = "http://${containerLocalAddress}:${toString internalPort}";
   hedgedocPort = 23943;
   # Port of the static n50-camp website server (from the n50-camp flake input),
   # which serves the main site on the primary base domain's apex.
@@ -76,7 +83,10 @@ in
 
     containers.n50camp = {
       autoStart = true;
-      privateNetwork = false;
+      # Own network namespace; see the addressing/NAT notes in the let block.
+      privateNetwork = true;
+      hostAddress = containerHostAddress;
+      localAddress = containerLocalAddress;
       bindMounts = lib.mkMerge [
         (mkSecretBind secretPaths.himmelMail)
         (mkSecretBind secretPaths.pretalxExtra)
@@ -88,6 +98,14 @@ in
         imports = [ n50-camp.nixosModules.default ];
 
         system.stateVersion = "26.05";
+
+        # Private-netns networking: the container routes outbound via the host
+        # (NAT'd below) and needs its own resolver since the host's resolv.conf
+        # points at a loopback resolver the container cannot reach.
+        networking.useHostResolvConf = lib.mkForce false;
+        networking.nameservers = [ "1.1.1.1" "9.9.9.9" ];
+        # Only the host (over the veth) talks to the internal nginx; open just it.
+        networking.firewall.allowedTCPPorts = [ internalPort ];
 
         # Main camp website, served on the primary base domain's apex. It only
         # listens on localhost; the host nginx terminates TLS and proxies to it
@@ -101,6 +119,9 @@ in
         services.mysql = {
           enable = true;
           package = pkgs.mariadb;
+          # engelsystem connects over the local unix socket, so there is no need
+          # for a TCP listener at all (socket-only).
+          settings.mysqld.skip-networking = true;
         };
 
         services.engelsystem = {
@@ -239,7 +260,7 @@ in
           enable = true;
           settings.domain = padDomain;
           settings.port = hedgedocPort;
-          settings.host = "127.0.0.1"; # localhost inside the container (shared netns)
+          settings.host = "127.0.0.1"; # container-local; reached via the container nginx
           settings.protocolUseSSL = true; # TLS is terminated by the host nginx
           settings.allowOrigin = [
             "localhost"
@@ -258,7 +279,7 @@ in
         # port without TLS, so the host can reverse-proxy by Host header.
         services.nginx = {
           enable = true;
-          defaultListen = [{ addr = internalAddr; port = internalPort; }];
+          defaultListen = [{ addr = internalListenAddr; port = internalPort; }];
           # The host terminates TLS and reverse-proxies here on an internal http
           # port (28080). Without this, nginx turns relative redirects (e.g.
           # MediaWiki's "/" -> "/wiki/") into absolute ones using the internal
@@ -286,6 +307,16 @@ in
           };
         };
       };
+    };
+
+    # Masquerade the container's outbound traffic (SMTP, skin/asset fetches). The
+    # container has no public address of its own; it routes via the host over the
+    # private veth link. Matching on the internal interface (and omitting an
+    # external one) masquerades out whatever the host's default route is, so this
+    # stays correct regardless of the WAN interface name.
+    networking.nat = {
+      enable = true;
+      internalInterfaces = [ "ve-n50camp" ];
     };
 
     # Host nginx: terminate TLS for every public domain and reverse-proxy to the
