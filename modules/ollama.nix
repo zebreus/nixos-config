@@ -169,17 +169,19 @@ let
 
   # `loadModels` only does `ollama pull`, which can't fetch a locally built or
   # pinned GGUF, so register those via `ollama create` once the server is up.
+  # Inherit ollama.service's environment (HOME/OLLAMA_MODELS/OLLAMA_HOST) and
+  # DynamicUser, matching upstream's model-loader: the CLI talks to the server
+  # over the API but panics with "$HOME is not defined" without those vars.
   mkRegisterService = model: modelfile: lib.mkIf cfg.enable {
     description = "Register ${model} model with Ollama";
     wantedBy = [ "multi-user.target" ];
     after = [ "ollama.service" ];
     bindsTo = [ "ollama.service" ];
+    environment = config.systemd.services.ollama.environment;
     serviceConfig = {
       Type = "oneshot";
       RemainAfterExit = true;
-      User = config.services.ollama.user;
-      Group = config.services.ollama.group;
-      Environment = "OLLAMA_HOST=${config.services.ollama.host}:${toString config.services.ollama.port}";
+      DynamicUser = true;
       ExecStart = pkgs.writeShellScript "create-${lib.replaceStrings [ ":" ] [ "-" ] model}" ''
         set -eu
         # Wait for the ollama server to accept connections.
