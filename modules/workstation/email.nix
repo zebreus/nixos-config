@@ -25,6 +25,12 @@
         inherit (config.users.users.lennart) group;
         mode = "0400";
       };
+      n50_zebreus_mail_password = {
+        file = ../../secrets/n50_zebreus_mail_password.age;
+        owner = "lennart";
+        inherit (config.users.users.lennart) group;
+        mode = "0400";
+      };
       gmail_password = {
         file = ../../secrets/gmail_password.age;
         owner = "lennart";
@@ -180,6 +186,27 @@
                 enable = true;
                 mailboxType = "imap";
                 mailboxName = "campN50";
+              };
+              thunderbird.enable = true;
+              msmtp.enable = true;
+            };
+            zebreusN50 = {
+              address = "zebreus@n50.lat";
+              imap = {
+                host = "mail.stapatum.dev";
+                port = 993;
+              };
+              smtp = {
+                host = "mail.stapatum.dev";
+                port = 465;
+              };
+              realName = "Zebreus";
+              userName = "zebreus";
+              passwordCommand = "cat ${config.age.secrets.n50_zebreus_mail_password.path}";
+              neomutt = {
+                enable = true;
+                mailboxType = "imap";
+                mailboxName = "zebreusN50";
               };
               thunderbird.enable = true;
               msmtp.enable = true;

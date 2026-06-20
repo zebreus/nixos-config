@@ -116,6 +116,10 @@ with import ./public-keys.nix;
   "lennart_mail_password.age".publicKeys = [ recovery ] ++ workstations;
   "gmail_password.age".publicKeys = [ recovery ] ++ workstations;
   "gmail_oauth2_token.age".publicKeys = [ recovery ] ++ workstations;
+  # n50.lat mailboxes. himmel is also used server-side by the n50 camp services.
+  "n50_himmel_mail_password.age".publicKeys = [ recovery kashenblade blanderdash sempriaq ] ++ workstations;
+  "n50_camp_mail_password.age".publicKeys = [ recovery ] ++ workstations;
+  "n50_zebreus_mail_password.age".publicKeys = [ recovery ] ++ workstations;
 
   # VPN mail secrets
   # Secrets for the mail accounts inside the antibuilding
@@ -204,11 +208,8 @@ with import ./public-keys.nix;
   "mediawiki_password.age".publicKeys = [ recovery kashenblade blanderdash sempriaq ];
 
   # N50 camp keys (separate from the darmfest event above; n50campServer runs on blanderdash, but may move to a different machine in the future)
-  "n50_himmel_mail_password.age".publicKeys = [ recovery kashenblade blanderdash sempriaq ] ++ workstations;
   "n50_pretalx_extra_secrets.age".publicKeys = [ recovery kashenblade blanderdash sempriaq ];
   "n50_mediawiki_password.age".publicKeys = [ recovery kashenblade blanderdash sempriaq ];
-  # Personal n50.lat mailboxes, only viewed from workstations.
-  "n50_camp_mail_password.age".publicKeys = [ recovery ] ++ workstations;
 
   # Hetzner storage box credentials
   "blanderdash_storagebox_smb_secrets.age".publicKeys = [ recovery blanderdash ];
