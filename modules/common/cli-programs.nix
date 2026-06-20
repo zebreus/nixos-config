@@ -32,6 +32,7 @@
       agenix
       age
       mtr
+      opencode
       inetutils
       dnsutils
       iputils

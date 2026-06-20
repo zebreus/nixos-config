@@ -2,6 +2,7 @@
 { ... }: {
   imports = [
     ./backup-home.nix
+    ./coding-agents.nix
     ./docker.nix
     ./email.nix
     ./emulated-systems.nix
