@@ -18,6 +18,7 @@
     ./matrix-lite.nix
     ./matrix.nix
     ./monitoring.nix
+    ./n50camp.nix
     ./ollama.nix
     ./shared.nix
     ./photos.nix
