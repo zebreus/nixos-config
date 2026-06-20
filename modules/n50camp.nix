@@ -1,4 +1,4 @@
-{ lib, config, pkgs, n50-camp, ... }:
+{ lib, config, n50-camp, ... }:
 with lib;
 let
   cfg = config.machines.${config.networking.hostName}.n50campServer;
@@ -212,8 +212,8 @@ in
               sha256 = "sha256-uW22eaXJ8ZHbKHVV4msth+V1VrfoPGseez2jg8f4Vo0=";
             };
           };
-          # Administrator account username is admin.
-          # Set initial password to "cardbotnine" for the account admin.
+          # Initial admin account is "admin"; its password is the contents of the
+          # n50_mediawiki_password secret. Change it after first login.
           passwordFile = secretPaths.mediawiki;
           extraConfig = ''
             $wgGroupPermissions['*']['edit'] = true;
