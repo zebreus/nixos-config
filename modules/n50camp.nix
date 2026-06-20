@@ -218,7 +218,7 @@ in
             $wgCaptchaTriggers['edit']          = false;
             $wgGroupPermissions['autoconfirmed']['skipcaptcha'] = true;
             $wgRateLimits['createaccount']['ip'] = [ 5, 86400 ];
-            $wgRateLimits['emailuser']['ip']     = [ 5, 86400 ];
+            $wgRateLimits['sendemail']['ip']     = [ 5, 86400 ];
           '';
 
           extensions = {
