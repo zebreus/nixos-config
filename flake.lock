@@ -390,11 +390,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1781957477,
-        "narHash": "sha256-o/THIgKNpJrL3u7gPFr8utXG78v16hIZO+gxR+wVk/c=",
+        "lastModified": 1782009557,
+        "narHash": "sha256-ZB11+6tyBhdEunBZL2GfHJ7e7R/4hW69eE7CB2rmRq0=",
         "owner": "zebreus",
         "repo": "n50-camp",
-        "rev": "9a8254eed28a26c86b1d5b815a6c33ad28a0bbca",
+        "rev": "c39ea94690cc3234361e5c3edb09dd3015e6200a",
         "type": "github"
       },
       "original": {
