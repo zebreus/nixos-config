@@ -19,10 +19,11 @@ let
   # pretalx's main domain (SITE_URL): the orga backend and the canonical
   # instance live here.
   pretalxDomain = "pretalx.${primaryBaseDomain}";
-  # The event's public custom domain (set as the event's custom domain in the
-  # pretalx admin UI). pretalx serves the public CfP/schedule here.
+  # Friendly alias for the public schedule; redirects to the event schedule on
+  # pretalxDomain (no separate pretalx event/custom domain is used).
   fahrplanDomain = "fahrplan.${primaryBaseDomain}";
-  # Legacy CfP host; now just redirects to the public CfP on fahrplanDomain.
+  # Friendly alias for the call for papers; redirects to the event CfP on
+  # pretalxDomain.
   cfpDomain = "cfp.${primaryBaseDomain}";
   ticketsDomain = "tickets.${primaryBaseDomain}";
   padDomain = "pad.${primaryBaseDomain}";
@@ -444,31 +445,6 @@ in
                 extraConfig = innerProxyHeaders;
               };
             };
-            # pretalx registers its own vhost (keyed by nginx.domain =
-            # pretalxDomain). Make it also answer to the event's custom domain
-            # (fahrplanDomain) so that Host reaches pretalx, and forward the
-            # host-terminated scheme. The pretalx vhost uses recommendedProxy
-            # Settings, which would hardcode X-Forwarded-Proto to this inner
-            # hop's $scheme (http); pretalx's custom-domain routing matches on
-            # "https://<domain>", so it must see https. We disable the recommended
-            # set on this location and pass the forwarded proto through instead
-            # (setting it twice would send two conflicting headers).
-            "${pretalxDomain}" = {
-              serverAliases = [ fahrplanDomain ];
-              locations."/" = {
-                recommendedProxySettings = false;
-                extraConfig = ''
-                  proxy_redirect off;
-                  proxy_http_version 1.1;
-                  proxy_set_header Connection "";
-                  proxy_set_header Host $host;
-                  proxy_set_header X-Real-IP $remote_addr;
-                  proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-                  proxy_set_header X-Forwarded-Proto $http_x_forwarded_proto;
-                  proxy_set_header X-Forwarded-Host $host;
-                '';
-              };
-            };
             # engelsystem and mediawiki register their own fastcgi vhosts; append
             # the forwarded scheme to their php locations (keys mirror those
             # modules) so PHP sees https rather than this inner hop's http.
@@ -520,22 +496,22 @@ in
             forceSSL = true;
             locations."/" = proxyToContainer;
           };
-          # The event's public custom domain. Once the event's custom domain is
-          # set to https://fahrplan.camp.n50.lat in the pretalx admin UI, pretalx
-          # serves its public CfP/schedule here (and the container nginx routes
-          # this Host to pretalx via the serverAlias above).
+          # Friendly alias for the public schedule: redirect to the event's
+          # schedule on the main pretalx instance.
           "${fahrplanDomain}" = {
             enableACME = true;
             forceSSL = true;
-            locations."/" = proxyToContainer;
+            locations."/".extraConfig = ''
+              return 301 https://${pretalxDomain}/n50-camp-2026/schedule;
+            '';
           };
-          # Legacy CfP host: pretalx moved to pretalxDomain and the public CfP is
-          # served on the event's custom domain, so redirect there.
+          # Friendly alias for the call for papers: redirect to the event's CfP on
+          # the main pretalx instance.
           "${cfpDomain}" = {
             enableACME = true;
             forceSSL = true;
             locations."/".extraConfig = ''
-              return 301 https://${fahrplanDomain}/cfp;
+              return 301 https://${pretalxDomain}/n50-camp-2026/cfp;
             '';
           };
           # Ticketing is handled by pretix on tickets.n50.lat; keep this name
