@@ -1,8 +1,7 @@
 { config, lib, pkgs, ... }:
 let
-  thisMachine = config.machines."${config.networking.hostName}";
-  # For now, we just assume that all machines with a sshPublicKey are accessible.
-  accessibleMachines = lib.attrValues ((lib.filterAttrs (name: machine: machine.sshPublicKey != null)) config.machines);
+  thisMachine = config.meta.self;
+  accessibleMachines = config.meta.accessibleMachines;
 in
 {
   config = lib.mkIf thisMachine.monitoring.enable {
@@ -11,7 +10,7 @@ in
         enable = true;
         settings = {
           server = {
-            domain = "grafana.antibuild.ing";
+            domain = "grafana.${config.meta.domain}";
             http_port = 2342;
             http_addr = "::1";
           };
@@ -24,7 +23,7 @@ in
           smtp = {
             enable = true;
             enabled = true;
-            user = "root@${config.networking.hostName}.antibuild.ing";
+            user = "root@${config.meta.self.fqdn}";
             startTLS_policy = "MandatoryStartTLS";
             password = "$__file{${config.age.secrets."${config.networking.hostName}_mail_password".path}}";
             host = "mail.zebre.us:465";
@@ -91,7 +90,7 @@ in
                 targets = (builtins.concatMap
                   # (machine: "${machine.name}:9100")
                   (machine: [
-                    "[${config.antibuilding.ipv6Prefix}::${builtins.toString machine.address}]:${builtins.toString config.services.prometheus.exporters.node.port}"
+                    "[${machine.antibuildingIp6}]:${builtins.toString config.services.prometheus.exporters.node.port}"
                   ])
                   accessibleMachines);
               }
@@ -104,7 +103,7 @@ in
                 targets = (builtins.concatMap
                   # (machine: "${machine.name}:9100")
                   (machine: [
-                    "[${config.antibuilding.ipv6Prefix}::${builtins.toString machine.address}]:${builtins.toString config.services.prometheus.exporters.bird.port}"
+                    "[${machine.antibuildingIp6}]:${builtins.toString config.services.prometheus.exporters.bird.port}"
                   ])
                   accessibleMachines);
               }
@@ -116,10 +115,10 @@ in
               {
                 targets = (builtins.concatMap
                   (machine: [
-                    "[${config.antibuilding.ipv6Prefix}::${builtins.toString machine.address}]:${builtins.toString 9256}" # rspamd
-                    "[${config.antibuilding.ipv6Prefix}::${builtins.toString machine.address}]:${builtins.toString 9257}" # postfix
+                    "[${machine.antibuildingIp6}]:${builtins.toString 9256}" # rspamd
+                    "[${machine.antibuildingIp6}]:${builtins.toString 9257}" # postfix
                   ])
-                  (lib.filter (machine: machine.mailServer.enable) accessibleMachines)
+                  (lib.filter (machine: machine.mail.enable) accessibleMachines)
                 );
               }
             ];
@@ -129,7 +128,7 @@ in
       nginx = {
         enable = true;
         virtualHosts = {
-          "grafana.antibuild.ing" = {
+          "grafana.${config.meta.domain}" = {
             enableACME = true;
             forceSSL = true;
             locations = {

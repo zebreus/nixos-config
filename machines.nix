@@ -1,4 +1,8 @@
-# This file is the main config file for all hosts
+# This file is the main config file for all hosts.
+#
+# It fills in the meta options (modules/helpers/machines.nix):
+#   * meta.machines.<host> — the fleet topology and per-machine knobs.
+#   * meta.services.<svc>  — which host(s) run each service, plus its config.
 let
   publicKeys = import secrets/public-keys.nix;
 in
@@ -6,7 +10,8 @@ in
   imports = [
     modules/helpers/machines.nix
   ];
-  machines = {
+
+  meta.machines = {
     erms = {
       name = "erms";
       address = 1;
@@ -23,20 +28,9 @@ in
       staticIp4 = "167.235.154.30";
       staticIp6 = "2a01:4f8:c0c:d91f::1";
       sshPublicKey = publicKeys.kashenblade;
-      authoritativeDns.enable = true;
-      authoritativeDns.name = "ns1";
       publicPorts = [ 53 ];
       trustedPorts = [ 9100 ];
-      monitoring.enable = true;
       # dn42Peerings = [ "zaphyra" "decade" "stephanj" "tech9_de02" "ellie" "lgcl" "aprl" "echonet" "kioubit_de2" "routedbits_de1" "adhd" "sebastians" "larede01" ];
-      matrixServer = {
-        enable = true;
-        baseDomain = "zebre.us";
-      };
-      matrixLiteServer = {
-        enable = true;
-        baseDomain = "wirs.ing";
-      };
     };
     kappril = {
       name = "kappril";
@@ -44,10 +38,6 @@ in
       wireguardPublicKey = publicKeys.kappril_wireguard;
       publicPorts = [ 22 ];
       sshPublicKey = publicKeys.kappril;
-      backupHost = {
-        enable = true;
-        storagePath = "/storage/borg";
-      };
     };
     # Janeks laptop
     janek = {
@@ -73,10 +63,6 @@ in
       address = 6;
       wireguardPublicKey = publicKeys.janek-backup_wireguard;
       public = true;
-      backupHost = {
-        enable = true;
-        storagePath = "/backups/lennart";
-      };
     };
     sempriaq = {
       name = "sempriaq";
@@ -84,8 +70,6 @@ in
       wireguardPublicKey = publicKeys.sempriaq_wireguard;
       sshPublicKey = publicKeys.sempriaq;
       public = true;
-      authoritativeDns.enable = true;
-      authoritativeDns.name = "ns3";
       publicPorts = [ 53 ];
       staticIp4 = "192.227.228.220";
     };
@@ -95,37 +79,10 @@ in
       address = 8;
       wireguardPublicKey = publicKeys.blanderdash_wireguard;
       sshPublicKey = publicKeys.blanderdash;
-      authoritativeDns.enable = true;
-      authoritativeDns.primary = true;
-      authoritativeDns.name = "ns2";
       publicPorts = [ 53 ];
       trustedPorts = [ 18000 ];
       staticIp4 = "49.13.8.171";
       staticIp6 = "2a01:4f8:c013:29b1::1";
-      bird-lg.enable = true;
-      # besserestrichlisteServer.enable = true;
-      # backupHost = {
-      #   enable = true;
-      #   storagePath = "/storage/storagebox/borg";
-      # };
-      mailServer = {
-        enable = true;
-        baseDomain = "zebre.us";
-      };
-      eventServer = {
-        enable = true;
-        baseDomain = "darmfest.de";
-      };
-      n50campServer = {
-        enable = true;
-        baseDomains = [ "camp.n50.lat" "n50.camp" ];
-        primaryBaseDomain = "camp.n50.lat";
-      };
-      photosServer.enable = true;
-      essenJetztServer.enable = true;
-      suckmoreOrgServer.enable = true;
-      suckmoreOrgServer.enableCaching = false;
-      gulaschSitesServer.enable = true;
     };
     prandtl = {
       name = "prandtl";
@@ -136,7 +93,6 @@ in
       workstation.enable = true;
       desktop.enable = true;
       auto-maintenance.cleanup = false;
-      ollama.enable = true;
     };
     # Leon (friend of basilikum) laptop
     leon = {
@@ -177,8 +133,69 @@ in
       wireguardPublicKey = publicKeys.glouble_wireguard;
       trusted = true;
       sshPublicKey = publicKeys.glouble;
-      homeassistantServer.enable = true;
     };
     # MARKER_MACHINE_CONFIGURATIONS
+  };
+
+  meta.services = {
+    # Authoritative DNS: ns1 kashenblade, ns2 blanderdash (primary), ns3 sempriaq.
+    dns = {
+      hosts = {
+        kashenblade.name = "ns1";
+        blanderdash.name = "ns2";
+        sempriaq.name = "ns3";
+      };
+      primary = "blanderdash";
+    };
+
+    monitoring.host = "kashenblade";
+    bird-lg.host = "blanderdash";
+
+    ollama.hosts = [ "prandtl" ];
+
+    # Backup hosts and their storage locations.
+    backup.hosts = {
+      kappril.storagePath = "/storage/borg";
+      janek-backup.storagePath = "/backups/lennart";
+      # blanderdash.storagePath = "/storage/storagebox/borg";
+    };
+
+    mail = {
+      host = "blanderdash";
+      baseDomain = "zebre.us";
+    };
+
+    matrix = {
+      host = "kashenblade";
+      baseDomain = "zebre.us";
+    };
+    matrixLite = {
+      host = "kashenblade";
+      baseDomain = "wirs.ing";
+    };
+
+    event = {
+      host = "blanderdash";
+      baseDomain = "darmfest.de";
+    };
+
+    n50camp = {
+      host = "blanderdash";
+      baseDomains = [ "camp.n50.lat" "n50.camp" ];
+      primaryBaseDomain = "camp.n50.lat";
+    };
+
+    # besserestrichliste.host = "blanderdash";
+
+    photos.host = "blanderdash";
+    essenJetzt.host = "blanderdash";
+    homeassistant.host = "glouble";
+
+    suckmoreOrg = {
+      host = "blanderdash";
+      enableCaching = false;
+    };
+
+    gulaschSites.host = "blanderdash";
   };
 }

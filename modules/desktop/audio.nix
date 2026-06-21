@@ -1,5 +1,5 @@
 { lib, config, ... }: {
-  config = lib.mkIf config.machines.${config.networking.hostName}.desktop.enable {
+  config = lib.mkIf config.meta.self.desktop.enable {
     # # This only enables alsa
     # sound.enable = true;
     # Enable sound with pipewire.

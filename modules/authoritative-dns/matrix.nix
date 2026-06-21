@@ -10,15 +10,19 @@ let
     '')
   );
 
-  machines = lib.attrValues config.machines;
-  matrixServer = lib.head (lib.filter (machine: machine.matrixServer.enable) machines);
+  # The matrix server is named directly by the service; look its machine up by
+  # name. atMostOne ⇒ host may be null (matrix runs nowhere), so guard on that.
+  inherit (config.meta.services.matrix) host baseDomain;
+  server = config.meta.machines.${host};
 in
 {
-  config.modules.dns.zones.${matrixServer.matrixServer.baseDomain} = ''
-    ; Records for matrix/synapse
-  '' +
-  (staticRecord "@" matrixServer) +
-  (staticRecord "element" matrixServer) +
-  (staticRecord "matrix" matrixServer) +
-  (staticRecord "turn" matrixServer);
+  config.modules.dns.zones = lib.mkIf (host != null) {
+    ${baseDomain} = ''
+      ; Records for matrix/synapse
+    '' +
+    (staticRecord "@" server) +
+    (staticRecord "element" server) +
+    (staticRecord "matrix" server) +
+    (staticRecord "turn" server);
+  };
 }

@@ -1,7 +1,7 @@
 { lib, config, utils, n50-camp, ... }:
 with lib;
 let
-  cfg = config.machines.${config.networking.hostName}.n50campServer;
+  cfg = config.meta.self.n50camp;
 
   # The event is reachable under several base domains. Apps run inside the
   # container only on the canonical (primary) base domain; the other base domains

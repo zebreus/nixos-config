@@ -23,22 +23,13 @@ let
     ".npm"
     ".conda"
   ];
-
-  createReposModule = { config, lib, ... }: {
-    config = {
-      allBorgRepos = builtins.concatMap
-        (machine: if machine.workstation.enable then [{ name = "lennart_${machine.name}"; size = "3T"; }] else [ ])
-        (lib.attrValues config.machines);
-    };
-  };
 in
 {
   imports = [
     ../helpers/borgMeteredConnectionOption.nix
-    createReposModule
   ];
 
-  config = lib.mkIf config.machines.${config.networking.hostName}.workstation.enable {
+  config = lib.mkIf config.meta.self.workstation.enable {
     age.secrets = {
       "lennart_${config.networking.hostName}_backup_passphrase" = {
         file = ../../secrets + "/lennart_${config.networking.hostName}_backup_passphrase.age";
@@ -74,7 +65,7 @@ in
             environment.BORG_RSH = "ssh -i ${config.age.secrets."lennart_${config.networking.hostName}_backup_append_only_ed25519".path}";
             environment.BORG_RELOCATED_REPO_ACCESS_IS_OK = "yes";
             extraCreateArgs = "--stats --checkpoint-interval 600";
-            repo = "${borgRepo.backupHost.locationPrefix}lennart_${config.networking.hostName}";
+            repo = "${borgRepo.backup.locationPrefix}lennart_${config.networking.hostName}";
             startAt = "*-*-* 0${builtins.toString index}/3:00:00";
             persistentTimer = true;
             # user = "lennart";
@@ -84,7 +75,7 @@ in
             dontStartOnMeteredConnection = true;
           };
         })
-        config.allBackupHosts
+        config.meta.allBackupHosts
       );
   };
 }

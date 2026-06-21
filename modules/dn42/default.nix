@@ -1,18 +1,17 @@
 # Establishes wireguard tunnels with all nodes with static IPs as hubs.
 { config, lib, pkgs, ... }:
 let
-  machines = lib.attrValues config.machines;
+  machines = lib.attrValues config.meta.machines;
   isRouter = machine: ((builtins.length machine.dn42Peerings) > 0);
   routers = builtins.filter isRouter machines;
 
-  otherMachines = builtins.filter (machine: machine.name != config.networking.hostName) machines;
+  otherMachines = config.meta.others;
   otherRouters = builtins.filter (machine: machine.name != config.networking.hostName) routers;
-  isServer = machine: ((machine.staticIp4 != null) || (machine.staticIp6 != null));
-  connectedMachines = builtins.filter (otherMachine: (isServer thisMachine) || (isServer otherMachine)) otherMachines;
+  connectedMachines = builtins.filter (otherMachine: (thisMachine.isServer) || (otherMachine.isServer)) otherMachines;
 
-  thisMachine = config.machines.${config.networking.hostName};
+  thisMachine = config.meta.self;
   peeringEnabled = isRouter thisMachine;
-  inherit (config.antibuilding) ipv6Prefix;
+  inherit (config.meta) ipv6Prefix ipv4Prefix;
 
   script = pkgs.writeShellScriptBin "update-roa" ''
     mkdir -p /etc/bird/
@@ -86,9 +85,9 @@ in
       '';
       config = ''
         define OWNAS = 4242421403;
-        define OWNNET = 172.20.179.128/27;
+        define OWNNET = ${ipv4Prefix}.128/27;
         define OWNNETv6 = ${ipv6Prefix}::/48;
-        define OWNNETSET = [ 172.20.179.128/27 ];
+        define OWNNETSET = [ ${ipv4Prefix}.128/27 ];
         define OWNNETSETv6 = [ ${ipv6Prefix}::/48 ];
 
         ipv4 table bgp4;
@@ -215,7 +214,7 @@ in
                         if source !~ [RTS_BABEL, RTS_STATIC] then {
                           reject;
                         }
-                        if net !~ [ 172.20.179.128/27{27,32} ] then {
+                        if net !~ [ ${ipv4Prefix}.128/27{27,32} ] then {
                           reject;
                         }
                         # Lowest preference
@@ -368,7 +367,7 @@ in
       '' + (lib.concatMapStrings
         (router: ''
           protocol bgp ibgp_${router.name} from ibgp_router {
-              neighbor ${ipv6Prefix}::${builtins.toString router.address} as OWNAS;
+              neighbor ${router.antibuildingIp6} as OWNAS;
           }
         '')
         otherRouters);

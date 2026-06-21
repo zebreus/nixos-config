@@ -1,6 +1,6 @@
 { config, lib, pkgs, ... }:
 let
-  cfg = config.machines.${config.networking.hostName}.essenJetztServer;
+  cfg = config.meta.self.essenJetzt;
 
   essenjetzt = pkgs.writeShellApplication
     {

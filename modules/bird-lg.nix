@@ -1,14 +1,14 @@
 { config, lib, ... }:
 let
-  machines = lib.attrValues config.machines;
-  thisMachine = config.machines."${config.networking.hostName}";
+  machines = lib.attrValues config.meta.machines;
+  thisMachine = config.meta.self;
 in
 {
   config = lib.mkIf thisMachine.bird-lg.enable {
     services = {
       bird-lg = {
         frontend = {
-          domain = "lg.antibuild.ing";
+          domain = "lg.${config.meta.domain}";
           enable = true;
           servers = (builtins.map (machine: machine.name) machines);
           protocolFilter = [ "bgp" "static" "babel" ];
@@ -22,7 +22,7 @@ in
       nginx = {
         enable = true;
         virtualHosts = {
-          "lg.antibuild.ing" = {
+          "lg.${config.meta.domain}" = {
             forceSSL = true;
             enableACME = true;
             locations."/" = {

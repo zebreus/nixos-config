@@ -1,17 +1,19 @@
 { lib, config, ... }:
 let
-  machines = lib.attrValues config.machines;
-  essenJetztServer = lib.head (lib.filter (machine: machine.essenJetztServer.enable) machines);
+  host = config.meta.services.essenJetzt.host;
+  server = config.meta.machines.${host};
 in
 {
-  config.modules.dns.zones."essen.jetzt" = ''
-    ; Records for essen.jetzt
-    @ IN A ${essenJetztServer.staticIp4}
-    @ IN AAAA ${essenJetztServer.staticIp6}
-  '';
-  config.modules.dns.zones."rudelb.link" = ''
-    ; Records for essen.jetzt
-    man IN A ${essenJetztServer.staticIp4}
-    man IN AAAA ${essenJetztServer.staticIp6}
-  '';
+  config.modules.dns.zones = lib.mkIf (host != null) {
+    "essen.jetzt" = ''
+      ; Records for essen.jetzt
+      @ IN A ${server.staticIp4}
+      @ IN AAAA ${server.staticIp6}
+    '';
+    "rudelb.link" = ''
+      ; Records for essen.jetzt
+      man IN A ${server.staticIp4}
+      man IN AAAA ${server.staticIp6}
+    '';
+  };
 }

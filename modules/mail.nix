@@ -1,15 +1,15 @@
 { lib, config, pkgs, ... }:
 with lib;
 let
-  cfg = config.machines.${config.networking.hostName}.mailServer;
+  cfg = config.meta.self.mail;
   inherit (cfg) baseDomain;
   mailFqdn = "mail.${baseDomain}";
   domain = baseDomain;
   name = builtins.replaceStrings [ "." "-" ] [ "_" "_" ] baseDomain;
 
-  thisMachine = config.machines."${config.networking.hostName}";
-  machines = lib.attrValues config.machines;
-  grafanaServers = lib.filter (machine: machine.monitoring.enable) machines;
+  thisMachine = config.meta.self;
+  # monitoring is exactlyOne; open the exporter only to that single host.
+  grafanaServers = [ config.meta.machines.${config.meta.services.monitoring.host} ];
 in
 {
   config = mkIf cfg.enable {
@@ -67,7 +67,7 @@ in
       enable = true;
       stateVersion = 3;
       fqdn = mailFqdn;
-      domains = [ domain "madmanfred.com" "antibuild.ing" "darmfest.de" ];
+      domains = [ domain "madmanfred.com" config.meta.domain "darmfest.de" ];
 
       messageSizeLimit = (2048 + 50) * 1024 * 1024; # 2 GiB + 50 MiB
 
@@ -79,7 +79,7 @@ in
       accounts = {
         "lennart@${domain}" = {
           hashedPasswordFile = config.age.secrets.lennart_mail_passwordhash.path;
-          aliases = [ "postmaster@${domain}" "dmarc-reports@${domain}" "abuse@${domain}" "@${domain}" "@madmanfred.com" "@antibuild.ing" ];
+          aliases = [ "postmaster@${domain}" "dmarc-reports@${domain}" "abuse@${domain}" "@${domain}" "@madmanfred.com" "@${config.meta.domain}" ];
         };
         "himmel@darmfest.de" = {
           hashedPasswordFile = config.age.secrets.himmel_mail_passwordhash.path;
@@ -135,24 +135,24 @@ in
     # Open firewall port 9100 for traffic from the grafana server
     networking.firewall.extraInputRules = lib.mkMerge (builtins.map
       (machine: ''
-        ip6 saddr { ${config.antibuilding.ipv6Prefix}::${builtins.toString machine.address}/128 } tcp dport ${builtins.toString config.services.prometheus.exporters.postfix.port} accept
+        ip6 saddr { ${machine.antibuildingIp6}/128 } tcp dport ${builtins.toString config.services.prometheus.exporters.postfix.port} accept
       '')
-      # ip6 saddr { ${config.antibuilding.ipv6Prefix}::${builtins.toString machine.address}/128 } tcp dport ${builtins.toString config.services.prometheus.exporters.mail.port} accept
+      # ip6 saddr { ${machine.antibuildingIp6}/128 } tcp dport ${builtins.toString config.services.prometheus.exporters.mail.port} accept
       grafanaServers);
     services.prometheus = {
       # exporters.rspamd = {
       #   enable = true;
-      #   listenAddress = "[${config.antibuilding.ipv6Prefix}::${builtins.toString thisMachine.address}]";
+      #   listenAddress = "[${thisMachine.antibuildingIp6}]";
       #   port = 9256;
       # };
       exporters.postfix = {
         enable = true;
-        listenAddress = "[${config.antibuilding.ipv6Prefix}::${builtins.toString thisMachine.address}]";
+        listenAddress = "[${thisMachine.antibuildingIp6}]";
         port = 9257;
       };
       # exporters.mail = {
       #   enable = true;
-      #   listenAddress = "[${config.antibuilding.ipv6Prefix}::${builtins.toString thisMachine.address}]";
+      #   listenAddress = "[${thisMachine.antibuildingIp6}]";
       #   port = 9258;
       # };
     };
@@ -171,7 +171,7 @@ in
               environment.BORG_RSH = "ssh -i ${config.age.secrets."mail_backup_append_only_ed25519".path}";
               environment.BORG_RELOCATED_REPO_ACCESS_IS_OK = "yes";
               extraCreateArgs = "--stats --checkpoint-interval 600";
-              repo = "${borgRepo.backupHost.locationPrefix}mail";
+              repo = "${borgRepo.backup.locationPrefix}mail";
               startAt = "*-*-* 00/1:00:00";
               user = "root";
               paths = [
@@ -179,7 +179,7 @@ in
               ];
             };
         })
-        config.allBackupHosts
+        config.meta.allBackupHosts
       );
 
     environment.systemPackages = with pkgs; [
@@ -192,7 +192,7 @@ in
 
         export BORG_RSH="ssh -i ${config.age.secrets."mail_backup_append_only_ed25519".path}"
         export BORG_PASSCOMMAND="cat ${config.age.secrets."mail_backup_passphrase".path}"
-        ALL_BORG_REPOS=( ${ lib.concatStringsSep " " (builtins.map (machine: "'${machine.backupHost.locationPrefix}mail'") config.allBackupHosts)} )
+        ALL_BORG_REPOS=( ${ lib.concatStringsSep " " (builtins.map (machine: "'${machine.backup.locationPrefix}mail'") config.meta.allBackupHosts)} )
 
         MODE="$1"
         if [ "$MODE" == list ] ; then
@@ -266,7 +266,7 @@ in
     # Add backup repo
     {
       config = {
-        allBorgRepos = [{ name = "mail"; size = "1T"; }];
+        meta.allBorgRepos = [{ name = "mail"; size = "1T"; }];
       };
     }
     # Configure the mail server to relay mail for all other machines on the VPN
@@ -290,7 +290,7 @@ in
                     path = "${config.mailserver.dkim.keyDirectory}/${domain}.mail.key";
                   };
                 };
-                domain = "${name}.antibuild.ing";
+                domain = "${name}.${config.meta.domain}";
                 loginAccount = {
                   "root@${domain}" = {
                     hashedPasswordFile = config.age.secrets."${name}_mail_passwordhash".path;
@@ -300,7 +300,7 @@ in
                 };
               })
             # All managed servers
-            (lib.attrValues (lib.filterAttrs (name: machine: machine.managed) config.machines));
+            config.meta.managedMachines;
       in
       {
         config = mkIf cfg.enable {

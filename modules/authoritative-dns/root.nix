@@ -1,7 +1,7 @@
 { lib, config, ... }:
 let
-  machines = lib.attrValues config.machines;
-  primaryServer = lib.head (lib.filter (machine: machine.authoritativeDns.primary) machines);
+  # dns is atLeastOne with a single named primary; look it up by name.
+  primaryServer = config.meta.machines.${config.meta.services.dns.primary};
 in
 {
   config.modules.dns.zones.${config.modules.dns.mainDomain} = ''

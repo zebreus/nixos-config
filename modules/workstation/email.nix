@@ -1,5 +1,5 @@
 { lib, config, ... }: {
-  config = lib.mkIf config.machines.${config.networking.hostName}.workstation.enable {
+  config = lib.mkIf config.meta.self.workstation.enable {
     age.secrets = {
       lennart_mail_password = {
         file = ../../secrets/lennart_mail_password.age;

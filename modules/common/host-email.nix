@@ -22,11 +22,11 @@
         tls_trust_file = "/etc/ssl/certs/ca-certificates.crt";
         port = 465;
         tls_starttls = "off";
-        user = "root@${config.networking.hostName}.antibuild.ing";
+        user = "root@${config.meta.self.fqdn}";
         passwordeval = "cat ${config.age.secrets."${config.networking.hostName}_mail_password".path}";
-        domain = "${config.networking.hostName}.antibuild.ing";
+        domain = "${config.meta.self.fqdn}";
         set_from_header = true;
-        from = "%U@${config.networking.hostName}.antibuild.ing";
+        from = "%U@${config.meta.self.fqdn}";
         dsn_notify = "delay";
       };
     };
@@ -73,7 +73,7 @@
         accounts.email = {
           accounts.host = {
             primary = true;
-            address = "${current-user}@${config.networking.hostName}.antibuild.ing";
+            address = "${current-user}@${config.meta.self.fqdn}";
             imap = {
               host = "mail.zebre.us";
               port = 993;
@@ -83,7 +83,7 @@
               port = 465;
             };
             realName = config.users.users."${current-user}".description;
-            userName = "root@${config.networking.hostName}.antibuild.ing";
+            userName = "root@${config.meta.self.fqdn}";
             passwordCommand = "cat ${config.age.secrets."${config.networking.hostName}_mail_password".path}";
             neomutt = {
               enable = true;

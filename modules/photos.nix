@@ -1,7 +1,7 @@
 { lib, config, ... }:
 with lib;
 let
-  cfg = config.machines.${config.networking.hostName}.photosServer;
+  cfg = config.meta.self.photos;
   baseDomain = "zebre.us";
 in
 {

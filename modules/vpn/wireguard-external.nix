@@ -1,11 +1,9 @@
 # Establishes wireguard tunnels with all nodes with static IPs as hubs.
 { config, lib, ... }:
 let
-  machines = lib.attrValues config.machines;
 
-  inherit (config.antibuilding) ipv6Prefix;
 
-  otherMachines = builtins.filter (machine: machine.name != config.networking.hostName) machines;
+  otherMachines = config.meta.others;
   unmanagedMachines = builtins.filter (otherMachine: !otherMachine.managed) otherMachines;
 in
 {
@@ -48,7 +46,7 @@ in
     services.bird.config = lib.mkMerge (builtins.map
       (machine: ''
         protocol static antibuilding99_${builtins.toString machine.address} {
-            route ${ipv6Prefix}::${builtins.toString machine.address}/128 via "antibuilding99";
+            route ${machine.antibuildingIp6}/128 via "antibuilding99";
             ipv6 {
                 import all;
             };
@@ -75,7 +73,7 @@ in
             wireguardPeers = builtins.map
               (machine: {
                 PublicKey = machine.wireguardPublicKey;
-                AllowedIPs = [ "${ipv6Prefix}::${builtins.toString machine.address}/128" ];
+                AllowedIPs = [ "${machine.antibuildingIp6}/128" ];
                 PresharedKeyFile = config.age.secrets.shared_wireguard_psk.path;
                 PersistentKeepalive = 25;
               })
@@ -87,7 +85,7 @@ in
             address = [ "fe80::1922:3932:1029:1111/128" ];
             routes = builtins.map
               (machine: {
-                Destination = "${ipv6Prefix}::${builtins.toString machine.address}/128";
+                Destination = "${machine.antibuildingIp6}/128";
               })
               unmanagedMachines;
             networkConfig = {

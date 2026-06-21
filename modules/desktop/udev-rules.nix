@@ -438,7 +438,7 @@ let
   };
 in
 {
-  config = lib.mkIf config.machines.${config.networking.hostName}.desktop.enable {
+  config = lib.mkIf config.meta.self.desktop.enable {
     services.udev.packages = [
       wallyUdev
       tbsUdev

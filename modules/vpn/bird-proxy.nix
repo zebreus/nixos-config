@@ -1,11 +1,8 @@
 { config, lib, ... }:
 let
-  machines = lib.attrValues config.machines;
-  thisMachine = config.machines."${config.networking.hostName}";
-  isServer = machine: ((machine.staticIp4 != null) || (machine.staticIp6 != null));
-
-  otherMachines = builtins.filter (machine: machine.name != config.networking.hostName) machines;
-  connectedMachines = builtins.filter (otherMachine: (isServer thisMachine) || (isServer otherMachine)) otherMachines;
+  thisMachine = config.meta.self;
+  otherMachines = config.meta.others;
+  connectedMachines = builtins.filter (otherMachine: (thisMachine.isServer) || (otherMachine.isServer)) otherMachines;
 
   networks = lib.imap
     (index: otherMachine: {
@@ -13,7 +10,8 @@ let
     })
     connectedMachines;
 
-  lgServer = lib.head (lib.filter (machine: machine.bird-lg.enable) machines);
+  # bird-lg is exactlyOne, so the service always names exactly one host.
+  lgServer = config.meta.machines.${config.meta.services.bird-lg.host};
 in
 {
   config = {
@@ -33,7 +31,7 @@ in
           enable = true;
           birdSocket = "/var/run/bird/bird.ctl";
           listenAddresses = "0.0.0.0:18000";
-          allowedIPs = [ "${config.antibuilding.ipv6Prefix}::${builtins.toString lgServer.address}" ];
+          allowedIPs = [ "${lgServer.antibuildingIp6}" ];
         };
       };
     };

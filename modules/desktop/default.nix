@@ -1,7 +1,7 @@
 # Configuration for the machines that I use interactivly
 { lib, config, ... }:
 let
-  thisMachine = config.machines."${config.networking.hostName}";
+  thisMachine = config.meta.self;
 in
 {
   imports = [

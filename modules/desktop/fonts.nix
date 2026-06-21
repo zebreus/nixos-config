@@ -1,5 +1,5 @@
 { lib, config, pkgs, ... }: {
-  config = lib.mkIf config.machines.${config.networking.hostName}.desktop.enable {
+  config = lib.mkIf config.meta.self.desktop.enable {
     fonts = {
       enableDefaultPackages = true;
       packages = with pkgs; [

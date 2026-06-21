@@ -10,15 +10,17 @@ let
     '')
   );
 
-  machines = lib.attrValues config.machines;
-  matrixServer = lib.head (lib.filter (machine: machine.matrixLiteServer.enable) machines);
+  inherit (config.meta.services.matrixLite) host baseDomain;
+  server = config.meta.machines.${host};
 in
 {
-  config.modules.dns.zones.${matrixServer.matrixLiteServer.baseDomain} = ''
-    ; Records for matrix/synapse
-  '' +
-  (staticRecord "@" matrixServer) +
-  (staticRecord "element" matrixServer) +
-  (staticRecord "matrix" matrixServer) +
-  (staticRecord "turn" matrixServer);
+  config.modules.dns.zones = lib.mkIf (host != null) {
+    ${baseDomain} = ''
+      ; Records for matrix/synapse
+    '' +
+    (staticRecord "@" server) +
+    (staticRecord "element" server) +
+    (staticRecord "matrix" server) +
+    (staticRecord "turn" server);
+  };
 }

@@ -3,7 +3,7 @@
 , ...
 }:
 let
-  cfg = config.machines.${config.networking.hostName}.suckmoreOrgServer;
+  cfg = config.meta.self.suckmoreOrg;
 
   subdomains = [
     "wiki"

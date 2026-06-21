@@ -1,9 +1,9 @@
 { config, lib, ... }:
 let
-  thisMachine = config.machines."${config.networking.hostName}";
+  thisMachine = config.meta.self;
 in
 {
-  config = lib.mkIf thisMachine.homeassistantServer.enable {
+  config = lib.mkIf thisMachine.homeassistant.enable {
     services.home-assistant = {
       enable = true;
       # opt-out from declarative configuration management

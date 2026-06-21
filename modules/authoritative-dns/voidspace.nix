@@ -1,15 +1,17 @@
 { lib, config, ... }:
 let
+  primaryName = config.meta.services.dns.primary;
   machinesThatAreAuthoritativeDnsServers = builtins.map
-    (machine: machine // {
-      ips = ([ "${config.antibuilding.ipv6Prefix}::${builtins.toString machine.address}" ] ++
+    (name:
+      let machine = config.meta.machines.${name}; in
+      machine // {
+        ips = ([ "${machine.antibuildingIp6}" ] ++
         (if machine.staticIp4 != null then [ "${machine.staticIp4}" ] else [ ]) ++
         (if machine.staticIp6 != null then [ "${machine.staticIp6}" ] else [ ]));
-    })
-    (lib.attrValues
-      (lib.filterAttrs (name: machine: machine.authoritativeDns.enable) config.machines));
-  primaryServers = lib.filter (machine: machine.authoritativeDns.primary) machinesThatAreAuthoritativeDnsServers;
-  thisServer = lib.head (lib.attrValues (lib.filterAttrs (name: machine: name == config.networking.hostName) config.machines));
+      })
+    (builtins.attrNames config.meta.services.dns.hosts);
+  primaryServers = lib.filter (machine: machine.name == primaryName) machinesThatAreAuthoritativeDnsServers;
+  thisServer = config.meta.self;
 
   voidspaceZones = [
     "haaien.xyz"
@@ -17,7 +19,7 @@ let
 in
 {
   config = lib.mkMerge [
-    (lib.mkIf thisServer.authoritativeDns.primary {
+    (lib.mkIf thisServer.dns.primary {
       age.secrets.dns_voidspace_antibuilding_tsig_key = {
         file = ../../secrets/dns_voidspace_antibuilding_tsig_key.age;
         owner = "knot";
@@ -77,7 +79,7 @@ in
           };
       };
     })
-    (lib.mkIf thisServer.authoritativeDns.secondary {
+    (lib.mkIf thisServer.dns.secondary {
       services.knot = {
         settings =
           {

@@ -1,7 +1,7 @@
 { lib, config, pkgs, ... }:
 with lib;
 let
-  cfg = config.machines.${config.networking.hostName}.eventServer;
+  cfg = config.meta.self.event;
   inherit (cfg) baseDomain;
   engelDomain = "engel.${baseDomain}";
   ticketsDomain = "tickets.${baseDomain}";

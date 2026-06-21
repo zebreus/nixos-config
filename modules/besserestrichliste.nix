@@ -1,6 +1,6 @@
 { config, lib, ... }:
 let
-  cfg = config.machines.${config.networking.hostName}.besserestrichlisteServer;
+  cfg = config.meta.self.besserestrichliste;
 in
 {
   config = lib.mkIf cfg.enable {

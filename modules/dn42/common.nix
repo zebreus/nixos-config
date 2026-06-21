@@ -1,6 +1,6 @@
 { lib, config, ... }:
 let
-  thisMachine = config.machines."${config.networking.hostName}";
+  thisMachine = config.meta.self;
   activePeerings = thisMachine.dn42Peerings;
 
   dn42PeeringOpts = self: {

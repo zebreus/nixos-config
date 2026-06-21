@@ -3,17 +3,18 @@ let
   publicKeys = import ../../secrets/public-keys.nix;
   inherit (import ./helper.nix { inherit lib; }) quoteTxtEntry;
 
-  thisServer = config.machines.${config.networking.hostName};
+  thisServer = config.meta.self;
 
-  machines = lib.attrValues config.machines;
-  machinesThatCanReceiveMail = builtins.filter (machine: machine.managed) machines;
+  machinesThatCanReceiveMail = config.meta.managedMachines;
 
-  mailServer = builtins.head (builtins.filter (machine: machine.mailServer.enable) machines);
+  # The mail server is named directly by the service; atMostOne ⇒ may be null.
+  mailHost = config.meta.services.mail.host;
+  mailServer = config.meta.machines.${mailHost};
 in
 {
-  config.modules.dns.zones = lib.mkIf thisServer.authoritativeDns.enable ({
+  config.modules.dns.zones = lib.mkIf thisServer.dns.enable ({
     # Used for infrastructure and internal names
-    "antibuild.ing" = ''
+    ${config.meta.domain} = ''
       ; Records for mail
       @ IN TXT ${quoteTxtEntry "v=spf1 a:mail.zebre.us -all"}
       mail IN TXT ${quoteTxtEntry "v=spf1 a:mail.zebre.us -all"}
@@ -45,23 +46,25 @@ in
         machinesThatCanReceiveMail));
 
     # Used for my external stuff. Matrix, mail, etc.
-    "zebre.us" = ''
-      ; Main mail entry
-      mail IN A ${mailServer.staticIp4}
-      mail IN AAAA ${mailServer.staticIp6}
+    "zebre.us" =
+      (lib.optionalString (mailHost != null) ''
+        ; Main mail entry
+        mail IN A ${mailServer.staticIp4}
+        mail IN AAAA ${mailServer.staticIp6}
 
-      ; Records for mail
-      @ IN TXT ${quoteTxtEntry "v=spf1 a:mail.zebre.us -all"}
-      mail IN TXT ${quoteTxtEntry "v=spf1 a:mail.zebre.us -all"}
-      _dmarc IN TXT ${quoteTxtEntry "v=DMARC1; p=reject; fo=1; adkim=s; aspf=s; ri=86400; rua=mailto:dmarc-reports@zebre.us; ruf=mailto:dmarc-reports@zebre.us"}
-      mail._domainkey IN TXT ${quoteTxtEntry "v=DKIM1; k=rsa; s=email; p=${publicKeys.zebre_us_dkim}"}
-      @ IN MX 30 mail.zebre.us.
-      ; Autodiscovery:
-      _submission._tcp IN SRV 0 5 587 mail.zebreu.us.
-      _submissions._tcp IN SRV 0 5 465 mail.zebreu.us.
-      _imap._tcp IN SRV 0 5 143 mail.zebreu.us.
-      _imaps._tcp IN SRV 0 5 993 mail.zebreu.us.
-    '';
+      '') + ''
+        ; Records for mail
+        @ IN TXT ${quoteTxtEntry "v=spf1 a:mail.zebre.us -all"}
+        mail IN TXT ${quoteTxtEntry "v=spf1 a:mail.zebre.us -all"}
+        _dmarc IN TXT ${quoteTxtEntry "v=DMARC1; p=reject; fo=1; adkim=s; aspf=s; ri=86400; rua=mailto:dmarc-reports@zebre.us; ruf=mailto:dmarc-reports@zebre.us"}
+        mail._domainkey IN TXT ${quoteTxtEntry "v=DKIM1; k=rsa; s=email; p=${publicKeys.zebre_us_dkim}"}
+        @ IN MX 30 mail.zebre.us.
+        ; Autodiscovery:
+        _submission._tcp IN SRV 0 5 587 mail.zebreu.us.
+        _submissions._tcp IN SRV 0 5 465 mail.zebreu.us.
+        _imap._tcp IN SRV 0 5 143 mail.zebreu.us.
+        _imaps._tcp IN SRV 0 5 993 mail.zebreu.us.
+      '';
 
     # My old email server lived here. Now it's just a redirect to the new one
     "madmanfred.com" = ''

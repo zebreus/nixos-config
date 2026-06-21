@@ -1,7 +1,8 @@
 { lib, config, ... }:
 let
-  machines = lib.attrValues config.machines;
-  birdLgServer = lib.head (lib.filter (machine: machine.bird-lg.enable) machines);
+  machines = lib.attrValues config.meta.machines;
+  # bird-lg is exactlyOne, so the service always names exactly one host.
+  birdLgServer = config.meta.machines.${config.meta.services.bird-lg.host};
 in
 {
   config.modules.dns.zones.${config.modules.dns.mainDomain} = ''
@@ -13,7 +14,7 @@ in
     builtins.map
       (machine: ''
         ; Bird looking-glass proxy record for ${machine.name}
-        ${machine.name}.lg IN AAAA ${config.antibuilding.ipv6Prefix}::${builtins.toString machine.address}
+        ${machine.name}.lg IN AAAA ${machine.antibuildingIp6}
       '')
       machines));
 }

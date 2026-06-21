@@ -1,12 +1,14 @@
 { lib, config, ... }:
 let
   inherit (import ./helper.nix { inherit lib; }) quoteTxtEntry;
-  machines = lib.attrValues config.machines;
-  machinesThatAreAuthoritativeDnsServers = builtins.filter (machine: machine.authoritativeDns.enable) machines;
-  thisServer = config.machines.${config.networking.hostName};
+  # The authoritative DNS servers are exactly the hosts assigned to the dns service.
+  machinesThatAreAuthoritativeDnsServers = builtins.map
+    (name: config.meta.machines.${name})
+    (builtins.attrNames config.meta.services.dns.hosts);
+  thisServer = config.meta.self;
 
   managedZones = [
-    "antibuild.ing"
+    config.meta.domain
     # Used for my external stuff. Matrix, mail, etc.
     "zebre.us"
     # My old email server lived here. Now it's just a redirect to the new one
@@ -81,17 +83,17 @@ let
   ));
 in
 {
-  config.modules.dns.zones = lib.mkIf thisServer.authoritativeDns.enable
+  config.modules.dns.zones = lib.mkIf thisServer.dns.enable
     (
       (builtins.listToAttrs (builtins.map
         (zone: {
           name = zone;
           value = zoneContent zone (lib.map
             (machine: {
-              name = machine.authoritativeDns.name + "." + config.modules.dns.mainDomain;
+              name = machine.dns.name + "." + config.modules.dns.mainDomain;
               ip4 = machine.staticIp4;
               ip6 = machine.staticIp6;
-              primary = machine.authoritativeDns.primary;
+              primary = machine.dns.primary;
             })
             machinesThatAreAuthoritativeDnsServers);
         })
@@ -102,10 +104,10 @@ in
           name = zone;
           value = zoneContent zone (lib.map
             (machine: {
-              name = machine.authoritativeDns.name + ".antibuilding.dn42";
-              ip4 = "172.20.179.${builtins.toString (machine.address + 128)}";
-              ip6 = "${config.antibuilding.ipv6Prefix}::${builtins.toString machine.address}";
-              primary = machine.authoritativeDns.primary;
+              name = machine.dns.name + ".antibuilding.dn42";
+              ip4 = "${machine.antibuildingIp4}";
+              ip6 = "${machine.antibuildingIp6}";
+              primary = machine.dns.primary;
             })
             machinesThatAreAuthoritativeDnsServers);
         })

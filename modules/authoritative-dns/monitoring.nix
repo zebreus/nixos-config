@@ -1,7 +1,7 @@
 { lib, config, ... }:
 let
-  machines = lib.attrValues config.machines;
-  grafanaServer = lib.head (lib.filter (machine: machine.monitoring.enable) machines);
+  # monitoring is exactlyOne, so the service always names exactly one host.
+  grafanaServer = config.meta.machines.${config.meta.services.monitoring.host};
 in
 {
   config.modules.dns.zones.${config.modules.dns.mainDomain} = ''

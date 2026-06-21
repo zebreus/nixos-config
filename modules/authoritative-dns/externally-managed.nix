@@ -2,10 +2,10 @@
 let
   inherit (import ./helper.nix { inherit lib; }) quoteTxtEntry;
 
-  thisServer = lib.head (lib.attrValues (lib.filterAttrs (name: machine: name == config.networking.hostName) config.machines));
+  thisServer = config.meta.self;
 in
 {
-  config.modules.dns.zones = lib.mkIf thisServer.authoritativeDns.enable (
+  config.modules.dns.zones = lib.mkIf thisServer.dns.enable (
     {
       # I use this domains for hosting random stuff with github pages
       "wirs.ing" = ''

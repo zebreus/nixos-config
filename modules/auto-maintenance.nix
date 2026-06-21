@@ -2,7 +2,7 @@
 { config, ... }:
 let
   hostname = config.networking.hostName;
-  thisMachine = config.machines."${config.networking.hostName}";
+  thisMachine = config.meta.self;
 in
 {
   config = {

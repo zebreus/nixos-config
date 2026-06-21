@@ -1,11 +1,9 @@
 { lib, config, ... }:
 let
-  accessibleMachines = lib.attrValues (
-    (lib.filterAttrs (name: machine: machine.sshPublicKey != null)) config.machines
-  );
+  accessibleMachines = config.meta.accessibleMachines;
 in
 {
-  config = lib.mkIf config.machines.${config.networking.hostName}.workstation.enable {
+  config = lib.mkIf config.meta.self.workstation.enable {
     age.secrets.extra_config = {
       file = ../../secrets/extra_config.age;
       owner = "lennart";
@@ -45,8 +43,8 @@ in
                       value = {
                         port = 22;
                         user = "root";
-                        hostname = "${machine.name}.antibuild.ing";
-                        host = ''${machine.name} ${machine.name}.antibuild.ing ${config.antibuilding.ipv6Prefix}::${builtins.toString machine.address}'';
+                        hostname = "${machine.fqdn}";
+                        host = ''${machine.name} ${machine.fqdn} ${machine.antibuildingIp6}'';
                         identityFile = config.age.secrets.lennart_ed25519.path;
                       };
                     })

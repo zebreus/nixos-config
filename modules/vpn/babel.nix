@@ -1,15 +1,9 @@
 # Establishes wireguard tunnels with all nodes with static IPs as hubs.
 { config, lib, ... }:
 let
-  machines = lib.attrValues config.machines;
-  thisMachine = config.machines."${config.networking.hostName}";
-  # isServer = thisMachine.staticIp != null;
-  isServer = machine: ((machine.staticIp4 != null) || (machine.staticIp6 != null));
-
-  inherit (config.antibuilding) ipv6Prefix;
-
-  otherMachines = builtins.filter (machine: machine.name != config.networking.hostName) machines;
-  connectedMachines = builtins.filter (otherMachine: (isServer thisMachine) || (isServer otherMachine)) otherMachines;
+  thisMachine = config.meta.self;
+  otherMachines = config.meta.others;
+  connectedMachines = builtins.filter (otherMachine: (thisMachine.isServer) || (otherMachine.isServer)) otherMachines;
 
   networks = lib.imap
     (index: otherMachine: {
@@ -23,12 +17,12 @@ let
       thisAddress = "fe80::${builtins.toString otherMachine.address}:${builtins.toString thisMachine.address}";
       otherAddress = "fe80::${builtins.toString thisMachine.address}:${builtins.toString otherMachine.address}";
 
-      connectTo = if (isServer otherMachine) then "${otherMachine.name}.outside.antibuild.ing:${builtins.toString (51820 + thisMachine.address)}" else null;
+      connectTo = if (otherMachine.isServer) then "${otherMachine.outsideFqdn}:${builtins.toString (51820 + thisMachine.address)}" else null;
 
       size = builtins.toString 64;
 
       # Information about the other hosts in the network
-      thisHostIsServer = isServer thisMachine;
+      thisHostIsServer = thisMachine.isServer;
     })
     connectedMachines;
 in
@@ -66,8 +60,8 @@ in
         # debug tables all;
         # debug channels all;
 
-        define OWNIP = 172.20.179.${builtins.toString (thisMachine.address + 128)};
-        define OWNIPv6 = ${ipv6Prefix}::${builtins.toString thisMachine.address};
+        define OWNIP = ${thisMachine.antibuildingIp4};
+        define OWNIPv6 = ${thisMachine.antibuildingIp6};
 
         router id OWNIP;
 
@@ -102,13 +96,13 @@ in
 
         # Add a static route to self
         protocol static antibuilding${builtins.toString thisMachine.address}_v6 {
-            route ${ipv6Prefix}::${builtins.toString thisMachine.address}/128 via "antibuilding";
+            route ${thisMachine.antibuildingIp6}/128 via "antibuilding";
             ipv6 {
                 import all;
             };
         }
         protocol static antibuilding${builtins.toString thisMachine.address}_v4 {
-            route 172.20.179.${builtins.toString (128 + thisMachine.address)}/32 via "antibuilding";
+            route ${thisMachine.antibuildingIp4}/32 via "antibuilding";
             ipv4 {
                 import all;
             };

@@ -10,10 +10,8 @@ let
     '')
   );
 
-  machines = lib.attrValues config.machines;
-  n50Servers = lib.filter (machine: machine.n50campServer.enable) machines;
-  n50Server = lib.head n50Servers;
-  baseDomains = n50Server.n50campServer.baseDomains;
+  inherit (config.meta.services.n50camp) host baseDomains;
+  n50Server = config.meta.machines.${host};
 
   # The same set of records is published verbatim under every base domain, so
   # all names resolve to the event server. The host nginx then serves the apps on
@@ -31,7 +29,7 @@ let
   (staticRecord "wiki" n50Server);
 in
 {
-  config = lib.mkIf (n50Servers != [ ]) {
+  config = lib.mkIf (host != null) {
     modules.dns.zones = lib.mkMerge (builtins.map
       (baseDomain: { ${baseDomain} = recordsForZone; })
       baseDomains);

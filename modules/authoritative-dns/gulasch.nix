@@ -10,10 +10,8 @@ let
     '')
   );
 
-  machines = lib.attrValues config.machines;
-  gulaschServers = lib.filter (machine: machine.gulaschSitesServer.enable) machines;
-  gulaschServer = lib.head gulaschServers;
-  baseDomain = gulaschServer.gulaschSitesServer.baseDomain;
+  inherit (config.meta.services.gulaschSites) host baseDomain;
+  gulaschServer = config.meta.machines.${host};
 
   # One record per static gulasch.site property served by the gulasch-sites
   # nginx module (see modules/gulasch-sites.nix). Each subdomain resolves to the
@@ -40,7 +38,7 @@ let
   '' + lib.concatStrings (builtins.map (sub: staticRecord sub gulaschServer) subdomains);
 in
 {
-  config = lib.mkIf (gulaschServers != [ ]) {
+  config = lib.mkIf (host != null) {
     modules.dns.zones.${baseDomain} = records;
   };
 }

@@ -1,7 +1,7 @@
 # Various gui programs I like to use
 { lib, config, pkgs, ... }:
 {
-  config = lib.mkIf config.machines.${config.networking.hostName}.desktop.enable {
+  config = lib.mkIf config.meta.self.desktop.enable {
 
 
     # List packages installed in system profile. To search, run:

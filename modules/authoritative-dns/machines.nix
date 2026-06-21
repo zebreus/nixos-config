@@ -1,6 +1,6 @@
 { lib, config, ... }:
 let
-  machines = lib.attrValues config.machines;
+  machines = lib.attrValues config.meta.machines;
   serversWithStaticIpv4 = lib.filter (machine: machine.staticIp4 != null) machines;
   serversWithStaticIpv6 = lib.filter (machine: machine.staticIp6 != null) machines;
 
@@ -27,10 +27,10 @@ let
     (builtins.map
       (machine: ''
         ; Internal for ${machine.name}
-        ${machine.name} IN AAAA ${config.antibuilding.ipv6Prefix}::${builtins.toString machine.address}
-        ${machine.name} IN A 172.20.179.${builtins.toString (machine.address + 128)}
+        ${machine.name} IN AAAA ${machine.antibuildingIp6}
+        ${machine.name} IN A ${machine.antibuildingIp4}
         ; For the bird2 lookingglass
-        ${machine.name}.lg IN AAAA ${config.antibuilding.ipv6Prefix}::${builtins.toString machine.address}
+        ${machine.name}.lg IN AAAA ${machine.antibuildingIp6}
       '')
       machines)
     );
@@ -47,7 +47,7 @@ in
     machines);
   config.modules.dns.zones."0.0.0.0.0.3.0.2.0.1.d.f.ip6.arpa" = lib.mkMerge (builtins.map
     (machine: ''
-      ${lib.concatStringsSep "." (lib.reverseList (lib.stringToCharacters (lib.fixedWidthString 20 "0" (builtins.toString machine.address))))} PTR ${machine.name}.antibuilding.dn42
+      ${machine.reverseDnsLabel} PTR ${machine.name}.antibuilding.dn42
     '')
     machines);
 }

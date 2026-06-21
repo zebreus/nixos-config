@@ -1,14 +1,11 @@
 # Establishes wireguard tunnels with all nodes with static IPs as hubs.
 { config, lib, pkgs, ... }:
 let
-  machines = lib.attrValues config.machines;
-  thisMachine = config.machines."${config.networking.hostName}";
-  isServer = machine: ((machine.staticIp4 != null) || (machine.staticIp6 != null));
+  machines = lib.attrValues config.meta.machines;
+  thisMachine = config.meta.self;
 
-  inherit (config.antibuilding) ipv6Prefix;
-
-  otherMachines = builtins.filter (machine: machine.name != config.networking.hostName) machines;
-  connectedMachines = builtins.filter (otherMachine: (isServer thisMachine) || (isServer otherMachine)) otherMachines;
+  otherMachines = config.meta.others;
+  connectedMachines = builtins.filter (otherMachine: (thisMachine.isServer) || (otherMachine.isServer)) otherMachines;
 
   networks = lib.imap
     (index: otherMachine: {
@@ -24,11 +21,11 @@ let
       # thisAddress4 = "169.254.${builtins.toString (otherMachine.address + 128)}.${builtins.toString (thisMachine.address + 128)}";
       # otherAddress4 = "169.254.${builtins.toString (thisMachine.address + 128)}.${builtins.toString (otherMachine.address + 128)}";
 
-      connectTo = if (isServer otherMachine) then "${otherMachine.name}.outside.antibuild.ing:${builtins.toString (51820 + thisMachine.address)}" else null;
+      connectTo = if (otherMachine.isServer) then "${otherMachine.outsideFqdn}:${builtins.toString (51820 + thisMachine.address)}" else null;
 
       size = builtins.toString 64;
 
-      thisHostIsServer = isServer thisMachine;
+      thisHostIsServer = thisMachine.isServer;
     })
     connectedMachines;
 
@@ -36,23 +33,23 @@ let
   allHostNames = builtins.concatMap
     (machine: [
       {
-        address = "${ipv6Prefix}::${builtins.toString machine.address}";
-        name = "${machine.name}.antibuild.ing";
+        address = "${machine.antibuildingIp6}";
+        name = "${machine.fqdn}";
         inherit (machine) sshPublicKey;
       }
       {
-        address = "${ipv6Prefix}::${builtins.toString machine.address}";
-        name = "${machine.name}.lg.antibuild.ing";
+        address = "${machine.antibuildingIp6}";
+        name = "${machine.lgFqdn}";
         inherit (machine) sshPublicKey;
       }
       {
-        address = "${ipv6Prefix}::${builtins.toString machine.address}";
+        address = "${machine.antibuildingIp6}";
         inherit (machine) name;
         inherit (machine) sshPublicKey;
       }
       {
-        address = "${ipv6Prefix}::${builtins.toString machine.address}";
-        name = "${ipv6Prefix}::${builtins.toString machine.address}";
+        address = "${machine.antibuildingIp6}";
+        name = "${machine.antibuildingIp6}";
         inherit (machine) sshPublicKey;
       }
     ]
@@ -60,7 +57,7 @@ let
     ++ (if machine.staticIp4 != null then [
       {
         address = machine.staticIp4;
-        name = "${machine.name}.outside.antibuild.ing";
+        name = "${machine.outsideFqdn}";
         inherit (machine) sshPublicKey;
       }
       {
@@ -72,7 +69,7 @@ let
     ++ (if machine.staticIp6 != null then [
       {
         address = machine.staticIp6;
-        name = "${machine.name}.outside.antibuild.ing";
+        name = "${machine.outsideFqdn}";
         inherit (machine) sshPublicKey;
       }
       {
@@ -87,11 +84,6 @@ in
 {
   options = with lib; {
     antibuilding = {
-      ipv6Prefix = mkOption {
-        default = "fd10:2030";
-        description = "The IPv6 prefix for the antibuilding. There is not much reason to change this, I just added this option so I can reuse the prefix in other places.";
-        type = types.str;
-      };
       customWireguardPrivateKeyFile = mkOption {
         default = null;
         description = "Path to a file containing the wireguard private key for this machine at run time. Should only be set if the secrets of that machine are not managed in this repo";
@@ -100,6 +92,7 @@ in
     };
     age.dummy = lib.mkOption {
       type = lib.types.raw;
+      description = "Placeholder so the age option exists even on machines whose secrets are not managed here.";
     };
   };
 
@@ -128,7 +121,7 @@ in
     ];
 
     networking = {
-      domain = "antibuild.ing";
+      domain = config.meta.domain;
 
       # Open firewall port for WireGuard.
       firewall = lib.mkMerge (builtins.map
@@ -182,7 +175,7 @@ in
 
         networks.antibuilding = {
           matchConfig.Name = "antibuilding";
-          address = [ "fd10:2030::${builtins.toString thisMachine.address}/112" "172.20.179.${builtins.toString (128 + thisMachine.address)}/27" ];
+          address = [ "${thisMachine.antibuildingIp6}/112" "${thisMachine.antibuildingIp4}/27" ];
         };
       };
 

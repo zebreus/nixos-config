@@ -2,7 +2,7 @@
 
 with lib;
 let
-  cfg = config.machines.${config.networking.hostName}.matrixServer;
+  cfg = config.meta.self.matrix;
   inherit (cfg) baseDomain;
   turnDomain = "turn.${baseDomain}";
   elementDomain = "element.${baseDomain}";
@@ -313,7 +313,7 @@ in
                 environment.BORG_RSH = "ssh -i ${config.age.secrets.matrix_backup_append_only_ed25519.path}";
                 environment.BORG_RELOCATED_REPO_ACCESS_IS_OK = "yes";
                 extraCreateArgs = "--stats --checkpoint-interval 300";
-                repo = "${borgRepo.backupHost.locationPrefix}matrix";
+                repo = "${borgRepo.backup.locationPrefix}matrix";
                 startAt = "*-*-* 00/1:00:00";
                 user = "root";
                 paths = [
@@ -322,7 +322,7 @@ in
                 ];
               };
           })
-          config.allBackupHosts
+          config.meta.allBackupHosts
         );
     };
 
@@ -352,7 +352,7 @@ in
         export BORG_RSH="ssh -i ${config.age.secrets.matrix_backup_append_only_ed25519.path}"
         export BORG_PASSCOMMAND="cat ${config.age.secrets.matrix_backup_passphrase.path}"
 
-        ALL_BORG_REPOS=( ${ lib.concatStringsSep " " (builtins.map (machine: "'${machine.backupHost.locationPrefix}matrix'") config.allBackupHosts)} )
+        ALL_BORG_REPOS=( ${ lib.concatStringsSep " " (builtins.map (machine: "'${machine.backup.locationPrefix}matrix'") config.meta.allBackupHosts)} )
         LATEST_TIMESTAMP=matrix-0
         for TEST_BORG_REPO in "''${ALL_BORG_REPOS[@]}"; do
           THIS_REPO_TIMESTAMP="$(borg list --sort timestamp --last 1 $TEST_BORG_REPO | cut -d" " -f1 | grep -Po '^matrix-[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}$' | tail -1 || true)"
@@ -398,7 +398,7 @@ in
     # Create backup Repo
     {
       config = {
-        allBorgRepos = [{ name = "matrix"; size = "1T"; }];
+        meta.allBorgRepos = [{ name = "matrix"; size = "1T"; }];
       };
     }
   ];

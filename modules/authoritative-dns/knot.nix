@@ -1,16 +1,20 @@
 { lib, config, pkgs, ... }:
 let
+  primaryName = config.meta.services.dns.primary;
+  # The authoritative DNS servers are exactly the hosts assigned to the dns
+  # service; the primary is named directly by the service.
   machinesThatAreAuthoritativeDnsServers = builtins.map
-    (machine: machine // {
-      ips = ([ "${config.antibuilding.ipv6Prefix}::${builtins.toString machine.address}" ] ++
+    (name:
+      let machine = config.meta.machines.${name}; in
+      machine // {
+        ips = ([ "${machine.antibuildingIp6}" ] ++
         (if machine.staticIp4 != null then [ "${machine.staticIp4}" ] else [ ]) ++
         (if machine.staticIp6 != null then [ "${machine.staticIp6}" ] else [ ]));
-    })
-    (lib.attrValues
-      (lib.filterAttrs (name: machine: machine.authoritativeDns.enable) config.machines));
-  primaryServers = lib.filter (machine: machine.authoritativeDns.primary) machinesThatAreAuthoritativeDnsServers;
-  secondaryServers = lib.filter (machine: machine.authoritativeDns.primary == false) machinesThatAreAuthoritativeDnsServers;
-  thisServer = lib.head (lib.attrValues (lib.filterAttrs (name: machine: name == config.networking.hostName) config.machines));
+      })
+    (builtins.attrNames config.meta.services.dns.hosts);
+  primaryServers = lib.filter (machine: machine.name == primaryName) machinesThatAreAuthoritativeDnsServers;
+  secondaryServers = lib.filter (machine: machine.name != primaryName) machinesThatAreAuthoritativeDnsServers;
+  thisServer = config.meta.self;
 
   knotZonesEnv = pkgs.buildEnv {
     name = "knot-zones";
@@ -33,13 +37,13 @@ in
       };
     };
     modules.dns.mainDomain = lib.mkOption {
-      default = "antibuild.ing";
+      default = config.meta.domain;
       description = "The main domain for internal services. Used for stuff like nameservers.";
       type = lib.types.str;
     };
   };
 
-  config = lib.mkIf thisServer.authoritativeDns.enable
+  config = lib.mkIf thisServer.dns.enable
     {
       age.secrets.knot_transport_key = {
         file = ../../secrets/knot_transport_key.age;
@@ -67,7 +71,7 @@ in
             server = {
               listen = builtins.map (addr: "${addr}@53") (builtins.filter
                 (e: e != null)
-                [ thisServer.staticIp4 thisServer.staticIp6 "${config.antibuilding.ipv6Prefix}::${builtins.toString thisServer.address}" ]);
+                [ thisServer.staticIp4 thisServer.staticIp6 "${thisServer.antibuildingIp6}" ]);
             };
             log.syslog.any = "info";
             template.default = {
@@ -81,7 +85,7 @@ in
                 id = "transfer_antibuilding";
                 key = "knot_transfer_key";
                 address = builtins.concatMap (machine: machine.ips) (secondaryServers ++ primaryServers);
-                # [ "${config.antibuilding.ipv6Prefix}::/64" "167.235.154.30" "49.13.8.171/32" "192.227.228.220/32" ];
+                # [ "${config.meta.ipv6Prefix}::/64" "167.235.154.30" "49.13.8.171/32" "192.227.228.220/32" ];
                 action = [ "transfer" ];
               }
               {
@@ -103,7 +107,7 @@ in
             ];
 
             zone = (lib.mapAttrs
-              (name: _: (if thisServer.authoritativeDns.primary then {
+              (name: _: (if thisServer.dns.primary then {
                 storage = knotZonesEnv;
                 file = "${name}.zone";
                 notify = builtins.map (machine: machine.name) secondaryServers;

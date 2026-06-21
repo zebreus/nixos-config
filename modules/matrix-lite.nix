@@ -2,7 +2,7 @@
 
 with lib;
 let
-  cfg = config.machines.${config.networking.hostName}.matrixLiteServer;
+  cfg = config.meta.self.matrixLite;
   inherit (cfg) baseDomain;
   elementDomain = "element.${baseDomain}";
   adminDomain = "admin.${baseDomain}";

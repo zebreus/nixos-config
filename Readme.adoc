@@ -6,7 +6,7 @@ NOTE: This document is more of a unstructured notepad for me than an actual read
 
 == Joining the antibuilding VPN
 
-To join the VPN just add your device to machines.nix. There is a script for that in this repo. cd into the root of this repo and run
+To join the VPN just add your device to `machines.nix` (it becomes a `meta.machines.<hostname>` entry). There is a script for that in this repo. cd into the root of this repo and run
 
 .Add your config to the repo
 ----
@@ -82,7 +82,7 @@ Each machine uses its ed25519 SSH host key to decrypt its secrets. That SSH host
 
 === Moving the mailserver
 
-1. Change the mailserver in `machines.nix`
+1. Point `meta.services.mail.host` at the new host in `machines.nix`
 2. Add the new mailserver to the mailServers in `secrets/public-keys.nix`
 3. Rekey all secrets
 4. Add reverse DNS entry for `mail.zebre.us`

@@ -1,6 +1,6 @@
 # Setup support for printers and scanners
 { lib, config, pkgs, ... }: {
-  config = lib.mkIf config.machines.${config.networking.hostName}.desktop.enable {
+  config = lib.mkIf config.meta.self.desktop.enable {
     # Enable printing on HP printers
     services.printing = {
       enable = true;

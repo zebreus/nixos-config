@@ -1,6 +1,6 @@
 { lib, config, ... }:
 let
-  machines = lib.attrValues config.machines;
+  machines = lib.attrValues config.meta.machines;
   machinePeerings = builtins.map
     (machine: {
       name = machine.name;

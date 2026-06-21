@@ -3,7 +3,7 @@
 , ...
 }:
 let
-  cfg = config.machines.${config.networking.hostName}.gulaschSitesServer;
+  cfg = config.meta.self.gulaschSites;
 in
 {
   config = lib.mkIf cfg.enable {

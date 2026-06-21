@@ -1,20 +1,21 @@
 { lib, config, ... }:
 let
-  machines = lib.attrValues config.machines;
-  eventServer = lib.head (lib.filter (machine: machine.eventServer.enable) machines);
-  baseDomain = eventServer.eventServer.baseDomain;
+  inherit (config.meta.services.event) host baseDomain;
+  server = config.meta.machines.${host};
 in
 {
-  config.modules.dns.zones."${baseDomain}" = ''
-    ; Records for $
-    engel IN A ${eventServer.staticIp4}
-    engel IN AAAA ${eventServer.staticIp6}
-    pad IN A ${eventServer.staticIp4}
-    pad IN AAAA ${eventServer.staticIp6}
-    tickets IN A ${eventServer.staticIp4}
-    tickets IN AAAA ${eventServer.staticIp6}
-    wiki IN A ${eventServer.staticIp4}
-    wiki IN AAAA ${eventServer.staticIp6}
-    himmel IN CNAME engel.${baseDomain}
-  '';
+  config.modules.dns.zones = lib.mkIf (host != null) {
+    "${baseDomain}" = ''
+      ; Records for $
+      engel IN A ${server.staticIp4}
+      engel IN AAAA ${server.staticIp6}
+      pad IN A ${server.staticIp4}
+      pad IN AAAA ${server.staticIp6}
+      tickets IN A ${server.staticIp4}
+      tickets IN AAAA ${server.staticIp6}
+      wiki IN A ${server.staticIp4}
+      wiki IN AAAA ${server.staticIp6}
+      himmel IN CNAME engel.${baseDomain}
+    '';
+  };
 }

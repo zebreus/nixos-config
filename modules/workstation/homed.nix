@@ -1,5 +1,5 @@
 { lib, config, ... }: {
-  config = lib.mkIf config.machines.${config.networking.hostName}.workstation.enable {
+  config = lib.mkIf config.meta.self.workstation.enable {
     # services.homed.enable = true;
 
     # # This gives 497a root on my machine

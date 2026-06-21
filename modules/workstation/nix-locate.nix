@@ -9,7 +9,7 @@ let
   user = "nix-index";
 in
 {
-  config = lib.mkIf config.machines.${config.networking.hostName}.workstation.enable {
+  config = lib.mkIf config.meta.self.workstation.enable {
     users.users."${user}" = {
       isSystemUser = true;
       group = user;

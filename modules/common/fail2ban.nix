@@ -1,3 +1,4 @@
+{ config, ... }:
 {
   services.fail2ban = {
     enable = true;
@@ -5,7 +6,7 @@
     ignoreIP = [
       # Do not ban traffic from the antibuilding
       # TODO: Maybe only not ban traffic from workstations?
-      "fd10:2030::0/64"
+      "${config.meta.ipv6Prefix}::0/64"
       "fe80::/8"
       # Always allow from traffic from this local network
       "192.168.2.0/24"

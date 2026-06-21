@@ -1,6 +1,6 @@
 { pkgs, lib, config, ... }:
 let
-  cfg = config.machines.${config.networking.hostName}.ollama;
+  cfg = config.meta.self.ollama;
 
   inherit (pkgs) stdenvNoCC python3 llama-cpp;
 

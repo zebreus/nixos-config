@@ -1,11 +1,11 @@
 { lib, config, ... }:
 let
-  cfg = config.machines.${config.networking.hostName}.backupHost;
-  thisMachine = config.machines."${config.networking.hostName}";
+  cfg = config.meta.self.backup;
+  thisMachine = config.meta.self;
 
   publicKeys = import ../secrets/public-keys.nix;
 
-  borgRepos = config.allBorgRepos;
+  borgRepos = config.meta.allBorgRepos;
 
 in
 {
@@ -14,7 +14,7 @@ in
       (builtins.listToAttrs (builtins.map
         (repo: lib.nameValuePair repo.name {
           quota = repo.size;
-          path = "${thisMachine.backupHost.storagePath}/${repo.name}";
+          path = "${thisMachine.backup.storagePath}/${repo.name}";
           authorizedKeysAppendOnly = [
             publicKeys."${repo.name}_backup_append_only"
           ];
