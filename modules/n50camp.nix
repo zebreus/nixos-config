@@ -9,10 +9,20 @@ let
   # at the bottom). The subdomains below therefore always refer to the primary.
   primaryBaseDomain = cfg.primaryBaseDomain;
   secondaryBaseDomains = lib.filter (d: d != primaryBaseDomain) cfg.baseDomains;
-  # Subdomain prefixes that every base domain exposes.
-  subdomains = [ "engel" "cfp" "tickets" "pad" "wiki" ];
+  # Subdomain prefixes that every base domain exposes. Each one gets DNS records
+  # and a secondary-base-domain -> primary redirect (see the host nginx block at
+  # the bottom). pretalx/fahrplan are here so e.g. pretalx.n50.camp redirects to
+  # pretalx.camp.n50.lat and fahrplan.n50.camp to fahrplan.camp.n50.lat.
+  subdomains = [ "engel" "cfp" "tickets" "pad" "wiki" "pretalx" "fahrplan" ];
 
   engelDomain = "engel.${primaryBaseDomain}";
+  # pretalx's main domain (SITE_URL): the orga backend and the canonical
+  # instance live here.
+  pretalxDomain = "pretalx.${primaryBaseDomain}";
+  # The event's public custom domain (set as the event's custom domain in the
+  # pretalx admin UI). pretalx serves the public CfP/schedule here.
+  fahrplanDomain = "fahrplan.${primaryBaseDomain}";
+  # Legacy CfP host; now just redirects to the public CfP on fahrplanDomain.
   cfpDomain = "cfp.${primaryBaseDomain}";
   ticketsDomain = "tickets.${primaryBaseDomain}";
   padDomain = "pad.${primaryBaseDomain}";
@@ -240,9 +250,9 @@ in
             "--workers=8"
           ];
           nginx.enable = true;
-          nginx.domain = cfpDomain;
+          nginx.domain = pretalxDomain;
           settings = {
-            site.url = "https://${cfpDomain}";
+            site.url = "https://${pretalxDomain}";
             mail = {
               from = "himmel@n50.lat";
               host = "mail.stapatum.dev";
@@ -434,6 +444,31 @@ in
                 extraConfig = innerProxyHeaders;
               };
             };
+            # pretalx registers its own vhost (keyed by nginx.domain =
+            # pretalxDomain). Make it also answer to the event's custom domain
+            # (fahrplanDomain) so that Host reaches pretalx, and forward the
+            # host-terminated scheme. The pretalx vhost uses recommendedProxy
+            # Settings, which would hardcode X-Forwarded-Proto to this inner
+            # hop's $scheme (http); pretalx's custom-domain routing matches on
+            # "https://<domain>", so it must see https. We disable the recommended
+            # set on this location and pass the forwarded proto through instead
+            # (setting it twice would send two conflicting headers).
+            "${pretalxDomain}" = {
+              serverAliases = [ fahrplanDomain ];
+              locations."/" = {
+                recommendedProxySettings = false;
+                extraConfig = ''
+                  proxy_redirect off;
+                  proxy_http_version 1.1;
+                  proxy_set_header Connection "";
+                  proxy_set_header Host $host;
+                  proxy_set_header X-Real-IP $remote_addr;
+                  proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                  proxy_set_header X-Forwarded-Proto $http_x_forwarded_proto;
+                  proxy_set_header X-Forwarded-Host $host;
+                '';
+              };
+            };
             # engelsystem and mediawiki register their own fastcgi vhosts; append
             # the forwarded scheme to their php locations (keys mirror those
             # modules) so PHP sees https rather than this inner hop's http.
@@ -477,11 +512,31 @@ in
             forceSSL = true;
             locations."/" = proxyToContainer;
           };
-          # pretalx (the call for papers) is served on the cfp subdomain.
-          "${cfpDomain}" = {
+          # Main pretalx instance: orga backend and SITE_URL. Reverse-proxied to
+          # the container; pretalx serves the backend and any event without a
+          # custom domain here.
+          "${pretalxDomain}" = {
             enableACME = true;
             forceSSL = true;
             locations."/" = proxyToContainer;
+          };
+          # The event's public custom domain. Once the event's custom domain is
+          # set to https://fahrplan.camp.n50.lat in the pretalx admin UI, pretalx
+          # serves its public CfP/schedule here (and the container nginx routes
+          # this Host to pretalx via the serverAlias above).
+          "${fahrplanDomain}" = {
+            enableACME = true;
+            forceSSL = true;
+            locations."/" = proxyToContainer;
+          };
+          # Legacy CfP host: pretalx moved to pretalxDomain and the public CfP is
+          # served on the event's custom domain, so redirect there.
+          "${cfpDomain}" = {
+            enableACME = true;
+            forceSSL = true;
+            locations."/".extraConfig = ''
+              return 301 https://${fahrplanDomain}/cfp;
+            '';
           };
           # Ticketing is handled by pretix on tickets.n50.lat; keep this name
           # reachable but permanently redirect it there.
@@ -489,7 +544,7 @@ in
             enableACME = true;
             forceSSL = true;
             locations."/".extraConfig = ''
-              return 301 https://tickets.n50.lat$request_uri;
+              return 301 https://tickets.n50.lat/n50/n50camp/;
             '';
           };
           "${padDomain}" = {
