@@ -51,6 +51,7 @@ let
   secretPaths = {
     himmelMail = config.age.secrets.n50_himmel_mail_password.path;
     pretalxExtra = config.age.secrets.n50_pretalx_extra_secrets.path;
+    pretalxAdmin = config.age.secrets.n50_pretalx_admin_password.path;
     mediawiki = config.age.secrets.n50_mediawiki_password.path;
   };
   mkSecretBind = path: { ${path} = { hostPath = path; isReadOnly = true; }; };
@@ -104,6 +105,13 @@ in
         file = ../secrets/n50_pretalx_extra_secrets.age;
         mode = "0444";
       };
+      # Env file holding PRETALX_ADMIN_PASSWORD for the pretalx admin account
+      # (see the pretalx-create-admin service in the container). Only read by
+      # systemd (as root) via EnvironmentFile, so it stays 0400.
+      n50_pretalx_admin_password = {
+        file = ../secrets/n50_pretalx_admin_password.age;
+        mode = "0400";
+      };
       n50_mediawiki_password = {
         file = ../secrets/n50_mediawiki_password.age;
         mode = "0444";
@@ -141,6 +149,7 @@ in
       bindMounts = lib.mkMerge [
         (mkSecretBind secretPaths.himmelMail)
         (mkSecretBind secretPaths.pretalxExtra)
+        (mkSecretBind secretPaths.pretalxAdmin)
         (mkSecretBind secretPaths.mediawiki)
       ];
       config = { config, pkgs, lib, ... }: {
@@ -250,6 +259,60 @@ in
           plugins = with config.services.pretalx.package.plugins; [
             pages
           ];
+        };
+
+        # Idempotently create (or update) the pretalx administrator account on
+        # every deploy. A small Django snippet sets is_administrator on the user,
+        # creating it if missing and resetting its password from the secret, so
+        # the account always matches the declared config (and the password can be
+        # rotated by editing the secret). Unlike `init`, this never creates an
+        # organiser and is safe to re-run, so no marker guard is needed.
+        #
+        # Email comes from environment; the password from the bind-mounted agenix
+        # secret as an EnvironmentFile (PRETALX_ADMIN_PASSWORD=...). It MUST run
+        # as the pretalx user: the `pretalx-manage` wrapper drops privileges with
+        # `sudo --preserve-env=PRETALX_CONFIG_FILE`, which would strip these vars
+        # if we started as root. Running as pretalx (systemd sets $USER=pretalx)
+        # takes the wrapper's no-sudo path, preserving them.
+        systemd.services.pretalx-create-admin = {
+          description = "Create/update the pretalx administrator account";
+          wantedBy = [ "multi-user.target" ];
+          after = [ "pretalx-web.service" ];
+          requires = [ "pretalx-web.service" ];
+          environment.PRETALX_ADMIN_EMAIL = "himmel@n50.lat";
+          serviceConfig = {
+            Type = "oneshot";
+            User = config.services.pretalx.user;
+            Group = config.services.pretalx.group;
+            EnvironmentFile = secretPaths.pretalxAdmin;
+          };
+          # `pretalx-manage` is the module's wrapper on the active system's PATH,
+          # so it tracks the deployed pretalx version. `shell` executes the
+          # snippet read from stdin.
+          script =
+            let
+              adminScript = pkgs.writeText "pretalx-create-admin.py" ''
+                import os
+                from django.contrib.auth import get_user_model
+
+                User = get_user_model()
+                email = os.environ["PRETALX_ADMIN_EMAIL"]
+                password = os.environ["PRETALX_ADMIN_PASSWORD"]
+
+                user, created = User.objects.get_or_create(
+                    email=email, defaults={"name": "N50 Admin"}
+                )
+                user.is_administrator = True
+                user.is_active = True
+                user.is_staff = True
+                user.set_password(password)
+                user.save()
+                print(("Created" if created else "Updated") + f" pretalx admin {email}")
+              '';
+            in
+            ''
+              /run/current-system/sw/bin/pretalx-manage shell < ${adminScript}
+            '';
         };
 
         services.mediawiki = {
