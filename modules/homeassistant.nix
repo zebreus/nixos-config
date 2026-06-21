@@ -1,4 +1,4 @@
-{ pkgs, config, lib, ... }:
+{ config, lib, ... }:
 let
   thisMachine = config.machines."${config.networking.hostName}";
 in
@@ -114,23 +114,13 @@ in
     services.matter-server = {
       enable = true;
       logLevel = "debug";
-      extraArgs =
-        let
-          cert-dir = pkgs.fetchFromGitHub {
-            repo = "connectedhomeip";
-            owner = "project-chip";
-            rev = "6e8676be6142bb541fa68048c77f2fc56a21c7b1";
-            hash = "sha256-QwPKn2R4mflTKMyr1k4xF04t0PJIlzNCOdXEiQwX5wk=";
-          };
-        in
-        [
-          "--bluetooth-adapter=0"
-          # "--paa-root-cert-dir=${cert-dir}/credentials/production/paa-root-certs"
-          # "--enable-test-net-dcl"
-          "--log-level-sdk=debug"
-          "--log-level=debug"
-          "--ota-provider-dir=/var/lib/matter-server/ota-provider"
-        ];
+      # `extraArgs` is now an attribute set, converted to a GNU command line by
+      # the module. `log-level`, `ota-provider-dir` and `paa-root-cert-dir` are
+      # set by the module itself, so they are no longer passed here.
+      extraArgs = {
+        bluetooth-adapter = 0;
+        log-level-sdk = "debug";
+      };
     };
     # virtualisation.oci-containers.containers = {
     #   matter-server = {
