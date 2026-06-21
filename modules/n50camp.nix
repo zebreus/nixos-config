@@ -288,7 +288,9 @@ in
           };
           # `pretalx-manage` is the module's wrapper on the active system's PATH,
           # so it tracks the deployed pretalx version. `shell` executes the
-          # snippet read from stdin.
+          # snippet read from stdin. `--unsafe-disable-scopes` is required:
+          # pretalx scopes management commands to a single event by default, but
+          # this operates on a global User, so scoping must be turned off.
           script =
             let
               adminScript = pkgs.writeText "pretalx-create-admin.py" ''
@@ -311,7 +313,7 @@ in
               '';
             in
             ''
-              /run/current-system/sw/bin/pretalx-manage shell < ${adminScript}
+              /run/current-system/sw/bin/pretalx-manage shell --unsafe-disable-scopes < ${adminScript}
             '';
         };
 
