@@ -303,10 +303,10 @@
       },
       "locked": {
         "lastModified": 1781985202,
-        "narHash": "sha256-TLqGlLldfrXj+D7SiKB766VRSCjFfDc4Zgy06Y1an2U=",
+        "narHash": "sha256-rCn6QDhI47g5Tu6uoodlfBA0N8bBTBDAd2Ch0UPBXMA=",
         "owner": "zebreus",
         "repo": "gulasch-site",
-        "rev": "81451362c94f3b9740f8a20868665be7309d4081",
+        "rev": "51955e132f22b99c5cb839a4f8e02309e087d4da",
         "type": "github"
       },
       "original": {
