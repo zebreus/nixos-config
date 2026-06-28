@@ -434,6 +434,8 @@ in
               locations."/" = {
                 proxyPass = "http://[::1]:${toString websitePort}";
                 extraConfig = innerProxyHeaders;
+                recommendedProxySettings = true;
+                proxyWebsockets = true;
               };
             };
             # hedgedoc is not served by its own module's nginx, so proxy it here.
@@ -441,6 +443,7 @@ in
             "${padDomain}" = {
               locations."/" = {
                 proxyPass = "http://127.0.0.1:${toString hedgedocPort}";
+                recommendedProxySettings = true;
                 proxyWebsockets = true;
                 extraConfig = innerProxyHeaders;
               };
