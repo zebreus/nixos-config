@@ -217,4 +217,5 @@ with import ./public-keys.nix;
 
   # Rudelshopping (Stripe key, loaded as a systemd credential)
   "rudelshopping_stripe_key.age".publicKeys = [ recovery blanderdash ];
+  "n50_camp_admin_password.age".publicKeys = [ recovery blanderdash ];
 }

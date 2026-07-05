@@ -64,6 +64,7 @@ let
     pretalxExtra = config.age.secrets.n50_pretalx_extra_secrets.path;
     pretalxAdmin = config.age.secrets.n50_pretalx_admin_password.path;
     mediawiki = config.age.secrets.n50_mediawiki_password.path;
+    n50CampAdmin = config.age.secrets.n50_camp_admin_password.path;
   };
   mkSecretBind = path: { ${path} = { hostPath = path; isReadOnly = true; }; };
 
@@ -127,6 +128,13 @@ in
         file = ../secrets/n50_mediawiki_password.age;
         mode = "0444";
       };
+      # CMS admin password (raw, no newline) for the n50-camp site's /admin
+      # area. Bind-mounted into the container and read by the service's
+      # systemd credential loader.
+      n50_camp_admin_password = {
+        file = ../secrets/n50_camp_admin_password.age;
+        mode = "0444";
+      };
     };
 
     systemd.network.netdevs."40-br-n50camp".netdevConfig = {
@@ -162,6 +170,7 @@ in
         (mkSecretBind secretPaths.pretalxExtra)
         (mkSecretBind secretPaths.pretalxAdmin)
         (mkSecretBind secretPaths.mediawiki)
+        (mkSecretBind secretPaths.n50CampAdmin)
       ];
       config = { config, pkgs, lib, ... }: {
         # The n50-camp flake provides services.n50-camp (a hardened, sandboxed
@@ -187,6 +196,10 @@ in
           enable = true;
           host = "::1";
           port = websitePort;
+          # The admin password comes from the agenix secret that's decrypted
+          # on the host and bind-mounted into the container at the same path.
+          # Without it the /admin area fails closed (404).
+          adminPasswordFile = secretPaths.n50CampAdmin;
         };
 
         services.mysql = {
