@@ -17,6 +17,7 @@
     ./n50camp.nix
     ./photos.nix
     ./root.nix
+    ./rudelshopping.nix
     ./voidspace.nix
     ./dn42-peers.nix
   ];

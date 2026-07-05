@@ -10,10 +10,5 @@ in
       @ IN A ${server.staticIp4}
       @ IN AAAA ${server.staticIp6}
     '';
-    "rudelb.link" = ''
-      ; Records for essen.jetzt
-      man IN A ${server.staticIp4}
-      man IN AAAA ${server.staticIp6}
-    '';
   };
 }

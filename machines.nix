@@ -187,6 +187,8 @@ in
 
     # besserestrichliste.host = "blanderdash";
 
+    rudelshopping.host = "blanderdash";
+
     photos.host = "blanderdash";
     essenJetzt.host = "blanderdash";
     homeassistant.host = "glouble";

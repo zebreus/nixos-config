@@ -23,6 +23,7 @@
     ./ollama.nix
     ./shared.nix
     ./photos.nix
+    ./rudelshopping.nix
     ./suckmore-org.nix
   ];
 }

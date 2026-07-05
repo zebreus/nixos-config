@@ -214,4 +214,7 @@ with import ./public-keys.nix;
 
   # Hetzner storage box credentials
   "blanderdash_storagebox_smb_secrets.age".publicKeys = [ recovery blanderdash ];
+
+  # Rudelshopping (Stripe key, loaded as a systemd credential)
+  "rudelshopping_stripe_key.age".publicKeys = [ recovery blanderdash ];
 }

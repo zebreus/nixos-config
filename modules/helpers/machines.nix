@@ -122,6 +122,25 @@ let
       };
     };
 
+    rudelshopping = {
+      cardinality = "atMostOne";
+      config = {
+        baseDomain = mkOption {
+          type = types.str;
+          default = "rudelb.link";
+          description = "Base domain for the rudelshopping server";
+        };
+        subDomain = mkOption {
+          type = types.nullOr types.str;
+          default = null;
+          description = ''
+            Subdomain for the rudelshopping server. When null the service runs
+            on the apex of baseDomain.
+          '';
+        };
+      };
+    };
+
     essenJetzt.cardinality = "atMostOne";
     photos.cardinality = "atMostOne";
     homeassistant.cardinality = "atMostOne";
