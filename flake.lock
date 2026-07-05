@@ -530,11 +530,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1783282881,
-        "narHash": "sha256-GJNp7IQDn98hrL6JouPiRN1EEf7XFZ4daqWq9UPTYDM=",
+        "lastModified": 1783287466,
+        "narHash": "sha256-XikPYpN5RKX5cwB7HzAmiyVkAOt7P2K4M3c1FvfBrRM=",
         "owner": "zebreus",
         "repo": "rudelshopping",
-        "rev": "270e9e82429e85d308b4c13b75780cf6f50e8a56",
+        "rev": "0be2529f132d28afe7ca2f86b5880ed335819ae5",
         "type": "github"
       },
       "original": {
