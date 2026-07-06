@@ -65,6 +65,7 @@ let
     pretalxAdmin = config.age.secrets.n50_pretalx_admin_password.path;
     mediawiki = config.age.secrets.n50_mediawiki_password.path;
     n50CampAdmin = config.age.secrets.n50_camp_admin_password.path;
+    n50CampOpenrouter = config.age.secrets.n50_camp_openrouter_key.path;
   };
   mkSecretBind = path: { ${path} = { hostPath = path; isReadOnly = true; }; };
 
@@ -135,6 +136,14 @@ in
         file = ../secrets/n50_camp_admin_password.age;
         mode = "0444";
       };
+      # Default OpenRouter API key (raw, no newline) for the n50-camp editor's
+      # AI assist. Bind-mounted into the container and read by the service's
+      # systemd credential loader (openrouterKeyFile), exactly like the admin
+      # password. Admins can still override it with their own key in-browser.
+      n50_camp_openrouter_key = {
+        file = ../secrets/n50_camp_openrouter_key.age;
+        mode = "0444";
+      };
     };
 
     systemd.network.netdevs."40-br-n50camp".netdevConfig = {
@@ -171,6 +180,7 @@ in
         (mkSecretBind secretPaths.pretalxAdmin)
         (mkSecretBind secretPaths.mediawiki)
         (mkSecretBind secretPaths.n50CampAdmin)
+        (mkSecretBind secretPaths.n50CampOpenrouter)
       ];
       config = { config, pkgs, lib, ... }: {
         # The n50-camp flake provides services.n50-camp (a hardened, sandboxed
@@ -200,6 +210,9 @@ in
           # on the host and bind-mounted into the container at the same path.
           # Without it the /admin area fails closed (404).
           adminPasswordFile = secretPaths.n50CampAdmin;
+          # Default OpenRouter key for the editor's AI assist, provisioned the
+          # same way. Optional — admins can supply their own key in-browser.
+          openrouterKeyFile = secretPaths.n50CampOpenrouter;
         };
 
         services.mysql = {
