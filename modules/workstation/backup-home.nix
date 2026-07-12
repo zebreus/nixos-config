@@ -23,59 +23,59 @@ let
     ".npm"
     ".conda"
   ];
+
+  repoName = "lennart_${config.networking.hostName}";
+  repo = lib.findFirst (r: r.name == repoName)
+    (throw "No backup repo ${repoName} in meta.allBackupRepos")
+    config.meta.allBackupRepos;
+
+  passwordSecret = "${repoName}_restic_password";
+  environmentSecret = "shared_restic_environment";
+  # The secrets only exist once terraform has been run for this repo.
+  # Until then the backup job is disabled (with a warning) so that new
+  # workstations still evaluate.
+  secretsPresent = builtins.pathExists (../../secrets + "/${passwordSecret}.age")
+    && builtins.pathExists ../../secrets/shared_restic_environment.age;
 in
 {
   imports = [
-    ../helpers/borgMeteredConnectionOption.nix
+    ../helpers/resticMeteredConnectionOption.nix
   ];
 
   config = lib.mkIf config.meta.self.workstation.enable {
-    age.secrets = {
-      "lennart_${config.networking.hostName}_backup_passphrase" = {
-        file = ../../secrets + "/lennart_${config.networking.hostName}_backup_passphrase.age";
-        owner = "lennart";
-        inherit (config.users.users.lennart) group;
-        mode = "0400";
-      };
-      "lennart_${config.networking.hostName}_backup_append_only_ed25519" = {
-        file = ../../secrets + "/lennart_${config.networking.hostName}_backup_append_only_ed25519.age";
-        owner = "lennart";
-        inherit (config.users.users.lennart) group;
-        mode = "0400";
-        path = "/home/lennart/.ssh/lennart_${config.networking.hostName}_backup_append_only_ed25519";
-      };
-      "lennart_${config.networking.hostName}_backup_append_only_ed25519_pub" = {
-        file = ../../secrets + "/lennart_${config.networking.hostName}_backup_append_only_ed25519_pub.age";
-        owner = "lennart";
-        inherit (config.users.users.lennart) group;
-        mode = "0444";
-        path = "/home/lennart/.ssh/lennart_${config.networking.hostName}_backup_append_only_ed25519.pub";
-      };
+    warnings = lib.optional (!secretsPresent)
+      "Home backups on ${config.networking.hostName} are disabled because the restic secrets are missing. Run `nix run .#terraform -- apply && nix run .#sync-restic-secrets` and rebuild.";
+
+    age.secrets = lib.optionalAttrs secretsPresent {
+      ${passwordSecret}.file = ../../secrets + "/${passwordSecret}.age";
+      ${environmentSecret}.file = ../../secrets + "/${environmentSecret}.age";
     };
 
-    services.borgbackup.jobs = builtins.listToAttrs
-      (lib.imap0
-        (index: borgRepo: {
-          name = "home-to-${borgRepo.name}";
-          value = rec {
-            encryption = {
-              mode = "repokey";
-              passCommand = "cat ${config.age.secrets."lennart_${config.networking.hostName}_backup_passphrase".path}";
-            };
-            environment.BORG_RSH = "ssh -i ${config.age.secrets."lennart_${config.networking.hostName}_backup_append_only_ed25519".path}";
-            environment.BORG_RELOCATED_REPO_ACCESS_IS_OK = "yes";
-            extraCreateArgs = "--stats --checkpoint-interval 600";
-            repo = "${borgRepo.backup.locationPrefix}lennart_${config.networking.hostName}";
-            startAt = "*-*-* 0${builtins.toString index}/3:00:00";
-            persistentTimer = true;
-            # user = "lennart";
-            # group = config.users.users.lennart.group;
-            paths = "/home/lennart";
-            exclude = map (x: paths + "/" + x) common-excludes;
-            dontStartOnMeteredConnection = true;
-          };
-        })
-        config.meta.allBackupHosts
-      );
+    services.restic.backups = lib.optionalAttrs secretsPresent {
+      home = {
+        inherit (repo) repository;
+        initialize = true;
+        passwordFile = config.age.secrets.${passwordSecret}.path;
+        environmentFile = config.age.secrets.${environmentSecret}.path;
+        paths = [ "/home/lennart" ];
+        exclude = map (x: "/home/lennart/" + x) common-excludes;
+        timerConfig = {
+          OnCalendar = "*-*-* 00/3:00:00";
+          Persistent = true;
+          RandomizedDelaySec = "15m";
+        };
+        # The B2 key cannot hard-delete: pruned data is only hidden and the
+        # bucket lifecycle rule removes it for good after its grace period.
+        pruneOpts = [
+          "--keep-within 3d"
+          "--keep-daily 14"
+          "--keep-weekly 8"
+          "--keep-monthly 12"
+        ];
+        # Provides restic-home with repo, password and credentials preset.
+        createWrapper = true;
+        dontStartOnMeteredConnection = true;
+      };
+    };
   };
 }

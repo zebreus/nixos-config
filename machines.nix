@@ -32,37 +32,17 @@ in
       trustedPorts = [ 9100 ];
       # dn42Peerings = [ "zaphyra" "decade" "stephanj" "tech9_de02" "ellie" "lgcl" "aprl" "echonet" "kioubit_de2" "routedbits_de1" "adhd" "sebastians" "larede01" ];
     };
-    kappril = {
-      name = "kappril";
-      address = 3;
-      wireguardPublicKey = publicKeys.kappril_wireguard;
-      publicPorts = [ 22 ];
-      sshPublicKey = publicKeys.kappril;
-    };
     # Janeks laptop
     janek = {
       name = "janek";
       address = 4;
       wireguardPublicKey = publicKeys.janek_wireguard;
-      extraBorgRepos = [
-        { name = "janek"; size = "2T"; }
-      ];
     };
     # Janeks server
     janek-proxmox = {
       name = "janek-proxmox";
       address = 5;
       wireguardPublicKey = publicKeys.janek-proxmox_wireguard;
-      extraBorgRepos = [
-        { name = "janek-proxmox"; size = "3T"; }
-      ];
-    };
-    # Janeks backup server
-    janek-backup = {
-      name = "janek-backup";
-      address = 6;
-      wireguardPublicKey = publicKeys.janek-backup_wireguard;
-      public = true;
     };
     sempriaq = {
       name = "sempriaq";
@@ -99,9 +79,6 @@ in
       name = "leon";
       address = 10;
       wireguardPublicKey = publicKeys.leon_wireguard;
-      extraBorgRepos = [
-        { name = "leon"; size = "2T"; }
-      ];
     };
     trolltop = {
       name = "trolltop";
@@ -113,17 +90,11 @@ in
       name = "void-mendax";
       address = 12;
       wireguardPublicKey = publicKeys.void-mendax_wireguard;
-      extraBorgRepos = [
-        { name = "void-mendax"; size = "2T"; }
-      ];
     };
     void-hortorum = {
       name = "void-hortorum";
       address = 13;
       wireguardPublicKey = publicKeys.void-hortorum_wireguard;
-      extraBorgRepos = [
-        { name = "void-hortorum"; size = "2T"; }
-      ];
     };
     glouble = {
       name = "glouble";
@@ -153,11 +124,11 @@ in
 
     ollama.hosts = [ "prandtl" ];
 
-    # Backup hosts and their storage locations.
-    backup.hosts = {
-      kappril.storagePath = "/storage/borg";
-      janek-backup.storagePath = "/backups/lennart";
-      # blanderdash.storagePath = "/storage/storagebox/borg";
+    # Restic backups to Backblaze B2. The endpoint must match the region of the
+    # B2 account; all repos live in this single bucket, one prefix per repo.
+    backup = {
+      endpoint = "s3.eu-central-003.backblazeb2.com";
+      bucket = "zebreus-backup";
     };
 
     mail = {

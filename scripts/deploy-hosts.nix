@@ -15,7 +15,6 @@ with pkgs; writeScriptBin "deploy-hosts" ''
   if [ "$HOSTS" = "all" ]; then
     HOSTS=(
       erms
-      kappril
       sempriaq
       kashenblade
     )

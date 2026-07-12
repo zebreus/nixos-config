@@ -10,6 +10,13 @@ let
   thisMachine = config.meta.self;
   # monitoring is exactlyOne; open the exporter only to that single host.
   grafanaServers = [ config.meta.machines.${config.meta.services.monitoring.host} ];
+
+  backupRepo = lib.findFirst (r: r.name == "mail")
+    (throw "No backup repo mail in meta.allBackupRepos")
+    config.meta.allBackupRepos;
+  # The secrets only exist once terraform has been run for this repo.
+  resticSecretsPresent = builtins.pathExists ../secrets/mail_restic_password.age
+    && builtins.pathExists ../secrets/shared_restic_environment.age;
 in
 {
   config = mkIf cfg.enable {
@@ -21,12 +28,6 @@ in
       himmel_mail_passwordhash = {
         file = ../secrets/himmel_mail_passwordhash.age;
         mode = "0444";
-      };
-      "mail_backup_passphrase" = {
-        file = ../secrets + "/mail_backup_passphrase.age";
-      };
-      "mail_backup_append_only_ed25519" = {
-        file = ../secrets + "/mail_backup_append_only_ed25519.age";
       };
       "${name}_dkim_rsa" = {
         file = ../secrets + "/${name}_dkim_rsa.age";
@@ -52,7 +53,13 @@ in
         inherit (config.services.rspamd) group;
         path = "${config.mailserver.dkim.keyDirectory}/darmfest.de.mail.key";
       };
+    } // lib.optionalAttrs resticSecretsPresent {
+      mail_restic_password.file = ../secrets/mail_restic_password.age;
+      shared_restic_environment.file = ../secrets/shared_restic_environment.age;
     };
+
+    warnings = lib.optional (!resticSecretsPresent)
+      "Mail backups are disabled because the restic secrets are missing. Run `nix run .#terraform -- apply && nix run .#sync-restic-secrets` and rebuild.";
 
     services.postfix = {
       settings.main = {
@@ -157,51 +164,44 @@ in
       # };
     };
 
-    services.borgbackup.jobs = builtins.listToAttrs
-      (builtins.map
-        (borgRepo: {
-          name = "mail-to-${borgRepo.name}";
-          value =
-            {
-              archiveBaseName = "mail";
-              encryption = {
-                mode = "repokey";
-                passCommand = "cat ${config.age.secrets."mail_backup_passphrase".path}";
-              };
-              environment.BORG_RSH = "ssh -i ${config.age.secrets."mail_backup_append_only_ed25519".path}";
-              environment.BORG_RELOCATED_REPO_ACCESS_IS_OK = "yes";
-              extraCreateArgs = "--stats --checkpoint-interval 600";
-              repo = "${borgRepo.backup.locationPrefix}mail";
-              startAt = "*-*-* 00/1:00:00";
-              user = "root";
-              paths = [
-                "/var/vmail"
-              ];
-            };
-        })
-        config.meta.allBackupHosts
-      );
+    services.restic.backups = lib.optionalAttrs resticSecretsPresent {
+      mail = {
+        inherit (backupRepo) repository;
+        initialize = true;
+        passwordFile = config.age.secrets.mail_restic_password.path;
+        environmentFile = config.age.secrets.shared_restic_environment.path;
+        paths = [
+          "/var/vmail"
+        ];
+        timerConfig = {
+          OnCalendar = "*-*-* 00/1:00:00";
+          Persistent = true;
+        };
+        # The B2 key cannot hard-delete: pruned data is only hidden and the
+        # bucket lifecycle rule removes it for good after its grace period.
+        pruneOpts = [
+          "--keep-within 2d"
+          "--keep-daily 14"
+          "--keep-weekly 8"
+          "--keep-monthly 12"
+        ];
+        # Provides restic-mail with repo, password and credentials preset.
+        createWrapper = true;
+      };
+    };
 
-    environment.systemPackages = with pkgs; [
+    environment.systemPackages = lib.optionals resticSecretsPresent [
       (with pkgs;
       writeScriptBin "restore-mail-from-backup" ''
         #!${bash}/bin/bash
 
-        # Mail restore script tested at 11.11.2024
-        set -ex
-
-        export BORG_RSH="ssh -i ${config.age.secrets."mail_backup_append_only_ed25519".path}"
-        export BORG_PASSCOMMAND="cat ${config.age.secrets."mail_backup_passphrase".path}"
-        ALL_BORG_REPOS=( ${ lib.concatStringsSep " " (builtins.map (machine: "'${machine.backup.locationPrefix}mail'") config.meta.allBackupHosts)} )
+        # TODO: Test this script after the restic migration
 
         MODE="$1"
         if [ "$MODE" == list ] ; then
-          for TEST_BORG_REPO in "''${ALL_BORG_REPOS[@]}"; do
-            echo "Available snapshots at $TEST_BORG_REPO"
-            borg list --sort timestamp $TEST_BORG_REPO | cut -d" " -f1 | grep -Po '^mail-[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}$' || true
-            echo ""
-          done
-          echo "Please use '$0 restore TIMESTAMP' to restore from a specific timestamp "
+          echo "Available snapshots:"
+          restic-mail snapshots
+          echo "Please use '$0 restore SNAPSHOT' to restore from a specific snapshot"
           exit 0
         fi
 
@@ -209,51 +209,28 @@ in
           echo "Usage: $0 COMMAND"
           echo ""
           echo "Commands:"
-          echo "  list                 List all available timestamps"
-          echo "  restore TIMESTAMP    Restore from a specific timestamp"
-          echo "  restore              Restore from the latest timestamp"
+          echo "  list                List all available snapshots"
+          echo "  restore SNAPSHOT    Restore from a specific snapshot id"
+          echo "  restore             Restore from the latest snapshot"
           exit 0
         fi
 
-        TIMESTAMP="$2"
+        SNAPSHOT="''${2:-latest}"
 
-        read -r -p "Are you sure you want to restore from the latest backup? This will destroy the current data. [y/N]" -n 1
+        read -r -p "Are you sure you want to restore from snapshot $SNAPSHOT? This will destroy the current data. [y/N]" -n 1
         echo # (optional) move to a new line
         if [[ "$REPLY" =~ ^[^Yy]$ ]]; then
             echo "Operation aborted"
             exit 1
         fi
-        
+        set -ex
+
         systemctl stop dovecot2
-
-        LATEST_TIMESTAMP=mail-0
-        BORG_LIST_FILTER="--last 1"
-        if [ -n "$TIMESTAMP" ] ; then
-          BORG_LIST_FILTER="-a $TIMESTAMP"
-        fi
-        for TEST_BORG_REPO in "''${ALL_BORG_REPOS[@]}"; do
-          THIS_REPO_TIMESTAMP="$(borg list --sort timestamp $BORG_LIST_FILTER $TEST_BORG_REPO | cut -d" " -f1 | grep -Po '^mail-[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}$' | tail -1 || true)"
-          if [ -z "$THIS_REPO_TIMESTAMP" ] ; then
-            continue
-          fi
-          if  [ "$LATEST_TIMESTAMP" \> "$THIS_REPO_TIMESTAMP" ] ; then
-            continue
-          fi
-          export LATEST_TIMESTAMP="$THIS_REPO_TIMESTAMP"
-          export BORG_REPO="$TEST_BORG_REPO"
-          export ARCHIVE="$THIS_REPO_TIMESTAMP"
-        done
-
-        if [ -z "$BORG_REPO" ] || [ -z "$ARCHIVE" ] ; then
-          echo "No backup found"
-          exit 1
-        fi
 
         echo "Deleting old mail data"
         rm -rf /var/vmail
         echo "Restoring mail data"
-        cd /
-        borg extract $BORG_REPO::$ARCHIVE var/vmail --progress
+        restic-mail restore "$SNAPSHOT" --target / --include /var/vmail --verbose
         echo "Restored mail"
 
         echo Backup restored. Restarting dovecot2
@@ -266,7 +243,10 @@ in
     # Add backup repo
     {
       config = {
-        meta.allBorgRepos = [{ name = "mail"; size = "1T"; }];
+        meta.allBackupRepos = [{
+          name = "mail";
+          machines = lib.optional (config.meta.services.mail.host != null) config.meta.services.mail.host;
+        }];
       };
     }
     # Configure the mail server to relay mail for all other machines on the VPN

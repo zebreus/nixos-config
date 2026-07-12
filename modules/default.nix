@@ -10,7 +10,6 @@
     ./auto-maintenance.nix
     ./besserestrichliste.nix
     ./bird-lg.nix
-    ./borg-repo.nix
     ./essen-jetzt.nix
     ./event.nix
     ./gulasch-sites.nix

@@ -36,8 +36,12 @@ function generateSecrets {
             echo Reencrypting the secrets for the workstation
             nix run .#add-workstation "$TARGET_HOST_NAME"
 
-            echo "Adding backup keys for the workstation"
-            nix run .#gen-borg-keys -- lennart_"$TARGET_HOST_NAME"_backup "$TARGET_HOST_NAME" "lennart"
+            echo "Adding backup secrets for the workstation"
+            # The new machine was added to allMachines, so the shared
+            # append-only B2 key needs to be re-encrypted for it.
+            EDITOR=: agenix -e shared_restic_environment.age
+            # Creates the restic password for the new lennart_<host> repo.
+            (cd .. && nix run .#sync-restic-secrets)
         fi
 
         cd ..

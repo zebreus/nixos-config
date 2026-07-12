@@ -8,7 +8,7 @@ let
           config = {
             _module.check = false;
           };
-          options.services.borgbackup.jobs = lib.mkOption { description = "Normal borg backup jobs."; };
+          options.services.restic.backups = lib.mkOption { description = "Normal restic backup jobs."; };
         }
         ../modules/helpers/machines.nix
         ../modules

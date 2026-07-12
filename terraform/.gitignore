@@ -1,0 +1,6 @@
+# Provider binaries; reproducible from .terraform.lock.hcl via init.
+.terraform/
+# Plan files can contain secrets (encrypted or not, they are transient).
+*.tfplan
+# The state itself (terraform.tfstate) is encrypted and IS committed.
+terraform.tfstate.backup

@@ -73,7 +73,6 @@ Each machine uses its ed25519 SSH host key to decrypt its secrets. That SSH host
 - Write documentation
 - Manage vscode config
 - Upstream the part that chmods the paths created by agenix
-- connect janek-backup again
 - Export a independent vpn module
 - Peer with more people
 - Write documentation for the VPN module

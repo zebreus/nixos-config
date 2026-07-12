@@ -46,6 +46,13 @@ let
       branding = element-branding;
     };
   };
+
+  backupRepo = lib.findFirst (r: r.name == "matrix")
+    (throw "No backup repo matrix in meta.allBackupRepos")
+    config.meta.allBackupRepos;
+  # The secrets only exist once terraform has been run for this repo.
+  resticSecretsPresent = builtins.pathExists ../secrets/matrix_restic_password.age
+    && builtins.pathExists ../secrets/shared_restic_environment.age;
 in
 {
   config = mkIf cfg.enable {
@@ -59,13 +66,13 @@ in
         file = ../secrets/coturn_static_auth_secret_matrix_config.age;
         owner = "matrix-synapse";
       };
-      matrix_backup_passphrase = {
-        file = ../secrets/matrix_backup_passphrase.age;
-      };
-      matrix_backup_append_only_ed25519 = {
-        file = ../secrets/matrix_backup_append_only_ed25519.age;
-      };
+    } // lib.optionalAttrs resticSecretsPresent {
+      matrix_restic_password.file = ../secrets/matrix_restic_password.age;
+      shared_restic_environment.file = ../secrets/shared_restic_environment.age;
     };
+
+    warnings = lib.optional (!resticSecretsPresent)
+      "Matrix backups are disabled because the restic secrets are missing. Run `nix run .#terraform -- apply && nix run .#sync-restic-secrets` and rebuild.";
 
     # Get certs
     security.acme = {
@@ -286,7 +293,7 @@ in
         ];
       };
 
-      # Create db dump 5 minutes before the borgbackup
+      # Create db dump 5 minutes before the restic backup
       postgresqlBackup =
         {
           enable = true;
@@ -299,93 +306,73 @@ in
           pgdumpOptions = "--clean --format=custom --no-password";
         };
 
-      borgbackup.jobs = builtins.listToAttrs
-        (builtins.map
-          (borgRepo: {
-            name = "matrix-${borgRepo.name}";
-            value =
-              {
-                archiveBaseName = "matrix";
-                encryption = {
-                  mode = "repokey";
-                  passCommand = "cat ${config.age.secrets.matrix_backup_passphrase.path}";
-                };
-                environment.BORG_RSH = "ssh -i ${config.age.secrets.matrix_backup_append_only_ed25519.path}";
-                environment.BORG_RELOCATED_REPO_ACCESS_IS_OK = "yes";
-                extraCreateArgs = "--stats --checkpoint-interval 300";
-                repo = "${borgRepo.backup.locationPrefix}matrix";
-                startAt = "*-*-* 00/1:00:00";
-                user = "root";
-                paths = [
-                  "/var/lib/matrix-synapse"
-                  "/var/backup/postgresql/matrix-synapse.sql"
-                ];
-              };
-          })
-          config.meta.allBackupHosts
-        );
+      restic.backups = lib.optionalAttrs resticSecretsPresent {
+        matrix = {
+          inherit (backupRepo) repository;
+          initialize = true;
+          passwordFile = config.age.secrets.matrix_restic_password.path;
+          environmentFile = config.age.secrets.shared_restic_environment.path;
+          paths = [
+            "/var/lib/matrix-synapse"
+            "/var/backup/postgresql/matrix-synapse.sql"
+          ];
+          timerConfig = {
+            OnCalendar = "*-*-* 00/1:00:00";
+            Persistent = true;
+          };
+          # The B2 key cannot hard-delete: pruned data is only hidden and the
+          # bucket lifecycle rule removes it for good after its grace period.
+          pruneOpts = [
+            "--keep-within 2d"
+            "--keep-daily 14"
+            "--keep-weekly 8"
+            "--keep-monthly 12"
+          ];
+          # Provides restic-matrix with repo, password and credentials preset.
+          createWrapper = true;
+        };
+      };
     };
 
-    environment.systemPackages = with pkgs; [
+    environment.systemPackages = lib.optionals resticSecretsPresent [
       (with pkgs;
       writeScriptBin "restore-matrix-from-backup" ''
         #!${bash}/bin/bash
 
-        # Matrix restore script tested at 08.04.2024
+        # TODO: Test this script after the restic migration
 
-        read -r -p "Are you sure you want to restore from the latest backup? This will destroy the current data. [y/N]" -n 1
+        SNAPSHOT="''${1:-latest}"
+
+        read -r -p "Are you sure you want to restore from snapshot $SNAPSHOT? This will destroy the current data. [y/N]" -n 1
         echo # (optional) move to a new line
         if [[ "$REPLY" =~ ^[^Yy]$ ]]; then
             echo "Operation aborted"
             exit 1
         fi
         set -ex
-        
+
         systemctl stop matrix-synapse
 
+        RESTORE_DIR=$(mktemp -d)
         function cleanup {
-          umount /mnt || true
+          rm -rf "$RESTORE_DIR"
         }
         trap cleanup EXIT
 
-
-        export BORG_RSH="ssh -i ${config.age.secrets.matrix_backup_append_only_ed25519.path}"
-        export BORG_PASSCOMMAND="cat ${config.age.secrets.matrix_backup_passphrase.path}"
-
-        ALL_BORG_REPOS=( ${ lib.concatStringsSep " " (builtins.map (machine: "'${machine.backup.locationPrefix}matrix'") config.meta.allBackupHosts)} )
-        LATEST_TIMESTAMP=matrix-0
-        for TEST_BORG_REPO in "''${ALL_BORG_REPOS[@]}"; do
-          THIS_REPO_TIMESTAMP="$(borg list --sort timestamp --last 1 $TEST_BORG_REPO | cut -d" " -f1 | grep -Po '^matrix-[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}$' | tail -1 || true)"
-          if [ -z "$THIS_REPO_TIMESTAMP" ] ; then
-            continue
-          fi
-          if [ "$LATEST_TIMESTAMP" \> "$THIS_REPO_TIMESTAMP" ] ; then
-            continue
-          fi
-          export LATEST_TIMESTAMP="$THIS_REPO_TIMESTAMP"
-          export BORG_REPO="$TEST_BORG_REPO"
-          export ARCHIVE="$THIS_REPO_TIMESTAMP"
-        done
-
-        if [ -z "$BORG_REPO" ] || [ -z "$ARCHIVE" ] ; then
-          echo "No backup found"
-          exit 1
-        fi
+        echo "Fetching database dump"
+        restic-matrix restore "$SNAPSHOT" --target "$RESTORE_DIR" --include /var/backup/postgresql/matrix-synapse.sql
 
         echo "Dropping old database"
         sudo -u postgres psql -c "DROP DATABASE \"matrix-synapse\" WITH (FORCE);" || true
         echo "Restoring database"
         sudo -u postgres psql -c 'CREATE DATABASE "matrix-synapse" WITH OWNER "matrix-synapse" TEMPLATE template0 LC_COLLATE = "C" LC_CTYPE = "C";'
-        borg mount $BORG_REPO::$ARCHIVE /mnt
-        PGPASSWORD=synapse pg_restore -h 127.0.0.1 -U matrix-synapse -d matrix-synapse /mnt/var/backup/postgresql/matrix-synapse.sql
-        borg umount /mnt || true
+        PGPASSWORD=synapse pg_restore -h 127.0.0.1 -U matrix-synapse -d matrix-synapse "$RESTORE_DIR/var/backup/postgresql/matrix-synapse.sql"
         echo "Database restored"
 
         echo "Deleting old media"
         rm -rf /var/lib/matrix-synapse
         echo "Restoring media"
-        cd /
-        borg extract $BORG_REPO::$ARCHIVE var/lib/matrix-synapse --progress
+        restic-matrix restore "$SNAPSHOT" --target / --include /var/lib/matrix-synapse --verbose
         echo "Restored media"
 
         echo Backup restored. Restarting matrix-synapse
@@ -398,7 +385,10 @@ in
     # Create backup Repo
     {
       config = {
-        meta.allBorgRepos = [{ name = "matrix"; size = "1T"; }];
+        meta.allBackupRepos = [{
+          name = "matrix";
+          machines = lib.optional (config.meta.services.matrix.host != null) config.meta.services.matrix.host;
+        }];
       };
     }
   ];

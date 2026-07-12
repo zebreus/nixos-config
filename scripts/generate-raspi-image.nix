@@ -1,8 +1,14 @@
-# Generate a sd card image for the raspi 4
+# Generate a sd card image for a raspi 4 host
 { pkgs }:
 with pkgs; writeScriptBin "generate-raspi-installer" ''
   #!${bash}/bin/bash
-  RESULT_PATH=$(nix build .#nixosConfigurations.kappril.config.system.build.sdImage --print-out-paths)
+  HOST=$1
+  if [ -z "$HOST" ]; then
+    echo "Usage: generate-raspi-installer <host>"
+    echo "HOST must be a nixosConfiguration with modules.boot.type = \"raspi\""
+    exit 1
+  fi
+  RESULT_PATH=$(nix build .#nixosConfigurations."$HOST".config.system.build.sdImage --print-out-paths)
   echo $RESULT_PATH
   ln -s $RESULT_PATH/sd-image/*.img.zst ./raspi-image.img.zst
   echo The generated image was linked to ./raspi-image.img.zst

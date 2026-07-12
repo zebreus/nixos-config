@@ -3,7 +3,6 @@
   imports = [
     ./networking.nix
     ./hardware-configuration.nix
-    ./storagebox.nix
     ../../modules
   ];
 

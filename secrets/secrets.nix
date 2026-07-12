@@ -15,10 +15,6 @@ with import ./public-keys.nix;
   "kashenblade_ed25519_pub.age".publicKeys = [ recovery kashenblade ];
   "kashenblade_rsa.age".publicKeys = [ recovery kashenblade ];
   "kashenblade_rsa_pub.age".publicKeys = [ recovery kashenblade ];
-  "kappril_ed25519.age".publicKeys = [ recovery kappril ];
-  "kappril_ed25519_pub.age".publicKeys = [ recovery kappril ];
-  "kappril_rsa.age".publicKeys = [ recovery kappril ];
-  "kappril_rsa_pub.age".publicKeys = [ recovery kappril ];
   "sempriaq_ed25519.age".publicKeys = [ recovery sempriaq ];
   "sempriaq_ed25519_pub.age".publicKeys = [ recovery sempriaq ];
   "sempriaq_rsa.age".publicKeys = [ recovery sempriaq ];
@@ -57,8 +53,6 @@ with import ./public-keys.nix;
   "erms_wireguard_pub.age".publicKeys = [ recovery erms ];
   "kashenblade_wireguard.age".publicKeys = [ recovery kashenblade ];
   "kashenblade_wireguard_pub.age".publicKeys = [ recovery kashenblade ];
-  "kappril_wireguard.age".publicKeys = [ recovery kappril ];
-  "kappril_wireguard_pub.age".publicKeys = [ recovery kappril ];
   "sempriaq_wireguard.age".publicKeys = [ recovery sempriaq ];
   "sempriaq_wireguard_pub.age".publicKeys = [ recovery sempriaq ];
   "blanderdash_wireguard.age".publicKeys = [ recovery blanderdash ];
@@ -71,36 +65,38 @@ with import ./public-keys.nix;
 
   "shared_wireguard_psk.age".publicKeys = [ recovery ] ++ allMachines;
 
-  # Backup secrets
+  # Restic backup provisioning secrets
+  # The B2 provisioner key (as B2_APPLICATION_KEY_ID/B2_APPLICATION_KEY
+  # environment file) and the OpenTofu state encryption passphrase, both only
+  # used by `nix run .#terraform` on a workstation. The provisioner key was
+  # created once from the master key (see the terraform usage message); it can
+  # create buckets and keys but has no deleteFiles/deleteBuckets, so it cannot
+  # destroy backup data.
+  "terraform_environment.age".publicKeys = [ recovery lennart ];
+  "terraform_state_passphrase.age".publicKeys = [ recovery lennart ];
+
+  # Restic backup secrets
+  # All machines share one append-only B2 application key (as an environment
+  # file); isolation between repos comes from the per-repo restic passwords.
+  # The bucket and key are provisioned with `nix run .#terraform -- apply`;
+  # the secrets below are written by `nix run .#sync-restic-secrets`.
+  "shared_restic_environment.age".publicKeys = [ recovery lennart ] ++ allMachines;
+  "matrix_restic_password.age".publicKeys = [ recovery kashenblade lennart ];
+  "mail_restic_password.age".publicKeys = [ recovery blanderdash lennart ];
+  "lennart_erms_restic_password.age".publicKeys = [ recovery erms lennart ];
+  "lennart_prandtl_restic_password.age".publicKeys = [ recovery prandtl lennart ];
+  # MARKER_RESTIC_SECRETS
+
+  # Legacy borg backup secrets
+  # The backup servers are decommissioned, but the passphrases are still needed
+  # to read the archived borg repos that were moved to an offline disk.
   # For now this is keyed to the machine where the backup is initiated from, but it would make more sense to key it to lennart
   # Generated with `tr -dc A-Za-z0-9 </dev/urandom | head -c 64; echo`
-  "lennart_erms_backup_passphrase.age".publicKeys = [ recovery erms lennart ];
-  "matrix_backup_passphrase.age".publicKeys = [ recovery kashenblade lennart ];
-  "mail_backup_passphrase.age".publicKeys = [ recovery lennart ] ++ mailServers;
-  "lennart_prandtl_backup_passphrase.age".publicKeys = [ recovery prandtl lennart ];
+  "lennart_erms_borg_passphrase.age".publicKeys = [ recovery erms lennart ];
+  "matrix_borg_passphrase.age".publicKeys = [ recovery kashenblade lennart ];
+  "mail_borg_passphrase.age".publicKeys = [ recovery lennart ] ++ mailServers;
+  "lennart_prandtl_borg_passphrase.age".publicKeys = [ recovery prandtl lennart ];
   # MARKER_BORG_PASSPHRASES
-
-  # Backup keys
-  # These keys are used to connect to borg instances
-  # The append_only keys dont have a passphrase, but can only access the backup repository in append-only mode
-  # The trusted keys also dont have a passphrase and can access the backup repository in read-write mode. However they can only be decrypted by a password protected user key
-  "lennart_erms_backup_append_only_ed25519.age".publicKeys = [ recovery erms lennart ];
-  "lennart_erms_backup_append_only_ed25519_pub.age".publicKeys = [ recovery erms lennart ];
-  "lennart_erms_backup_trusted_ed25519.age".publicKeys = [ recovery lennart ];
-  "lennart_erms_backup_trusted_ed25519_pub.age".publicKeys = [ recovery lennart ];
-  "matrix_backup_append_only_ed25519.age".publicKeys = [ recovery kashenblade lennart ];
-  "matrix_backup_append_only_ed25519_pub.age".publicKeys = [ recovery kashenblade lennart ];
-  "matrix_backup_trusted_ed25519.age".publicKeys = [ recovery lennart ];
-  "matrix_backup_trusted_ed25519_pub.age".publicKeys = [ recovery lennart ];
-  "mail_backup_append_only_ed25519.age".publicKeys = [ recovery lennart ] ++ mailServers;
-  "mail_backup_append_only_ed25519_pub.age".publicKeys = [ recovery lennart ] ++ mailServers;
-  "mail_backup_trusted_ed25519.age".publicKeys = [ recovery lennart ];
-  "mail_backup_trusted_ed25519_pub.age".publicKeys = [ recovery lennart ];
-  "lennart_prandtl_backup_append_only_ed25519.age".publicKeys = [ recovery prandtl lennart ];
-  "lennart_prandtl_backup_append_only_ed25519_pub.age".publicKeys = [ recovery prandtl lennart ];
-  "lennart_prandtl_backup_trusted_ed25519.age".publicKeys = [ recovery lennart ];
-  "lennart_prandtl_backup_trusted_ed25519_pub.age".publicKeys = [ recovery lennart ];
-  # MARKER_BORG_BACKUP_KEYS
 
   # This is secret because it contains information about the infrastructure of other people
   "extra_config.age".publicKeys = [ recovery ] ++ workstations;
@@ -135,10 +131,6 @@ with import ./public-keys.nix;
   "kashenblade_dkim_rsa_pub.age".publicKeys = [ recovery ] ++ mailServers;
   "kashenblade_mail_password.age".publicKeys = [ recovery kashenblade ];
   "kashenblade_mail_passwordhash.age".publicKeys = [ recovery kashenblade ] ++ mailServers;
-  "kappril_dkim_rsa.age".publicKeys = [ recovery ] ++ mailServers;
-  "kappril_dkim_rsa_pub.age".publicKeys = [ recovery ] ++ mailServers;
-  "kappril_mail_password.age".publicKeys = [ recovery kappril ];
-  "kappril_mail_passwordhash.age".publicKeys = [ recovery kappril ] ++ mailServers;
   "sempriaq_dkim_rsa.age".publicKeys = [ recovery ] ++ mailServers;
   "sempriaq_dkim_rsa_pub.age".publicKeys = [ recovery ] ++ mailServers;
   "sempriaq_mail_password.age".publicKeys = [ recovery sempriaq ];
@@ -213,7 +205,6 @@ with import ./public-keys.nix;
   "n50_mediawiki_password.age".publicKeys = [ recovery kashenblade blanderdash sempriaq ];
 
   # Hetzner storage box credentials
-  "blanderdash_storagebox_smb_secrets.age".publicKeys = [ recovery blanderdash ];
 
   # Rudelshopping (Stripe key, loaded as a systemd credential)
   "rudelshopping_stripe_key.age".publicKeys = [ recovery blanderdash ];

@@ -123,11 +123,6 @@
             modules = [ ./machines/kashenblade ] ++ commonModules;
           };
 
-          kappril = lib.nixosSystem {
-            system = "aarch64-linux";
-            modules = [ ./machines/kappril ] ++ commonModules;
-          };
-
           sempriaq = lib.nixosSystem {
             system = "x86_64-linux";
             modules = [ ./machines/sempriaq ] ++ commonModules;
@@ -215,7 +210,8 @@
         # Helper scripts
         gen-host-keys = pkgs.callPackage ./scripts/gen-host-keys.nix { };
         gen-wireguard-keys = pkgs.callPackage ./scripts/gen-wireguard-keys.nix { };
-        gen-borg-keys = pkgs.callPackage ./scripts/gen-borg-keys.nix { };
+        terraform = pkgs.callPackage ./scripts/terraform.nix { };
+        sync-restic-secrets = pkgs.callPackage ./scripts/sync-restic-secrets.nix { };
         gen-vpn-mail-secrets = pkgs.callPackage ./scripts/gen-vpn-mail-secrets.nix { };
         gen-mail-dkim-keys = pkgs.callPackage ./scripts/gen-mail-dkim-keys.nix { };
         gen-mail-account = pkgs.callPackage ./scripts/gen-mail-account.nix { };

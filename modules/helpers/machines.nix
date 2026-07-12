@@ -13,23 +13,34 @@
 { lib, config, ... }:
 with lib;
 let
-  backupRepoOpts = _self: {
+  backupRepoOpts = self: {
     options = {
       name = mkOption {
         type = types.str;
         description = ''
-          The name of the backup repository. This is used to identify the backup repository on the backup host.
+          The name of the backup repository.
 
-          You need keys for every backup repository. Use `nix run .#gen-borg-keys <this_name> <machines> lennart` to generate the keys.
+          Every repository needs a B2 bucket with an append-only application key
+          and a restic password. Run `nix run .#terraform -- apply` to create
+          the bucket and the key, then `nix run .#sync-restic-secrets`
+          to store them (and a fresh restic password) with agenix.
         '';
       };
-      size = mkOption {
-        type = types.str;
+      machines = mkOption {
+        type = types.listOf types.str;
+        default = [ ];
         description = ''
-          Limit the maximum size of the repo.
+          Machines (agenix key names) that need to decrypt this repo's restic
+          secrets, besides recovery and lennart. Used by sync-restic-secrets
+          to write the secrets.nix rules.
         '';
-        default = "2T";
-        example = "4T";
+      };
+      repository = mkOption {
+        type = types.str;
+        readOnly = true;
+        default = "s3:https://${config.meta.services.backup.endpoint}/${config.meta.services.backup.bucket}/${self.config.name}";
+        defaultText = literalExpression ''"s3:https://''${meta.services.backup.endpoint}/''${meta.services.backup.bucket}/''${name}"'';
+        description = "The restic repository URL for this repo: a prefix in the shared backup bucket.";
       };
     };
   };
@@ -185,23 +196,24 @@ let
     # Any number of ollama hosts; the accelerator (package) is a per-machine knob.
     ollama.cardinality = "any";
 
-    # Backup hosts, with per-host storage location.
+    # Restic-to-B2 backups. Config-only (no backup hosts anymore): the
+    # fleet-wide S3 endpoint and the single shared bucket. Each entry in
+    # meta.allBackupRepos is a prefix in that bucket; all machines share one
+    # append-only application key (isolation between repos comes from the
+    # per-repo restic passwords).
     backup = {
-      cardinality = "any";
-      perHost = true;
-      config.storagePath = mkOption {
-        type = types.str;
-        example = "/backups/lennart";
-        description = "The prefix of the path to the backup repos. This should be a path on a separate disk.";
-      };
-      projectedOptions.locationPrefix = mkOption {
-        type = types.str;
-        readOnly = true;
-        example = "ssh://borg@janek-backup//backups/lennart/";
-        description = "The prefix of the borg repo URL on this backup host (this string suffixed with the repo name is the full path to the borg repo).";
-      };
-      projectExtra = svcCfg: h: assigned: optionalAttrs assigned {
-        locationPrefix = "ssh://borg@${h}/${svcCfg.hosts.${h}.storagePath}/";
+      cardinality = "none";
+      config = {
+        endpoint = mkOption {
+          type = types.str;
+          example = "s3.eu-central-003.backblazeb2.com";
+          description = "S3 endpoint of the Backblaze B2 region the backup bucket lives in.";
+        };
+        bucket = mkOption {
+          type = types.str;
+          example = "zebreus-backup";
+          description = "Name of the single B2 bucket holding all restic repos (as prefixes). Must match the bucket name in terraform/main.tf.";
+        };
       };
     };
 
@@ -334,11 +346,10 @@ let
       #
       # Flat services share their config, so it is projected onto *every* machine
       # (never null). A perHost service's config is per-host, so on an UNASSIGNED
-      # machine its projected config fields (e.g. backup.storagePath /
-      # backup.locationPrefix, dns.name) are left *undefined* — reading them
-      # ungated throws "option used but not defined". This is intentional;
-      # consumers must scope reads to the assigned set (attrNames
-      # meta.services.<svc>.hosts / meta.allBackupHosts) or gate on `.enable`.
+      # machine its projected config fields (e.g. dns.name) are left *undefined* —
+      # reading them ungated throws "option used but not defined". This is
+      # intentional; consumers must scope reads to the assigned set (attrNames
+      # meta.services.<svc>.hosts) or gate on `.enable`.
       configFields =
         if isPerHost def
         then (if assigned then builtins.intersectAttrs (def.config or { }) svcCfg.hosts.${h} else { })
@@ -444,14 +455,6 @@ let
         '';
         default = "2000000";
       };
-    };
-
-    extraBorgRepos = mkOption {
-      type = types.listOf (types.submodule backupRepoOpts);
-      description = ''
-        Extra borg repos used by this machine.
-      '';
-      default = [ ];
     };
 
     dn42Peerings = mkOption {
@@ -619,33 +622,21 @@ in
 
     services = mapAttrs mkServiceOption serviceDefs;
 
-    allBorgRepos = mkOption {
+    allBackupRepos = mkOption {
       type = types.listOf (types.submodule backupRepoOpts);
       description = ''
-        All borg repos that will be generated on the backup hosts. The meta
-        module contributes one per machine extraBorgRepos entry and one home repo
-        per workstation; service modules (mail, matrix, …) add their own.
+        All restic backup repositories. The meta module contributes one home
+        repo per workstation; service modules (mail, matrix, …) add their own.
       '';
       default = [ ];
     };
-
-    allBackupHosts = mkOption {
-      # Raw, to avoid re-coercing already-evaluated machine records (which carry
-      # readOnly projected options) back through the machine submodule.
-      type = types.listOf types.raw;
-      readOnly = true;
-      description = "All machines that are backup hosts. Derived from meta.services.backup.";
-      default = attrValues (filterAttrs (_name: m: m.backup.enable) config.meta.machines);
-    };
   };
 
-  # The bulk of the borg repos: one per machine extraBorgRepos entry and a home
-  # repo for every workstation. Service modules merge in their own repos.
-  config.meta.allBorgRepos =
-    (builtins.concatMap (m: m.extraBorgRepos) (attrValues config.meta.machines))
-    ++ (builtins.concatMap
-      (m: optional m.workstation.enable { name = "lennart_${m.name}"; size = "3T"; })
-      (attrValues config.meta.machines));
+  # A home repo for every workstation. Service modules merge in their own repos.
+  config.meta.allBackupRepos =
+    builtins.concatMap
+      (m: optional m.workstation.enable { name = "lennart_${m.name}"; machines = [ m.name ]; })
+      (attrValues config.meta.machines);
 
   # Host references in per-host services are attrset keys, which attrsOf does not
   # validate — so a typo'd host would silently no-op. Catch that here.
