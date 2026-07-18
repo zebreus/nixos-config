@@ -117,40 +117,13 @@
             system = "aarch64-linux";
             modules = [ ./machines/kashenblade ] ++ commonModules;
           };
-
-          sempriaq = lib.nixosSystem {
-            system = "x86_64-linux";
-            modules = [ ./machines/sempriaq ] ++ commonModules;
-          };
-
-          hetzner-template = lib.nixosSystem {
-            system = "aarch64-linux";
-            modules = [
-              disko.nixosModules.disko # Remove this after initial setup
-              agenix.nixosModules.default
-              # overlayNixpkgs
-              # informationAboutOtherMachines
-              # home-manager.nixosModules.home-manager
-              # simple-nix-mailserver.nixosModules.default
-              # gnome-online-accounts-config.nixosModules.default
-              # besserestrichliste.nixosModules.aarch64-linux.default
-              ./machines/hetzner-template
-            ];
-          };
-
           blanderdash = lib.nixosSystem {
             system = "aarch64-linux";
             modules = [ ./machines/blanderdash ] ++ commonModules;
           };
-
-          prandtl = lib.nixosSystem {
+          sempriaq = lib.nixosSystem {
             system = "x86_64-linux";
-            modules = [
-              disko.nixosModules.disko
-              lanzaboote.nixosModules.lanzaboote
-              nixvirt.nixosModules.default
-              ./machines/prandtl
-            ] ++ commonModules;
+            modules = [ ./machines/sempriaq ] ++ commonModules;
           };
           glouble = lib.nixosSystem {
             system = "x86_64-linux";
@@ -162,7 +135,26 @@
               ./machines/glouble
             ] ++ commonModules;
           };
+          prandtl = lib.nixosSystem {
+            system = "x86_64-linux";
+            modules = [
+              disko.nixosModules.disko
+              lanzaboote.nixosModules.lanzaboote
+              nixvirt.nixosModules.default
+              ./machines/prandtl
+            ] ++ commonModules;
+          };
           # MARKER_NIXOS_CONFIGURATIONS
+
+          # Template for Hetzner servers, to be used with the deploy-hosts script.
+          hetzner-template = lib.nixosSystem {
+            system = "aarch64-linux";
+            modules = [
+              disko.nixosModules.disko
+              agenix.nixosModules.default
+              ./machines/hetzner-template
+            ];
+          };
 
           # ISO image for a up-to-date NixOS installer
           installer = lib.nixosSystem {
