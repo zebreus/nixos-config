@@ -63,7 +63,7 @@ in
 
                   users: []
                   ssh_authorized_keys:
-                   - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIBTHzLm8QMhHIo7kFAvtAFnqpspeR3L3gM8kLoG1137 lennart@erms
+                   - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIBTHzLm8QMhHIo7kFAvtAFnqpspeR3L3gM8kLoG1137 lennart@prandtl
                   ssh_pwauth: false
                   disable_root: false
                   ssh_publish_hostkeys:

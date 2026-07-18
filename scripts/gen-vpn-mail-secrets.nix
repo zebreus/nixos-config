@@ -8,7 +8,7 @@ with pkgs; writeScriptBin "gen-vpn-mail-secrets" ''
     echo "Usage: gen-vpn-mail-secrets <HOST_NAME> <MAIL_RELAY_HOST_NAME>"
     echo "HOST_NAME is the name of the host you want to generate keys for."
     echo "MAIL_RELAY_HOST_NAME is the name of the mail relay in the VPN."
-    echo "Example: gen-vpn-mail-secrets erms sempriaq"
+    echo "Example: gen-vpn-mail-secrets prandtl sempriaq"
     exit 1
   fi
   set -x

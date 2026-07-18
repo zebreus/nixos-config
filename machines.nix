@@ -12,15 +12,6 @@ in
   ];
 
   meta.machines = {
-    erms = {
-      name = "erms";
-      address = 1;
-      wireguardPublicKey = publicKeys.erms_wireguard;
-      trusted = true;
-      sshPublicKey = publicKeys.erms;
-      workstation.enable = true;
-      desktop.enable = true;
-    };
     kashenblade = {
       name = "kashenblade";
       address = 2;

@@ -113,11 +113,6 @@
           ];
         in
         {
-          erms = lib.nixosSystem {
-            system = "x86_64-linux";
-            modules = [ ./machines/erms ] ++ commonModules;
-          };
-
           kashenblade = lib.nixosSystem {
             system = "aarch64-linux";
             modules = [ ./machines/kashenblade ] ++ commonModules;
