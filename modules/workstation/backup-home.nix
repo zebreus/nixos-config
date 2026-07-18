@@ -1,27 +1,40 @@
 { config, lib, ... }:
 let
-  common-excludes = [
+  # Excludes anchored to the home directory.
+  home-excludes = [
     # Largest cache dirs
     ".cache"
-    "*/cache2" # firefox
-    "*/Cache"
     ".config/Slack/logs"
     ".config/Code/CachedData"
-    ".container-diff"
-    ".npm/_cacache"
-    # Work related dirs
-    "*/node_modules"
-    "*/bower_components"
-    "*/_build"
-    "*/.tox"
-    "*/venv"
-    "*/.venv"
-    ".local/share/Steam/steamapps"
-    ".local/share/containers"
     ".config/Code/Service Worker/CacheStorage"
-    ".ssh"
+    ".container-diff"
     ".npm"
     ".conda"
+    ".rustup"
+    ".cargo/registry"
+    ".platformio"
+    ".arduino15"
+    "oldcache"
+    # Re-downloadable data
+    ".config/google-chrome/OptGuideOnDeviceModel"
+    ".local/share/kicad/*/3rdparty"
+    ".local/share/Steam/steamapps"
+    ".local/share/containers"
+    ".local/share/Trash"
+    "Downloads/*.iso"
+    ".ssh"
+  ];
+  # Excludes matched by name at any depth. Restic's `*` does not cross `/`
+  # (unlike borg's), so nested cache dirs need bare-name patterns.
+  anywhere-excludes = [
+    "cache2" # firefox
+    "Cache"
+    "node_modules"
+    "bower_components"
+    "_build"
+    ".tox"
+    "venv"
+    ".venv"
   ];
 
   repoName = "lennart_${config.networking.hostName}";
@@ -58,7 +71,9 @@ in
         passwordFile = config.age.secrets.${passwordSecret}.path;
         environmentFile = config.age.secrets.${environmentSecret}.path;
         paths = [ "/home/lennart" ];
-        exclude = map (x: "/home/lennart/" + x) common-excludes;
+        exclude = map (x: "/home/lennart/" + x) home-excludes ++ anywhere-excludes;
+        # Also skip everything marked with CACHEDIR.TAG (cargo target dirs etc).
+        extraBackupArgs = [ "--exclude-caches" ];
         timerConfig = {
           OnCalendar = "*-*-* 00/3:00:00";
           Persistent = true;
