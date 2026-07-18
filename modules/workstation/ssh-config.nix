@@ -18,148 +18,124 @@ in
             enable = true;
             includes = [ config.age.secrets.extra_config.path ];
             enableDefaultConfig = false; # Default values added manually below
-            matchBlocks =
+            # The attribute name is the Host pattern; values use upstream
+            # ssh_config directive names.
+            settings =
               let
                 # SSH entries to add all keys to the agent
                 defaultForAll = {
                   "*" = {
-                    forwardAgent = false;
-                    addKeysToAgent = "yes";
-                    compression = false;
-                    serverAliveInterval = 0;
-                    serverAliveCountMax = 3;
-                    hashKnownHosts = false;
-                    userKnownHostsFile = "~/.ssh/known_hosts";
-                    controlMaster = "no";
-                    controlPath = "~/.ssh/master-%r@%n:%p";
-                    controlPersist = "no";
+                    ForwardAgent = false;
+                    AddKeysToAgent = "yes";
+                    Compression = false;
+                    ServerAliveInterval = 0;
+                    ServerAliveCountMax = 3;
+                    HashKnownHosts = false;
+                    UserKnownHostsFile = "~/.ssh/known_hosts";
+                    ControlMaster = "no";
+                    ControlPath = "~/.ssh/master-%r@%n:%p";
+                    ControlPersist = "no";
                   };
                 };
                 # SSH hosts from antibuilding
                 antibuildingHosts = builtins.listToAttrs (
                   builtins.map
                     (machine: {
-                      inherit (machine) name;
+                      name = "${machine.name} ${machine.fqdn} ${machine.antibuildingIp6}";
                       value = {
-                        port = 22;
-                        user = "root";
-                        hostname = "${machine.fqdn}";
-                        host = ''${machine.name} ${machine.fqdn} ${machine.antibuildingIp6}'';
-                        identityFile = config.age.secrets.lennart_ed25519.path;
+                        Port = 22;
+                        User = "root";
+                        HostName = machine.fqdn;
+                        IdentityFile = config.age.secrets.lennart_ed25519.path;
                       };
                     })
                     accessibleMachines
                 );
                 # SSH hosts from cccda
                 cccDaHosts = {
-                  lounge = {
-                    host = "lounge lounge.cccda.de";
-                    hostname = "lounge.cccda.de";
-                    user = "chaos";
-                    identityFile = config.age.secrets.lennart_ed25519.path;
+                  "lounge lounge.cccda.de" = {
+                    HostName = "lounge.cccda.de";
+                    User = "chaos";
+                    IdentityFile = config.age.secrets.lennart_ed25519.path;
                   };
-                  kitchen = {
-                    host = "kitchen kitchen.cccda.de";
-                    hostname = "kitchen.cccda.de";
-                    user = "chaos";
-                    identityFile = config.age.secrets.lennart_ed25519.path;
+                  "kitchen kitchen.cccda.de" = {
+                    HostName = "kitchen.cccda.de";
+                    User = "chaos";
+                    IdentityFile = config.age.secrets.lennart_ed25519.path;
                   };
-                  workshop = {
-                    host = "workshop workshop.cccda.de";
-                    hostname = "workshop.cccda.de";
-                    user = "chaos";
-                    identityFile = config.age.secrets.lennart_ed25519.path;
+                  "workshop workshop.cccda.de" = {
+                    HostName = "workshop.cccda.de";
+                    User = "chaos";
+                    IdentityFile = config.age.secrets.lennart_ed25519.path;
                   };
-                  door = {
-                    host = "door door.cccda.de";
-                    hostname = "door.cccda.de";
-                    user = "door";
-                    identityFile = config.age.secrets.w17_door_ed25519.path;
+                  "door door.cccda.de" = {
+                    HostName = "door.cccda.de";
+                    User = "door";
+                    IdentityFile = config.age.secrets.w17_door_ed25519.path;
                   };
                 };
                 # Code forges
                 forges = {
-                  githubCom = {
-                    hostname = "github.com";
-                    host = "github.com";
-                    user = "git";
-                    identityFile = config.age.secrets.lennart_ed25519.path;
+                  "github.com" = {
+                    User = "git";
+                    IdentityFile = config.age.secrets.lennart_ed25519.path;
                   };
-                  gitlabCom = {
-                    hostname = "gitlab.com";
-                    host = "gitlab.com";
-                    user = "git";
-                    identityFile = config.age.secrets.lennart_ed25519.path;
+                  "gitlab.com" = {
+                    User = "git";
+                    IdentityFile = config.age.secrets.lennart_ed25519.path;
                   };
-                  aur = {
-                    hostname = "aur.archlinux.org";
-                    host = "aur.archlinux.org";
-                    user = "aur";
-                    identityFile = config.age.secrets.lennart_ed25519.path;
+                  "aur.archlinux.org" = {
+                    User = "aur";
+                    IdentityFile = config.age.secrets.lennart_ed25519.path;
                   };
-                  gnomeGitlab = {
-                    hostname = "ssh.gitlab.gnome.org";
-                    host = "ssh.gitlab.gnome.org gitlab.gnome.org";
-                    user = "git";
-                    identityFile = config.age.secrets.lennart_ed25519.path;
+                  "ssh.gitlab.gnome.org gitlab.gnome.org" = {
+                    HostName = "ssh.gitlab.gnome.org";
+                    User = "git";
+                    IdentityFile = config.age.secrets.lennart_ed25519.path;
                   };
-                  gitea = {
-                    hostname = "gitea.com";
-                    host = "gitea.com";
-                    user = "git";
-                    identityFile = config.age.secrets.lennart_ed25519.path;
+                  "gitea.com" = {
+                    User = "git";
+                    IdentityFile = config.age.secrets.lennart_ed25519.path;
                     # gitea.com (a Go SSH server) only offers an RSA host key, so the
                     # global ssh-ed25519-only hostKeyAlgorithms restriction breaks it.
                     # Re-enable the SHA-2 RSA host key algorithms for this host only.
-                    extraOptions.HostKeyAlgorithms = "ssh-ed25519,rsa-sha2-512,rsa-sha2-256";
+                    HostKeyAlgorithms = "ssh-ed25519,rsa-sha2-512,rsa-sha2-256";
                   };
-                  codeberg = {
-                    hostname = "codeberg.org";
-                    host = "codeberg.org";
-                    user = "git";
-                    identityFile = config.age.secrets.lennart_ed25519.path;
+                  "codeberg.org" = {
+                    User = "git";
+                    IdentityFile = config.age.secrets.lennart_ed25519.path;
                   };
-                  sourceForge = {
-                    hostname = "git.code.sf.net";
-                    host = "git.code.sf.net code.sf.net sourceforge";
-                    user = "zebreus";
-                    identityFile = config.age.secrets.lennart_ed25519.path;
+                  "git.code.sf.net code.sf.net sourceforge" = {
+                    HostName = "git.code.sf.net";
+                    User = "zebreus";
+                    IdentityFile = config.age.secrets.lennart_ed25519.path;
                   };
-                  bitbucket = {
-                    hostname = "bitbucket.org";
-                    host = "bitbucket.org";
-                    user = "git";
-                    identityFile = config.age.secrets.lennart_ed25519.path;
+                  "bitbucket.org" = {
+                    User = "git";
+                    IdentityFile = config.age.secrets.lennart_ed25519.path;
                   };
-                  corebootGerrit = {
-                    hostname = "review.coreboot.org";
-                    host = "review.coreboot.org";
-                    user = "zebreus";
-                    port = 29418;
-                    identityFile = config.age.secrets.lennart_ed25519.path;
+                  "review.coreboot.org" = {
+                    User = "zebreus";
+                    Port = 29418;
+                    IdentityFile = config.age.secrets.lennart_ed25519.path;
                   };
-                  tgc = {
-                    hostname = "git.transgirl.cafe";
-                    host = "git.transgirl.cafe";
-                    user = "git";
-                    identityFile = config.age.secrets.lennart_ed25519.path;
+                  "git.transgirl.cafe" = {
+                    User = "git";
+                    IdentityFile = config.age.secrets.lennart_ed25519.path;
                   };
-                  gitDarmstadtCcc = {
-                    hostname = "git.darmstadt.ccc.de";
-                    host = "git.darmstadt.ccc.de";
-                    user = "git";
-                    identityFile = config.age.secrets.lennart_ed25519.path;
+                  "git.darmstadt.ccc.de" = {
+                    User = "git";
+                    IdentityFile = config.age.secrets.lennart_ed25519.path;
                   };
                 };
                 # Miscellaneous hosts
                 miscHosts = {
                   # Ubuntu VM running on glouble. Contains some stuff that doesn't run on nix.
-                  ubuntuVm = {
-                    hostname = "192.168.135.2";
-                    host = "ubuntu-vm";
-                    user = "root";
-                    proxyJump = "root@glouble";
-                    identityFile = config.age.secrets.lennart_ed25519.path;
+                  "ubuntu-vm" = {
+                    HostName = "192.168.135.2";
+                    User = "root";
+                    ProxyJump = "root@glouble";
+                    IdentityFile = config.age.secrets.lennart_ed25519.path;
                   };
                 };
               in

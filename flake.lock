@@ -3,7 +3,9 @@
     "agenix": {
       "inputs": {
         "darwin": "darwin",
-        "home-manager": "home-manager",
+        "home-manager": [
+          "home-manager"
+        ],
         "nixpkgs": [
           "nixpkgs"
         ],
@@ -336,36 +338,15 @@
     "home-manager": {
       "inputs": {
         "nixpkgs": [
-          "agenix",
           "nixpkgs"
         ]
       },
       "locked": {
-        "lastModified": 1745494811,
-        "narHash": "sha256-YZCh2o9Ua1n9uCvrvi5pRxtuVNml8X2a03qIFfRKpFs=",
-        "owner": "nix-community",
-        "repo": "home-manager",
-        "rev": "abfad3d2958c9e6300a883bd443512c55dfeb1be",
-        "type": "github"
-      },
-      "original": {
-        "owner": "nix-community",
-        "repo": "home-manager",
-        "type": "github"
-      }
-    },
-    "home-manager_2": {
-      "inputs": {
-        "nixpkgs": [
-          "nixpkgs"
-        ]
-      },
-      "locked": {
-        "lastModified": 1772626454,
-        "narHash": "sha256-eiPiNpD7iUZGSY+kW6RKw7P94PytpIrJtpV9cX6+2Xc=",
+        "lastModified": 1784413483,
+        "narHash": "sha256-vlEwQbIOyFrM+gLM5hL4ZKJ7RqfJ+uGx/e+cMN8QdSg=",
         "owner": "zebreus",
         "repo": "home-manager",
-        "rev": "6b1e1b18009d52e9f2fe0a3b922935d067584151",
+        "rev": "b3834a24713a06c93e26f3ea661753a27aca498f",
         "type": "github"
       },
       "original": {
@@ -511,7 +492,7 @@
         "besserestrichliste": "besserestrichliste",
         "disko": "disko",
         "gulasch-site": "gulasch-site",
-        "home-manager": "home-manager_2",
+        "home-manager": "home-manager",
         "lanzaboote": "lanzaboote",
         "n50-camp": "n50-camp",
         "nixos-wallpaper": "nixos-wallpaper",

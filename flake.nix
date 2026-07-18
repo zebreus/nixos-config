@@ -12,6 +12,7 @@
     agenix = {
       url = "github:ryantm/agenix";
       inputs.nixpkgs.follows = "nixpkgs";
+      inputs.home-manager.follows = "home-manager";
     };
     simple-nix-mailserver = {
       url = "gitlab:simple-nixos-mailserver/nixos-mailserver/main";
