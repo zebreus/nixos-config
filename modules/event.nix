@@ -22,9 +22,6 @@ in
       #   file = ../secrets/coturn_static_auth_secret_matrix_config.age;
       #   owner = "matrix-synapse";
       # };
-      # matrix_borg_passphrase = {
-      #   file = ../secrets/matrix_borg_passphrase.age;
-      # };
       himmel_mail_password = {
         file = ../secrets/himmel_mail_password.age;
         mode = "0444";

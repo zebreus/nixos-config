@@ -87,17 +87,6 @@ with import ./public-keys.nix;
   "lennart_prandtl_restic_password.age".publicKeys = [ recovery prandtl lennart ];
   # MARKER_RESTIC_SECRETS
 
-  # Legacy borg backup secrets
-  # The backup servers are decommissioned, but the passphrases are still needed
-  # to read the archived borg repos that were moved to an offline disk.
-  # For now this is keyed to the machine where the backup is initiated from, but it would make more sense to key it to lennart
-  # Generated with `tr -dc A-Za-z0-9 </dev/urandom | head -c 64; echo`
-  "lennart_erms_borg_passphrase.age".publicKeys = [ recovery erms lennart ];
-  "matrix_borg_passphrase.age".publicKeys = [ recovery kashenblade lennart ];
-  "mail_borg_passphrase.age".publicKeys = [ recovery lennart ] ++ mailServers;
-  "lennart_prandtl_borg_passphrase.age".publicKeys = [ recovery prandtl lennart ];
-  # MARKER_BORG_PASSPHRASES
-
   # This is secret because it contains information about the infrastructure of other people
   "extra_config.age".publicKeys = [ recovery ] ++ workstations;
 
