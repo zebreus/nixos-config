@@ -151,14 +151,31 @@ in
         # Anti-spam captcha (ConfirmEdit is loaded via the `extensions` attr).
         wfLoadExtension('ConfirmEdit/QuestyCaptcha');
         $wgCaptchaClass = 'QuestyCaptcha';
+        # The previous question ('Where is the darmfest not happening') was
+        # solved by spambots and is burned — assume it sits in captcha-solver
+        # databases. Rotate these whenever bot registrations resume.
         $wgCaptchaQuestions = [
-            'Where is the darmfest not happening' => 'darmstadt',
+            'Welcher HTTP-Statuscode ist das Motto des Darmfest 2000 (nur die Zahl)' => '307',
+            'Wie viele kostenlose Tickets gab es für das Darmfest 2000 (nur die Zahl)' => '20',
+            'Wie heißt das koffein- und alkoholhaltige Getränk an der Bar des Darmfests' => 'tschunk',
         ];
         $wgCaptchaTriggers['createaccount'] = true;
         $wgCaptchaTriggers['badlogin']      = true;
         $wgCaptchaTriggers['sendemail']     = true;
         $wgCaptchaTriggers['edit']          = false;
+        # Captcha any edit that adds a new external link (the spam always does).
+        $wgCaptchaTriggers['addurl']        = true;
         $wgGroupPermissions['autoconfirmed']['skipcaptcha'] = true;
+
+        # MediaWiki's autoconfirm thresholds default to 0/0, so every freshly
+        # registered account was instantly autoconfirmed — and therefore
+        # skipcaptcha. Require account age AND edits before that trust applies.
+        $wgAutoConfirmAge = 4 * 86400;
+        $wgAutoConfirmCount = 5;
+        # The observed spam pattern is fresh accounts writing SEO backlinks onto
+        # their own user page; reserve user-page editing for autoconfirmed.
+        $wgGroupPermissions['*']['editmyuserpage'] = false;
+        $wgGroupPermissions['autoconfirmed']['editmyuserpage'] = true;
         $wgRateLimits['createaccount']['ip'] = [ 5, 86400 ];
         $wgRateLimits['sendemail']['ip']     = [ 5, 86400 ];
       '';

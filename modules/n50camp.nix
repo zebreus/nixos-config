@@ -402,7 +402,19 @@ in
             $wgCaptchaTriggers['badlogin']      = true;
             $wgCaptchaTriggers['sendemail']     = true;
             $wgCaptchaTriggers['edit']          = false;
+            # Captcha any edit that adds a new external link (spam always does).
+            $wgCaptchaTriggers['addurl']        = true;
             $wgGroupPermissions['autoconfirmed']['skipcaptcha'] = true;
+
+            # MediaWiki's autoconfirm thresholds default to 0/0, so every freshly
+            # registered account would be instantly autoconfirmed — and therefore
+            # skipcaptcha. Require account age AND edits before that trust applies.
+            $wgAutoConfirmAge = 4 * 86400;
+            $wgAutoConfirmCount = 5;
+            # SEO spambots write backlinks onto their own user page right after
+            # registration; reserve user-page editing for autoconfirmed.
+            $wgGroupPermissions['*']['editmyuserpage'] = false;
+            $wgGroupPermissions['autoconfirmed']['editmyuserpage'] = true;
             $wgRateLimits['createaccount']['ip'] = [ 5, 86400 ];
             $wgRateLimits['sendemail']['ip']     = [ 5, 86400 ];
           '';
