@@ -376,7 +376,10 @@ in
           # n50_mediawiki_password secret. Change it after first login.
           passwordFile = secretPaths.mediawiki;
           extraConfig = ''
+            # Anonymous users may edit existing pages but not create new ones.
             $wgGroupPermissions['*']['edit'] = true;
+            $wgGroupPermissions['*']['createpage'] = false;
+            $wgGroupPermissions['*']['createtalk'] = false;
             $wgPasswordSender = 'himmel@n50.lat';
             $wgEmergencyContact = 'himmel@n50.lat';
 
@@ -401,9 +404,14 @@ in
             $wgCaptchaTriggers['createaccount'] = true;
             $wgCaptchaTriggers['badlogin']      = true;
             $wgCaptchaTriggers['sendemail']     = true;
-            $wgCaptchaTriggers['edit']          = false;
-            # Captcha any edit that adds a new external link (spam always does).
+            $wgCaptchaTriggers['edit']          = true;
             $wgCaptchaTriggers['addurl']        = true;
+            # A confirmed email address is the trust signal that lifts the edit
+            # captcha: unconfirmed accounts are captcha'd like anonymous
+            # editors. (Sysops skip captchas by default, so Admin needs no
+            # email.)
+            $wgAutopromote['emailconfirmed'] = APCOND_EMAILCONFIRMED;
+            $wgGroupPermissions['emailconfirmed']['skipcaptcha'] = true;
             $wgGroupPermissions['autoconfirmed']['skipcaptcha'] = true;
 
             # MediaWiki's autoconfirm thresholds default to 0/0, so every freshly
@@ -415,6 +423,21 @@ in
             # registration; reserve user-page editing for autoconfirmed.
             $wgGroupPermissions['*']['editmyuserpage'] = false;
             $wgGroupPermissions['autoconfirmed']['editmyuserpage'] = true;
+
+            # The wiki only sends account-service mail (email confirmation,
+            # password reset); user-to-user email is disabled.
+            $wgEmailAuthentication = true;
+            $wgEnableUserEmail = false;
+
+            # Uploads and page moves are spam/vandalism vectors with no use
+            # for fresh accounts; reserve them for autoconfirmed.
+            $wgGroupPermissions['user']['upload'] = false;
+            $wgGroupPermissions['user']['reupload'] = false;
+            $wgGroupPermissions['user']['move'] = false;
+            $wgGroupPermissions['autoconfirmed']['upload'] = true;
+            $wgGroupPermissions['autoconfirmed']['reupload'] = true;
+            $wgGroupPermissions['autoconfirmed']['move'] = true;
+
             $wgRateLimits['createaccount']['ip'] = [ 5, 86400 ];
             $wgRateLimits['sendemail']['ip']     = [ 5, 86400 ];
           '';
