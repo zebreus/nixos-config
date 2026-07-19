@@ -46,6 +46,7 @@ let
   mergePython = python3.withPackages (ps: with ps; [
     torch
     safetensors
+    numpy
   ]);
 
   convertPython = python3.withPackages (ps: with ps; [
