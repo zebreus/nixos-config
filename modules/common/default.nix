@@ -15,6 +15,7 @@
     ./node-exporter.nix
     ./openssh.nix
     ./root.nix
+    ./scrape-target.nix
     ./tmp.nix
     ./zsh.nix
   ];

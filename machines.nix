@@ -20,7 +20,6 @@ in
       staticIp6 = "2a01:4f8:c0c:d91f::1";
       sshPublicKey = publicKeys.kashenblade;
       publicPorts = [ 53 ];
-      trustedPorts = [ 9100 ];
       # dn42Peerings = [ "zaphyra" "decade" "stephanj" "tech9_de02" "ellie" "lgcl" "aprl" "echonet" "kioubit_de2" "routedbits_de1" "adhd" "sebastians" "larede01" ];
     };
     # Janeks laptop

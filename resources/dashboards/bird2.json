@@ -24,7 +24,7 @@
       {
         "datasource": {
           "type": "prometheus",
-          "uid": "cdm08gkivnr40e"
+          "uid": "prometheus"
         },
         "fieldConfig": {
           "defaults": {
@@ -122,7 +122,7 @@
           {
             "datasource": {
               "type": "prometheus",
-              "uid": "e68e5107-0b44-4438-870c-019649e85d2b"
+              "uid": "prometheus"
             },
             "editorMode": "code",
             "expr": "irate(wireguard_received_bytes_total{interface!=\"cli\"}[$__rate_interval]) * 8",
@@ -133,7 +133,7 @@
           {
             "datasource": {
               "type": "prometheus",
-              "uid": "e68e5107-0b44-4438-870c-019649e85d2b"
+              "uid": "prometheus"
             },
             "editorMode": "code",
             "expr": "irate(wireguard_sent_bytes_total{interface!=\"cli\"}[$__rate_interval]) * 8",
@@ -150,7 +150,7 @@
       {
         "datasource": {
           "type": "prometheus",
-          "uid": "cdm08gkivnr40e"
+          "uid": "prometheus"
         },
         "fieldConfig": {
           "defaults": {
@@ -255,7 +255,7 @@
           {
             "datasource": {
               "type": "prometheus",
-              "uid": "cdm08gkivnr40e"
+              "uid": "prometheus"
             },
             "disableTextWrap": false,
             "editorMode": "code",
@@ -307,7 +307,7 @@
       {
         "datasource": {
           "type": "prometheus",
-          "uid": "cdm08gkivnr40e"
+          "uid": "prometheus"
         },
         "fieldConfig": {
           "defaults": {
@@ -362,7 +362,7 @@
           {
             "datasource": {
               "type": "prometheus",
-              "uid": "cdm08gkivnr40e"
+              "uid": "prometheus"
             },
             "disableTextWrap": false,
             "editorMode": "code",
@@ -381,7 +381,7 @@
           {
             "datasource": {
               "type": "prometheus",
-              "uid": "cdm08gkivnr40e"
+              "uid": "prometheus"
             },
             "editorMode": "code",
             "exemplar": false,
@@ -396,7 +396,7 @@
           {
             "datasource": {
               "type": "prometheus",
-              "uid": "cdm08gkivnr40e"
+              "uid": "prometheus"
             },
             "editorMode": "code",
             "exemplar": false,
@@ -447,7 +447,7 @@
       {
         "datasource": {
           "type": "prometheus",
-          "uid": "cdm08gkivnr40e"
+          "uid": "prometheus"
         },
         "fieldConfig": {
           "defaults": {
@@ -516,7 +516,7 @@
           {
             "datasource": {
               "type": "prometheus",
-              "uid": "cdm08gkivnr40e"
+              "uid": "prometheus"
             },
             "disableTextWrap": false,
             "editorMode": "code",
@@ -535,7 +535,7 @@
           {
             "datasource": {
               "type": "prometheus",
-              "uid": "cdm08gkivnr40e"
+              "uid": "prometheus"
             },
             "editorMode": "code",
             "exemplar": false,
@@ -550,7 +550,7 @@
           {
             "datasource": {
               "type": "prometheus",
-              "uid": "cdm08gkivnr40e"
+              "uid": "prometheus"
             },
             "editorMode": "code",
             "exemplar": false,

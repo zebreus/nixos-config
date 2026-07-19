@@ -172,6 +172,10 @@ with import ./public-keys.nix;
   "atuin_key.age".publicKeys = [ recovery ] ++ workstations;
   "atuin_session.age".publicKeys = [ recovery ] ++ workstations;
 
+  # Grafana (monitoring host)
+  "grafana_secret_key.age".publicKeys = [ recovery kashenblade ];
+  "grafana_admin_password.age".publicKeys = [ recovery kashenblade ] ++ workstations;
+
   # Event keys
   "engelsystem_database_password.age".publicKeys = [ recovery kashenblade blanderdash sempriaq ];
   "pretix_extra_secrets.age".publicKeys = [ recovery kashenblade blanderdash sempriaq ];

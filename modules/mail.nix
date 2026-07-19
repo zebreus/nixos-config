@@ -8,8 +8,6 @@ let
   name = builtins.replaceStrings [ "." "-" ] [ "_" "_" ] baseDomain;
 
   thisMachine = config.meta.self;
-  # monitoring is exactlyOne; open the exporter only to that single host.
-  grafanaServers = [ config.meta.machines.${config.meta.services.monitoring.host} ];
 
   backupRepo = lib.findFirst (r: r.name == "mail")
     (throw "No backup repo mail in meta.allBackupRepos")
@@ -139,30 +137,11 @@ in
       }
     '';
 
-    # Open firewall port 9100 for traffic from the grafana server
-    networking.firewall.extraInputRules = lib.mkMerge (builtins.map
-      (machine: ''
-        ip6 saddr { ${machine.antibuildingIp6}/128 } tcp dport ${builtins.toString config.services.prometheus.exporters.postfix.port} accept
-      '')
-      # ip6 saddr { ${machine.antibuildingIp6}/128 } tcp dport ${builtins.toString config.services.prometheus.exporters.mail.port} accept
-      grafanaServers);
-    services.prometheus = {
-      # exporters.rspamd = {
-      #   enable = true;
-      #   listenAddress = "[${thisMachine.antibuildingIp6}]";
-      #   port = 9256;
-      # };
-      exporters.postfix = {
-        enable = true;
-        listenAddress = "[${thisMachine.antibuildingIp6}]";
-        port = 9257;
-      };
-      # exporters.mail = {
-      #   enable = true;
-      #   listenAddress = "[${thisMachine.antibuildingIp6}]";
-      #   port = 9258;
-      # };
+    services.prometheus.exporters.postfix = {
+      enable = true;
+      listenAddress = "[${thisMachine.antibuildingIp6}]";
     };
+    monitoring.scrapePorts = [ config.services.prometheus.exporters.postfix.port ];
 
     services.restic.backups = lib.optionalAttrs resticSecretsPresent {
       mail = {
