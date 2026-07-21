@@ -51,9 +51,11 @@ in
         if test "$SIZE_LEFT" -lt "${thisMachine.auto-maintenance.cleanTmpIfThereIsLessSpaceLeft}" ; then
           echo "Cleaning tmp because the disk is full"
           set -x
-          shopt -s dotglob
-          ${pkgs.coreutils}/bin/rm -rf /tmp/*
-          ${pkgs.coreutils}/bin/rm -rf /var/tmp/*
+          # Keep the private tmp dirs of running services (deleting them breaks
+          # their mount namespace until restart) and the X11 socket dirs.
+          ${pkgs.findutils}/bin/find /tmp /var/tmp -mindepth 1 -maxdepth 1 \
+            ! -name 'systemd-private-*' ! -name '.X11-unix' ! -name '.ICE-unix' \
+            -exec ${pkgs.coreutils}/bin/rm -rf {} +
           ${pkgs.systemd}/bin/systemd-tmpfiles --clean
           # nix store gc
           # nix store optimise

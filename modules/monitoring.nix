@@ -140,6 +140,13 @@ in
                   for = "6h";
                 })
                 (mkRule {
+                  uid = "cert-expiry";
+                  title = "Certificate expires soon";
+                  expr = "acme_cert_not_after_timestamp_seconds - time()";
+                  evaluator = { type = "lt"; params = [ 1209600 ]; }; # 14 days
+                  for = "1h";
+                })
+                (mkRule {
                   uid = "tsdb-size";
                   title = "Prometheus TSDB larger than 20GB";
                   expr = "prometheus_tsdb_storage_blocks_bytes";
