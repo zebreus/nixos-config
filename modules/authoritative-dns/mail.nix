@@ -22,10 +22,10 @@ in
       mail._domainkey IN TXT ${quoteTxtEntry "v=DKIM1; k=rsa; s=email; p=${publicKeys.antibuild_ing_dkim}"}
       @ IN MX 30 mail.zebre.us.
       ; Autodiscovery:
-      _submission._tcp IN SRV 0 5 587 mail.zebreu.us.
-      _submissions._tcp IN SRV 0 5 465 mail.zebreu.us.
-      _imap._tcp IN SRV 0 5 143 mail.zebreu.us.
-      _imaps._tcp IN SRV 0 5 993 mail.zebreu.us.
+      _submission._tcp IN SRV 0 5 587 mail.zebre.us.
+      _submissions._tcp IN SRV 0 5 465 mail.zebre.us.
+      _imap._tcp IN SRV 0 5 143 mail.zebre.us.
+      _imaps._tcp IN SRV 0 5 993 mail.zebre.us.
     ''
     +
     (builtins.concatStringsSep "\n" (
@@ -38,10 +38,10 @@ in
           mail._domainkey.${machine.name} TXT ${quoteTxtEntry "v=DKIM1; k=rsa; s=email; p=${publicKeys."${machine.name}_dkim"}"}
           ${machine.name} MX 30 mail.zebre.us.
           ; Autodiscovery
-          _submission._tcp.${machine.name} SRV 0 5 587 mail.zebreu.us.
-          _submissions._tcp.${machine.name} SRV 0 5 465 mail.zebreu.us.
-          _imap._tcp.${machine.name} SRV 0 5 143 mail.zebreu.us.
-          _imaps._tcp.${machine.name} SRV 0 5 993 mail.zebreu.us.
+          _submission._tcp.${machine.name} SRV 0 5 587 mail.zebre.us.
+          _submissions._tcp.${machine.name} SRV 0 5 465 mail.zebre.us.
+          _imap._tcp.${machine.name} SRV 0 5 143 mail.zebre.us.
+          _imaps._tcp.${machine.name} SRV 0 5 993 mail.zebre.us.
         '')
         machinesThatCanReceiveMail));
 
@@ -60,10 +60,10 @@ in
         mail._domainkey IN TXT ${quoteTxtEntry "v=DKIM1; k=rsa; s=email; p=${publicKeys.zebre_us_dkim}"}
         @ IN MX 30 mail.zebre.us.
         ; Autodiscovery:
-        _submission._tcp IN SRV 0 5 587 mail.zebreu.us.
-        _submissions._tcp IN SRV 0 5 465 mail.zebreu.us.
-        _imap._tcp IN SRV 0 5 143 mail.zebreu.us.
-        _imaps._tcp IN SRV 0 5 993 mail.zebreu.us.
+        _submission._tcp IN SRV 0 5 587 mail.zebre.us.
+        _submissions._tcp IN SRV 0 5 465 mail.zebre.us.
+        _imap._tcp IN SRV 0 5 143 mail.zebre.us.
+        _imaps._tcp IN SRV 0 5 993 mail.zebre.us.
       '';
 
     # My old email server lived here. Now it's just a redirect to the new one
@@ -75,10 +75,10 @@ in
       mail._domainkey IN TXT ${quoteTxtEntry "v=DKIM1; k=rsa; s=email; p=${publicKeys.madmanfred_com_dkim}"}
       @ IN MX 30 mail.zebre.us.
       ; Autodiscovery:
-      _submission._tcp IN SRV 0 5 587 mail.zebreu.us.
-      _submissions._tcp IN SRV 0 5 465 mail.zebreu.us.
-      _imap._tcp IN SRV 0 5 143 mail.zebreu.us.
-      _imaps._tcp IN SRV 0 5 993 mail.zebreu.us.
+      _submission._tcp IN SRV 0 5 587 mail.zebre.us.
+      _submissions._tcp IN SRV 0 5 465 mail.zebre.us.
+      _imap._tcp IN SRV 0 5 143 mail.zebre.us.
+      _imaps._tcp IN SRV 0 5 993 mail.zebre.us.
     '';
 
     # An event domain
@@ -90,10 +90,10 @@ in
       mail._domainkey IN TXT ${quoteTxtEntry "v=DKIM1; k=rsa; s=email; p=${publicKeys.darmfest_de_dkim}"}
       @ IN MX 30 mail.zebre.us.
       ; Autodiscovery:
-      _submission._tcp IN SRV 0 5 587 mail.zebreu.us.
-      _submissions._tcp IN SRV 0 5 465 mail.zebreu.us.
-      _imap._tcp IN SRV 0 5 143 mail.zebreu.us.
-      _imaps._tcp IN SRV 0 5 993 mail.zebreu.us.
+      _submission._tcp IN SRV 0 5 587 mail.zebre.us.
+      _submissions._tcp IN SRV 0 5 465 mail.zebre.us.
+      _imap._tcp IN SRV 0 5 143 mail.zebre.us.
+      _imaps._tcp IN SRV 0 5 993 mail.zebre.us.
     '';
   });
 
