@@ -215,14 +215,14 @@ in
     loadModels = [ "qwen3.5:2b" "qwen3.5:9b" "qwen3.6:35b-a3b" ];
   };
 
-  systemd.services = lib.mkMerge [
-    (lib.listToAttrs (map
-      (v: lib.nameValuePair v.unit (mkRegisterService v.model v.modelfile))
-      fediVariants))
-    {
-      ollama-fedi-persona = mkRegisterService "fedi-persona"
-        (builtins.head fediVariants).modelfile;
-      ollama-smollm3 = mkRegisterService "smollm3" smollm3Modelfile;
-    }
-  ];
+  # systemd.services = lib.mkMerge [
+  #   (lib.listToAttrs (map
+  #     (v: lib.nameValuePair v.unit (mkRegisterService v.model v.modelfile))
+  #     fediVariants))
+  #   {
+  #     ollama-fedi-persona = mkRegisterService "fedi-persona"
+  #       (builtins.head fediVariants).modelfile;
+  #     ollama-smollm3 = mkRegisterService "smollm3" smollm3Modelfile;
+  #   }
+  # ];
 }
