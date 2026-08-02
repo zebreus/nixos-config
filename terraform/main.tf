@@ -66,6 +66,33 @@ resource "b2_bucket" "backups" {
   }
 }
 
+# The provisioner key used by this terraform itself (decrypted into the
+# environment by scripts/terraform.nix).
+resource "b2_application_key" "provisioner" {
+  key_name = "terraform-provisioner"
+  capabilities = [
+    "listBuckets",
+    "readBuckets",
+    "writeBuckets",
+    "listFiles",
+    "readFiles",
+    "writeFiles",
+    "listKeys",
+    "writeKeys",
+    "deleteKeys",
+    "readBucketRetentions",
+  ]
+}
+
+output "provisioner_key" {
+  description = "The terraform provisioner key, stored in secrets/terraform_environment.age."
+  sensitive   = true
+  value = {
+    key_id = b2_application_key.provisioner.application_key_id
+    key    = b2_application_key.provisioner.application_key
+  }
+}
+
 # The single append-only key shared by all machines. No deleteFiles capability:
 # it can create and hide files, but cannot delete any file version for good.
 resource "b2_application_key" "append_only" {
