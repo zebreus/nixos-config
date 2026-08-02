@@ -155,6 +155,7 @@ let
     essenJetzt.cardinality = "atMostOne";
     photos.cardinality = "atMostOne";
     homeassistant.cardinality = "atMostOne";
+    chaosdarmstadt.cardinality = "atMostOne";
 
     suckmoreOrg = {
       cardinality = "atMostOne";

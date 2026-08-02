@@ -59,12 +59,14 @@ with import ./public-keys.nix;
 
   "shared_wireguard_psk.age".publicKeys = [ recovery ] ++ allMachines;
 
-  # Restic backup provisioning secrets
-  # The B2 provisioner key (as B2_APPLICATION_KEY_ID/B2_APPLICATION_KEY
-  # environment file) and the OpenTofu state encryption passphrase, both only
-  # used by `nix run .#terraform` on a workstation. The provisioner key was
-  # created once from the master key (see the terraform usage message); it can
-  # create buckets and keys but has no deleteFiles/deleteBuckets, so it cannot
+  # OpenTofu provisioning secrets
+  # An environment file with the B2 provisioner key
+  # (B2_APPLICATION_KEY_ID/B2_APPLICATION_KEY) and the INWX login
+  # (INWX_USERNAME/INWX_PASSWORD, plus INWX_SHARED_SECRET when 2FA is on),
+  # and the OpenTofu state encryption passphrase, both only used by
+  # `nix run .#terraform` on a workstation. The provisioner key was created
+  # once from the master key (see the terraform usage message); it can create
+  # buckets and keys but has no deleteFiles/deleteBuckets, so it cannot
   # destroy backup data.
   "terraform_environment.age".publicKeys = [ recovery lennart ];
   "terraform_state_passphrase.age".publicKeys = [ recovery lennart ];

@@ -1,6 +1,7 @@
 { pkgs }:
-# Runs tofu in terraform/ with the B2 provisioner key and the state
-# passphrase decrypted into the environment. Nothing else — the restic
+# Runs tofu in terraform/ with the credentials from
+# secrets/terraform_environment.age (B2 provisioner key, INWX login) and the
+# state passphrase decrypted into the environment. Nothing else — the restic
 # secrets are managed by sync-restic-secrets.
 with pkgs; writeScriptBin "terraform" ''
   #!${bash}/bin/bash

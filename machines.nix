@@ -151,6 +151,7 @@ in
     rudelshopping.host = "blanderdash";
 
     photos.host = "blanderdash";
+    chaosdarmstadt.host = "blanderdash";
     essenJetzt.host = "blanderdash";
     homeassistant.host = "glouble";
 

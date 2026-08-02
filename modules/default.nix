@@ -10,6 +10,7 @@
     ./auto-maintenance.nix
     ./besserestrichliste.nix
     ./bird-lg.nix
+    ./chaosdarmstadt.nix
     ./essen-jetzt.nix
     ./event.nix
     ./gulasch-sites.nix

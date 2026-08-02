@@ -17,6 +17,10 @@ terraform {
       source  = "Backblaze/b2"
       version = "~> 0.13"
     }
+    inwx = {
+      source  = "inwx/inwx"
+      version = "~> 1.0"
+    }
   }
 
   encryption {

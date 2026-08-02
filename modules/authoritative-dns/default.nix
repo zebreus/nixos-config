@@ -2,6 +2,7 @@
   imports = [
     ./besserestrichliste.nix
     ./bird-lg.nix
+    ./chaosdarmstadt.nix
     ./common.nix
     ./essen-jetzt.nix
     ./event.nix
