@@ -29,6 +29,8 @@ let
     "rudelb.link"
     # Redirects to chaos-darmstadt.de
     "chaosdarmstadt.de"
+    # Tracks the state of FPGA tooling in rust, hosted on github pages
+    "arewefpgayet.rs"
     # Hosts a now defunct and unfinished project for ai generated shirts
     "generated.fashion"
     # Hosts a broken test of a gunjs based blog
