@@ -45,6 +45,24 @@ in
         dev.indexer IN A 157.90.147.232
       '';
 
+      # Tracks the state of FPGA tooling in rust
+      "arewefpgayet.rs" = ''
+        ; github pages
+        _github-pages-challenge-zebreus IN TXT ${quoteTxtEntry "f7d8d52104e96bad66360f3cbeee68"}
+        @	IN A 185.199.108.153
+        @	IN A 185.199.109.153
+        @	IN A 185.199.110.153
+        @	IN A 185.199.111.153
+        @	IN AAAA 2606:50c0:8000::153
+        @	IN AAAA 2606:50c0:8001::153
+        @	IN AAAA 2606:50c0:8002::153
+        @	IN AAAA 2606:50c0:8003::153
+        www IN CNAME zebreus.github.io.
+
+        ; google site verification
+        @ IN TXT ${quoteTxtEntry "google-site-verification=-pavC7RmidA9vwBmeAh0X6ZYT10EOPWFJ_3TC9pXs_c"}
+      '';
+
       # Hosts a badly drawn picture of a unicorn
       "einhorn.jetzt" = ''
         ; github pages
