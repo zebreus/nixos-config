@@ -85,24 +85,23 @@ resource "inwx_domain" "darmfest_de" {
   }
 }
 
-# Still being transferred from Namecheap; import once the transfer completes.
-# resource "inwx_domain" "essen_jetzt" {
-#   name = "essen.jetzt"
-#   nameservers = [
-#     "ns1.antibuild.ing",
-#     "ns2.antibuild.ing",
-#     "ns3.antibuild.ing",
-#   ]
-#
-#   period        = "1Y"
-#   renewal_mode  = "AUTORENEW"
-#   transfer_lock = true
-#
-#   contacts {
-#     registrant = inwx_domain_contact.lennart.id
-#     tech       = inwx_domain_contact.lennart.id
-#   }
-# }
+resource "inwx_domain" "essen_jetzt" {
+  name = "essen.jetzt"
+  nameservers = [
+    "ns1.antibuild.ing",
+    "ns2.antibuild.ing",
+    "ns3.antibuild.ing",
+  ]
+
+  period        = "1Y"
+  renewal_mode  = "AUTORENEW"
+  transfer_lock = true
+
+  contacts {
+    registrant = inwx_domain_contact.lennart.id
+    tech       = inwx_domain_contact.lennart.id
+  }
+}
 
 resource "inwx_domain" "rudelb_link" {
   name = "rudelb.link"
@@ -140,24 +139,23 @@ resource "inwx_domain" "wirs_ing" {
   }
 }
 
-# Still being transferred from Namecheap; import once the transfer completes.
-# resource "inwx_domain" "zebre_us" {
-#   name = "zebre.us"
-#   nameservers = [
-#     "ns1.antibuild.ing",
-#     "ns2.antibuild.ing",
-#     "ns3.antibuild.ing",
-#   ]
-#
-#   period        = "1Y"
-#   renewal_mode  = "AUTORENEW"
-#   transfer_lock = true
-#
-#   contacts {
-#     registrant = inwx_domain_contact.lennart.id
-#     tech       = inwx_domain_contact.lennart.id
-#   }
-# }
+resource "inwx_domain" "zebre_us" {
+  name = "zebre.us"
+  nameservers = [
+    "ns1.antibuild.ing",
+    "ns2.antibuild.ing",
+    "ns3.antibuild.ing",
+  ]
+
+  period        = "1Y"
+  renewal_mode  = "AUTORENEW"
+  transfer_lock = true
+
+  contacts {
+    registrant = inwx_domain_contact.lennart.id
+    tech       = inwx_domain_contact.lennart.id
+  }
+}
 
 # Glue records for the nameservers that live under antibuild.ing itself.
 # The IPs must match kashenblade (ns1), blanderdash (ns2) and sempriaq (ns3)
@@ -198,12 +196,11 @@ resource "inwx_dnssec_key" "darmfest_de" {
   algorithm  = 13
 }
 
-# Still being transferred from Namecheap; uncomment after the import.
-# resource "inwx_dnssec_key" "essen_jetzt" {
-#   domain     = "essen.jetzt"
-#   public_key = "S+nCCDudgsf//kMBcsjL41n3XYHJjztWeyM/3uYB9UouCMTFY3+yC+HdKNhRaqbZOhbF2TmeqtrN8uG6OQCcig=="
-#   algorithm  = 13
-# }
+resource "inwx_dnssec_key" "essen_jetzt" {
+  domain     = "essen.jetzt"
+  public_key = "S+nCCDudgsf//kMBcsjL41n3XYHJjztWeyM/3uYB9UouCMTFY3+yC+HdKNhRaqbZOhbF2TmeqtrN8uG6OQCcig=="
+  algorithm  = 13
+}
 
 resource "inwx_dnssec_key" "rudelb_link" {
   domain     = "rudelb.link"
@@ -217,12 +214,11 @@ resource "inwx_dnssec_key" "wirs_ing" {
   algorithm  = 13
 }
 
-# Still being transferred from Namecheap; uncomment after the import.
-# resource "inwx_dnssec_key" "zebre_us" {
-#   domain     = "zebre.us"
-#   public_key = "OLZUOnog7zegeUT6n+i+mUiNqouspbLcy+6ywAo+7+C1waNzHQ58mY5bRXXoWxe2JBJQe6Edh/y+dr2CWtO9lg=="
-#   algorithm  = 13
-# }
+resource "inwx_dnssec_key" "zebre_us" {
+  domain     = "zebre.us"
+  public_key = "OLZUOnog7zegeUT6n+i+mUiNqouspbLcy+6ywAo+7+C1waNzHQ58mY5bRXXoWxe2JBJQe6Edh/y+dr2CWtO9lg=="
+  algorithm  = 13
+}
 
 # The resources above used to be for_each loops; keep the existing state.
 moved {
