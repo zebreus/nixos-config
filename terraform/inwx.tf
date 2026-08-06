@@ -187,8 +187,11 @@ resource "inwx_dnssec_key" "antibuild_ing" {
   algorithm  = 13
 }
 
-# chaosdarmstadt.de: add its key here once knot serves and signs the zone
-# and the DNSKEY is visible on ns1.
+resource "inwx_dnssec_key" "chaosdarmstadt_de" {
+  domain     = "chaosdarmstadt.de"
+  public_key = "Hp8gfirvYjGsMSmhRKyt2/vHR9EgJiexU5+UR0mC9leWv9u2ScfMc2Cj687x0ikjMLKjICM/2h2w0I5QgpEp0A=="
+  algorithm  = 13
+}
 
 resource "inwx_dnssec_key" "darmfest_de" {
   domain     = "darmfest.de"
