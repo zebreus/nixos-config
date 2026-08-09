@@ -63,13 +63,12 @@ with import ./public-keys.nix;
   # An environment file with the B2 provisioner key
   # (B2_APPLICATION_KEY_ID/B2_APPLICATION_KEY) and the INWX login
   # (INWX_USERNAME/INWX_PASSWORD, plus INWX_SHARED_SECRET when 2FA is on),
-  # and the OpenTofu state encryption passphrase, both only used by
-  # `nix run .#terraform` on a workstation. The provisioner key was created
-  # once from the master key (see the terraform usage message); it can create
-  # buckets and keys but has no deleteFiles/deleteBuckets, so it cannot
-  # destroy backup data.
+  # and the OpenTofu state encryption passphrase (TF_VAR_state_passphrase),
+  # only used by `nix run .#terraform` on a workstation. The provisioner key
+  # was created once from the master key (see the terraform usage message); it
+  # can create buckets and keys but has no deleteFiles/deleteBuckets, so it
+  # cannot destroy backup data.
   "terraform_environment.age".publicKeys = [ recovery lennart ];
-  "terraform_state_passphrase.age".publicKeys = [ recovery lennart ];
 
   # Restic backup secrets
   # All machines share one append-only B2 application key (as an environment

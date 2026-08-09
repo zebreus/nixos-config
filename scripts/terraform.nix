@@ -1,7 +1,7 @@
 { pkgs }:
 # Runs tofu in terraform/ with the credentials from
-# secrets/terraform_environment.age (B2 provisioner key, INWX login) and the
-# state passphrase decrypted into the environment. Nothing else — the restic
+# secrets/terraform_environment.age (B2 provisioner key, INWX login, state
+# passphrase) decrypted into the environment. Nothing else — the restic
 # secrets are managed by sync-restic-secrets.
 with pkgs; writeScriptBin "terraform" ''
   #!${bash}/bin/bash
@@ -14,7 +14,7 @@ with pkgs; writeScriptBin "terraform" ''
     exit 1
   fi
 
-  if [ -z "''${B2_APPLICATION_KEY_ID:-}" ]; then
+  if [ -z "''${B2_APPLICATION_KEY_ID:-}" ] || [ -z "''${TF_VAR_state_passphrase:-}" ]; then
     if [ ! -f secrets/terraform_environment.age ]; then
       echo "Missing secrets/terraform_environment.age (the B2 provisioner key)."
       echo "Bootstrap it once with the master key:"
@@ -26,15 +26,17 @@ with pkgs; writeScriptBin "terraform" ''
     fi
     # Assignment first: unlike a bare eval-of-substitution, a failing
     # decryption aborts the script here (set -e).
-    B2_ENV="$(cd secrets && $AGENIX -d terraform_environment.age)"
+    TF_ENV="$(cd secrets && $AGENIX -d terraform_environment.age)"
     set -a
-    eval "$B2_ENV"
+    eval "$TF_ENV"
     set +a
   fi
 
   if [ -z "''${TF_VAR_state_passphrase:-}" ]; then
-    TF_VAR_state_passphrase="$(cd secrets && $AGENIX -d terraform_state_passphrase.age)"
-    export TF_VAR_state_passphrase
+    echo "TF_VAR_state_passphrase is missing from secrets/terraform_environment.age."
+    echo "Add a 'TF_VAR_state_passphrase=<state passphrase>' line with:"
+    echo "  (cd secrets && $AGENIX -e terraform_environment.age)"
+    exit 1
   fi
 
   exec ${lib.getExe opentofu} -chdir=terraform "$@"

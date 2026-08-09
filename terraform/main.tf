@@ -8,8 +8,8 @@
 # agenix, and `nix run .#sync-restic-secrets` stores the application key and
 # fresh per-repo restic passwords with agenix.
 #
-# The state file is encrypted with the passphrase from
-# secrets/terraform_state_passphrase.age and is committed to git.
+# The state file is encrypted with the TF_VAR_state_passphrase from
+# secrets/terraform_environment.age and is committed to git.
 
 terraform {
   required_providers {
@@ -42,7 +42,7 @@ terraform {
 }
 
 variable "state_passphrase" {
-  description = "Passphrase for the state encryption. Set by the terraform wrapper from secrets/terraform_state_passphrase.age."
+  description = "Passphrase for the state encryption. Set by the terraform wrapper from secrets/terraform_environment.age."
   type        = string
   sensitive   = true
 }
