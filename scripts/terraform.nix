@@ -16,10 +16,10 @@ with pkgs; writeScriptBin "terraform" ''
 
   if [ -z "''${B2_APPLICATION_KEY_ID:-}" ] || [ -z "''${TF_VAR_state_passphrase:-}" ]; then
     if [ ! -f secrets/terraform_environment.age ]; then
-      echo "Missing secrets/terraform_environment.age (the B2 provisioner key)."
+      echo "Missing secrets/terraform_environment.age (the B2 terraform key)."
       echo "Bootstrap it once with the master key:"
       echo "  B2_APPLICATION_KEY_ID=<masterKeyId> B2_APPLICATION_KEY=<masterKey> \\"
-      echo "    b2 key create terraform-provisioner listBuckets,readBuckets,writeBuckets,listFiles,readFiles,writeFiles,listKeys,writeKeys,deleteKeys,readBucketRetentions"
+      echo "    b2 key create terraform listBuckets,readBuckets,writeBuckets,deleteBuckets,readBucketLifecycleRules,writeBucketLifecycleRules,readBucketRetentions,writeBucketRetentions,readBucketEncryption,writeBucketEncryption,listKeys,writeKeys,deleteKeys"
       echo "and store the result with:"
       echo "  printf 'B2_APPLICATION_KEY_ID=%s\nB2_APPLICATION_KEY=%s\n' '<keyId>' '<key>' | (cd secrets && $AGENIX -e terraform_environment.age)"
       exit 1

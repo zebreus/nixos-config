@@ -4,7 +4,7 @@
 # isolation between repos comes from the per-repo restic passwords.
 
 # Credentials come from the B2_APPLICATION_KEY_ID / B2_APPLICATION_KEY
-# environment variables (the provisioner key, from
+# environment variables (the manually-held `terraform` key, from
 # secrets/terraform_environment.age).
 provider "b2" {}
 
@@ -22,36 +22,10 @@ resource "b2_bucket" "backups" {
   }
 }
 
-# The provisioner key used by this terraform itself.
-resource "b2_application_key" "provisioner" {
-  key_name = "terraform-provisioner"
-  capabilities = [
-    "listBuckets",
-    "readBuckets",
-    "writeBuckets",
-    "listFiles",
-    "readFiles",
-    "writeFiles",
-    "listKeys",
-    "writeKeys",
-    "deleteKeys",
-    "readBucketRetentions",
-  ]
-}
-
-output "provisioner_key" {
-  description = "The terraform provisioner key, stored in secrets/terraform_environment.age."
-  sensitive   = true
-  value = {
-    key_id = b2_application_key.provisioner.application_key_id
-    key    = b2_application_key.provisioner.application_key
-  }
-}
-
 # The single append-only key shared by all machines. No deleteFiles capability:
 # it can create and hide files, but cannot delete any file version for good.
 resource "b2_application_key" "append_only" {
-  key_name     = "zebreus-backup-append-only"
+  key_name     = "append-only"
   bucket_ids   = [b2_bucket.backups.bucket_id]
   capabilities = ["listBuckets", "listFiles", "readFiles", "writeFiles"]
 }

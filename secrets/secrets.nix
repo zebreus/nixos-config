@@ -65,10 +65,10 @@ with import ./public-keys.nix;
   # (INWX_USERNAME/INWX_PASSWORD, plus INWX_SHARED_SECRET when 2FA is on),
   # the Hetzner Cloud token (HCLOUD_TOKEN),
   # and the OpenTofu state encryption passphrase (TF_VAR_state_passphrase),
-  # only used by `nix run .#terraform` on a workstation. The provisioner key
-  # was created once from the master key (see the terraform usage message); it
-  # can create buckets and keys but has no deleteFiles/deleteBuckets, so it
-  # cannot destroy backup data.
+  # only used by `nix run .#terraform` on a workstation. The B2 key was
+  # created once (see the terraform usage message) and is not managed by
+  # terraform itself; it has no deleteFiles, so it cannot destroy backup data
+  # (deleting the bucket requires it to be empty).
   "terraform_environment.age".publicKeys = [ recovery lennart ];
 
   # Restic backup secrets
