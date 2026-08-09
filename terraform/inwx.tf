@@ -7,10 +7,6 @@
 # variables (from secrets/terraform_environment.age). If the account has TOTP
 # 2FA enabled, also set INWX_SHARED_SECRET to the base32 TOTP secret there.
 #
-# Domains still being transferred to INWX are imported once their transfer
-# completes, not created:
-#   nix run .#terraform -- import inwx_domain.<name> <domain>
-#
 # Contacts: each registry only supports a subset of the four contact roles
 # (admin-c exists nowhere anymore, billing only for .de), so each domain
 # lists exactly the roles INWX persists for its TLD.
@@ -156,7 +152,6 @@ resource "inwx_domain" "zebre_us" {
 # matching DS records to the registries. The keys never rotate (ksk-lifetime
 # is 0 in the knot policy) and were fetched from the zones themselves:
 #   dig +short DNSKEY <domain> @ns1.antibuild.ing | grep ^257
-# The digests were verified against the DS records already at the registries.
 
 resource "inwx_dnssec_key" "antibuild_ing" {
   domain     = "antibuild.ing"
