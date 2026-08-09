@@ -25,6 +25,43 @@
         "type": "github"
       }
     },
+    "air": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1785575405,
+        "narHash": "sha256-UJrGwV+vQ+P/g+UuBFyi24jRNyeZlk6lY4YrBoNmHHU=",
+        "owner": "phnx-im",
+        "repo": "air",
+        "rev": "f0828d5180bfad85b02c2120e5433758da84fcad",
+        "type": "github"
+      },
+      "original": {
+        "owner": "phnx-im",
+        "repo": "air",
+        "type": "github"
+      }
+    },
+    "air-nix": {
+      "inputs": {
+        "air": "air",
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1785705304,
+        "narHash": "sha256-LESCnbXxM49nN9u7YMDzJySzrN7oltAYUr/UmaveKWI=",
+        "owner": "zebreus",
+        "repo": "air-nix",
+        "rev": "38abca489179d0d3dc846fcfcc629fc93253810c",
+        "type": "github"
+      },
+      "original": {
+        "owner": "zebreus",
+        "repo": "air-nix",
+        "type": "github"
+      }
+    },
     "besserestrichliste": {
       "inputs": {
         "flake-utils": "flake-utils",
@@ -440,6 +477,7 @@
     "root": {
       "inputs": {
         "agenix": "agenix",
+        "air-nix": "air-nix",
         "besserestrichliste": "besserestrichliste",
         "disko": "disko",
         "gulasch-site": "gulasch-site",

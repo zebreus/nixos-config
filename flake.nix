@@ -51,6 +51,10 @@
       url = "github:zebreus/rudelshopping";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    air-nix = {
+      url = "github:zebreus/air-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =
@@ -67,6 +71,7 @@
     , n50-camp
     , gulasch-site
     , rudelshopping
+    , air-nix
     , ...
     }:
     let
@@ -109,6 +114,7 @@
             suckmore-org.nixosModules.default
             gulasch-site.nixosModules.default
             rudelshopping.nixosModules.aarch64-linux.default
+            air-nix.nixosModules.default
             # Make flake inputs available to modules as module arguments.
             { _module.args = { inherit n50-camp; }; }
           ];
@@ -116,11 +122,28 @@
         {
           kashenblade = lib.nixosSystem {
             system = "aarch64-linux";
-            modules = [ ./machines/kashenblade ] ++ commonModules;
+            modules = [
+              ./machines/kashenblade
+              # {
+              #   services.air-server = {
+              #     enable = true;
+              #     domain = "zeb.rs";
+              #     openRegistration = true;
+              #     nginx = {
+              #       # no ACME endpoint inside the test VM
+              #       enableACME = true;
+              #       forceSSL = true;
+              #     };
+              #   };
+              # }
+            ] ++ commonModules;
           };
           blanderdash = lib.nixosSystem {
             system = "aarch64-linux";
-            modules = [ ./machines/blanderdash ] ++ commonModules;
+            modules = [
+              ./machines/blanderdash
+
+            ] ++ commonModules;
           };
           sempriaq = lib.nixosSystem {
             system = "x86_64-linux";
