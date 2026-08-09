@@ -17,17 +17,6 @@
 
 provider "inwx" {}
 
-resource "inwx_domain_contact" "lennart" {
-  type           = "PERSON"
-  name           = "Lennart Eichhorn"
-  street_address = "Strasse 10"
-  city           = "Berlin"
-  postal_code    = 10115
-  country_code   = "DE"
-  phone_number   = "+49.123456789"
-  email          = "lennart.eichhorn+inwx@gmail.com"
-}
-
 resource "inwx_domain" "antibuild_ing" {
   name = "antibuild.ing"
   nameservers = [
@@ -60,8 +49,8 @@ resource "inwx_domain" "chaosdarmstadt_de" {
 
   contacts {
     registrant = inwx_domain_contact.lennart.id
-    tech       = inwx_domain_contact.lennart.id
-    billing    = inwx_domain_contact.lennart.id
+    tech       = inwx_domain_contact.inwx_gmbh.id
+    billing    = inwx_domain_contact.inwx_gmbh.id
   }
 }
 
@@ -150,28 +139,17 @@ resource "inwx_domain" "zebre_us" {
   renewal_mode  = "AUTORENEW"
   transfer_lock = true
 
+  extra_data    = {
+    "US-NEXUS-APPPURPOSE" = "P3"
+    "US-NEXUS-CATEGORY"   = "C31"
+  }
+
   contacts {
+    admin = inwx_domain_contact.lennart.id
+    billing = inwx_domain_contact.inwx_gmbh.id # Has to be inwx gmbh for some reason
     registrant = inwx_domain_contact.lennart.id
     tech       = inwx_domain_contact.lennart.id
   }
-}
-
-# Glue records for the nameservers that live under antibuild.ing itself.
-# The IPs must match kashenblade (ns1), blanderdash (ns2) and sempriaq (ns3)
-# in machines.nix.
-resource "inwx_glue_record" "ns1_antibuild_ing" {
-  hostname = "ns1.antibuild.ing"
-  ip       = ["167.235.154.30", "2a01:4f8:c0c:d91f::1"]
-}
-
-resource "inwx_glue_record" "ns2_antibuild_ing" {
-  hostname = "ns2.antibuild.ing"
-  ip       = ["49.13.8.171", "2a01:4f8:c013:29b1::1"]
-}
-
-resource "inwx_glue_record" "ns3_antibuild_ing" {
-  hostname = "ns3.antibuild.ing"
-  ip       = ["192.227.228.220"]
 }
 
 # The KSKs of the knot-signed zones; publishing them makes INWX submit the
@@ -222,63 +200,50 @@ resource "inwx_dnssec_key" "zebre_us" {
   algorithm  = 13
 }
 
-# The resources above used to be for_each loops; keep the existing state.
-moved {
-  from = inwx_domain.domains["antibuild.ing"]
-  to   = inwx_domain.antibuild_ing
+resource "inwx_domain_contact" "lennart" {
+  type           = "PERSON"
+  name           = "Lennart Eichhorn"
+  street_address = "Strasse 10"
+  city           = "Berlin"
+  postal_code    = 10115
+  country_code   = "DE"
+  phone_number   = "+49.123456789"
+  email          = "lennart.eichhorn+inwx@gmail.com"
 }
 
-moved {
-  from = inwx_domain.domains["chaosdarmstadt.de"]
-  to   = inwx_domain.chaosdarmstadt_de
+resource "inwx_domain_contact" "inwx_gmbh" { 
+  type           = "ROLE"
+  name           = "Hostmaster Of The Day"
+   organization   = "INWX GmbH"
+  street_address = "Prinzessinnenstr. 30"
+  city           = "Berlin"
+  postal_code    = 10969
+  country_code   = "DE"
+  state_province   = "BE"
+  phone_number   = "+49.309832120"
+  email          = "hostmaster@inwx.de"
+  remarks = "role account for Hostmaster of The Day"
+}
+# inwx gmbh entry is predefined with id 1
+import {
+  to = inwx_domain_contact.inwx_gmbh
+  id = "1"
 }
 
-moved {
-  from = inwx_domain.domains["darmfest.de"]
-  to   = inwx_domain.darmfest_de
+# Glue records for the nameservers that live under antibuild.ing itself.
+# The IPs must match kashenblade (ns1), blanderdash (ns2) and sempriaq (ns3)
+# in machines.nix.
+resource "inwx_glue_record" "ns1_antibuild_ing" {
+  hostname = "ns1.antibuild.ing"
+  ip       = ["167.235.154.30", "2a01:4f8:c0c:d91f::1"]
 }
 
-moved {
-  from = inwx_domain.domains["rudelb.link"]
-  to   = inwx_domain.rudelb_link
+resource "inwx_glue_record" "ns2_antibuild_ing" {
+  hostname = "ns2.antibuild.ing"
+  ip       = ["49.13.8.171", "2a01:4f8:c013:29b1::1"]
 }
 
-moved {
-  from = inwx_domain.domains["wirs.ing"]
-  to   = inwx_domain.wirs_ing
-}
-
-moved {
-  from = inwx_glue_record.nameservers["ns1.antibuild.ing"]
-  to   = inwx_glue_record.ns1_antibuild_ing
-}
-
-moved {
-  from = inwx_glue_record.nameservers["ns2.antibuild.ing"]
-  to   = inwx_glue_record.ns2_antibuild_ing
-}
-
-moved {
-  from = inwx_glue_record.nameservers["ns3.antibuild.ing"]
-  to   = inwx_glue_record.ns3_antibuild_ing
-}
-
-moved {
-  from = inwx_dnssec_key.ksk["antibuild.ing"]
-  to   = inwx_dnssec_key.antibuild_ing
-}
-
-moved {
-  from = inwx_dnssec_key.ksk["darmfest.de"]
-  to   = inwx_dnssec_key.darmfest_de
-}
-
-moved {
-  from = inwx_dnssec_key.ksk["rudelb.link"]
-  to   = inwx_dnssec_key.rudelb_link
-}
-
-moved {
-  from = inwx_dnssec_key.ksk["wirs.ing"]
-  to   = inwx_dnssec_key.wirs_ing
+resource "inwx_glue_record" "ns3_antibuild_ing" {
+  hostname = "ns3.antibuild.ing"
+  ip       = ["192.227.228.220"]
 }
