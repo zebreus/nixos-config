@@ -26,24 +26,6 @@ in
         _github-pages-challenge-zebreus IN TXT ${quoteTxtEntry "efa5b694f67911424ba8ab8cd50321"}
       '';
 
-      # I use this domains for hosting random stuff with github pages
-      "skyfeedlol.lol" = ''
-        ; various github pages
-        @	IN A 185.199.108.153
-        @	IN A 185.199.109.153
-        @	IN A 185.199.110.153
-        @	IN A 185.199.111.153
-        @	IN AAAA 2606:50c0:8000::153
-        @	IN AAAA 2606:50c0:8001::153
-        @	IN AAAA 2606:50c0:8002::153
-        @	IN AAAA 2606:50c0:8003::153
-        www IN CNAME zebreus.github.io.
-        _github-pages-challenge-zebreus IN TXT ${quoteTxtEntry "0f60074220ca67788318fee0ceab68"}
-
-        monitoring.indexer IN A 188.34.166.167
-        pgadmin.indexer IN A 188.34.166.167
-        dev.indexer IN A 157.90.147.232
-      '';
 
       # Tracks the state of FPGA tooling in rust
       "arewefpgayet.rs" = ''

@@ -23,8 +23,6 @@ let
     "einhorn.jetzt"
     # Hosts a simplified version of the TU Darmstadt Mensa menu
     "essen.jetzt"
-    # Hosts a dumb joke
-    "skyfeedlol.lol"
     # Hosts rudelblinken stuff
     "rudelb.link"
     # Redirects to chaos-darmstadt.de
