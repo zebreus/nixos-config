@@ -14,6 +14,10 @@ terraform {
       source  = "inwx/inwx"
       version = "~> 1.0"
     }
+    hcloud = {
+      source  = "hetznercloud/hcloud"
+      version = "~> 1.45"
+    }
   }
 
   encryption {
