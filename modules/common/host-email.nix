@@ -1,7 +1,6 @@
 # Email configuration for sending and receiving emails at <hostname>.antibuild.ing
 { config, lib, ... }: {
   age.secrets."${config.networking.hostName}_mail_password" = {
-    file = ../../secrets + "/${config.networking.hostName}_mail_password.age";
     mode = "0444";
   };
 

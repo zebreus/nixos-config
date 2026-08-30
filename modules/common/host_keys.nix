@@ -5,7 +5,7 @@
 
     secrets = {
       ssh_host_key_ed25519 = {
-        file = ../../secrets + "/${config.networking.hostName}_ed25519.age";
+        name = "${config.networking.hostName}_ed25519";
         owner = "root";
         group = "root";
         mode = "0400";
@@ -15,7 +15,7 @@
       };
 
       ssh_host_key_ed25519_pub = {
-        file = ../../secrets + "/${config.networking.hostName}_ed25519_pub.age";
+        name = "${config.networking.hostName}_ed25519_pub";
         owner = "root";
         group = "root";
         mode = "0444";
@@ -24,7 +24,7 @@
       };
 
       ssh_host_key_rsa = {
-        file = ../../secrets + "/${config.networking.hostName}_rsa.age";
+        name = "${config.networking.hostName}_rsa";
         owner = "root";
         group = "root";
         mode = "0400";
@@ -32,7 +32,7 @@
       };
 
       ssh_host_key_rsa_pub = {
-        file = ../../secrets + "/${config.networking.hostName}_rsa_pub.age";
+        name = "${config.networking.hostName}_rsa_pub";
         owner = "root";
         group = "root";
         mode = "0444";

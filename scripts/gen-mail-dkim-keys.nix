@@ -14,14 +14,14 @@ with pkgs; writeScriptBin "gen-mail-dkim-keys" ''
 
   if [ ! -f secrets.nix ]; then
     if [ ! -d secrets ]; then
-      echo "You need to run this script in the directory with the agenix secrets.nix"
+      echo "You need to run this script in the directory with the geheimnix secrets.nix"
       exit 1
     fi
 
     cd secrets
 
     if [ ! -f secrets.nix ]; then
-      echo "You need to run this script in the directory with the agenix secrets.nix2"
+      echo "You need to run this script in the directory with the geheimnix secrets.nix2"
       exit 1
     fi
   fi
@@ -36,8 +36,8 @@ with pkgs; writeScriptBin "gen-mail-dkim-keys" ''
     VPN_MAIL_PUBLIC_KEYS_MARKER="MARKER_VPN_MAIL_DKIM_PUBLIC_KEYS"
 
     PUBLIC_KEY_NAME=''${DOMAIN_NAME}_dkim
-    PRIVATE_KEY_SECRETS_NAME="$PUBLIC_KEY_NAME"_rsa.age
-    PUBLIC_KEY_SECRETS_NAME="$PUBLIC_KEY_NAME"_rsa_pub.age
+    PRIVATE_KEY_SECRETS_NAME="$PUBLIC_KEY_NAME"_rsa
+    PUBLIC_KEY_SECRETS_NAME="$PUBLIC_KEY_NAME"_rsa_pub
 
     PRIVATE_KEY=$(${lib.getExe pkgs.openssl} genrsa 4096)
     PUBLIC_KEY=$(echo "$PRIVATE_KEY" | ${lib.getExe pkgs.openssl} rsa -pubout -outform der | ${lib.getExe pkgs.openssl} base64 -A)
@@ -47,8 +47,8 @@ with pkgs; writeScriptBin "gen-mail-dkim-keys" ''
     ${perl}/bin/perl -pi -e '$_ = q(  "'$PRIVATE_KEY_SECRETS_NAME'".publicKeys = [ recovery ] ++ mailServers ;) . qq(\n) . $_ if /'"$VPN_MAIL_SECRETS_MARKER"'/' secrets.nix
     ${perl}/bin/perl -pi -e '$_ = q(  "'$PUBLIC_KEY_SECRETS_NAME'".publicKeys = [ recovery ] ++ mailServers ;) . qq(\n) . $_ if /'"$VPN_MAIL_SECRETS_MARKER"'/' secrets.nix
 
-    echo "$PRIVATE_KEY" | ${pkgs.agenix}/bin/agenix -e "$PRIVATE_KEY_SECRETS_NAME"
-    echo "$PUBLIC_KEY" | ${pkgs.agenix}/bin/agenix -e "$PUBLIC_KEY_SECRETS_NAME"
+    echo "$PRIVATE_KEY" | ${pkgs.geheimnix}/bin/geheimnix encrypt --force "$PRIVATE_KEY_SECRETS_NAME"
+    echo "$PUBLIC_KEY" | ${pkgs.geheimnix}/bin/geheimnix encrypt --force "$PUBLIC_KEY_SECRETS_NAME"
   }
 
   add_dkim_key

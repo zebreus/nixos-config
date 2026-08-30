@@ -16,14 +16,14 @@ with pkgs; writeScriptBin "gen-vpn-mail-secrets" ''
 
   if [ ! -f secrets.nix ]; then
     if [ ! -d secrets ]; then
-      echo "You need to run this script in the directory with the agenix secrets.nix"
+      echo "You need to run this script in the directory with the geheimnix secrets.nix"
       exit 1
     fi
 
     cd secrets
 
     if [ ! -f secrets.nix ]; then
-      echo "You need to run this script in the directory with the agenix secrets.nix2"
+      echo "You need to run this script in the directory with the geheimnix secrets.nix2"
       exit 1
     fi
   fi
@@ -50,8 +50,8 @@ with pkgs; writeScriptBin "gen-vpn-mail-secrets" ''
     VPN_MAIL_PUBLIC_KEYS_MARKER="MARKER_VPN_MAIL_DKIM_PUBLIC_KEYS"
 
     PUBLIC_KEY_NAME=''${HOST_NAME}_dkim
-    PRIVATE_KEY_SECRETS_NAME="$PUBLIC_KEY_NAME"_rsa.age
-    PUBLIC_KEY_SECRETS_NAME="$PUBLIC_KEY_NAME"_rsa_pub.age
+    PRIVATE_KEY_SECRETS_NAME="$PUBLIC_KEY_NAME"_rsa
+    PUBLIC_KEY_SECRETS_NAME="$PUBLIC_KEY_NAME"_rsa_pub
 
     PRIVATE_KEY=$(${lib.getExe pkgs.openssl} genrsa 4096)
     PUBLIC_KEY=$(echo "$PRIVATE_KEY" | ${lib.getExe pkgs.openssl} rsa -pubout -outform der | ${lib.getExe pkgs.openssl} base64 -A)
@@ -61,15 +61,15 @@ with pkgs; writeScriptBin "gen-vpn-mail-secrets" ''
     ${perl}/bin/perl -pi -e '$_ = q(  "'$PRIVATE_KEY_SECRETS_NAME'".publicKeys = [ recovery ] ++ mailServers;) . qq(\n) . $_ if /'"$VPN_MAIL_SECRETS_MARKER"'/' secrets.nix
     ${perl}/bin/perl -pi -e '$_ = q(  "'$PUBLIC_KEY_SECRETS_NAME'".publicKeys = [ recovery ] ++ mailServers;) . qq(\n) . $_ if /'"$VPN_MAIL_SECRETS_MARKER"'/' secrets.nix
 
-    echo "$PRIVATE_KEY" | ${pkgs.agenix}/bin/agenix -e "$PRIVATE_KEY_SECRETS_NAME"
-    echo "$PUBLIC_KEY" | ${pkgs.agenix}/bin/agenix -e "$PUBLIC_KEY_SECRETS_NAME"
+    echo "$PRIVATE_KEY" | ${pkgs.geheimnix}/bin/geheimnix encrypt --force "$PRIVATE_KEY_SECRETS_NAME"
+    echo "$PUBLIC_KEY" | ${pkgs.geheimnix}/bin/geheimnix encrypt --force "$PUBLIC_KEY_SECRETS_NAME"
   }
 
   function add_login_password {
     VPN_MAIL_SECRETS_MARKER="MARKER_VPN_MAIL_SECRETS"
 
-    PASSWORD_SECRETS_NAME="$HOST_NAME"_mail_password.age
-    PASSWORDHASH_SECRETS_NAME="$HOST_NAME"_mail_passwordhash.age
+    PASSWORD_SECRETS_NAME="$HOST_NAME"_mail_password
+    PASSWORDHASH_SECRETS_NAME="$HOST_NAME"_mail_passwordhash
 
     PASSWORD=$(tr -dc A-Za-z0-9 </dev/urandom | head -c 64)
     PASSWORDHASH=$(${lib.getExe' pkgs.mkpasswd "mkpasswd"} -m bcrypt "$PASSWORD" )
@@ -77,8 +77,8 @@ with pkgs; writeScriptBin "gen-vpn-mail-secrets" ''
     ${perl}/bin/perl -pi -e '$_ = q(  "'$PASSWORD_SECRETS_NAME'".publicKeys = [ recovery '"$HOST_NAME"' ];) . qq(\n) . $_ if /'"$VPN_MAIL_SECRETS_MARKER"'/' secrets.nix
     ${perl}/bin/perl -pi -e '$_ = q(  "'$PASSWORDHASH_SECRETS_NAME'".publicKeys = [ recovery '"$all_decryptors"' ] ++ mailServers;) . qq(\n) . $_ if /'"$VPN_MAIL_SECRETS_MARKER"'/' secrets.nix
 
-    echo "$PASSWORD" | ${pkgs.agenix}/bin/agenix -e "$PASSWORD_SECRETS_NAME"
-    echo "$PASSWORDHASH" | ${pkgs.agenix}/bin/agenix -e "$PASSWORDHASH_SECRETS_NAME"
+    echo "$PASSWORD" | ${pkgs.geheimnix}/bin/geheimnix encrypt --force "$PASSWORD_SECRETS_NAME"
+    echo "$PASSWORDHASH" | ${pkgs.geheimnix}/bin/geheimnix encrypt --force "$PASSWORDHASH_SECRETS_NAME"
   }
 
   add_dkim_key

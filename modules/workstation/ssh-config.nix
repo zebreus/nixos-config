@@ -5,7 +5,6 @@ in
 {
   config = lib.mkIf config.meta.self.workstation.enable {
     age.secrets.extra_config = {
-      file = ../../secrets/extra_config.age;
       owner = "lennart";
       inherit (config.users.users.lennart) group;
     };

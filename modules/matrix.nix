@@ -59,16 +59,14 @@ in
     # Define the files with the secrets
     age.secrets = {
       coturn_static_auth_secret = {
-        file = ../secrets/coturn_static_auth_secret.age;
         owner = "turnserver";
       };
       coturn_static_auth_secret_matrix_config = {
-        file = ../secrets/coturn_static_auth_secret_matrix_config.age;
         owner = "matrix-synapse";
       };
     } // lib.optionalAttrs resticSecretsPresent {
-      matrix_restic_password.file = ../secrets/matrix_restic_password.age;
-      shared_restic_environment.file = ../secrets/shared_restic_environment.age;
+      matrix_restic_password = { };
+      shared_restic_environment = { };
     };
 
     warnings = lib.optional (!resticSecretsPresent)

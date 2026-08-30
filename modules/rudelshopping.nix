@@ -7,7 +7,6 @@ in
 {
   config = lib.mkIf cfg.enable {
     age.secrets.rudelshopping_stripe_key = {
-      file = ../secrets/rudelshopping_stripe_key.age;
       # LoadCredential reads this as root (PID 1) before the service drops
       # privileges, so root-only is fine and most secure.
       mode = "0400";

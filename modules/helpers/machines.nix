@@ -23,14 +23,14 @@ let
           Every repository needs a B2 bucket with an append-only application key
           and a restic password. Run `nix run .#terraform -- apply` to create
           the bucket and the key, then `nix run .#sync-restic-secrets`
-          to store them (and a fresh restic password) with agenix.
+          to store them (and a fresh restic password) with geheimnix.
         '';
       };
       machines = mkOption {
         type = types.listOf types.str;
         default = [ ];
         description = ''
-          Machines (agenix key names) that need to decrypt this repo's restic
+          Machines (geheimnix key names) that need to decrypt this repo's restic
           secrets, besides recovery and lennart. Used by sync-restic-secrets
           to write the secrets.nix rules.
         '';

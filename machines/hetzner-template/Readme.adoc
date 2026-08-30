@@ -7,7 +7,7 @@
 5. Insert the values into the networking.nix file
 6. Run `nix run github:nix-community/nixos-anywhere -- --build-on-remote --flake .#NEW_NAME root@INSERT_IPV4_ADDRESS`
 7. Generate keys. `nix run .#gen-host-keys NEW_NAME` `nix run .#gen-wireguard-keys NEW_NAME` `gen-vpn-mail-secrets NEW_NAME sempriaq`
-8. Add the new host to the recipients of shared_wireguard_psk in secrets.nix. The reencrypt the shared_wireguard_psk. `sudo EDITOR=nano agenix -e shared_wireguard_psk.age -i /etc/ssh/ssh_host_ed25519_key` make a change and undo it again. This will reencrypt the file.
+8. Add the new host to the recipients of shared_wireguard_psk in secrets.nix. Then reencrypt the shared_wireguard_psk: `sudo geheimnix -i /etc/ssh/ssh_host_ed25519_key rekey shared_wireguard_psk`.
 9. Copy the generated private key to the machine for bootstrapping the secrets: `scp ~/.ssh/blanderdash_ed25519 root@49.13.8.171:/etc/ssh/ssh_host_ed25519_key`
 10. Remove the old host identification from ssh known_hosts on your machine.
 11. Copy the hetzner-template machine entry in flake.nix and rename it to the new name. Assign a new address in there. Uncomment the modules in the nixosConfigurations section of the new host.

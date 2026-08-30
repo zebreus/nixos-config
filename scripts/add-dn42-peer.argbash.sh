@@ -21,14 +21,14 @@ function generateKeys {
 
     if [ ! -f secrets.nix ]; then
         if [ ! -d secrets ]; then
-            echo "You need to run this script in the directory with the agenix secrets.nix"
+            echo "You need to run this script in the directory with the geheimnix secrets.nix"
             exit 1
         fi
 
         cd secrets
 
         if [ ! -f secrets.nix ]; then
-            echo "You need to run this script in the directory with the agenix secrets.nix2"
+            echo "You need to run this script in the directory with the geheimnix secrets.nix2"
             exit 1
         fi
     fi
@@ -42,9 +42,9 @@ function generateKeys {
     PUBLIC_KEY=$(echo $PRIVATE_KEY | wg pubkey)
 
     perl -pi -e '$_ = q(  '$PEERING_NAME'_dn42 = "'"$PUBLIC_KEY"'";) . qq(\n) . $_ if /MARKER_WIREGUARD_DN42_PUBLIC_KEYS/' public-keys.nix
-    perl -pi -e '$_ = q(  "'$PEERING_NAME'_dn42.age".publicKeys = [ recovery kashenblade blanderdash sempriaq ];) . qq(\n) . $_ if /MARKER_WIREGUARD_DN42_KEYS/' secrets.nix
+    perl -pi -e '$_ = q(  "'$PEERING_NAME'_dn42".publicKeys = [ recovery kashenblade blanderdash sempriaq ];) . qq(\n) . $_ if /MARKER_WIREGUARD_DN42_KEYS/' secrets.nix
 
-    echo $PRIVATE_KEY | agenix -e "${PEERING_NAME}_dn42.age"
+    echo $PRIVATE_KEY | geheimnix encrypt --force "${PEERING_NAME}_dn42"
 
     echo "Public key: $PUBLIC_KEY"
     echo "Successfully generated wireguard keys for ${PEERING_NAME}"

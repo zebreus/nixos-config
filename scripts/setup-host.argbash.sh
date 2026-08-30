@@ -29,7 +29,7 @@ function generateSecrets {
         set +x
 
         echo Reeencrypting the secrets
-        sudo EDITOR=: agenix -e shared_wireguard_psk.age -i /etc/ssh/ssh_host_ed25519_key
+        sudo geheimnix -i /etc/ssh/ssh_host_ed25519_key rekey shared_wireguard_psk
         git add .
 
         if [ "$_arg_workstation" == "on" ]; then
@@ -39,7 +39,7 @@ function generateSecrets {
             echo "Adding backup secrets for the workstation"
             # The new machine was added to allMachines, so the shared
             # append-only B2 key needs to be re-encrypted for it.
-            EDITOR=: agenix -e shared_restic_environment.age
+            geheimnix rekey shared_restic_environment
             # Creates the restic password for the new lennart_<host> repo.
             (cd .. && nix run .#sync-restic-secrets)
         fi

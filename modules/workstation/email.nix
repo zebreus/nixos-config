@@ -2,43 +2,36 @@
   config = lib.mkIf config.meta.self.workstation.enable {
     age.secrets = {
       lennart_mail_password = {
-        file = ../../secrets/lennart_mail_password.age;
         owner = "lennart";
         inherit (config.users.users.lennart) group;
         mode = "0400";
       };
       himmel_mail_password = {
-        file = ../../secrets/himmel_mail_password.age;
         owner = "lennart";
         inherit (config.users.users.lennart) group;
         mode = "0400";
       };
       n50_himmel_mail_password = {
-        file = ../../secrets/n50_himmel_mail_password.age;
         owner = "lennart";
         inherit (config.users.users.lennart) group;
         mode = "0400";
       };
       n50_camp_mail_password = {
-        file = ../../secrets/n50_camp_mail_password.age;
         owner = "lennart";
         inherit (config.users.users.lennart) group;
         mode = "0400";
       };
       n50_zebreus_mail_password = {
-        file = ../../secrets/n50_zebreus_mail_password.age;
         owner = "lennart";
         inherit (config.users.users.lennart) group;
         mode = "0400";
       };
       gmail_password = {
-        file = ../../secrets/gmail_password.age;
         owner = "lennart";
         inherit (config.users.users.lennart) group;
         mode = "0400";
       };
       gmail_oauth2_token = {
-        file = ../../secrets/gmail_oauth2_token.age;
         owner = "lennart";
         inherit (config.users.users.lennart) group;
         mode = "0400";

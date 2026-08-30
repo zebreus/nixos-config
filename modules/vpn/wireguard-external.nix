@@ -11,19 +11,17 @@ in
     age =
       if config.antibuilding.customWireguardPrivateKeyFile == null then {
         secrets.wireguard_private_key = {
-          file = ../../secrets + "/${config.networking.hostName}_wireguard.age";
+          name = "${config.networking.hostName}_wireguard";
           owner = "systemd-network";
           group = "systemd-network";
         };
         secrets.shared_wireguard_psk = {
-          file = ../../secrets/shared_wireguard_psk.age;
           owner = "systemd-network";
           group = "systemd-network";
           mode = "0444";
         };
       } else {
         secrets.shared_wireguard_psk = {
-          file = ../../secrets/shared_wireguard_psk.age;
           owner = "systemd-network";
           group = "systemd-network";
           mode = "0444";

@@ -20,40 +20,34 @@ in
   config = mkIf cfg.enable {
     age.secrets = {
       lennart_mail_passwordhash = {
-        file = ../secrets/lennart_mail_passwordhash.age;
         mode = "0444";
       };
       himmel_mail_passwordhash = {
-        file = ../secrets/himmel_mail_passwordhash.age;
         mode = "0444";
       };
       "${name}_dkim_rsa" = {
-        file = ../secrets + "/${name}_dkim_rsa.age";
         owner = config.services.rspamd.user;
         inherit (config.services.rspamd) group;
         path = "${config.mailserver.dkim.keyDirectory}/${domain}.mail.key";
       };
       "madmanfred_com_dkim_rsa" = {
-        file = ../secrets + "/madmanfred_com_dkim_rsa.age";
         owner = config.services.rspamd.user;
         inherit (config.services.rspamd) group;
         path = "${config.mailserver.dkim.keyDirectory}/madmanfred.com.mail.key";
       };
       "antibuild_ing_dkim_rsa" = {
-        file = ../secrets + "/antibuild_ing_dkim_rsa.age";
         owner = config.services.rspamd.user;
         inherit (config.services.rspamd) group;
         path = "${config.mailserver.dkim.keyDirectory}/antibuild.ing.mail.key";
       };
       "darmfest_de_dkim_rsa" = {
-        file = ../secrets + "/darmfest_de_dkim_rsa.age";
         owner = config.services.rspamd.user;
         inherit (config.services.rspamd) group;
         path = "${config.mailserver.dkim.keyDirectory}/darmfest.de.mail.key";
       };
     } // lib.optionalAttrs resticSecretsPresent {
-      mail_restic_password.file = ../secrets/mail_restic_password.age;
-      shared_restic_environment.file = ../secrets/shared_restic_environment.age;
+      mail_restic_password = { };
+      shared_restic_environment = { };
     };
 
     warnings = lib.optional (!resticSecretsPresent)
@@ -239,11 +233,8 @@ in
               in
               rec {
                 secrets = {
-                  "${name}_mail_passwordhash" = {
-                    file = ../secrets + "/${name}_mail_passwordhash.age";
-                  };
+                  "${name}_mail_passwordhash" = { };
                   "${name}_dkim_rsa" = {
-                    file = ../secrets + "/${name}_dkim_rsa.age";
                     owner = config.services.rspamd.user;
                     inherit (config.services.rspamd) group;
                     path = "${config.mailserver.dkim.keyDirectory}/${domain}.mail.key";

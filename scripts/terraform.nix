@@ -7,7 +7,7 @@ with pkgs; writeScriptBin "terraform" ''
   #!${bash}/bin/bash
   set -e
 
-  AGENIX=${pkgs.agenix}/bin/agenix
+  GEHEIMNIX=${pkgs.geheimnix}/bin/geheimnix
 
   if [ ! -f flake.nix ] || [ ! -d terraform ]; then
     echo "Run this from the root of the nixos-config repository"
@@ -21,12 +21,12 @@ with pkgs; writeScriptBin "terraform" ''
       echo "  B2_APPLICATION_KEY_ID=<masterKeyId> B2_APPLICATION_KEY=<masterKey> \\"
       echo "    b2 key create terraform listBuckets,readBuckets,writeBuckets,deleteBuckets,readBucketLifecycleRules,writeBucketLifecycleRules,readBucketRetentions,writeBucketRetentions,readBucketEncryption,writeBucketEncryption,listKeys,writeKeys,deleteKeys"
       echo "and store the result with:"
-      echo "  printf 'B2_APPLICATION_KEY_ID=%s\nB2_APPLICATION_KEY=%s\n' '<keyId>' '<key>' | (cd secrets && $AGENIX -e terraform_environment.age)"
+      echo "  printf 'B2_APPLICATION_KEY_ID=%s\nB2_APPLICATION_KEY=%s\n' '<keyId>' '<key>' | (cd secrets && $GEHEIMNIX encrypt --force terraform_environment)"
       exit 1
     fi
     # Assignment first: unlike a bare eval-of-substitution, a failing
     # decryption aborts the script here (set -e).
-    TF_ENV="$(cd secrets && $AGENIX -d terraform_environment.age)"
+    TF_ENV="$(cd secrets && $GEHEIMNIX decrypt terraform_environment)"
     set -a
     eval "$TF_ENV"
     set +a
@@ -35,7 +35,7 @@ with pkgs; writeScriptBin "terraform" ''
   if [ -z "''${TF_VAR_state_passphrase:-}" ]; then
     echo "TF_VAR_state_passphrase is missing from secrets/terraform_environment.age."
     echo "Add a 'TF_VAR_state_passphrase=<state passphrase>' line with:"
-    echo "  (cd secrets && $AGENIX -e terraform_environment.age)"
+    echo "  (cd secrets && $GEHEIMNIX edit terraform_environment)"
     exit 1
   fi
 

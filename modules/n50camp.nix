@@ -56,7 +56,7 @@ let
   # which serves the main site on the primary base domain's apex.
   websitePort = 28011;
 
-  # The agenix secrets are decrypted on the host and bind-mounted (read-only)
+  # The geheimnix secrets are decrypted on the host and bind-mounted (read-only)
   # into the container at the very same paths, so the service config inside the
   # container can reference them transparently.
   secretPaths = {
@@ -108,32 +108,27 @@ in
       # engelsystem and mediawiki for SMTP. pretalx uses the same account but
       # gets its password via the PRETALX_MAIL_PASSWORD env file below.
       n50_himmel_mail_password = {
-        file = ../secrets/n50_himmel_mail_password.age;
         mode = "0444";
       };
       # Holds pretalx's secret env vars using the PRETALX_<SECTION>_<KEY>
       # pattern, e.g. PRETALX_MAIL_PASSWORD=...  Create/edit it with
-      # `agenix -e n50_pretalx_extra_secrets.age`.
+      # `geheimnix edit n50_pretalx_extra_secrets`.
       n50_pretalx_extra_secrets = {
-        file = ../secrets/n50_pretalx_extra_secrets.age;
         mode = "0444";
       };
       # Env file holding PRETALX_ADMIN_PASSWORD for the pretalx admin account
       # (see the pretalx-create-admin service in the container). Only read by
       # systemd (as root) via EnvironmentFile, so it stays 0400.
       n50_pretalx_admin_password = {
-        file = ../secrets/n50_pretalx_admin_password.age;
         mode = "0400";
       };
       n50_mediawiki_password = {
-        file = ../secrets/n50_mediawiki_password.age;
         mode = "0444";
       };
       # CMS admin password (raw, no newline) for the n50-camp site's /admin
       # area. Bind-mounted into the container and read by the service's
       # systemd credential loader.
       n50_camp_admin_password = {
-        file = ../secrets/n50_camp_admin_password.age;
         mode = "0444";
       };
       # Default OpenRouter API key (raw, no newline) for the n50-camp editor's
@@ -141,7 +136,6 @@ in
       # systemd credential loader (openrouterKeyFile), exactly like the admin
       # password. Admins can still override it with their own key in-browser.
       n50_camp_openrouter_key = {
-        file = ../secrets/n50_camp_openrouter_key.age;
         mode = "0444";
       };
     };
@@ -206,7 +200,7 @@ in
           enable = true;
           host = "::1";
           port = websitePort;
-          # The admin password comes from the agenix secret that's decrypted
+          # The admin password comes from the geheimnix secret that's decrypted
           # on the host and bind-mounted into the container at the same path.
           # Without it the /admin area fails closed (404).
           adminPasswordFile = secretPaths.n50CampAdmin;
@@ -305,7 +299,7 @@ in
         # rotated by editing the secret). Unlike `init`, this never creates an
         # organiser and is safe to re-run, so no marker guard is needed.
         #
-        # Email comes from environment; the password from the bind-mounted agenix
+        # Email comes from environment; the password from the bind-mounted geheimnix
         # secret as an EnvironmentFile (PRETALX_ADMIN_PASSWORD=...). It MUST run
         # as the pretalx user: the `pretalx-manage` wrapper drops privileges with
         # `sudo --preserve-env=PRETALX_CONFIG_FILE`, which would strip these vars

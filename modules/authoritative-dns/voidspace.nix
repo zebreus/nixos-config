@@ -21,7 +21,6 @@ in
   config = lib.mkMerge [
     (lib.mkIf thisServer.dns.primary {
       age.secrets.dns_voidspace_antibuilding_tsig_key = {
-        file = ../../secrets/dns_voidspace_antibuilding_tsig_key.age;
         owner = "knot";
         group = "knot";
         mode = "0400";

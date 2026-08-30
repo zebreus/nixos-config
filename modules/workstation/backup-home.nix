@@ -60,8 +60,8 @@ in
       "Home backups on ${config.networking.hostName} are disabled because the restic secrets are missing. Run `nix run .#terraform -- apply && nix run .#sync-restic-secrets` and rebuild.";
 
     age.secrets = lib.optionalAttrs secretsPresent {
-      ${passwordSecret}.file = ../../secrets + "/${passwordSecret}.age";
-      ${environmentSecret}.file = ../../secrets + "/${environmentSecret}.age";
+      ${passwordSecret} = { };
+      ${environmentSecret} = { };
     };
 
     services.restic.backups = lib.optionalAttrs secretsPresent {

@@ -4,9 +4,7 @@ let
 in
 {
   config = lib.mkIf config.meta.self.workstation.enable {
-    age.secrets.lennart_login_passwordhash = {
-      file = ../../secrets/lennart_login_passwordhash.age;
-    };
+    age.secrets.lennart_login_passwordhash = { };
 
     users = {
       mutableUsers = true;
@@ -23,7 +21,7 @@ in
       };
     };
 
-    # I have some weird permission errors in the user home directory with nixos-anywhere and agenix.
+    # I have some weird permission errors in the user home directory with nixos-anywhere and geheimnix.
     # I am to lazy to think of a proper solution, so this should work for now.
     system.activationScripts = {
       "fix-permissions" = ''

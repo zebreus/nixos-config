@@ -14,14 +14,14 @@ with pkgs; writeScriptBin "gen-mail-account" ''
 
   if [ ! -f secrets.nix ]; then
     if [ ! -d secrets ]; then
-      echo "You need to run this script in the directory with the agenix secrets.nix"
+      echo "You need to run this script in the directory with the geheimnix secrets.nix"
       exit 1
     fi
 
     cd secrets
 
     if [ ! -f secrets.nix ]; then
-      echo "You need to run this script in the directory with the agenix secrets.nix2"
+      echo "You need to run this script in the directory with the geheimnix secrets.nix2"
       exit 1
     fi
   fi
@@ -40,8 +40,8 @@ with pkgs; writeScriptBin "gen-mail-account" ''
   function add_login_password {
     VPN_MAIL_SECRETS_MARKER="MARKER_VPN_MAIL_SECRETS"
 
-    PASSWORD_SECRETS_NAME="$USERNAME"_mail_password.age
-    PASSWORDHASH_SECRETS_NAME="$USERNAME"_mail_passwordhash.age
+    PASSWORD_SECRETS_NAME="$USERNAME"_mail_password
+    PASSWORDHASH_SECRETS_NAME="$USERNAME"_mail_passwordhash
 
     PASSWORD=$(tr -dc A-Za-z0-9 </dev/urandom | head -c 64)
     PASSWORDHASH=$(${lib.getExe' pkgs.mkpasswd "mkpasswd"} -m bcrypt "$PASSWORD" )
@@ -49,8 +49,8 @@ with pkgs; writeScriptBin "gen-mail-account" ''
     ${perl}/bin/perl -pi -e '$_ = q(  "'$PASSWORD_SECRETS_NAME'".publicKeys = [ recovery blanderdash kashenblade ];) . qq(\n) . $_ if /'"$VPN_MAIL_SECRETS_MARKER"'/' secrets.nix
     ${perl}/bin/perl -pi -e '$_ = q(  "'$PASSWORDHASH_SECRETS_NAME'".publicKeys = [ recovery ] ++ mailServers;) . qq(\n) . $_ if /'"$VPN_MAIL_SECRETS_MARKER"'/' secrets.nix
 
-    echo "$PASSWORD" | ${pkgs.agenix}/bin/agenix -e "$PASSWORD_SECRETS_NAME"
-    echo "$PASSWORDHASH" | ${pkgs.agenix}/bin/agenix -e "$PASSWORDHASH_SECRETS_NAME"
+    echo "$PASSWORD" | ${pkgs.geheimnix}/bin/geheimnix encrypt --force "$PASSWORD_SECRETS_NAME"
+    echo "$PASSWORDHASH" | ${pkgs.geheimnix}/bin/geheimnix encrypt --force "$PASSWORDHASH_SECRETS_NAME"
   }
 
   add_login_password

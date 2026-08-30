@@ -49,11 +49,9 @@ in
   config = lib.mkIf thisMachine.monitoring.enable {
     age.secrets = {
       grafana_secret_key = {
-        file = ../secrets/grafana_secret_key.age;
         owner = "grafana";
       };
       grafana_admin_password = {
-        file = ../secrets/grafana_admin_password.age;
         owner = "grafana";
       };
     };

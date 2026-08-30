@@ -10,14 +10,14 @@ with pkgs; writeScriptBin "add-workstation" ''
 
   if [ ! -f secrets.nix ]; then
     if [ ! -d secrets ]; then
-      echo "You need to run this script in the directory with the agenix secrets.nix"
+      echo "You need to run this script in the directory with the geheimnix secrets.nix"
       exit 1
     fi
 
     cd secrets
 
     if [ ! -f secrets.nix ]; then
-      echo "You need to run this script in the directory with the agenix secrets.nix2"
+      echo "You need to run this script in the directory with the geheimnix secrets.nix2"
       exit 1
     fi
   fi
@@ -42,7 +42,7 @@ with pkgs; writeScriptBin "add-workstation" ''
   readarray -t workstation_secrets < <(grep '++ workstation' secrets.nix | grep -Po '"[^"]+"' | grep -Po '[^"]+')
   for secret_file in "''${workstation_secrets[@]}" ; do
     echo "Renecrypting $secret_file"
-    sudo EDITOR=: agenix -i /etc/ssh/ssh_host_ed25519_key -e "$secret_file"
+    sudo geheimnix -i /etc/ssh/ssh_host_ed25519_key rekey "$secret_file"
   done
 
 ''

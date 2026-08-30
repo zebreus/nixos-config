@@ -29,7 +29,7 @@
       ffmpeg
       nil
       imagemagick
-      agenix
+      geheimnix
       age
       mtr
       opencode

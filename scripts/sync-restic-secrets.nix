@@ -1,5 +1,5 @@
 { pkgs }:
-# Stores the provisioned restic secrets with agenix: the shared append-only
+# Stores the provisioned restic secrets with geheimnix: the shared append-only
 # B2 key (from the tofu output, via terraform) and a fresh restic password
 # for every repo in meta.allBackupRepos that does not have one yet.
 with pkgs;
@@ -10,7 +10,7 @@ writeScriptBin "sync-restic-secrets" ''
   #!${bash}/bin/bash
   set -e
 
-  AGENIX=${pkgs.agenix}/bin/agenix
+  GEHEIMNIX=${pkgs.geheimnix}/bin/geheimnix
   JQ=${lib.getExe jq}
 
   if [ ! -f flake.nix ] || [ ! -d terraform ]; then
@@ -34,21 +34,21 @@ writeScriptBin "sync-restic-secrets" ''
 
   if [ ! -f shared_restic_environment.age ]; then
     echo "Storing the append-only B2 application key"
-    printf 'AWS_ACCESS_KEY_ID=%s\nAWS_SECRET_ACCESS_KEY=%s\n' "$KEY_ID" "$KEY_SECRET" | $AGENIX -e shared_restic_environment.age
+    printf 'AWS_ACCESS_KEY_ID=%s\nAWS_SECRET_ACCESS_KEY=%s\n' "$KEY_ID" "$KEY_SECRET" | $GEHEIMNIX encrypt shared_restic_environment
   fi
 
   for NAME in $($JQ -r '.[].name' <<<"$REPOS_JSON"); do
-    PASSWORD_FILE="$NAME"_restic_password.age
-    if [ -f "$PASSWORD_FILE" ]; then
+    PASSWORD_NAME="$NAME"_restic_password
+    if [ -f "$PASSWORD_NAME".age ]; then
       echo "Restic password for $NAME already exists, skipping"
       continue
     fi
     DECRYPTORS=$($JQ -r --arg name "$NAME" '.[] | select(.name == $name) | .machines + ["lennart"] | join(" ")' <<<"$REPOS_JSON")
-    if ! grep -F "\"$PASSWORD_FILE\"" secrets.nix >/dev/null; then
-      ${perl}/bin/perl -pi -e '$_ = q(  "'$PASSWORD_FILE'".publicKeys = [ recovery '"$DECRYPTORS"' ];) . qq(\n) . $_ if /'MARKER_RESTIC_SECRETS'/' secrets.nix
+    if ! grep -F "\"$PASSWORD_NAME\"" secrets.nix >/dev/null; then
+      ${perl}/bin/perl -pi -e '$_ = q(  "'$PASSWORD_NAME'".publicKeys = [ recovery '"$DECRYPTORS"' ];) . qq(\n) . $_ if /'MARKER_RESTIC_SECRETS'/' secrets.nix
     fi
     echo "Generating a restic password for $NAME"
-    tr -dc A-Za-z0-9 </dev/urandom | head -c 64 | $AGENIX -e "$PASSWORD_FILE"
+    tr -dc A-Za-z0-9 </dev/urandom | head -c 64 | $GEHEIMNIX encrypt "$PASSWORD_NAME"
   done
 
   echo "Done. Remember to 'git add' the new .age files and secrets.nix"

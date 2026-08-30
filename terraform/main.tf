@@ -1,5 +1,5 @@
 # Do not run tofu directly — use `nix run .#terraform -- <plan|apply|...>`;
-# the wrapper decrypts the credentials and state passphrase from agenix.
+# the wrapper decrypts the credentials and state passphrase from geheimnix.
 #
 # The state file is encrypted with the TF_VAR_state_passphrase from
 # secrets/terraform_environment.age and is committed to git.

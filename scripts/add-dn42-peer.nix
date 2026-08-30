@@ -14,7 +14,7 @@ rec {
     openssh
     git
     coreutils
-    agenix
+    geheimnix
     wireguard-tools
   ];
 
@@ -28,7 +28,7 @@ rec {
     mkdir -p $out/bin
     cp ${pname}.sh $out/bin/${pname}
     chmod a+x $out/bin/${pname}
-    wrapProgram "$out/bin/${pname}" --prefix PATH : ${lib.makeBinPath [gnused perl openssh git wireguard-tools agenix coreutils]}
+    wrapProgram "$out/bin/${pname}" --prefix PATH : ${lib.makeBinPath [gnused perl openssh git wireguard-tools geheimnix coreutils]}
   '';
 
   meta.mainProgram = "${pname}";

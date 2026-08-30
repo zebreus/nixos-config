@@ -46,7 +46,6 @@ in
   config = lib.mkIf thisServer.dns.enable
     {
       age.secrets.knot_transport_key = {
-        file = ../../secrets/knot_transport_key.age;
         owner = "knot";
         group = "knot";
         mode = "0400";

@@ -9,8 +9,8 @@
       url = "github:zebreus/disko/inode-options-for-bcachefs-subvolumes";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    agenix = {
-      url = "github:ryantm/agenix";
+    geheimnix = {
+      url = "github:zebreus/geheimnix";
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.home-manager.follows = "home-manager";
     };
@@ -61,7 +61,7 @@
     { nixpkgs
     , home-manager
     , disko
-    , agenix
+    , geheimnix
     , simple-nix-mailserver
     , nixos-wallpaper
     , besserestrichliste
@@ -79,7 +79,7 @@
         (
           final: prev:
             {
-              agenix = agenix.packages.${prev.stdenv.hostPlatform.system}.default;
+              geheimnix = geheimnix.packages.${prev.stdenv.hostPlatform.system}.default;
               nixos-wallpaper = nixos-wallpaper.packages.${prev.stdenv.hostPlatform.system}.default;
             }
         )
@@ -105,7 +105,8 @@
       nixosConfigurations =
         let
           commonModules = [
-            agenix.nixosModules.default
+            geheimnix.nixosModules.default
+            { age.secretsPath = ./secrets; }
             overlayNixpkgs
             ./machines.nix
             home-manager.nixosModules.home-manager
@@ -175,7 +176,8 @@
             system = "aarch64-linux";
             modules = [
               disko.nixosModules.disko
-              agenix.nixosModules.default
+              geheimnix.nixosModules.default
+              { age.secretsPath = ./secrets; }
               ./machines/hetzner-template
             ];
           };

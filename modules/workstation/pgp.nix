@@ -4,7 +4,7 @@
       (
         builtins.mapAttrs
           (name: value: {
-            file = ../../secrets + "/${name}.key.age";
+            name = "${name}.key";
             owner = "lennart";
             inherit (config.users.users.lennart) group;
             mode = "0600";

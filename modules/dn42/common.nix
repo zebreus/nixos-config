@@ -77,7 +77,7 @@ in
         (networkName:
           {
             "${networkName}" = {
-              file = ../../secrets/${networkName}_dn42.age;
+              name = "${networkName}_dn42";
               owner = "systemd-network";
               group = "systemd-network";
             };

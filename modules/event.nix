@@ -15,27 +15,21 @@ in
     # Define the files with the secrets
     age.secrets = {
       # coturn_static_auth_secret = {
-      #   file = ../secrets/coturn_static_auth_secret.age;
       #   owner = "turnserver";
       # };
       # coturn_static_auth_secret_matrix_config = {
-      #   file = ../secrets/coturn_static_auth_secret_matrix_config.age;
       #   owner = "matrix-synapse";
       # };
       himmel_mail_password = {
-        file = ../secrets/himmel_mail_password.age;
         mode = "0444";
       };
       engelsystem_database_password = {
-        file = ../secrets/engelsystem_database_password.age;
         mode = "0444";
       };
       pretix_extra_secrets = {
-        file = ../secrets/pretix_extra_secrets.age;
         mode = "0444";
       };
       mediawiki_password = {
-        file = ../secrets/mediawiki_password.age;
         mode = "0444";
       };
     };

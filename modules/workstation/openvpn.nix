@@ -5,7 +5,6 @@
   config = lib.mkIf config.meta.self.workstation.enable {
     # age.secrets = {
     #   "pentest_lab_ovpn.conf" = {
-    #     file = ../../secrets/pentest_lab_ovpn.conf.age;
     #   };
     # };
     # services.openvpn.servers = {
