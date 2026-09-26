@@ -225,8 +225,10 @@
 
           # "degraded"
           # "continue"
-          "x-systemd.device-timeout=300s"
-          "x-systemd.mount-timeout=300s"
+
+          # bcachefs fsck sometimes takes really long
+          "x-systemd.device-timeout=5400s"
+          "x-systemd.mount-timeout=5400s"
           "fsck"
           "fix_errors"
         ];
