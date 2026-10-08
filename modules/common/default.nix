@@ -2,6 +2,7 @@
 {
   imports = [
     ./acme-metrics.nix
+    ./bcachefs.nix
     ./bird-exporter.nix
     ./boot.nix
     ./cli-programs.nix

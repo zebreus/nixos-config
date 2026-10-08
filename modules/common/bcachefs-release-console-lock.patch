@@ -1,0 +1,27 @@
+--- a/src/recovery_display.rs
++++ b/src/recovery_display.rs
+@@ -232,9 +232,9 @@
+                 Ok(())
+             }
+             Sink::Console { file, cols } => {
+-                // Only one recovering filesystem draws. Re-taken rather than
+-                // remembered, so whoever is second picks the line up when the
+-                // first finishes; re-locking our own fd is a no-op.
++                // Held only while drawing: systemd takes this lock, blocking,
++                // before it hands any unit the console, so keeping it for the
++                // whole mount locks out the emergency shell when the mount hangs.
+                 if flock(&*file, FlockOperation::NonBlockingLockExclusive).is_err() {
+                     return Ok(());
+                 }
+@@ -253,8 +253,9 @@
+                 buf.push('\r');
+ 
+                 *cols = line.chars().count();
+-                file.write_all(buf.as_bytes())?;
+-                file.flush()
++                let res = file.write_all(buf.as_bytes()).and_then(|_| file.flush());
++                let _ = flock(&*file, FlockOperation::Unlock);
++                res
+             }
+         }
+     }
