@@ -74,6 +74,10 @@ in
 
     services.pretix = {
       enable = true;
+      # Plugins force a source build. Its test suite is slow under emulation so we disable it.
+      # The module wraps the package in toPythonModule, which changes its hash
+      # (pythonMetadataCheckHook), so wrap it here too to only build it once.
+      package = with pkgs.pretix; python.pkgs.toPythonModule (overrideAttrs { doInstallCheck = false; });
       gunicorn.extraArgs = [
         "--name=pretix"
         "--workers=8"
