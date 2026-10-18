@@ -105,6 +105,24 @@ resource "inwx_domain" "rudelb_link" {
   }
 }
 
+resource "inwx_domain" "suckmore_org" {
+  name = "suckmore.org"
+  nameservers = [
+    "ns1.antibuild.ing",
+    "ns2.antibuild.ing",
+    "ns3.antibuild.ing",
+  ]
+
+  period        = "1Y"
+  renewal_mode  = "AUTORENEW"
+  transfer_lock = true
+
+  contacts {
+    registrant = inwx_domain_contact.lennart.id
+    tech       = inwx_domain_contact.lennart.id
+  }
+}
+
 resource "inwx_domain" "wirs_ing" {
   name = "wirs.ing"
   nameservers = [

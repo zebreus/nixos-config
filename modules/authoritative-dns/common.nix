@@ -45,6 +45,8 @@ let
     "camp.n50.lat"
     # Static gulasch.site web properties (see authoritative-dns/gulasch.nix)
     "gulasch.site"
+    # Parody of suckless.org (see authoritative-dns/suckmore-org.nix)
+    "suckmore.org"
   ];
   managedZonesDn42 = [
     # dn42 domain for internal services

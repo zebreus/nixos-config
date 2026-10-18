@@ -19,6 +19,7 @@
     ./photos.nix
     ./root.nix
     ./rudelshopping.nix
+    ./suckmore-org.nix
     ./voidspace.nix
     ./dn42-peers.nix
   ];
