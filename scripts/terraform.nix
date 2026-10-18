@@ -26,7 +26,8 @@ with pkgs; writeScriptBin "terraform" ''
     fi
     # Assignment first: unlike a bare eval-of-substitution, a failing
     # decryption aborts the script here (set -e).
-    TF_ENV="$(cd secrets && $GEHEIMNIX decrypt terraform_environment)"
+    # Uses age directly because geheimnix cannot use passphrase-protected SSH keys yet.
+    TF_ENV="$(${lib.getExe age} -d -i ~/.ssh/id_ed25519 secrets/terraform_environment.age)"
     set -a
     eval "$TF_ENV"
     set +a
