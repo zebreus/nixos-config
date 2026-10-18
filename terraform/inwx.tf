@@ -201,6 +201,12 @@ resource "inwx_dnssec_key" "rudelb_link" {
   algorithm  = 13
 }
 
+resource "inwx_dnssec_key" "suckmore_org" {
+  domain     = "suckmore.org"
+  public_key = "MhJBQLRQPvY1ll7fvbb5G/GT81q2qMsd/vXI+tJMbNKTpMxJclsIWe56DC3QSnYdXNfk77tXyNZxYrbu8SAFOQ=="
+  algorithm  = 13
+}
+
 resource "inwx_dnssec_key" "wirs_ing" {
   domain     = "wirs.ing"
   public_key = "dz9CO/0wyZrCs776ss+jOeSgth2Fpj65QM+ZodDtBhEk3DrbEWJ0nfRGpRJn1OmBfVcU51AruN6T047nPSRt6A=="
