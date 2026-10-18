@@ -13,6 +13,12 @@ resource "b2_bucket" "backups" {
   bucket_name = "zebreus-backup"
   bucket_type = "allPrivate"
 
+  # B2 enforces SSE-B2 on all buckets since 2026-09-14; it cannot be disabled.
+  default_server_side_encryption {
+    algorithm = "AES256"
+    mode      = "SSE-B2"
+  }
+
   # Hidden (i.e. deleted by restic) files are kept for 30 days before they are
   # actually deleted. Until then they can be restored with the master key, so a
   # compromised client cannot permanently destroy any repository.
