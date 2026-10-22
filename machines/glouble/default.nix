@@ -116,8 +116,6 @@
     };
   };
 
-  boot.initrd.systemd.enable = true;
-
   # # Not sure if this is still necessary
   # fileSystems."/" = {
   #   fsType = "bcachefs";
