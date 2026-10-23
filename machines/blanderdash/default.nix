@@ -3,6 +3,7 @@
   imports = [
     ./networking.nix
     ./hardware-configuration.nix
+    ./nowhere-websocket.nix
     ../../modules
   ];
 

@@ -23,6 +23,10 @@ in
         nowhere IN AAAA 2a0e:97c0:711:11b::1
         *.nowhere IN A 45.13.237.176
         *.nowhere IN AAAA 2a0e:97c0:711:11b::1
+
+        ; WebSocket-to-SSH proxy on blanderdash
+        web.nowhere IN A 49.13.8.171
+        web.nowhere IN AAAA 2a01:4f8:c013:29b1::1
       '';
 
       # I use this domains for hosting random stuff with github pages
