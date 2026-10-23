@@ -16,9 +16,23 @@ in
         proxyPass = "http://127.0.0.1:8081";
         proxyWebsockets = true;
         extraConfig = ''
+          # Only allow WebSocket upgrades
+          if ($http_upgrade != "websocket") {
+            return 426;
+          }
+          if ($http_connection !~* "upgrade") {
+            return 426;
+          }
+
           proxy_buffering off;
           proxy_read_timeout 1h;
           proxy_send_timeout 1h;
+
+          # Allow connections from any origin
+          add_header Access-Control-Allow-Origin "*" always;
+          if ($request_method = OPTIONS) {
+            return 204;
+          }
         '';
       };
     };
