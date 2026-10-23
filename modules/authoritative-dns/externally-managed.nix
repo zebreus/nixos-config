@@ -17,6 +17,12 @@ in
         custom IN CNAME zebreus.github.io.
         rudelshopping IN CNAME zebreus.github.io.
         _github-pages-challenge-zebreus IN TXT ${quoteTxtEntry "3a57be146a6065e7abbae1a5783afa"}
+
+        ; Custom VPS
+        nowhere IN A 45.13.237.176
+        nowhere IN AAAA 2a0e:97c0:711:11b::1
+        *.nowhere IN A 45.13.237.176
+        *.nowhere IN AAAA 2a0e:97c0:711:11b::1
       '';
 
       # I use this domains for hosting random stuff with github pages
