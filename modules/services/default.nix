@@ -1,6 +1,7 @@
 { ... }:
 {
   imports = [
+    ./backup
     ./besserestrichliste
     ./bird-lg
     ./chaosdarmstadt

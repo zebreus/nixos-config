@@ -51,10 +51,6 @@ let
     && builtins.pathExists ../../secrets/shared_restic_environment.age;
 in
 {
-  imports = [
-    ../helpers/resticMeteredConnectionOption.nix
-  ];
-
   config = lib.mkIf config.meta.self.workstation.enable {
     warnings = lib.optional (!secretsPresent)
       "Home backups on ${config.networking.hostName} are disabled because the restic secrets are missing. Run `nix run .#terraform -- apply && nix run .#sync-restic-secrets` and rebuild.";
@@ -89,7 +85,6 @@ in
         ];
         # Provides restic-home with repo, password and credentials preset.
         createWrapper = true;
-        dontStartOnMeteredConnection = true;
       };
     };
   };
