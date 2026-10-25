@@ -1,0 +1,120 @@
+{ lib, config, ... }:
+let
+  inherit (import ./helper.nix { inherit lib; }) quoteTxtEntry;
+  # The authoritative DNS servers are exactly the hosts assigned to the dns service.
+  machinesThatAreAuthoritativeDnsServers = builtins.map
+    (name: config.meta.machines.${name})
+    (builtins.attrNames config.meta.services.dns.hosts);
+  thisServer = config.meta.self;
+
+  managedZones = [
+    config.meta.domain
+    # Used for my external stuff. Matrix, mail, etc.
+    "zebre.us"
+    # My old email server lived here. Now it's just a redirect to the new one
+    "madmanfred.com"
+    # I use this domains for hosting random stuff with github pages
+    "wirs.ing"
+    # My old matrix server
+    "cicen.net"
+    # I use this domain for testing
+    "del.blue"
+    # Hosts a badly drawn picture of a unicorn
+    "einhorn.jetzt"
+    # Hosts a simplified version of the TU Darmstadt Mensa menu
+    "essen.jetzt"
+    # Hosts rudelblinken stuff
+    "rudelb.link"
+    # Redirects to chaos-darmstadt.de
+    "chaosdarmstadt.de"
+    # Tracks the state of FPGA tooling in rust, hosted on github pages
+    "arewefpgayet.rs"
+    # Hosts a now defunct and unfinished project for ai generated shirts
+    "generated.fashion"
+    # Hosts a broken test of a gunjs based blog
+    "xn--f87c.cc"
+    # Maybe I will use this for an url shortener or something. nothing for now
+    "zeb.rs"
+    # Used for a shitty event that wont happen anyway
+    "darmfest.de"
+    # Used for a personal blog
+    "dumb.place"
+    # N50 camp event server (containerized event services)
+    "n50.camp"
+    # N50 camp under the n50.lat org domain (delegated subzone)
+    "camp.n50.lat"
+    # Static gulasch.site web properties (see services/gulasch-sites/dns.nix)
+    "gulasch.site"
+    # Parody of suckless.org (see services/suckmore-org/dns.nix)
+    "suckmore.org"
+  ];
+  managedZonesDn42 = [
+    # dn42 domain for internal services
+    "antibuilding.dn42"
+    # dn42 for other stuff
+    "zebreus.dn42"
+    # ipv6 reverse DNS
+    "0.0.0.0.0.3.0.2.0.1.d.f.ip6.arpa"
+    # ipv4 reverse DNS
+    "128/27.179.20.172.in-addr.arpa"
+  ];
+
+  zoneContent = zone: nameservers: lib.mkMerge ([
+    (lib.mkBefore ''
+      $TTL 60
+      $ORIGIN ${zone}.
+      @ SOA ${(lib.findSingle (nameserver: nameserver.primary) null null nameservers).name}. lennart.zebre.us. 0 14400 3600 604800 300
+    '')
+    ''
+      ; TXT for keyoxide
+      @ IN TXT ${quoteTxtEntry "openpgp4fpr:2D53CFEA1AB4017BB327AFE310A46CC3152D49C5"}
+    ''
+  ]
+  ++
+  # Nameservers
+  (lib.map
+    (nameserver: "@ NS ${nameserver.name}.")
+    nameservers)
+  ++
+  # A and AAAA entries for the nameservers, if this is the main domain
+  (lib.concatMap
+    (nameserver:
+      (if nameserver.ip4 != null then [ "${lib.removeSuffix ".${zone}" nameserver.name} A ${nameserver.ip4}" ] else [ ])
+        ++
+        (if nameserver.ip6 != null then [ "${lib.removeSuffix ".${zone}" nameserver.name} AAAA ${nameserver.ip6}" ] else [ ])
+    )
+    (lib.filter (nameserver: lib.hasSuffix ".${zone}" nameserver.name) nameservers)
+  ));
+in
+{
+  config.modules.dns.zones = lib.mkIf thisServer.dns.enable
+    (
+      (builtins.listToAttrs (builtins.map
+        (zone: {
+          name = zone;
+          value = zoneContent zone (lib.map
+            (machine: {
+              name = machine.dns.name + "." + config.modules.dns.mainDomain;
+              ip4 = machine.staticIp4;
+              ip6 = machine.staticIp6;
+              primary = machine.dns.primary;
+            })
+            machinesThatAreAuthoritativeDnsServers);
+        })
+        managedZones))
+      //
+      (builtins.listToAttrs (builtins.map
+        (zone: {
+          name = zone;
+          value = zoneContent zone (lib.map
+            (machine: {
+              name = machine.dns.name + ".antibuilding.dn42";
+              ip4 = "${machine.antibuildingIp4}";
+              ip6 = "${machine.antibuildingIp6}";
+              primary = machine.dns.primary;
+            })
+            machinesThatAreAuthoritativeDnsServers);
+        })
+        managedZonesDn42))
+    );
+}

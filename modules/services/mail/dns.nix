@@ -1,0 +1,100 @@
+{ lib, config, ... }:
+let
+  publicKeys = import ../../../secrets/public-keys.nix;
+  inherit (import ../dns/helper.nix { inherit lib; }) quoteTxtEntry;
+
+  thisServer = config.meta.self;
+
+  machinesThatCanReceiveMail = config.meta.managedMachines;
+
+  # The mail server is named directly by the service; atMostOne ⇒ may be null.
+  mailHost = config.meta.services.mail.host;
+  mailServer = config.meta.machines.${mailHost};
+in
+{
+  config.modules.dns.zones = lib.mkIf thisServer.dns.enable ({
+    # Used for infrastructure and internal names
+    ${config.meta.domain} = ''
+      ; Records for mail
+      @ IN TXT ${quoteTxtEntry "v=spf1 a:mail.zebre.us -all"}
+      mail IN TXT ${quoteTxtEntry "v=spf1 a:mail.zebre.us -all"}
+      _dmarc IN TXT ${quoteTxtEntry "v=DMARC1; p=reject; fo=1; adkim=s; aspf=s; ri=86400; rua=mailto:dmarc-reports@zebre.us; ruf=mailto:dmarc-reports@zebre.us"}
+      mail._domainkey IN TXT ${quoteTxtEntry "v=DKIM1; k=rsa; s=email; p=${publicKeys.antibuild_ing_dkim}"}
+      @ IN MX 30 mail.zebre.us.
+      ; Autodiscovery:
+      _submission._tcp IN SRV 0 5 587 mail.zebre.us.
+      _submissions._tcp IN SRV 0 5 465 mail.zebre.us.
+      _imap._tcp IN SRV 0 5 143 mail.zebre.us.
+      _imaps._tcp IN SRV 0 5 993 mail.zebre.us.
+    ''
+    +
+    (builtins.concatStringsSep "\n" (
+      builtins.map
+        # TODO: Verify that autodiscovery works like this
+        (machine: ''
+          ; Mail records for ${machine.name}
+          _dmarc.${machine.name} TXT ${quoteTxtEntry "v=DMARC1; p=reject; fo=1; adkim=s; aspf=s; ri=86400; rua=mailto:dmarc-reports@zebre.us; ruf=mailto:dmarc-reports@zebre.us"}
+          ${machine.name} TXT ${quoteTxtEntry "v=spf1 a:mail.zebre.us -all"}
+          mail._domainkey.${machine.name} TXT ${quoteTxtEntry "v=DKIM1; k=rsa; s=email; p=${publicKeys."${machine.name}_dkim"}"}
+          ${machine.name} MX 30 mail.zebre.us.
+          ; Autodiscovery
+          _submission._tcp.${machine.name} SRV 0 5 587 mail.zebre.us.
+          _submissions._tcp.${machine.name} SRV 0 5 465 mail.zebre.us.
+          _imap._tcp.${machine.name} SRV 0 5 143 mail.zebre.us.
+          _imaps._tcp.${machine.name} SRV 0 5 993 mail.zebre.us.
+        '')
+        machinesThatCanReceiveMail));
+
+    # Used for my external stuff. Matrix, mail, etc.
+    "zebre.us" =
+      (lib.optionalString (mailHost != null) ''
+        ; Main mail entry
+        mail IN A ${mailServer.staticIp4}
+        mail IN AAAA ${mailServer.staticIp6}
+
+      '') + ''
+        ; Records for mail
+        @ IN TXT ${quoteTxtEntry "v=spf1 a:mail.zebre.us -all"}
+        mail IN TXT ${quoteTxtEntry "v=spf1 a:mail.zebre.us -all"}
+        _dmarc IN TXT ${quoteTxtEntry "v=DMARC1; p=reject; fo=1; adkim=s; aspf=s; ri=86400; rua=mailto:dmarc-reports@zebre.us; ruf=mailto:dmarc-reports@zebre.us"}
+        mail._domainkey IN TXT ${quoteTxtEntry "v=DKIM1; k=rsa; s=email; p=${publicKeys.zebre_us_dkim}"}
+        @ IN MX 30 mail.zebre.us.
+        ; Autodiscovery:
+        _submission._tcp IN SRV 0 5 587 mail.zebre.us.
+        _submissions._tcp IN SRV 0 5 465 mail.zebre.us.
+        _imap._tcp IN SRV 0 5 143 mail.zebre.us.
+        _imaps._tcp IN SRV 0 5 993 mail.zebre.us.
+      '';
+
+    # My old email server lived here. Now it's just a redirect to the new one
+    "madmanfred.com" = ''
+      ; Records for mail
+      @ IN TXT ${quoteTxtEntry "v=spf1 a:mail.zebre.us -all"}
+      mail IN TXT ${quoteTxtEntry "v=spf1 a:mail.zebre.us -all"}
+      _dmarc IN TXT ${quoteTxtEntry "v=DMARC1; p=reject; fo=1; adkim=s; aspf=s; ri=86400; rua=mailto:dmarc-reports@zebre.us; ruf=mailto:dmarc-reports@zebre.us"}
+      mail._domainkey IN TXT ${quoteTxtEntry "v=DKIM1; k=rsa; s=email; p=${publicKeys.madmanfred_com_dkim}"}
+      @ IN MX 30 mail.zebre.us.
+      ; Autodiscovery:
+      _submission._tcp IN SRV 0 5 587 mail.zebre.us.
+      _submissions._tcp IN SRV 0 5 465 mail.zebre.us.
+      _imap._tcp IN SRV 0 5 143 mail.zebre.us.
+      _imaps._tcp IN SRV 0 5 993 mail.zebre.us.
+    '';
+
+    # An event domain
+    "darmfest.de" = ''
+      ; Records for mail
+      @ IN TXT ${quoteTxtEntry "v=spf1 a:mail.zebre.us -all"}
+      mail IN TXT ${quoteTxtEntry "v=spf1 a:mail.zebre.us -all"}
+      _dmarc IN TXT ${quoteTxtEntry "v=DMARC1; p=reject; fo=1; adkim=s; aspf=s; ri=86400; rua=mailto:dmarc-reports@zebre.us; ruf=mailto:dmarc-reports@zebre.us"}
+      mail._domainkey IN TXT ${quoteTxtEntry "v=DKIM1; k=rsa; s=email; p=${publicKeys.darmfest_de_dkim}"}
+      @ IN MX 30 mail.zebre.us.
+      ; Autodiscovery:
+      _submission._tcp IN SRV 0 5 587 mail.zebre.us.
+      _submissions._tcp IN SRV 0 5 465 mail.zebre.us.
+      _imap._tcp IN SRV 0 5 143 mail.zebre.us.
+      _imaps._tcp IN SRV 0 5 993 mail.zebre.us.
+    '';
+  });
+
+}

@@ -107,8 +107,8 @@ Each machine uses its ed25519 SSH host key to decrypt its secrets. That SSH host
 
 === Add a new domain to the mailserver
 
-1. Add the domain to `modules/mail.nix`
-2. Add the domain in `modules/authoritative-dns/mail.nix`
+1. Add the domain to `modules/services/mail/default.nix`
+2. Add the domain in `modules/services/mail/dns.nix`
 3. Run `nix run .#gen-mail-dkim-keys domain_tld`
 
 === Provision an installer

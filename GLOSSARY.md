@@ -5,8 +5,9 @@ external tool.
 
 ## Structure & namespace
 
-- **Meta options** — the option _declarations_ describing the fleet, in one file,
-  `modules/helpers/machines.nix`.
+- **Meta options** — the option _declarations_ describing the fleet: the machine options in
+  `modules/helpers/machines.nix`, and each meta service's in `modules/services/<svc>/meta.nix`
+  (built by `modules/helpers/meta-service.nix`).
 - **Meta config** — the _values_ that fill those options (the actual fleet), in
   `machines.nix` at the repo root.
 - **`meta.machines.<host>`** — a machine's record: the options set for that machine

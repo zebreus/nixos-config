@@ -1,6 +1,7 @@
 # This file is the main config file for all hosts.
 #
-# It fills in the meta options (modules/helpers/machines.nix):
+# It fills in the meta options (modules/helpers/machines.nix and
+# modules/services/<svc>/meta.nix):
 #   * meta.machines.<host> — the fleet topology and per-machine knobs.
 #   * meta.services.<svc>  — which host(s) run each service, plus its config.
 let
