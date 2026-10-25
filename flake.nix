@@ -109,6 +109,7 @@
             { age.secretsPath = ./secrets; }
             overlayNixpkgs
             ./machines.nix
+            ./modules/helpers/isolated-container
             home-manager.nixosModules.home-manager
             simple-nix-mailserver.nixosModules.default
             besserestrichliste.nixosModules.aarch64-linux.default

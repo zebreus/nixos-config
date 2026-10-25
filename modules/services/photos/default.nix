@@ -3,15 +3,20 @@ with lib;
 let
   cfg = config.meta.self.photos;
   baseDomain = "zebre.us";
+  port = 18282;
 in
 {
   imports = [ ./dns.nix ];
 
   config = mkIf cfg.enable {
-    services.immich = {
-      enable = true;
-      port = 18282;
-      host = "::1";
+    # immich, its database and its machine learning run in a gVisor sandbox.
+    # Their data is in /var/lib/isolated-containers/photos/lib on the host.
+    modules.isolatedContainers.photos.config = {
+      services.immich = {
+        enable = true;
+        inherit port;
+        host = "0.0.0.0";
+      };
     };
 
     services.nginx = {
@@ -20,7 +25,7 @@ in
         enableACME = true;
         forceSSL = true;
         locations."/" = {
-          proxyPass = "http://[::1]:${toString config.services.immich.port}";
+          proxyPass = "http://${config.modules.isolatedContainers.photos.address}:${toString port}";
           proxyWebsockets = true;
           recommendedProxySettings = true;
           extraConfig = ''
@@ -34,6 +39,3 @@ in
     };
   };
 }
-
-
-
