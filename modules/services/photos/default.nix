@@ -11,9 +11,8 @@ in
   config = mkIf cfg.enable {
     # immich, its database and its machine learning run in a gVisor sandbox.
     # Their data is in /var/lib/isolated-containers/photos/lib on the host.
-    modules.isolatedContainers.photos = {
-      ports = [ port ];
-      config.services.immich = {
+    modules.isolatedContainers.photos.config = {
+      services.immich = {
         enable = true;
         inherit port;
         host = "0.0.0.0";
@@ -26,7 +25,7 @@ in
         enableACME = true;
         forceSSL = true;
         locations."/" = {
-          proxyPass = "http://127.0.0.1:${toString port}";
+          proxyPass = "http://${config.modules.isolatedContainers.photos.address}:${toString port}";
           proxyWebsockets = true;
           recommendedProxySettings = true;
           extraConfig = ''

@@ -1,14 +1,12 @@
-# Names shared by the files of this module.
+# Names and addresses shared by the files of this module.
 { lib }:
 rec {
   unit = name: "isolated-container-${name}";
-  networkUnit = name: "${unit name}-network";
-  user = name: "isolated-${name}";
   runtimeDir = name: "/run/isolated-containers/${name}";
-  # The network unit's runtime directory (relative to /run), with a symlink to
-  # the container's network namespace in it.
-  networkDir = name: "isolated-containers/${name}-network";
-  netns = name: "/run/${networkDir name}/netns";
+  interface = name: "ic-${name}";
+
+  # 10.231.<n>.0/30 for the n-th container by name: .1 is the host, .2 the container.
+  subnet = cfg: name: "10.231.${toString (lib.lists.findFirstIndex (n: n == name) null (builtins.attrNames cfg))}";
 
   # The systemd.services entries of the containers' units.
   units = cfg: f: lib.mapAttrs' (name: container: lib.nameValuePair (unit name) (f name container)) cfg;

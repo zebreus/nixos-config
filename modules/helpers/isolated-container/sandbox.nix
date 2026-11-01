@@ -5,7 +5,7 @@
 { config, lib, pkgs, ... }:
 let
   cfg = config.modules.isolatedContainers;
-  inherit (import ./names.nix { inherit lib; }) unit runtimeDir netns units;
+  inherit (import ./names.nix { inherit lib; }) unit runtimeDir units;
 
   runsc = "${pkgs.gvisor}/bin/runsc";
 
@@ -59,9 +59,10 @@ let
       { destination = "/nix/store"; type = "bind"; source = "${runtimeDir name}/store"; options = [ "rbind" "ro" ]; }
       { destination = "/var"; type = "bind"; source = "/var/lib/isolated-containers/${name}"; options = [ "rbind" "rw" ]; }
     ];
-    # The container's network namespace, set up by ./network.nix.
+    # The unit's own network namespace (PrivateNetwork=, see ./network.nix).
+    # Without a path, runsc would start the sandbox in a new, empty one.
     linux.namespaces = map (type: { inherit type; }) [ "pid" "ipc" "uts" "mount" ]
-      ++ [{ type = "network"; path = netns name; }];
+      ++ [{ type = "network"; path = "/proc/self/ns/net"; }];
   });
 
   # runsc passes one file descriptor per OCI mount and runs out below FD 256 with

@@ -12,7 +12,7 @@
 { config, lib, ... }:
 let
   cfg = config.modules.isolatedContainers;
-  inherit (import ./names.nix { inherit lib; }) user units;
+  inherit (import ./names.nix { inherit lib; }) interface subnet units;
 in
 {
   imports = [
@@ -25,26 +25,27 @@ in
   options.modules.isolatedContainers = lib.mkOption {
     default = { };
     description = "NixOS systems that each run in their own gVisor sandbox (see the top of this file).";
-    type = lib.types.attrsOf (lib.types.submodule {
+    type = lib.types.attrsOf (lib.types.submodule ({ name, ... }: {
       options = {
         config = lib.mkOption {
           type = lib.types.deferredModule;
           description = "The container's NixOS configuration.";
         };
-        ports = lib.mkOption {
-          type = lib.types.listOf lib.types.port;
-          default = [ ];
-          description = "TCP ports of the container that the host reaches on 127.0.0.1, at the same port.";
+        address = lib.mkOption {
+          type = lib.types.str;
+          readOnly = true;
+          default = "${subnet cfg name}.2";
+          description = "The container's IPv4 address. The host can reach all of its ports.";
         };
       };
-    });
+    }));
   };
 
   config = lib.mkIf (cfg != { }) {
     assertions = lib.mapAttrsToList
       (name: _: {
         assertion = builtins.match "[a-z0-9-]{1,12}" name != null;
-        message = "modules.isolatedContainers.${name}: names are 1 to 12 characters of a-z, 0-9 and -, because they end up in user and unit names like ${user name}.";
+        message = "modules.isolatedContainers.${name}: names are 1 to 12 characters of a-z, 0-9 and -, because they end up in the interface name ${interface name}.";
       })
       cfg;
 

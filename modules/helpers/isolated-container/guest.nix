@@ -9,7 +9,7 @@ let
     boot.isContainer = true;
     networking = {
       hostName = name;
-      # eth0 is pasta's tap device (./network.nix); gVisor takes its address from there.
+      # eth0 is configured by ./network.nix; gVisor takes its address from there.
       useDHCP = false;
       nameservers = lib.mkDefault [ "1.1.1.1" "9.9.9.9" ];
       # gVisor has no netfilter, and the host firewall restricts the container.
