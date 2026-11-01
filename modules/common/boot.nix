@@ -26,6 +26,11 @@
       {
         kernelPackages = pkgs.linuxPackages_6_18;
 
+        # ext4 with the quota feature (for isocon's maxDisk) turns quotas on in
+        # every read-write mount, which needs this format module. Without it in
+        # the initrd, the root filesystem doesn't mount.
+        initrd.kernelModules = [ "quota_v2" ];
+
         loader =
           {
             legacy = { };
