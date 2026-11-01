@@ -11,7 +11,7 @@
 #   runsc --root /run/isocon/<name>/runsc exec <name> <command>
 { config, lib, ... }:
 let
-  cfg = config.modules.isocon;
+  cfg = config.isocon;
   inherit (import ./names.nix { inherit lib; }) user units;
 in
 {
@@ -22,7 +22,7 @@ in
     ./hardening.nix
   ];
 
-  options.modules.isocon = lib.mkOption {
+  options.isocon = lib.mkOption {
     default = { };
     description = "NixOS systems that each run in their own gVisor sandbox (see the top of this file).";
     type = lib.types.attrsOf (lib.types.submodule {
@@ -36,6 +36,12 @@ in
           default = [ ];
           description = "TCP ports of the container that the host reaches on 127.0.0.1, at the same port.";
         };
+        persist = lib.mkOption {
+          type = lib.types.listOf (lib.types.strMatching "/.+");
+          default = [ ];
+          example = [ "/var/lib/immich" ];
+          description = "Directories of the container that survive restarts, besides /var/lib/nixos and /var/log/journal. Everything else resets.";
+        };
       };
     });
   };
@@ -44,7 +50,7 @@ in
     assertions = lib.mapAttrsToList
       (name: _: {
         assertion = builtins.match "[a-z0-9-]{1,12}" name != null;
-        message = "modules.isocon.${name}: names are 1 to 12 characters of a-z, 0-9 and -, because they end up in user and unit names like ${user name}.";
+        message = "isocon.${name}: names are 1 to 12 characters of a-z, 0-9 and -, because they end up in user and unit names like ${user name}.";
       })
       cfg;
 

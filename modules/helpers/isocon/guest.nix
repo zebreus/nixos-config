@@ -38,7 +38,7 @@ let
   };
 in
 {
-  options.modules.isocon = lib.mkOption {
+  options.isocon = lib.mkOption {
     type = lib.types.attrsOf (lib.types.submodule ({ name, config, ... }: {
       options.toplevel = lib.mkOption {
         type = lib.types.package;

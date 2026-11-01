@@ -10,9 +10,11 @@ in
 
   config = mkIf cfg.enable {
     # immich, its database and its machine learning run in a gVisor sandbox.
-    # Their data is in /var/lib/isocon/photos/lib on the host.
-    modules.isocon.photos = {
+    # What they persist is in /var/lib/isocon/photos on the host.
+    isocon.photos = {
       ports = [ port ];
+      # Media, database, job queue, and the machine learning's models.
+      persist = [ "/var/lib/immich" "/var/lib/postgresql" "/var/lib/redis-immich" "/var/cache/immich" ];
       config.services.immich = {
         enable = true;
         inherit port;

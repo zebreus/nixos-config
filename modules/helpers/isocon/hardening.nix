@@ -7,7 +7,7 @@
 # ./sandbox.nix).
 { config, lib, ... }:
 let
-  cfg = config.modules.isocon;
+  cfg = config.isocon;
   inherit (import ./names.nix { inherit lib; }) user uidBase units networkUnits;
 
   families = [ "AF_UNIX" "AF_NETLINK" "AF_INET" "AF_INET6" ];
@@ -37,7 +37,7 @@ in
   config = lib.mkIf (cfg != { }) {
     assertions = [{
       assertion = lib.allUnique (map uidBase (builtins.attrNames cfg));
-      message = "modules.isocon: two container names hash to the same host IDs; rename one.";
+      message = "isocon: two container names hash to the same host IDs; rename one.";
     }];
 
     users.users = lib.mapAttrs'

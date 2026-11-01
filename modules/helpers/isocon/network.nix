@@ -8,7 +8,7 @@
 # on 127.0.0.1, and nothing else.
 { config, lib, pkgs, ... }:
 let
-  cfg = config.modules.isocon;
+  cfg = config.isocon;
   inherit (import ./names.nix { inherit lib; }) unit networkUnit networkDir holder uidBase units networkUnits;
 
   forwardedPorts = ports: if ports == [ ] then "none" else "127.0.0.1/${lib.concatMapStringsSep "," toString ports}";
@@ -49,16 +49,16 @@ in
       {
         # pasta runs unprivileged.
         assertion = lib.all (port: port >= 1024) (lib.concatMap (container: container.ports) (builtins.attrValues cfg));
-        message = "modules.isocon: forwarded ports must be 1024 or higher.";
+        message = "isocon: forwarded ports must be 1024 or higher.";
       }
       {
         assertion = lib.allUnique (lib.concatMap (container: container.ports) (builtins.attrValues cfg));
-        message = "modules.isocon: two containers forward the same port.";
+        message = "isocon: two containers forward the same port.";
       }
       {
         # Without nftables, the rules below silently do nothing.
         assertion = config.networking.nftables.enable;
-        message = "modules.isocon needs networking.nftables.enable.";
+        message = "isocon needs networking.nftables.enable.";
       }
     ];
 

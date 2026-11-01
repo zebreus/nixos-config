@@ -1,15 +1,21 @@
 # What the sandbox can see, and how runsc runs it. The guest's closure is
-# bind-mounted read-only (not copied), its /var is
-# /var/lib/isocon/<name> on the host, and everything else is an
-# in-memory overlay that resets on restart.
+# bind-mounted read-only (not copied), the directories it persists are in
+# /var/lib/isocon/<name> on the host, and everything else is an in-memory
+# overlay that resets on restart.
 { config, lib, pkgs, ... }:
 let
-  cfg = config.modules.isocon;
-  inherit (import ./names.nix { inherit lib; }) unit user runtimeDir holder units;
+  cfg = config.isocon;
+  inherit (import ./names.nix { inherit lib; }) unit runtimeDir holder units;
 
   # runsc runs as the container's root, in its user namespace (./network.nix,
   # ./hardening.nix).
   runsc = name: "${pkgs.util-linux}/bin/nsenter --user=${holder name}/ns/user -- ${pkgs.gvisor}/bin/runsc --root ${runtimeDir name}/runsc";
+
+  # Always the users' and groups' IDs, which the owners of persisted files
+  # depend on, and the journal, which would otherwise fill the memory. Sorted,
+  # so that a directory is mounted before the ones inside it.
+  persisted = container: lib.sort lib.lessThan (lib.unique ([ "/var/lib/nixos" "/var/log/journal" ] ++ container.persist));
+  stateDir = name: "/var/lib/isocon/${name}";
 
   # What systemd and its services in the guest need, as each capability opens
   # more of the gVisor kernel to the guest. Notably missing are NET_RAW (no raw
@@ -59,8 +65,7 @@ let
       { destination = "/run"; type = "tmpfs"; source = "tmpfs"; options = [ "nosuid" "nodev" "mode=755" ]; }
       { destination = "/dev/shm"; type = "tmpfs"; source = "tmpfs"; options = [ "nosuid" "nodev" "mode=1777" ]; }
       { destination = "/nix/store"; type = "bind"; source = "${runtimeDir name}/store"; options = [ "rbind" "ro" ]; }
-      { destination = "/var"; type = "bind"; source = "${runtimeDir name}/var"; options = [ "rbind" "rw" ]; }
-    ];
+    ] ++ map (path: { destination = path; type = "bind"; source = "${stateDir name}${path}"; options = [ "rbind" "rw" ]; }) (persisted container);
     # The container's network namespace, set up by ./network.nix.
     linux.namespaces = map (type: { inherit type; }) [ "pid" "ipc" "uts" "mount" ]
       ++ [{ type = "network"; path = "${holder name}/ns/net"; }];
@@ -92,25 +97,24 @@ in
       assertions = [{
         # Provided by the overlay above, see ./gvisor.nix.
         assertion = lib.versionAtLeast pkgs.gvisor.version "20260921";
-        message = "modules.isocon needs gVisor 20260921 or newer, for systemd as PID 1.";
+        message = "isocon needs gVisor 20260921 or newer, for systemd as PID 1.";
       }];
 
       # For the debug command at the top of ./default.nix.
       environment.systemPackages = [ pkgs.gvisor ];
-
-      # The guests' /var, each owned by its guest's root. The parent keeps host
-      # users out. Not StateDirectory=: it would chown the guest's files
-      # whenever the guest changes the owner of /var.
-      systemd.tmpfiles.rules = [ "d /var/lib/isocon 0700 root root -" ]
-        ++ map (name: "d /var/lib/isocon/${name} 0755 ${user name} ${user name} -") (builtins.attrNames cfg);
 
       systemd.packages = lib.mapAttrsToList storeBinds cfg;
 
       systemd.services = units cfg (name: container: {
         serviceConfig = {
           RuntimeDirectory = [ "isocon/${name}" "isocon/${name}/rootfs" ];
-          # runsc can't pass the parent's 0700 itself.
-          BindPaths = [ "/var/lib/isocon/${name}:${runtimeDir name}/var" ];
+          # Owned by the container's root, and closed to host users.
+          StateDirectory = "isocon/${name}";
+          StateDirectoryMode = "0700";
+          # The persisted directories, which runsc needs to exist. Not with
+          # StateDirectory=: it would chown them back once a guest service
+          # owns one.
+          ExecStartPre = "${pkgs.coreutils}/bin/mkdir -p ${lib.concatMapStringsSep " " (path: "${stateDir name}${path}") (persisted container)}";
           # --ignore-cgroups keeps the sandbox in this unit's cgroup, so systemd
           # accounts for and stops all of it. --directfs=false leaves all host
           # file access to the gofer, so the sentry runs as the container's
