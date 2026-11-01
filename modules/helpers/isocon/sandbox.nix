@@ -1,13 +1,15 @@
 # What the sandbox can see, and how runsc runs it. The guest's closure is
 # bind-mounted read-only (not copied), its /var is
-# /var/lib/isolated-containers/<name> on the host, and everything else is an
+# /var/lib/isocon/<name> on the host, and everything else is an
 # in-memory overlay that resets on restart.
 { config, lib, pkgs, ... }:
 let
-  cfg = config.modules.isolatedContainers;
-  inherit (import ./names.nix { inherit lib; }) unit runtimeDir units;
+  cfg = config.modules.isocon;
+  inherit (import ./names.nix { inherit lib; }) unit user runtimeDir holder units;
 
-  runsc = "${pkgs.gvisor}/bin/runsc";
+  # runsc runs as the container's root, in its user namespace (./network.nix,
+  # ./hardening.nix).
+  runsc = name: "${pkgs.util-linux}/bin/nsenter --user=${holder name}/ns/user -- ${pkgs.gvisor}/bin/runsc --root ${runtimeDir name}/runsc";
 
   # What systemd and its services in the guest need, as each capability opens
   # more of the gVisor kernel to the guest. Notably missing are NET_RAW (no raw
@@ -57,12 +59,11 @@ let
       { destination = "/run"; type = "tmpfs"; source = "tmpfs"; options = [ "nosuid" "nodev" "mode=755" ]; }
       { destination = "/dev/shm"; type = "tmpfs"; source = "tmpfs"; options = [ "nosuid" "nodev" "mode=1777" ]; }
       { destination = "/nix/store"; type = "bind"; source = "${runtimeDir name}/store"; options = [ "rbind" "ro" ]; }
-      { destination = "/var"; type = "bind"; source = "/var/lib/isolated-containers/${name}"; options = [ "rbind" "rw" ]; }
+      { destination = "/var"; type = "bind"; source = "${runtimeDir name}/var"; options = [ "rbind" "rw" ]; }
     ];
-    # The unit's own network namespace (PrivateNetwork=, see ./network.nix).
-    # Without a path, runsc would start the sandbox in a new, empty one.
+    # The container's network namespace, set up by ./network.nix.
     linux.namespaces = map (type: { inherit type; }) [ "pid" "ipc" "uts" "mount" ]
-      ++ [{ type = "network"; path = "/proc/self/ns/net"; }];
+      ++ [{ type = "network"; path = "${holder name}/ns/net"; }];
   });
 
   # runsc passes one file descriptor per OCI mount and runs out below FD 256 with
@@ -91,37 +92,39 @@ in
       assertions = [{
         # Provided by the overlay above, see ./gvisor.nix.
         assertion = lib.versionAtLeast pkgs.gvisor.version "20260921";
-        message = "modules.isolatedContainers needs gVisor 20260921 or newer, for systemd as PID 1.";
+        message = "modules.isocon needs gVisor 20260921 or newer, for systemd as PID 1.";
       }];
 
       # For the debug command at the top of ./default.nix.
       environment.systemPackages = [ pkgs.gvisor ];
 
-      # Keeps host users out of the containers' /var.
-      systemd.tmpfiles.rules = [ "d /var/lib/isolated-containers 0700 root root -" ];
+      # The guests' /var, each owned by its guest's root. The parent keeps host
+      # users out. Not StateDirectory=: it would chown the guest's files
+      # whenever the guest changes the owner of /var.
+      systemd.tmpfiles.rules = [ "d /var/lib/isocon 0700 root root -" ]
+        ++ map (name: "d /var/lib/isocon/${name} 0755 ${user name} ${user name} -") (builtins.attrNames cfg);
 
       systemd.packages = lib.mapAttrsToList storeBinds cfg;
 
       systemd.services = units cfg (name: container: {
         serviceConfig = {
-          # The guest's /var.
-          StateDirectory = "isolated-containers/${name}";
-          RuntimeDirectory = "isolated-containers/${name}";
-          ExecStartPre = [ "${pkgs.coreutils}/bin/mkdir -p ${runtimeDir name}/rootfs" ];
+          RuntimeDirectory = [ "isocon/${name}" "isocon/${name}/rootfs" ];
+          # runsc can't pass the parent's 0700 itself.
+          BindPaths = [ "/var/lib/isocon/${name}:${runtimeDir name}/var" ];
           # --ignore-cgroups keeps the sandbox in this unit's cgroup, so systemd
           # accounts for and stops all of it. --directfs=false leaves all host
-          # file access to the gofer, so the sentry runs as nobody without
-          # capabilities and gets a narrower seccomp filter.
-          ExecStart = "${runsc} --root ${runtimeDir name}/runsc --network=sandbox --overlay2=root:memory --in-sandbox-cgroup=v2 --ignore-cgroups --directfs=false run --bundle ${bundle name container} ${name}";
+          # file access to the gofer, so the sentry runs as the container's
+          # nobody without capabilities and gets a narrower seccomp filter.
+          ExecStart = "${runsc name} --network=sandbox --overlay2=root:memory --in-sandbox-cgroup=v2 --ignore-cgroups --directfs=false run --bundle ${bundle name container} ${name}";
           # SIGRTMIN+3 makes systemd in the guest shut down cleanly. runsc kill
           # only knows the standard signals, so send it from inside the guest.
           # Then wait, as systemd kills what is left as soon as ExecStop= returns.
           # The wait fails if the guest is already gone, which is fine.
           ExecStop = [
-            "${runsc} --root ${runtimeDir name}/runsc exec ${name} /run/current-system/sw/bin/kill -s RTMIN+3 1"
-            "-${runsc} --root ${runtimeDir name}/runsc wait ${name}"
+            "${runsc name} exec ${name} /run/current-system/sw/bin/kill -s RTMIN+3 1"
+            "-${runsc name} wait ${name}"
           ];
-          ExecStopPost = "-${runsc} --root ${runtimeDir name}/runsc delete -force ${name}";
+          ExecStopPost = "-${runsc name} delete -force ${name}";
         };
       });
     })
