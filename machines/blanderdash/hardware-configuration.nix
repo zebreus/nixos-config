@@ -23,6 +23,9 @@
     {
       device = "/dev/pool/root";
       fsType = "ext4";
+      # Project quotas, for isocon's maxDisk. Needs `tune2fs -O project,quota`
+      # on the unmounted filesystem first, or it won't mount.
+      options = [ "prjquota" ];
     };
 
   fileSystems."/boot/efi" =
