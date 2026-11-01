@@ -48,6 +48,18 @@ in
           example = "100G";
           description = "Disk space for all persisted directories together, as StateDirectoryQuota= takes it. Needs project quotas on the host's /var/lib (prjquota); without them, systemd silently sets no limit.";
         };
+        maxCpu = lib.mkOption {
+          type = lib.types.nullOr lib.types.str;
+          default = null;
+          example = "200%";
+          description = "CPU time for all of the container's processes together, as CPUQuota= takes it (100% is one CPU). The guest still sees all of the host's CPUs.";
+        };
+        maxMemory = lib.mkOption {
+          type = lib.types.nullOr lib.types.str;
+          default = null;
+          example = "4G";
+          description = "Memory for all of the container's processes together, as MemoryMax= takes it. This includes everything the guest doesn't persist. The guest still sees the host's memory; when it runs out, the host kills the whole container, which then restarts.";
+        };
       };
     });
   };

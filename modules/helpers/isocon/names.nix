@@ -3,6 +3,9 @@
 rec {
   unit = name: "isocon-${name}";
   networkUnit = name: "${unit name}-network";
+  # Holds both units. Dashes in slice names mean nesting, so the name's are
+  # escaped: isocon-foo-bar must not end up inside isocon-foo.
+  slice = name: "isocon-${lib.replaceStrings [ "-" ] [ "\\x2d" ] name}";
   # The container's host user. Its UID and GID are uidBase.
   user = name: "isocon-${name}";
   runtimeDir = name: "/run/isocon/${name}";

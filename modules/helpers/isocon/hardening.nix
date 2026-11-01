@@ -4,15 +4,17 @@
 # Both enter the container's user namespace, whose owner has all capabilities
 # in it, but those only count for the container's own namespaces and files.
 # runsc's gofer and sentry drop even those (see --directfs=false in
-# ./sandbox.nix).
+# ./sandbox.nix). Both units share one slice, which limits their CPU and
+# memory together.
 { config, lib, ... }:
 let
   cfg = config.isocon;
-  inherit (import ./names.nix { inherit lib; }) user uidBase units networkUnits;
+  inherit (import ./names.nix { inherit lib; }) user uidBase slice units networkUnits;
 
   families = [ "AF_UNIX" "AF_NETLINK" "AF_INET" "AF_INET6" ];
 
   confined = name: {
+    Slice = "${slice name}.slice";
     User = user name;
     Group = user name;
     CapabilityBoundingSet = "";
@@ -48,6 +50,16 @@ in
       })
       cfg;
     users.groups = lib.mapAttrs' (name: _: lib.nameValuePair (user name) { gid = uidBase name; }) cfg;
+
+    systemd.slices = lib.mapAttrs'
+      (name: container: lib.nameValuePair (slice name) {
+        description = "Isolated container ${name}";
+        sliceConfig = {
+          CPUQuota = lib.mkIf (container.maxCpu != null) container.maxCpu;
+          MemoryMax = lib.mkIf (container.maxMemory != null) container.maxMemory;
+        };
+      })
+      cfg;
 
     systemd.services = lib.mkMerge [
       # Not set, because they break the container: RestrictSUIDSGID (the gofer
