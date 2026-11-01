@@ -32,10 +32,15 @@
               content = {
                 type = "filesystem";
                 format = "bcachefs";
+                # Project quotas, for isocon's maxDisk. bcachefs can only turn
+                # them on at mount; the mount option also covers filesystems
+                # formatted without them.
+                extraArgs = [ "--prjquota=1" ];
                 mountpoint = "/";
                 mountOptions = [
                   "defaults"
                   "verbose"
+                  "prjquota"
                   # "fsck"
                   # "fix errors"
                   # "degraded"

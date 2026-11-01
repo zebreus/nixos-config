@@ -42,6 +42,12 @@ in
           example = [ "/var/lib/immich" ];
           description = "Directories of the container that survive restarts, besides /var/lib/nixos and /var/log/journal. Everything else resets.";
         };
+        maxDisk = lib.mkOption {
+          type = lib.types.nullOr lib.types.str;
+          default = null;
+          example = "100G";
+          description = "Disk space for all persisted directories together, as StateDirectoryQuota= takes it. Needs project quotas on the host's /var/lib (prjquota); without them, systemd silently sets no limit.";
+        };
       };
     });
   };

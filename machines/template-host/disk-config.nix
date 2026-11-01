@@ -48,9 +48,12 @@
             content = {
               type = "filesystem";
               format = "ext4"; # Change to bcachefs once that is well supported
+              # Project quotas, for isocon's maxDisk.
+              extraArgs = [ "-O" "project,quota" ];
               mountpoint = "/";
               mountOptions = [
                 "defaults"
+                "prjquota"
               ];
             };
           };

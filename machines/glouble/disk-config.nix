@@ -222,6 +222,9 @@
         mountOptions = [
           "defaults"
           "verbose"
+          # Project quotas, for isocon's maxDisk. bcachefs can only turn them on
+          # at mount.
+          "prjquota"
 
           # "degraded"
           # "continue"
