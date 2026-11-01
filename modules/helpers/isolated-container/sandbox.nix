@@ -75,7 +75,7 @@ let
     {
       echo '[Service]'
       while read -r path; do
-        echo "BindReadOnlyPaths=$(readlink -e "$path"):${runtimeDir name}/store/$(basename "$path")"
+        echo "BindReadOnlyPaths=$path:${runtimeDir name}/store/$(basename "$path")"
       done < $closure/store-paths
     } > $dir/store-binds.conf
   '';
