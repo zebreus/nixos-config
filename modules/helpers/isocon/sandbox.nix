@@ -116,11 +116,12 @@ in
           # StateDirectory=: it would chown them back once a guest service
           # owns one.
           ExecStartPre = "${pkgs.coreutils}/bin/mkdir -p ${lib.concatMapStringsSep " " (path: "${stateDir name}${path}") (persisted container)}";
-          # --ignore-cgroups keeps the sandbox in this unit's cgroup, so systemd
-          # accounts for and stops all of it. --directfs=false leaves all host
-          # file access to the gofer, so the sentry runs as the container's
-          # nobody without capabilities and gets a narrower seccomp filter.
-          ExecStart = "${runsc name} --network=sandbox --overlay2=root:memory --in-sandbox-cgroup=v2 --ignore-cgroups --directfs=false run --bundle ${bundle name container} ${name}";
+          # The sandbox gets a cgroup below this unit's (see ./hardening.nix),
+          # so systemd still accounts for and stops all of it. --directfs=false
+          # leaves all host file access to the gofer, so the sentry runs as the
+          # container's nobody without capabilities and gets a narrower seccomp
+          # filter.
+          ExecStart = "${runsc name} --network=sandbox --overlay2=root:memory --in-sandbox-cgroup=v2 --directfs=false run --bundle ${bundle name container} ${name}";
           # SIGRTMIN+3 makes systemd in the guest shut down cleanly. runsc kill
           # only knows the standard signals, so send it from inside the guest.
           # Then wait, as systemd kills what is left as soon as ExecStop= returns.

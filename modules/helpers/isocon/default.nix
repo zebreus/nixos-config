@@ -52,13 +52,13 @@ in
           type = lib.types.nullOr lib.types.str;
           default = null;
           example = "200%";
-          description = "CPU time for all of the container's processes together, as CPUQuota= takes it (100% is one CPU). The guest still sees all of the host's CPUs.";
+          description = "CPU time for all of the container's processes together, as CPUQuota= takes it (100% is one CPU). The guest sees it as that many CPUs, rounded up, but at least 2.";
         };
         maxMemory = lib.mkOption {
           type = lib.types.nullOr lib.types.str;
           default = null;
           example = "4G";
-          description = "Memory for all of the container's processes together, as MemoryMax= takes it. This includes everything the guest doesn't persist. The guest still sees the host's memory; when it runs out, the host kills the whole container, which then restarts.";
+          description = "Memory for all of the container's processes together, as MemoryMax= takes it. This includes everything the guest doesn't persist. The guest sees it as its total memory. When it runs out, the host kills the whole container, which then restarts.";
         };
       };
     });
