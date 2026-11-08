@@ -123,7 +123,7 @@ in
           # Owned by the container's root, and closed to host users.
           StateDirectory = "isocon/${name}";
           StateDirectoryMode = "0700";
-          StateDirectoryQuota = lib.mkIf (container.maxDisk != null) container.maxDisk;
+          StateDirectoryQuota = lib.mkIf (container.maxDisk != null) "${toString container.maxDisk}G";
           # The persisted directories, which runsc needs to exist. Not with
           # StateDirectory=: it would chown them back once a guest service
           # owns one.
