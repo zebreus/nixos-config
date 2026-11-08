@@ -22,6 +22,10 @@ rec {
   # they don't collide.
   uidBase = name: 524288 + 65536 * lib.mod (lib.fromHexString (builtins.substring 0 7 (builtins.hashString "sha256" name))) 28664;
 
+  # The guest's machine ID. Stable, as it names the directory of its persisted
+  # journal, /var/log/journal/${machineId name}.
+  machineId = name: builtins.substring 0 32 (builtins.hashString "sha256" name);
+
   # The systemd.services entries of the containers' units and network units.
   units = unitsNamed unit;
   networkUnits = unitsNamed networkUnit;

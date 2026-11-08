@@ -3,6 +3,7 @@
 { config, lib, pkgs, modulesPath, ... }:
 let
   hostStateVersion = config.system.stateVersion;
+  inherit (import ./names.nix { inherit lib; }) machineId;
 
   guestDefaults = name: { lib, ... }: {
     nixpkgs.pkgs = pkgs;
@@ -28,9 +29,8 @@ let
         SystemCallErrorNumber=EPERM
       '')
     ];
-    # /etc resets on every start. A stable machine ID keeps the persistent journal
-    # in one directory.
-    environment.etc.machine-id.text = "${builtins.substring 0 32 (builtins.hashString "sha256" name)}\n";
+    # /etc resets on every start.
+    environment.etc.machine-id.text = "${machineId name}\n";
     # A smaller closure means fewer bind mounts.
     nix.enable = false;
     documentation.enable = false;

@@ -9,6 +9,8 @@
 #
 # Debug a running container with
 #   runsc --root /run/isocon/<name>/runsc exec <name> <command>
+# and read its journal, also when it's stopped, with
+#   journalctl -m _HOSTNAME=<name>
 { config, lib, ... }:
 let
   cfg = config.isocon;

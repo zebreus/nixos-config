@@ -5,7 +5,7 @@
 { config, lib, pkgs, ... }:
 let
   cfg = config.isocon;
-  inherit (import ./names.nix { inherit lib; }) unit runtimeDir holder units;
+  inherit (import ./names.nix { inherit lib; }) unit runtimeDir holder machineId units;
 
   # runsc runs as the container's root, in its user namespace (./network.nix,
   # ./hardening.nix).
@@ -110,6 +110,12 @@ in
       environment.systemPackages = [ pkgs.gvisor ];
 
       systemd.packages = lib.mapAttrsToList storeBinds cfg;
+
+      # journalctl -m on the host reads every machine's directory in
+      # /var/log/journal, so also the guests' persisted journals through these.
+      systemd.tmpfiles.rules = lib.mapAttrsToList
+        (name: _: "L /var/log/journal/${machineId name} - - - - ${stateDir name}/var/log/journal/${machineId name}")
+        cfg;
 
       systemd.services = units cfg (name: container: {
         serviceConfig = {
