@@ -33,10 +33,15 @@ in
           type = lib.types.deferredModule;
           description = "The container's NixOS configuration.";
         };
-        ports = lib.mkOption {
+        tcpPorts = lib.mkOption {
           type = lib.types.listOf lib.types.port;
           default = [ ];
           description = "TCP ports of the container that the host reaches on 127.0.0.1, at the same port.";
+        };
+        udpPorts = lib.mkOption {
+          type = lib.types.listOf lib.types.port;
+          default = [ ];
+          description = "UDP ports of the container that the host reaches on 127.0.0.1, at the same port.";
         };
         persist = lib.mkOption {
           type = lib.types.listOf (lib.types.strMatching "/.+");

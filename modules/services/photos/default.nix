@@ -12,7 +12,7 @@ in
     # immich, its database and its machine learning run in a gVisor sandbox.
     # What they persist is in /var/lib/isocon/photos on the host.
     isocon.photos = {
-      ports = [ port ];
+      tcpPorts = [ port ];
       # Media, database, job queue, and the machine learning's models.
       persist = [ "/var/lib/immich" "/var/lib/postgresql" "/var/lib/redis-immich" "/var/cache/immich" ];
       config.services.immich = {

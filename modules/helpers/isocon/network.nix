@@ -4,8 +4,8 @@
 # sockets of its own, so the host kernel never routes or NATs the guest's
 # packets, and nothing but IPv4 TCP and UDP leaves. pasta may only open
 # connections to public addresses: not to the host itself, private and VPN
-# ranges, other containers, or IPv6. The host reaches the container's `ports`
-# on 127.0.0.1, and nothing else.
+# ranges, other containers, or IPv6. The host reaches the container's
+# `tcpPorts` and `udpPorts` on 127.0.0.1, and nothing else.
 { config, lib, pkgs, ... }:
 let
   cfg = config.isocon;
@@ -32,7 +32,8 @@ let
       --config-net --ipv4-only --ns-ifname eth0 \
       --address 10.0.2.2 --netmask 24 --gateway 10.0.2.1 --no-map-gw --dns none \
       --no-icmp --no-dhcp --no-ndp --no-dhcpv6 --no-ra --no-splice \
-      --tcp-ports ${forwardedPorts container.ports} --udp-ports none --tcp-ns none --udp-ns none
+      --tcp-ports ${forwardedPorts container.tcpPorts} --udp-ports ${forwardedPorts container.udpPorts} \
+      --tcp-ns none --udp-ns none
   '';
 
   # Makes the container's IDs those of uidBase (./names.nix). Mapping more than
@@ -48,12 +49,16 @@ in
     assertions = [
       {
         # pasta runs unprivileged.
-        assertion = lib.all (port: port >= 1024) (lib.concatMap (container: container.ports) (builtins.attrValues cfg));
+        assertion = lib.all (port: port >= 1024) (lib.concatMap (container: container.tcpPorts ++ container.udpPorts) (builtins.attrValues cfg));
         message = "isocon: forwarded ports must be 1024 or higher.";
       }
       {
-        assertion = lib.allUnique (lib.concatMap (container: container.ports) (builtins.attrValues cfg));
-        message = "isocon: two containers forward the same port.";
+        assertion = lib.allUnique (lib.concatMap (container: container.tcpPorts) (builtins.attrValues cfg));
+        message = "isocon: two containers forward the same TCP port.";
+      }
+      {
+        assertion = lib.allUnique (lib.concatMap (container: container.udpPorts) (builtins.attrValues cfg));
+        message = "isocon: two containers forward the same UDP port.";
       }
       {
         # Without nftables, the rules below silently do nothing.
