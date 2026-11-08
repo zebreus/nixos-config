@@ -1,4 +1,4 @@
-{ lib, config, utils, n50-camp, ... }:
+{ lib, config, utils, extraModules, ... }:
 with lib;
 let
   cfg = config.meta.self.n50camp;
@@ -179,9 +179,9 @@ in
         (mkSecretBind secretPaths.n50CampOpenrouter)
       ];
       config = { config, pkgs, lib, ... }: {
-        # The n50-camp flake provides services.n50-camp (a hardened, sandboxed
-        # static-web-server serving the built site) plus the overlay it needs.
-        imports = [ n50-camp.nixosModules.default ];
+        # Among them, the n50-camp flake's services.n50-camp (a hardened, sandboxed
+        # static-web-server serving the built site).
+        imports = extraModules;
 
         system.stateVersion = "26.05";
 

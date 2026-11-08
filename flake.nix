@@ -114,13 +114,12 @@
             gulasch-site.nixosModules.default
             rudelshopping.nixosModules.aarch64-linux.default
             air-nix.nixosModules.default
+            n50-camp.nixosModules.default
           ];
           commonModules = [
             { age.secretsPath = ./secrets; }
             ./machines.nix
             ./modules/helpers/isocon
-            # Make flake inputs available to modules as module arguments.
-            { _module.args = { inherit n50-camp; }; }
           ];
         in
         {
