@@ -80,6 +80,7 @@ END_HEREDOC
     FLAKE_NIXOS_CONFIGURATION=$(
         cat <<END_HEREDOC
 ${TARGET_HOST_NAME} = nixpkgs.lib.nixosSystem {
+  inherit extraModules;
   system = "${TARGET_ARCHITECTURE}";
   modules = [
     disko.nixosModules.disko

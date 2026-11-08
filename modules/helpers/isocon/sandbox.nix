@@ -53,7 +53,8 @@ let
     process = {
       user = { uid = 0; gid = 0; };
       args = [ "${container.toplevel}/init" ];
-      env = [ "PATH=/run/current-system/sw/bin" "container=gvisor" ];
+      env = [ "PATH=/run/current-system/sw/bin" "container=gvisor" ]
+        ++ lib.optional (container.credentials != { }) "CREDENTIALS_DIRECTORY=/run/host/credentials";
       cwd = "/";
       capabilities = lib.genAttrs [ "bounding" "effective" "inheritable" "permitted" ] (_: capabilities);
     };
@@ -71,7 +72,15 @@ let
       # Instead of the one gVisor mounts by itself, which has no size option.
       { destination = "/tmp"; type = "tmpfs"; source = "tmpfs"; options = [ "nosuid" "nodev" "mode=1777" ] ++ sizeOptions container; }
       { destination = "/nix/store"; type = "bind"; source = "${runtimeDir name}/store"; options = [ "rbind" "ro" ]; }
-    ] ++ map (path: { destination = path; type = "bind"; source = "${stateDir name}${path}"; options = [ "rbind" "rw" ]; }) (persisted container);
+    ] ++ map (path: { destination = path; type = "bind"; source = "${stateDir name}${path}"; options = [ "rbind" "rw" ]; }) (persisted container)
+    # The credentials the host's systemd loaded for the unit. Like with
+    # systemd-nspawn, the guest's systemd takes them over as its system
+    # credentials from $CREDENTIALS_DIRECTORY. They belong to the host's root,
+    # which the guest sees as nobody, so the directory above keeps nobody out.
+    ++ lib.optionals (container.credentials != { }) [
+      { destination = "/run/host"; type = "tmpfs"; source = "tmpfs"; options = [ "nosuid" "nodev" "mode=700" ]; }
+      { destination = "/run/host/credentials"; type = "bind"; source = "/run/credentials/${unit name}.service"; options = [ "rbind" "ro" ]; }
+    ];
     # The container's network namespace, set up by ./network.nix.
     linux.namespaces = map (type: { inherit type; }) [ "pid" "ipc" "uts" "mount" ]
       ++ [{ type = "network"; path = "${holder name}/ns/net"; }];
@@ -124,6 +133,7 @@ in
           StateDirectory = "isocon/${name}";
           StateDirectoryMode = "0700";
           StateDirectoryQuota = lib.mkIf (container.maxDisk != null) "${toString container.maxDisk}G";
+          LoadCredential = lib.mapAttrsToList (credential: path: "${credential}:${path}") container.credentials;
           # The persisted directories, which runsc needs to exist. Not with
           # StateDirectory=: it would chown them back once a guest service
           # owns one.

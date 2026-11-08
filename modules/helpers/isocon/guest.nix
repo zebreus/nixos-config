@@ -1,6 +1,6 @@
 # What runs inside the sandbox: the container's NixOS system, with the defaults
 # it needs under gVisor. ./sandbox.nix boots `toplevel`.
-{ config, lib, pkgs, modulesPath, ... }:
+{ config, lib, pkgs, modulesPath, extraModules, ... }:
 let
   hostStateVersion = config.system.stateVersion;
   inherit (import ./names.nix { inherit lib; }) machineId;
@@ -47,6 +47,7 @@ in
         description = "The container's NixOS system.";
         default = (import "${modulesPath}/../lib/eval-config.nix" {
           system = null;
+          inherit extraModules;
           modules = [ (guestDefaults name) config.config ];
         }).config.system.build.toplevel;
       };

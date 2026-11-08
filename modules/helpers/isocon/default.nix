@@ -49,6 +49,12 @@ in
           example = [ "/var/lib/immich" ];
           description = "Directories of the container that survive restarts, besides /var/lib/nixos and /var/log/journal. Everything else resets.";
         };
+        credentials = lib.mkOption {
+          type = lib.types.attrsOf lib.types.externalPath;
+          default = { };
+          example = lib.literalExpression "{ stripe = config.age.secrets.stripe.path; }";
+          description = "Files on the host that the guest gets as systemd credentials, by name. Its units read them with LoadCredential=<name>, or at /run/credentials/@system/<name>. The host's systemd reads the files as root, so they may be root-only.";
+        };
         maxDisk = lib.mkOption {
           type = lib.types.nullOr lib.types.ints.positive;
           default = null;
@@ -74,8 +80,8 @@ in
   config = lib.mkIf (cfg != { }) {
     assertions = lib.mapAttrsToList
       (name: _: {
-        assertion = builtins.match "[a-z0-9-]{1,12}" name != null;
-        message = "isocon.${name}: names are 1 to 12 characters of a-z, 0-9 and -, because they end up in user and unit names like ${user name}.";
+        assertion = builtins.match "[a-z0-9-]+" name != null;
+        message = "isocon.${name}: names consist of a-z, 0-9 and -, because they end up in user and unit names like ${user name}.";
       })
       cfg;
 

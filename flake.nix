@@ -104,12 +104,9 @@
     {
       nixosConfigurations =
         let
-          commonModules = [
+          extraModules = [
             geheimnix.nixosModules.default
-            { age.secretsPath = ./secrets; }
             overlayNixpkgs
-            ./machines.nix
-            ./modules/helpers/isocon
             home-manager.nixosModules.home-manager
             simple-nix-mailserver.nixosModules.default
             besserestrichliste.nixosModules.aarch64-linux.default
@@ -117,12 +114,18 @@
             gulasch-site.nixosModules.default
             rudelshopping.nixosModules.aarch64-linux.default
             air-nix.nixosModules.default
+          ];
+          commonModules = [
+            { age.secretsPath = ./secrets; }
+            ./machines.nix
+            ./modules/helpers/isocon
             # Make flake inputs available to modules as module arguments.
             { _module.args = { inherit n50-camp; }; }
           ];
         in
         {
           kashenblade = lib.nixosSystem {
+            inherit extraModules;
             system = "aarch64-linux";
             modules = [
               ./machines/kashenblade
@@ -141,6 +144,7 @@
             ] ++ commonModules;
           };
           blanderdash = lib.nixosSystem {
+            inherit extraModules;
             system = "aarch64-linux";
             modules = [
               ./machines/blanderdash
@@ -148,10 +152,12 @@
             ] ++ commonModules;
           };
           sempriaq = lib.nixosSystem {
+            inherit extraModules;
             system = "x86_64-linux";
             modules = [ ./machines/sempriaq ] ++ commonModules;
           };
           glouble = lib.nixosSystem {
+            inherit extraModules;
             system = "x86_64-linux";
             modules = [
               disko.nixosModules.disko
@@ -162,6 +168,7 @@
             ] ++ commonModules;
           };
           prandtl = lib.nixosSystem {
+            inherit extraModules;
             system = "x86_64-linux";
             modules = [
               disko.nixosModules.disko

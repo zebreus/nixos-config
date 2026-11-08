@@ -9,17 +9,20 @@ in
 
   config = lib.mkIf cfg.enable {
     age.secrets.rudelshopping_stripe_key = {
-      # LoadCredential reads this as root (PID 1) before the service drops
-      # privileges, so root-only is fine and most secure.
       mode = "0400";
     };
 
-    services.rudelshopping = {
-      enable = true;
-      host = "[::1]";
-      inherit port;
-      origin = "https://${domain}";
-      stripeKeyFile = config.age.secrets.rudelshopping_stripe_key.path;
+    # The server runs in a gVisor sandbox. It keeps no state.
+    isocon.rudelshopping = {
+      tcpPorts = [ port ];
+      credentials.stripe = config.age.secrets.rudelshopping_stripe_key.path;
+      config.services.rudelshopping = {
+        enable = true;
+        host = "0.0.0.0";
+        inherit port;
+        origin = "https://${domain}";
+        stripeKeyFile = "/run/credentials/@system/stripe";
+      };
     };
 
     services.nginx = {
@@ -27,7 +30,7 @@ in
       virtualHosts.${domain} = {
         enableACME = true;
         forceSSL = true;
-        locations."/".proxyPass = "http://[::1]:${toString port}";
+        locations."/".proxyPass = "http://127.0.0.1:${toString port}";
       };
       virtualHosts."man.${cfg.baseDomain}" = {
         enableACME = true;
