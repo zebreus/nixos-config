@@ -2,7 +2,7 @@
 with lib;
 let
   cfg = config.meta.self.photos;
-  baseDomain = "zebre.us";
+  domain = "${cfg.subDomain}.${cfg.baseDomain}";
   port = 18282;
 in
 {
@@ -24,7 +24,7 @@ in
 
     services.nginx = {
       enable = true;
-      virtualHosts."photos.${baseDomain}" = {
+      virtualHosts.${domain} = {
         enableACME = true;
         forceSSL = true;
         locations."/" = {

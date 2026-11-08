@@ -1,15 +1,14 @@
 { lib, config, ... }:
 let
-  host = config.meta.services.photos.host;
+  inherit (config.meta.services.photos) host baseDomain subDomain;
   server = config.meta.machines.${host};
-  baseDomain = "zebre.us";
 in
 {
-  config.modules.dns.zones = lib.mkIf (host != null) {
-    "${baseDomain}" = ''
-      ; Records for $
-      photos IN A ${server.staticIp4}
-      photos IN AAAA ${server.staticIp6}
+  config = lib.mkIf (host != null) {
+    modules.dns.zones.${baseDomain} = ''
+      ; Records for photos
+      ${subDomain} IN A ${server.staticIp4}
+      ${subDomain} IN AAAA ${server.staticIp6}
     '';
   };
 }
