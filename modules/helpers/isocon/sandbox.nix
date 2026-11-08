@@ -17,6 +17,10 @@ let
   persisted = container: lib.sort lib.lessThan (lib.unique ([ "/var/lib/nixos" "/var/log/journal" ] ++ container.persist));
   stateDir = name: "/var/lib/isocon/${name}";
 
+  # Each of the guest's tmpfs and its overlay may fill half of maxMemory, as
+  # Linux lets tmpfs fill half of the RAM. gVisor would take the host's RAM.
+  sizeOptions = container: lib.optional (container.maxMemory != null) "size=${toString (container.maxMemory * 512)}m";
+
   # What systemd and its services in the guest need, as each capability opens
   # more of the gVisor kernel to the guest. Notably missing are NET_RAW (no raw
   # sockets) and SYS_BOOT: without it, gVisor's reboot() fails with EPERM, so
@@ -62,8 +66,10 @@ let
       # Mounted here so that neither stage 2 nor systemd mounts these with
       # options gVisor rejects (tmpfs size=N%, cgroup2 memory_recursiveprot).
       { destination = "/sys/fs/cgroup"; type = "cgroup"; source = "cgroup"; options = [ "nosuid" "noexec" "nodev" ]; }
-      { destination = "/run"; type = "tmpfs"; source = "tmpfs"; options = [ "nosuid" "nodev" "mode=755" ]; }
-      { destination = "/dev/shm"; type = "tmpfs"; source = "tmpfs"; options = [ "nosuid" "nodev" "mode=1777" ]; }
+      { destination = "/run"; type = "tmpfs"; source = "tmpfs"; options = [ "nosuid" "nodev" "mode=755" ] ++ sizeOptions container; }
+      { destination = "/dev/shm"; type = "tmpfs"; source = "tmpfs"; options = [ "nosuid" "nodev" "mode=1777" ] ++ sizeOptions container; }
+      # Instead of the one gVisor mounts by itself, which has no size option.
+      { destination = "/tmp"; type = "tmpfs"; source = "tmpfs"; options = [ "nosuid" "nodev" "mode=1777" ] ++ sizeOptions container; }
       { destination = "/nix/store"; type = "bind"; source = "${runtimeDir name}/store"; options = [ "rbind" "ro" ]; }
     ] ++ map (path: { destination = path; type = "bind"; source = "${stateDir name}${path}"; options = [ "rbind" "rw" ]; }) (persisted container);
     # The container's network namespace, set up by ./network.nix.
@@ -121,7 +127,7 @@ in
           # leaves all host file access to the gofer, so the sentry runs as the
           # container's nobody without capabilities and gets a narrower seccomp
           # filter.
-          ExecStart = "${runsc name} --network=sandbox --overlay2=root:memory --in-sandbox-cgroup=v2 --directfs=false run --bundle ${bundle name container} ${name}";
+          ExecStart = "${runsc name} --network=sandbox --overlay2=${lib.concatStringsSep "," ([ "root:memory" ] ++ sizeOptions container)} --in-sandbox-cgroup=v2 --directfs=false run --bundle ${bundle name container} ${name}";
           # SIGRTMIN+3 makes systemd in the guest shut down cleanly. runsc kill
           # only knows the standard signals, so send it from inside the guest.
           # Then wait, as systemd kills what is left as soon as ExecStop= returns.

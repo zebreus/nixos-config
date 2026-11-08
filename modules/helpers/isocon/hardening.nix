@@ -38,7 +38,7 @@ let
 
   limits = container: {
     CPUQuota = lib.mkIf (container.maxCpu != null) container.maxCpu;
-    MemoryMax = lib.mkIf (container.maxMemory != null) container.maxMemory;
+    MemoryMax = lib.mkIf (container.maxMemory != null) "${toString container.maxMemory}G";
   };
 in
 {

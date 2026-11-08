@@ -55,10 +55,10 @@ in
           description = "CPU time for all of the container's processes together, as CPUQuota= takes it (100% is one CPU). The guest sees it as that many CPUs, rounded up, but at least 2.";
         };
         maxMemory = lib.mkOption {
-          type = lib.types.nullOr lib.types.str;
+          type = lib.types.nullOr lib.types.ints.positive;
           default = null;
-          example = "4G";
-          description = "Memory for all of the container's processes together, as MemoryMax= takes it. This includes everything the guest doesn't persist. The guest sees it as its total memory. When it runs out, the host kills the whole container, which then restarts.";
+          example = 4;
+          description = "Memory in GiB for all of the container's processes together. This includes everything the guest doesn't persist. The guest sees it as its total memory, and each of its tmpfs (/run, /dev/shm, /tmp) and the rest of its root filesystem may fill half of it. When it runs out, the host kills the whole container, which then restarts.";
         };
       };
     });
