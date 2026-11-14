@@ -12,10 +12,21 @@ let
   cfg = config.isocon;
   inherit (import ./names.nix { inherit lib; }) unit networkUnit networkDir holder uidBase units networkUnits;
 
+  # pasta runs unprivileged in the container's user namespace, so it can't bind
+  # ports below 1024. It listens on 30000 + port for them instead, and the
+  # nftables rules below redirect the port there.
+  pastaPort = port: if port < 1024 then 30000 + port else port;
+
   # pasta's options for the container's ports of one protocol.
   forwardedPorts = protocol: ports:
     if ports == [ ] then "--${protocol}-ports none"
-    else lib.concatMapStringsSep " " ({ port, mode, ... }: "--${protocol}-ports ${lib.optionalString (mode == "local") "127.0.0.1/"}${toString port}") ports;
+    else lib.concatMapStringsSep " " ({ port, mode, ... }: "--${protocol}-ports ${lib.optionalString (mode == "local") "127.0.0.1/"}${toString (pastaPort port)}:${toString port}") ports;
+
+  # The ports below 1024 of all containers, with their protocol.
+  lowPorts = lib.filter ({ port, ... }: port < 1024) (lib.concatMap
+    (container: map (p: p // { protocol = "tcp"; }) container.tcpPorts ++ map (p: p // { protocol = "udp"; }) container.udpPorts)
+    (builtins.attrValues cfg));
+  redirect = { protocol, port, ... }: "${protocol} dport ${toString port} redirect to :${toString (pastaPort port)}";
 
   passt = pkgs.callPackage ./passt.nix { };
 
@@ -54,17 +65,12 @@ in
   config = lib.mkIf (cfg != { }) {
     assertions = [
       {
-        # pasta runs unprivileged.
-        assertion = lib.all ({ port, ... }: port >= 1024) (lib.concatMap (container: container.tcpPorts ++ container.udpPorts) (builtins.attrValues cfg));
-        message = "isocon: forwarded ports must be 1024 or higher.";
+        assertion = lib.allUnique (lib.concatMap (container: map ({ port, ... }: pastaPort port) container.tcpPorts) (builtins.attrValues cfg));
+        message = "isocon: the same TCP port is forwarded twice (ports below 1024 also take 30000 + port).";
       }
       {
-        assertion = lib.allUnique (lib.concatMap (container: map ({ port, ... }: port) container.tcpPorts) (builtins.attrValues cfg));
-        message = "isocon: the same TCP port is forwarded twice.";
-      }
-      {
-        assertion = lib.allUnique (lib.concatMap (container: map ({ port, ... }: port) container.udpPorts) (builtins.attrValues cfg));
-        message = "isocon: the same UDP port is forwarded twice.";
+        assertion = lib.allUnique (lib.concatMap (container: map ({ port, ... }: pastaPort port) container.udpPorts) (builtins.attrValues cfg));
+        message = "isocon: the same UDP port is forwarded twice (ports below 1024 also take 30000 + port).";
       }
       {
         # Without nftables, the rules below silently do nothing.
@@ -122,6 +128,24 @@ in
           meta skuid @containers meta nfproto ipv6 drop
           meta skuid @containers fib daddr type local drop
           meta skuid @containers ip daddr @private drop
+        }
+
+        # Ports below 1024 to pasta's ports for them: global ones from other
+        # machines, and all from the host itself.
+        chain redirect-in {
+          type nat hook prerouting priority dstnat; policy accept;
+          ${lib.concatMapStrings (p: "fib daddr type local ${redirect p}\n") (lib.filter ({ mode, ... }: mode == "global") lowPorts)}
+        }
+
+        chain redirect-out {
+          type nat hook output priority dstnat; policy accept;
+          ${lib.concatMapStrings (p: "${if p.mode == "global" then "fib daddr type local" else "ip daddr 127.0.0.1"} ${redirect p}\n") lowPorts}
+        }
+
+        # Only redirected connections reach pasta's ports for them.
+        chain input {
+          type filter hook input priority filter; policy accept;
+          ${lib.concatMapStrings ({ protocol, port, ... }: "${protocol} dport ${toString (pastaPort port)} ct original proto-dst ${toString (pastaPort port)} drop\n") lowPorts}
         }
       '';
     };

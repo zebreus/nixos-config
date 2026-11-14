@@ -21,7 +21,7 @@ let
       options = {
         port = lib.mkOption {
           type = lib.types.port;
-          description = "The port, in the container and on the host.";
+          description = "The port, in the container and on the host. For ports below 1024, the host's firewall sees 30000 + port, so open that one.";
         };
         mode = lib.mkOption {
           type = lib.types.enum [ "local" "global" ];
