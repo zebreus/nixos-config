@@ -141,12 +141,6 @@ in
           type nat hook output priority dstnat; policy accept;
           ${lib.concatMapStrings (p: "${if p.mode == "global" then "fib daddr type local" else "ip daddr 127.0.0.1"} ${redirect p}\n") lowPorts}
         }
-
-        # Only redirected connections reach pasta's ports for them.
-        chain input {
-          type filter hook input priority filter; policy accept;
-          ${lib.concatMapStrings ({ protocol, port, ... }: "${protocol} dport ${toString (pastaPort port)} ct original proto-dst ${toString (pastaPort port)} drop\n") lowPorts}
-        }
       '';
     };
   };
