@@ -13,6 +13,8 @@ let
 
   forwardedPorts = ports: if ports == [ ] then "none" else "127.0.0.1/${lib.concatMapStringsSep "," toString ports}";
 
+  passt = pkgs.callPackage ./passt.nix { };
+
   # The namespaces belong to the container's host user, so that pasta and
   # runsc, as that user, can join them. A sleeping holder keeps them alive and
   # reports its PID once they exist; runsc finds them through ${holder name}.
@@ -27,7 +29,7 @@ let
       ${pkgs.bash}/bin/sh -c 'echo $$; exec ${pkgs.coreutils}/bin/sleep infinity')
     read -r pid <&3
     ${pkgs.coreutils}/bin/ln -sfn /proc/$pid ${holder name}
-    exec ${pkgs.passt}/bin/pasta --quiet --pid /run/${networkDir name}/pasta.pid \
+    exec ${passt}/bin/pasta --quiet --pid /run/${networkDir name}/pasta.pid \
       --userns /proc/$pid/ns/user --netns /proc/$pid/ns/net \
       --config-net --ipv4-only --ns-ifname eth0 \
       --address 10.0.2.2 --netmask 24 --gateway 10.0.2.1 --no-map-gw --dns none \
