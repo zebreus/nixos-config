@@ -14,7 +14,7 @@ in
 
     # The server runs in a gVisor sandbox. It keeps no state.
     isocon.rudelshopping = {
-      tcpPorts = [ port ];
+      tcpPorts = [{ inherit port; }];
       credentials.stripe = config.age.secrets.rudelshopping_stripe_key.path;
       config.services.rudelshopping = {
         enable = true;

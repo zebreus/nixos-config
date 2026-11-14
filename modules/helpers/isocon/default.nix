@@ -15,6 +15,25 @@
 let
   cfg = config.isocon;
   inherit (import ./names.nix { inherit lib; }) user units;
+
+  ports = protocol: lib.mkOption {
+    type = lib.types.listOf (lib.types.submodule {
+      options = {
+        port = lib.mkOption {
+          type = lib.types.port;
+          description = "The port, in the container and on the host.";
+        };
+        mode = lib.mkOption {
+          type = lib.types.enum [ "local" "global" ];
+          default = "local";
+          description = "Where the host forwards the port: local only on 127.0.0.1, global on all of its IPv4 addresses, which also makes it reachable from other machines if the host's firewall lets them.";
+        };
+      };
+    });
+    default = [ ];
+    example = [{ port = 8080; } { port = 8443; mode = "global"; }];
+    description = "${protocol} ports of the container that the host forwards at the same port.";
+  };
 in
 {
   imports = [
@@ -33,16 +52,8 @@ in
           type = lib.types.deferredModule;
           description = "The container's NixOS configuration.";
         };
-        tcpPorts = lib.mkOption {
-          type = lib.types.listOf lib.types.port;
-          default = [ ];
-          description = "TCP ports of the container that the host reaches on 127.0.0.1, at the same port.";
-        };
-        udpPorts = lib.mkOption {
-          type = lib.types.listOf lib.types.port;
-          default = [ ];
-          description = "UDP ports of the container that the host reaches on 127.0.0.1, at the same port.";
-        };
+        tcpPorts = ports "TCP";
+        udpPorts = ports "UDP";
         persist = lib.mkOption {
           type = lib.types.listOf (lib.types.strMatching "/.+");
           default = [ ];
