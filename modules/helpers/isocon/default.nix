@@ -26,7 +26,7 @@ let
         mode = lib.mkOption {
           type = lib.types.enum [ "local" "global" ];
           default = "local";
-          description = "Where the host forwards the port: local only on 127.0.0.1, global on all of its IPv4 addresses, which also makes it reachable from other machines if the host's firewall lets them.";
+          description = "Where the host forwards the port: local only on 127.0.0.1, global on all of its addresses, which also makes it reachable from other machines if the host's firewall lets them. IPv6 connections reach the guest only if it listens on ::.";
         };
       };
     });

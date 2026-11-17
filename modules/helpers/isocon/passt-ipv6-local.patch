@@ -1,0 +1,11 @@
+--- a/conf.c
++++ b/conf.c
+@@ -506,6 +506,8 @@
+  */
+ static void conf_ip6_local(struct ip6_ctx *ip6)
+ {
++	ip6->addr_seen = ip6->addr;
++
+ 	if (IN6_IS_ADDR_UNSPECIFIED(&ip6->guest_gw))
+ 		ip6->guest_gw = IP6_LL_GUEST_GW;
+ 
