@@ -14,6 +14,8 @@ in
     # per subdomain under baseDomain (ocpncord, pokemon, drive, aisaas, c3cock,
     # testwebseite, testwebseite2, chat, angular, n50camp). DNS for these names is
     # served by ./dns.nix.
+
+    # Does not need isocon because it only serves static sites via nginx.
     services.gulasch-sites = {
       enable = true;
       baseDomain = cfg.baseDomain;
