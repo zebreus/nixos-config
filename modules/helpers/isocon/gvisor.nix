@@ -12,9 +12,7 @@
     rev = "02a34e56a43873ddd1ff5efdda37f63af1b6e7cc";
     hash = "sha256-UNQjk9tJAbyxmf/RFNlIJmhjVT9tEI8uv7/GFVkATKA=";
   };
-  vendorHash = "sha256-by7tg6USNBfomQuPVqeDaRPDfWJcVLVz7K/BijoyZpA=";
-  # nixpkgs' go.mod fix is upstream by now.
-  patches = [ ];
+  vendorHash = "sha256-XlmEtU0X/fSzIbe5/UylmfP4Ek2oOqWenzW2VmDoYpU=";
 
   subPackages = old.subPackages ++ [ "runsc/cmd/sentry" ];
   # runsc and its sidecars check that they come from the same release.

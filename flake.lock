@@ -429,6 +429,22 @@
         "type": "github"
       }
     },
+    "nixpkgs-small": {
+      "locked": {
+        "lastModified": 1795098731,
+        "narHash": "sha256-y1GUzNe5w8Di8Vu3eilszPhRKo0BUODT77Fx0HwYc1M=",
+        "owner": "nixos",
+        "repo": "nixpkgs",
+        "rev": "b8a59ac94c4c495610130c08e5b4c99c2758b571",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nixos",
+        "ref": "nixos-unstable-small",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
     "nixvirt": {
       "inputs": {
         "nixpkgs": [
@@ -485,6 +501,7 @@
         "n50-camp": "n50-camp",
         "nixos-wallpaper": "nixos-wallpaper",
         "nixpkgs": "nixpkgs",
+        "nixpkgs-small": "nixpkgs-small",
         "nixvirt": "nixvirt",
         "rudelshopping": "rudelshopping",
         "simple-nix-mailserver": "simple-nix-mailserver",

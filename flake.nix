@@ -1,6 +1,7 @@
 {
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
+    nixpkgs-small.url = "github:nixos/nixpkgs/nixos-unstable-small";
     home-manager = {
       url = "github:zebreus/home-manager?ref=init-secret-service";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -59,6 +60,7 @@
 
   outputs =
     { nixpkgs
+    , nixpkgs-small
     , home-manager
     , disko
     , geheimnix
@@ -81,10 +83,15 @@
             {
               geheimnix = geheimnix.packages.${prev.stdenv.hostPlatform.system}.default;
               nixos-wallpaper = nixos-wallpaper.packages.${prev.stdenv.hostPlatform.system}.default;
+              nginx = pkgs-small.nginx;
             }
         )
       ];
       pkgs = import nixpkgs {
+        inherit overlays;
+        system = "x86_64-linux";
+      };
+      pkgs-small = import nixpkgs-small {
         inherit overlays;
         system = "x86_64-linux";
       };
