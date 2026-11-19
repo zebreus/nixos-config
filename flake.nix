@@ -83,15 +83,11 @@
             {
               geheimnix = geheimnix.packages.${prev.stdenv.hostPlatform.system}.default;
               nixos-wallpaper = nixos-wallpaper.packages.${prev.stdenv.hostPlatform.system}.default;
-              nginx = pkgs-small.nginx;
+              nginxStable = nixpkgs-small.legacyPackages.${prev.stdenv.hostPlatform.system}.nginxStable;
             }
         )
       ];
       pkgs = import nixpkgs {
-        inherit overlays;
-        system = "x86_64-linux";
-      };
-      pkgs-small = import nixpkgs-small {
         inherit overlays;
         system = "x86_64-linux";
       };
