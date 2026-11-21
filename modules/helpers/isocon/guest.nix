@@ -5,7 +5,7 @@ let
   hostStateVersion = config.system.stateVersion;
   inherit (import ./names.nix { inherit lib; }) machineId;
 
-  guestDefaults = name: { lib, ... }: {
+  guestDefaults = name: { config, lib, ... }: {
     nixpkgs.pkgs = pkgs;
     boot.isContainer = true;
     networking = {
@@ -13,9 +13,13 @@ let
       # eth0 is pasta's tap device (./network.nix); gVisor takes its address from there.
       useDHCP = false;
       nameservers = lib.mkDefault [ "1.1.1.1" "9.9.9.9" "2606:4700:4700::1111" ];
+      # NixOS hands the nameservers to resolvconf in network-local-commands,
+      # which needs CAP_NET_ADMIN, so the guest would get no nameservers.
+      resolvconf.enable = false;
       # gVisor has no netfilter, and the host firewall restricts the container.
       firewall.enable = false;
     };
+    environment.etc."resolv.conf".text = lib.concatMapStrings (ns: "nameserver ${ns}\n") config.networking.nameservers;
     # No setuid binaries in the guest. gVisor also lacks the keyring calls that
     # run-wrappers.mount needs.
     security.enableWrappers = false;

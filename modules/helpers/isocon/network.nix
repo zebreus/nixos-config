@@ -5,8 +5,8 @@
 # packets, and nothing but TCP, UDP and ping leaves, from the host's addresses.
 # pasta may only open connections to public addresses: not to the host itself,
 # private, link-local and VPN ranges, or other containers. The host forwards the
-# container's `tcpPorts` and `udpPorts` on 127.0.0.1, or with mode global on all
-# of its addresses, and nothing else.
+# container's `tcpPorts` and `udpPorts` on loopback, or with mode global on all
+# of its addresses, for each of the port's IP versions, and nothing else.
 { config, lib, pkgs, ... }:
 let
   cfg = config.isocon;
@@ -17,16 +17,21 @@ let
   # nftables rules below redirect the port there.
   pastaPort = port: if port < 1024 then 30000 + port else port;
 
-  # pasta's options for the container's ports of one protocol.
+  listenAddresses = { mode, ipv4, ipv6, ... }:
+    lib.optional ipv4 ({ local = "127.0.0.1"; global = "0.0.0.0"; }.${mode})
+    ++ lib.optional ipv6 ({ local = "::1"; global = "::"; }.${mode});
+
+  # pasta's options for the container's ports of one protocol. Without any,
+  # pasta would forward every port the guest listens on.
   forwardedPorts = protocol: ports:
-    if ports == [ ] then "--${protocol}-ports none"
-    else lib.concatMapStringsSep " " ({ port, mode, ... }: "--${protocol}-ports ${lib.optionalString (mode == "local") "127.0.0.1/"}${toString (pastaPort port)}:${toString port}") ports;
+    let specs = lib.concatMap (p: map (address: "${address}/${toString (pastaPort p.port)}:${toString p.port}") (listenAddresses p)) ports;
+    in lib.concatMapStringsSep " " (spec: "--${protocol}-ports ${spec}") (if specs == [ ] then [ "none" ] else specs);
 
   # The ports below 1024 of all containers, with their protocol.
   lowPorts = lib.filter ({ port, ... }: port < 1024) (lib.concatMap
     (container: map (p: p // { protocol = "tcp"; }) container.tcpPorts ++ map (p: p // { protocol = "udp"; }) container.udpPorts)
     (builtins.attrValues cfg));
-  redirect = { protocol, port, ... }: "${protocol} dport ${toString port} redirect to :${toString (pastaPort port)}";
+  redirects = lib.concatMapStrings ({ protocol, port, ... }: "fib daddr type local ${protocol} dport ${toString port} redirect to :${toString (pastaPort port)}\n");
 
   passt = pkgs.callPackage ./passt.nix { };
 
@@ -73,6 +78,10 @@ in
       {
         assertion = lib.allUnique (lib.concatMap (container: map ({ port, ... }: pastaPort port) container.udpPorts) (builtins.attrValues cfg));
         message = "isocon: the same UDP port is forwarded twice (ports below 1024 also take 30000 + port).";
+      }
+      {
+        assertion = lib.all ({ ipv4, ipv6, ... }: ipv4 || ipv6) (lib.concatMap (container: container.tcpPorts ++ container.udpPorts) (builtins.attrValues cfg));
+        message = "isocon: a forwarded port has neither ipv4 nor ipv6.";
       }
       {
         # Without nftables, the rules below silently do nothing.
@@ -139,15 +148,16 @@ in
         }
 
         # Ports below 1024 to pasta's ports for them: global ones from other
-        # machines, and all from the host itself.
+        # machines, and all from the host itself. There, redirect also changes
+        # the address to loopback, where pasta listens for every port.
         chain redirect-in {
           type nat hook prerouting priority dstnat; policy accept;
-          ${lib.concatMapStrings (p: "fib daddr type local ${redirect p}\n") (lib.filter ({ mode, ... }: mode == "global") lowPorts)}
+          ${redirects (lib.filter ({ mode, ... }: mode == "global") lowPorts)}
         }
 
         chain redirect-out {
           type nat hook output priority dstnat; policy accept;
-          ${lib.concatMapStrings (p: "${if p.mode == "global" then "fib daddr type local" else "ip daddr 127.0.0.1"} ${redirect p}\n") lowPorts}
+          ${redirects lowPorts}
         }
       '';
     };

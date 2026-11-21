@@ -26,12 +26,17 @@ let
         mode = lib.mkOption {
           type = lib.types.enum [ "local" "global" ];
           default = "local";
-          description = "Where the host forwards the port: local only on 127.0.0.1, global on all of its addresses, which also makes it reachable from other machines if the host's firewall lets them. IPv6 connections reach the guest only if it listens on ::.";
+          description = "Where the host forwards the port: local only on loopback, global on all of its addresses, which also makes it reachable from other machines if the host's firewall lets them.";
         };
+        ipv4 = lib.mkEnableOption "forwarding IPv4 connections. The guest has to listen on 0.0.0.0 or ::" // { default = true; };
+        # pasta can't turn IPv6 connections into IPv4 ones. Clients only try
+        # another address if connecting fails, which it does if pasta doesn't
+        # listen, but not if the guest resets it after pasta accepted.
+        ipv6 = lib.mkEnableOption "forwarding IPv6 connections. The guest has to listen on ::, else IPv6 clients are reset instead of falling back to IPv4";
       };
     });
     default = [ ];
-    example = [{ port = 8080; } { port = 8443; mode = "global"; }];
+    example = [{ port = 8080; } { port = 8443; mode = "global"; ipv6 = true; }];
     description = "${protocol} ports of the container that the host forwards at the same port.";
   };
 in

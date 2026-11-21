@@ -18,8 +18,8 @@ in
 
   config = lib.mkIf cfg.enable {
     isocon.essen-jetzt = {
-      tcpPorts = [{ port = 13946; }];
-      # Media, database, job queue, and the machine learning's models.
+      tcpPorts = [{ port = 13946; ipv6 = true; }];
+      # deno's module cache
       persist = [ "/var/lib/essenjetzt" ];
       config = {
         environment.systemPackages = [ essenjetzt ];
@@ -68,7 +68,7 @@ in
           forceSSL = true;
           locations = {
             "/" = {
-              proxyPass = "http://127.0.0.1:13946";
+              proxyPass = "http://[::1]:13946";
               extraConfig = ''
                 proxy_cache_key $scheme://$host$uri$is_args$query_string;
                 proxy_cache_valid 200 10m;

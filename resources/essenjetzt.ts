@@ -22,7 +22,7 @@ if (!PORT) {
 Deno.serve(
   {
     port: PORT,
-    hostname: "[::1]",
+    hostname: "::",
   },
   async (_req) => {
     try {
