@@ -1,18 +1,23 @@
 { config, lib, ... }:
 let
   cfg = config.meta.self.besserestrichliste;
+  port = 12854;
 in
 {
   imports = [ ./dns.nix ];
 
   config = lib.mkIf cfg.enable {
     # Temporary besserestrichliste deployment
-
-    services.besserestrichliste = {
-      enable = true;
-      port = 8080;
-      host = "localhost";
-      origin = "https://besserer.wirs.ing";
+    isocon.besserestrichliste = {
+      tcpPorts = [{ inherit port; ipv6 = true; }];
+      # The SQLite database, and npm's cache from the migrations at every start.
+      persist = [ "/var/lib/besserestrichliste" ];
+      config.services.besserestrichliste = {
+        enable = true;
+        inherit port;
+        host = "::";
+        origin = "https://besserer.wirs.ing";
+      };
     };
 
     services.nginx = {
@@ -22,7 +27,7 @@ in
           enableACME = true;
           forceSSL = true;
           locations = {
-            "/".proxyPass = "http://[::1]:8080";
+            "/".proxyPass = "http://[::1]:${toString port}";
           };
         };
       };
