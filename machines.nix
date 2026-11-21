@@ -147,7 +147,7 @@ in
       primaryBaseDomain = "camp.n50.lat";
     };
 
-    # besserestrichliste.host = "blanderdash";
+    besserestrichliste.host = "blanderdash";
 
     rudelshopping.host = "blanderdash";
 
