@@ -1,14 +1,15 @@
 { pkgs }:
 # Stores the provisioned restic secrets with geheimnix: the shared append-only
 # B2 key (from the tofu output, via terraform) and a fresh restic password
-# for every repo in meta.allBackupRepos that does not have one yet.
+# for every repo in any machine's meta.allBackupRepos that does not have one
+# yet.
 with pkgs;
 let
   terraform = pkgs.callPackage ./terraform.nix { };
 in
 writeScriptBin "sync-restic-secrets" ''
   #!${bash}/bin/bash
-  set -e
+  set -eo pipefail
 
   GEHEIMNIX=${pkgs.geheimnix}/bin/geheimnix
   JQ=${lib.getExe jq}
@@ -26,9 +27,10 @@ writeScriptBin "sync-restic-secrets" ''
     exit 1
   fi
 
-  echo "Reading the repo list from meta.allBackupRepos"
+  echo "Reading the repo lists from every machine's meta.allBackupRepos"
   REPOS_JSON=$(nix eval --json .#nixosConfigurations \
-    --apply 'cs: map (r: { inherit (r) name machines; }) (builtins.head (builtins.attrValues cs)).config.meta.allBackupRepos')
+    --apply 'cs: builtins.concatMap (c: map (r: { inherit (r) name machines; }) (c.config.meta.allBackupRepos or [ ])) (builtins.attrValues cs)' |
+    $JQ unique)
 
   cd secrets
 

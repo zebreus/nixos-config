@@ -5,7 +5,7 @@
 { config, lib, pkgs, ... }:
 let
   cfg = config.isocon;
-  inherit (import ./names.nix { inherit lib; }) unit runtimeDir holder machineId units;
+  inherit (import ./names.nix { inherit lib; }) unit uidBase runtimeDir holder machineId units;
 
   # runsc runs as the container's root, in its user namespace (./network.nix,
   # ./hardening.nix).
@@ -14,8 +14,30 @@ let
   # Always the users' and groups' IDs, which the owners of persisted files
   # depend on, and the journal, which would otherwise fill the memory. Sorted,
   # so that a directory is mounted before the ones inside it.
-  persisted = container: lib.sort lib.lessThan (lib.unique ([ "/var/lib/nixos" "/var/log/journal" ] ++ container.persist));
+  persisted = container: lib.sort lib.lessThan (lib.unique ([ "/var/lib/nixos" "/var/log/journal" ] ++ lib.catAttrs "path" container.persist));
   stateDir = name: "/var/lib/isocon/${name}";
+
+  # runsc as the container's host user, from root's units: as root, it would
+  # leave root's files in the container's runtime directory.
+  runscAsUser = name: "${pkgs.util-linux}/bin/setpriv --reuid=${toString (uidBase name)} --regid=${toString (uidBase name)} --clear-groups -- ${runsc name}";
+
+  # How a backup stops or pauses the container around reading its files, if
+  # it runs, and afterwards undoes only that, as noted in the backup job's
+  # $RUNTIME_DIRECTORY. runsc pause stops all of the guest's processes once
+  # their system calls are done, and gVisor writes through to the persisted
+  # directories, so the host then sees them as after a crash.
+  backupCommands = name:
+    let
+      around = prepare: cleanup: {
+        backupPrepareCommand = "if systemctl is-active --quiet ${unit name}.service; then ${prepare} && touch \"$RUNTIME_DIRECTORY/isocon-prepared\"; fi";
+        backupCleanupCommand = "if [ -e \"$RUNTIME_DIRECTORY/isocon-prepared\" ]; then ${cleanup}; fi";
+      };
+    in
+    {
+      stop = around "systemctl stop ${unit name}.service" "systemctl start ${unit name}.service";
+      pause = around "${runscAsUser name} pause ${name}" "${runscAsUser name} resume ${name}";
+      run = { };
+    };
 
   # Each of the guest's tmpfs and its overlay may fill half of maxMemory, as
   # Linux lets tmpfs fill half of the RAM. gVisor would take the host's RAM.
@@ -102,6 +124,21 @@ let
   '';
 in
 {
+  options.isocon = lib.mkOption {
+    type = lib.types.attrsOf (lib.types.submodule ({ name, config, ... }: {
+      options.backup = lib.mkOption {
+        type = lib.types.nullOr (lib.types.attrsOf lib.types.anything);
+        readOnly = true;
+        description = "What the host backs up of the container, as options of services.restic.backups.<name>, or null if nothing: the `paths` on the host (the backupPaths of the persisted directories with backup set, and the guest's /var/lib/nixos with the IDs that own them), and unless duringBackup is run, the `backupPrepareCommand` and `backupCleanupCommand` that stop or pause the container around the backup, which need the job's $RUNTIME_DIRECTORY. A restore needs the container stopped.";
+        default =
+          let paths = lib.concatMap ({ backup, backupPaths, ... }: lib.optionals backup backupPaths) config.persist;
+          in if paths == [ ] then null else {
+            paths = map (path: stateDir name + path) ([ "/var/lib/nixos" ] ++ paths);
+          } // (backupCommands name).${config.duringBackup};
+      };
+    }));
+  };
+
   config = lib.mkMerge [
     {
       # pkgs.gvisor, updated. Unconditional, so that pkgs does not depend on cfg.
@@ -144,11 +181,13 @@ in
           # container's nobody without capabilities and gets a narrower seccomp
           # filter.
           ExecStart = "${runsc name} --network=sandbox --overlay2=${lib.concatStringsSep "," ([ "root:memory" ] ++ sizeOptions container)} --in-sandbox-cgroup=v2 --directfs=false run --bundle ${bundle name container} ${name}";
-          # SIGRTMIN+3 makes systemd in the guest shut down cleanly. runsc kill
-          # only knows the standard signals, so send it from inside the guest.
-          # Then wait, as systemd kills what is left as soon as ExecStop= returns.
-          # The wait fails if the guest is already gone, which is fine.
-          ExecStop = [
+          # First resume the container if a backup paused it, as runsc exec
+          # refuses paused ones. SIGRTMIN+3 makes systemd in the guest shut
+          # down cleanly. runsc kill only knows the standard signals, so send
+          # it from inside the guest. Then wait, as systemd kills what is left
+          # as soon as ExecStop= returns. The wait fails if the guest is
+          # already gone, which is fine.
+          ExecStop = lib.optional (container.backup != null && container.duringBackup == "pause") "-${runsc name} resume ${name}" ++ [
             "${runsc name} exec ${name} /run/current-system/sw/bin/kill -s RTMIN+3 1"
             "-${runsc name} wait ${name}"
           ];

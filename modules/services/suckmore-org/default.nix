@@ -38,7 +38,7 @@ in
         ipv6 = true;
       }];
       # deno's module cache
-      persist = [ "/var/lib/suckmore-org" ];
+      persist = [{ path = "/var/lib/suckmore-org"; }];
       config = {
         services.suckmore-org = {
           enable = true;

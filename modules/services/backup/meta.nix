@@ -10,12 +10,12 @@ let
       name = mkOption {
         type = types.str;
         description = ''
-          The name of the backup repository.
+          The name of the backup repository: its prefix in the shared bucket.
 
-          Every repository needs a B2 bucket with an append-only application key
-          and a restic password. Run `nix run .#terraform -- apply` to create
-          the bucket and the key, then `nix run .#sync-restic-secrets`
-          to store them (and a fresh restic password) with geheimnix.
+          Each repository has its own restic password. Run
+          `nix run .#terraform -- apply` once for the shared append-only key,
+          then `nix run .#sync-restic-secrets` to store it and a fresh restic
+          password with geheimnix.
         '';
       };
       machines = mkOption {
@@ -59,8 +59,9 @@ in
   options.meta.allBackupRepos = mkOption {
     type = types.listOf (types.submodule backupRepoOpts);
     description = ''
-      All restic backup repositories: one home repo per workstation, plus
-      the ones service modules (mail, matrix, …) add.
+      Restic backup repositories: one home repo per workstation, plus the
+      ones service modules (matrix, …) and the machine's backed up isocon
+      containers add. sync-restic-secrets collects them from all machines.
     '';
     default = [ ];
   };

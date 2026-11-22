@@ -27,7 +27,7 @@ in
       tcpPorts = [{ port = 2342; ipv6 = true; }];
       outgoingTcpPorts = map (port: { inherit port; local = true; internal = true; global = false; }) [ exporters.node.port exporters.bird.port exporters.postfix.port ];
       outgoingUdpPorts = [ ];
-      persist = [ "/var/lib/grafana" "/var/lib/prometheus2" ];
+      persist = [{ path = "/var/lib/grafana"; } { path = "/var/lib/prometheus2"; }];
       credentials = {
         secret_key = config.age.secrets.grafana_secret_key.path;
         admin_password = config.age.secrets.grafana_admin_password.path;

@@ -80,6 +80,7 @@ with import ./public-keys.nix;
   "matrix_restic_password".publicKeys = [ recovery kashenblade lennart ];
   "mail_restic_password".publicKeys = [ recovery blanderdash lennart ];
   "lennart_prandtl_restic_password".publicKeys = [ recovery prandtl lennart ];
+  "besserestrichliste_restic_password".publicKeys = [ recovery blanderdash lennart ];
   # MARKER_RESTIC_SECRETS
 
   # This is secret because it contains information about the infrastructure of other people

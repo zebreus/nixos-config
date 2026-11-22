@@ -40,8 +40,10 @@ let
     description = "${protocol} ports of the container that the host forwards at the same port.";
   };
 
+  absolute = lib.types.strMatching "/.+";
+
   outgoingPorts = protocol: default: lib.mkOption {
-    type = lib.types.listOf (lib.types.coercedTo lib.types.port (port: { inherit port; }) (lib.types.submodule {
+    type = lib.types.listOf (lib.types.submodule {
       options = {
         port = lib.mkOption {
           type = lib.types.port;
@@ -51,9 +53,9 @@ let
         internal = lib.mkEnableOption "connections to the port on private addresses other than the host's, like a VPN's or a LAN's";
         global = lib.mkEnableOption "connections to the port on public addresses" // { default = true; };
       };
-    }));
+    });
     inherit default;
-    example = [ 443 { port = 9100; internal = true; global = false; } ];
+    example = [{ port = 443; } { port = 9100; internal = true; global = false; }];
     description = "${protocol} ports that the container may connect to. Everything else, including ping, is blocked.";
   };
 in
@@ -76,13 +78,32 @@ in
         };
         tcpPorts = ports "TCP";
         udpPorts = ports "UDP";
-        outgoingTcpPorts = outgoingPorts "TCP" [ 53 443 ];
-        outgoingUdpPorts = outgoingPorts "UDP" [ 53 ];
+        outgoingTcpPorts = outgoingPorts "TCP" [{ port = 53; } { port = 443; }];
+        outgoingUdpPorts = outgoingPorts "UDP" [{ port = 53; }];
         persist = lib.mkOption {
-          type = lib.types.listOf (lib.types.strMatching "/.+");
+          type = lib.types.listOf (lib.types.submodule ({ config, ... }: {
+            options = {
+              path = lib.mkOption {
+                type = absolute;
+                description = "The directory in the container.";
+              };
+              backup = lib.mkEnableOption "backing up the directory, which needs the container's duringBackup";
+              backupPaths = lib.mkOption {
+                type = lib.types.listOf absolute;
+                default = [ config.path ];
+                defaultText = lib.literalExpression "[ path ]";
+                description = "What of the directory to back up: all of it, or files and directories in it.";
+              };
+            };
+          }));
           default = [ ];
-          example = [ "/var/lib/immich" ];
+          example = [{ path = "/var/lib/immich"; backup = true; } { path = "/var/cache/immich"; }];
           description = "Directories of the container that survive restarts, besides /var/lib/nixos and /var/log/journal. Everything else resets.";
+        };
+        duringBackup = lib.mkOption {
+          type = lib.types.enum [ "stop" "pause" "run" ];
+          example = "pause";
+          description = "What the container does while the host backs it up, from the backup's backupPrepareCommand to its backupCleanupCommand (see backup), if it runs. stop shuts it down cleanly and starts it again afterwards. pause freezes its processes, so the backup sees the persisted directories as after a crash, which databases recover from; the guest's clock goes on meanwhile, so after more than 3 minutes its systemd restarts services with watchdogs, like journald. run keeps it running, so the backup reads the directories while they change, which only suits files that are replaced as a whole, like maildirs. Needed if a persisted directory has backup set.";
         };
         credentials = lib.mkOption {
           type = lib.types.attrsOf lib.types.externalPath;
@@ -113,12 +134,18 @@ in
   };
 
   config = lib.mkIf (cfg != { }) {
-    assertions = lib.mapAttrsToList
-      (name: _: {
-        assertion = builtins.match "[a-z0-9-]+" name != null;
-        message = "isocon.${name}: names consist of a-z, 0-9 and -, because they end up in user and unit names like ${user name}.";
-      })
-      cfg;
+    assertions = lib.concatLists (lib.mapAttrsToList
+      (name: container: [
+        {
+          assertion = builtins.match "[a-z0-9-]+" name != null;
+          message = "isocon.${name}: names consist of a-z, 0-9 and -, because they end up in user and unit names like ${user name}.";
+        }
+        {
+          assertion = lib.all ({ path, backupPaths, ... }: lib.all (p: p == path || lib.hasPrefix "${path}/" p) backupPaths) container.persist;
+          message = "isocon.${name}: a persisted directory's backupPaths are outside of it.";
+        }
+      ])
+      cfg);
 
     systemd.services = units cfg (name: _: {
       description = "Isolated container ${name}";

@@ -26,6 +26,8 @@ let
   forEachMeteredBackup = unit: lib.mapAttrs' (name: _: lib.nameValuePair "restic-backups-${name}" unit) meteredBackups;
 in
 {
+  imports = [ ./isocon.nix ];
+
   options.services.restic.backups = lib.mkOption {
     type = lib.types.attrsOf (lib.types.submodule {
       options.dontStartOnMeteredConnection = lib.mkOption {

@@ -14,7 +14,12 @@ in
     isocon.photos = {
       tcpPorts = [{ inherit port; }];
       # Media, database, job queue, and the machine learning's models.
-      persist = [ "/var/lib/immich" "/var/lib/postgresql" "/var/lib/redis-immich" "/var/cache/immich" ];
+      persist = [
+        { path = "/var/lib/immich"; }
+        { path = "/var/lib/postgresql"; }
+        { path = "/var/lib/redis-immich"; }
+        { path = "/var/cache/immich"; }
+      ];
       config.services.immich = {
         enable = true;
         inherit port;

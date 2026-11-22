@@ -20,7 +20,7 @@ in
     isocon.essen-jetzt = {
       tcpPorts = [{ port = 13946; ipv6 = true; }];
       # deno's module cache
-      persist = [ "/var/lib/essenjetzt" ];
+      persist = [{ path = "/var/lib/essenjetzt"; }];
       config = {
         environment.systemPackages = [ essenjetzt ];
         users.users.essenjetzt = {

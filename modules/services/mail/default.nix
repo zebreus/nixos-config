@@ -1,11 +1,9 @@
-{ lib, config, pkgs, ... }:
+{ lib, config, ... }:
 let
   cfg = config.meta.self.mail;
   inherit (cfg) baseDomain;
   mailFqdn = "mail.${baseDomain}";
   certDirectory = config.security.acme.certs.${mailFqdn}.directory;
-  # The container's mail on the host.
-  vmail = "/var/lib/isocon/mail/var/vmail";
 
   machineDomain = machine: "${machine.name}.${config.meta.domain}";
 
@@ -34,24 +32,10 @@ let
     })
     config.meta.managedMachines);
   passwordHashes = lib.mapAttrsToList (_: account: account.passwordHash) accounts;
-
-  backupRepo = lib.findFirst (r: r.name == "mail")
-    (throw "No backup repo mail in meta.allBackupRepos")
-    config.meta.allBackupRepos;
-  # The secrets only exist once terraform has been run for this repo.
-  resticSecretsPresent = builtins.pathExists ../../../secrets/mail_restic_password.age
-    && builtins.pathExists ../../../secrets/shared_restic_environment.age;
 in
 {
   config = lib.mkIf cfg.enable {
-    age.secrets = lib.genAttrs (lib.attrValues dkimKeys ++ passwordHashes) (_: { })
-      // lib.optionalAttrs resticSecretsPresent {
-      mail_restic_password = { };
-      shared_restic_environment = { };
-    };
-
-    warnings = lib.optional (!resticSecretsPresent)
-      "Mail backups are disabled because the restic secrets are missing. Run `nix run .#terraform -- apply && nix run .#sync-restic-secrets` and rebuild.";
+    age.secrets = lib.genAttrs (lib.attrValues dkimKeys ++ passwordHashes) (_: { });
 
     # simple-nixos-mailserver in a gVisor sandbox.
     isocon.mail = {
@@ -59,9 +43,17 @@ in
       tcpPorts = map (port: { inherit port; mode = "global"; ipv6 = true; }) [ 25 465 993 9154 ];
       # SMTP to other servers, DNS for kresd, also to this host's own
       # nameserver, and rspamd's maps and fuzzy hashes.
-      outgoingTcpPorts = [ 25 80 443 { port = 53; local = true; } ];
-      outgoingUdpPorts = [ 11335 { port = 53; local = true; } ];
-      persist = [ "/var/vmail" "/var/lib/dovecot" "/var/lib/postfix" "/var/lib/rspamd" "/var/lib/redis-rspamd" ];
+      outgoingTcpPorts = [{ port = 25; } { port = 80; } { port = 443; } { port = 53; local = true; }];
+      outgoingUdpPorts = [{ port = 11335; } { port = 53; local = true; }];
+      persist = [
+        { path = "/var/vmail"; backup = true; }
+        { path = "/var/lib/dovecot"; }
+        { path = "/var/lib/postfix"; }
+        { path = "/var/lib/rspamd"; }
+        { path = "/var/lib/redis-rspamd"; }
+      ];
+      # Maildirs change by renames, so they can be backed up while running.
+      duringBackup = "run";
       credentials = {
         tls_cert = "${certDirectory}/fullchain.pem";
         tls_key = "${certDirectory}/key.pem";
@@ -170,82 +162,8 @@ in
       after = [ "acme-${mailFqdn}.service" ];
     };
 
-    services.restic.backups = lib.optionalAttrs resticSecretsPresent {
-      mail = {
-        inherit (backupRepo) repository;
-        initialize = true;
-        passwordFile = config.age.secrets.mail_restic_password.path;
-        environmentFile = config.age.secrets.shared_restic_environment.path;
-        paths = [ vmail ];
-        timerConfig = {
-          OnCalendar = "*-*-* 00/1:00:00";
-          Persistent = true;
-        };
-        # The B2 key cannot hard-delete: pruned data is only hidden and the
-        # bucket lifecycle rule removes it for good after its grace period.
-        pruneOpts = [
-          "--keep-within 2d"
-          "--keep-daily 14"
-          "--keep-weekly 8"
-          "--keep-monthly 12"
-        ];
-        # Provides restic-mail with repo, password and credentials preset.
-        createWrapper = true;
-      };
-    };
-
-    environment.systemPackages = lib.optionals resticSecretsPresent [
-      (pkgs.writeShellScriptBin "restore-mail-from-backup" ''
-        MODE="$1"
-        if [ "$MODE" == list ] ; then
-          echo "Available snapshots:"
-          restic-mail snapshots
-          echo "Please use '$0 restore SNAPSHOT' to restore from a specific snapshot"
-          exit 0
-        fi
-
-        if [ "$MODE" != restore ] ; then
-          echo "Usage: $0 COMMAND"
-          echo ""
-          echo "Commands:"
-          echo "  list                List all available snapshots"
-          echo "  restore SNAPSHOT    Restore from a specific snapshot id"
-          echo "  restore             Restore from the latest snapshot"
-          exit 0
-        fi
-
-        SNAPSHOT="''${2:-latest}"
-
-        read -r -p "Are you sure you want to restore from snapshot $SNAPSHOT? This will destroy the current data. [y/N]" -n 1
-        echo # (optional) move to a new line
-        if [[ "$REPLY" != [Yy] ]]; then
-            echo "Operation aborted"
-            exit 1
-        fi
-        set -ex
-
-        systemctl stop isocon-mail.service
-
-        # --delete only removes what the snapshot doesn't have below ${vmail},
-        # so nothing for snapshots from before the move to isocon, which have
-        # /var/vmail with the host's IDs instead.
-        restic-mail restore "$SNAPSHOT" --target / --include ${vmail} --delete --verbose
-
-        systemctl start isocon-mail.service
-      '')
-    ];
+    services.restic.backups.isocon-mail.timerConfig.OnCalendar = "hourly";
   };
 
-  imports = [
-    ./dns.nix
-    # Add backup repo
-    {
-      config = {
-        meta.allBackupRepos = [{
-          name = "mail";
-          machines = lib.optional (config.meta.services.mail.host != null) config.meta.services.mail.host;
-        }];
-      };
-    }
-  ];
+  imports = [ ./dns.nix ];
 }
