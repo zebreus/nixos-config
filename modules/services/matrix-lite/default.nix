@@ -44,9 +44,9 @@ in
     # a gVisor sandbox. The host's nginx proxies to them over IPv6.
     isocon.matrix-lite = {
       tcpPorts = map (port: { inherit port; ipv4 = false; ipv6 = true; }) [ 28008 28009 28010 ];
-      # Federation, which defaults to port 8448, also with zebre.us on this
-      # host.
-      outgoingTcpPorts = [{ port = 53; } { port = 443; local = true; } { port = 8448; }];
+      # Federation goes to whatever port the other server chooses, and to
+      # zebre.us on this host on 443.
+      outgoingTcpPorts = [{ port = "1-65535"; } { port = 443; local = true; global = false; }];
       persist = [
         # The signing key and the media.
         { path = "/var/lib/matrix-synapse"; backup = true; }

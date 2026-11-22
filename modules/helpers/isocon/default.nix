@@ -46,8 +46,8 @@ let
     type = lib.types.listOf (lib.types.submodule {
       options = {
         port = lib.mkOption {
-          type = lib.types.port;
-          description = "The port.";
+          type = lib.types.either lib.types.port (lib.types.strMatching "[0-9]+-[0-9]+");
+          description = "The port, or a range of them like \"1024-65535\". The ranges of one kind (local, internal or global) must not overlap.";
         };
         local = lib.mkEnableOption "connections to the port on the host itself, which includes other containers";
         internal = lib.mkEnableOption "connections to the port on private addresses other than the host's, like a VPN's or a LAN's";
@@ -55,7 +55,7 @@ let
       };
     });
     inherit default;
-    example = [{ port = 443; } { port = 9100; internal = true; global = false; }];
+    example = [{ port = 443; } { port = "9100-9199"; internal = true; global = false; }];
     description = "${protocol} ports that the container may connect to. Everything else, including ping, is blocked.";
   };
 in

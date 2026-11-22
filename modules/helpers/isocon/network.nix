@@ -152,16 +152,19 @@ in
 
         set outgoing-local {
           typeof meta skuid . meta l4proto . th dport
+          flags interval
           ${elements (outgoing "local")}
         }
 
         set outgoing-internal {
           typeof meta skuid . meta l4proto . th dport
+          flags interval
           ${elements (outgoing "internal")}
         }
 
         set outgoing-global {
           typeof meta skuid . meta l4proto . th dport
+          flags interval
           ${elements (outgoing "global")}
         }
 
