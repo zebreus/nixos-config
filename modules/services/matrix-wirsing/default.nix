@@ -2,7 +2,7 @@
 
 with lib;
 let
-  cfg = config.meta.self.matrixLite;
+  cfg = config.meta.self.matrixWirsing;
   inherit (cfg) baseDomain;
   elementDomain = "element.${baseDomain}";
   adminDomain = "admin.${baseDomain}";
@@ -42,7 +42,7 @@ in
   config = mkIf cfg.enable {
     # Synapse, its database and the nginx for element and synapse-admin run in
     # a gVisor sandbox. The host's nginx proxies to them over IPv6.
-    isocon.matrix-lite = {
+    isocon.matrix-wirsing = {
       tcpPorts = map (port: { inherit port; ipv4 = false; ipv6 = true; }) [ 28008 28009 28010 ];
       # Federation goes to whatever port the other server chooses, and to
       # zebre.us on this host on 443.

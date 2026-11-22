@@ -12,7 +12,7 @@
     ./homeassistant
     ./mail
     ./matrix
-    ./matrix-lite
+    ./matrix-wirsing
     ./monitoring
     ./n50camp
     ./ollama

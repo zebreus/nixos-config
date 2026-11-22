@@ -10,7 +10,7 @@ let
     '')
   );
 
-  inherit (config.meta.services.matrixLite) host baseDomain;
+  inherit (config.meta.services.matrixWirsing) host baseDomain;
   server = config.meta.machines.${host};
 in
 {

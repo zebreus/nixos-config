@@ -131,7 +131,7 @@ in
       host = "kashenblade";
       baseDomain = "zebre.us";
     };
-    matrixLite = {
+    matrixWirsing = {
       host = "kashenblade";
       baseDomain = "wirs.ing";
     };
