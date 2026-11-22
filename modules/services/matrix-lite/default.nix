@@ -52,7 +52,6 @@ in
         { path = "/var/lib/matrix-synapse"; backup = true; }
         { path = "/var/lib/postgresql"; backup = true; }
       ];
-      duringBackup = "pause";
       credentials.turn = config.age.secrets.coturn_static_auth_secret_matrix_config.path;
       config = {
         # Not the host's: it decides the version of postgresql and so of its

@@ -102,8 +102,9 @@ in
         };
         duringBackup = lib.mkOption {
           type = lib.types.enum [ "stop" "pause" "run" ];
-          example = "pause";
-          description = "What the container does while the host backs it up, from the backup's backupPrepareCommand to its backupCleanupCommand (see backup), if it runs. stop shuts it down cleanly and starts it again afterwards. pause freezes its processes, so the backup sees the persisted directories as after a crash, which databases recover from; the guest's clock goes on meanwhile, so after more than 3 minutes its systemd restarts services with watchdogs, like journald. run keeps it running, so the backup reads the directories while they change, which only suits files that are replaced as a whole, like maildirs. Needed if a persisted directory has backup set.";
+          default = "pause";
+          example = "run";
+          description = "What the container does while the host backs it up, from the backup's backupPrepareCommand to its backupCleanupCommand (see backup), if it runs. stop shuts it down cleanly and starts it again afterwards. pause freezes its processes, so the backup sees the persisted directories as after a crash, which databases recover from; the guest's clock goes on meanwhile, so after more than 3 minutes its systemd restarts services with watchdogs, like journald. run keeps it running, so the backup reads the directories while they change, which only suits files that are replaced as a whole, like maildirs.";
         };
         credentials = lib.mkOption {
           type = lib.types.attrsOf lib.types.externalPath;

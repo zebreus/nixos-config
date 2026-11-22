@@ -13,7 +13,6 @@ in
       # The SQLite database, and npm's cache from the migrations at every start.
       # Backed up as a whole, so that a backup also gets SQLite's journal.
       persist = [{ path = "/var/lib/besserestrichliste"; backup = true; }];
-      duringBackup = "pause";
       config.services.besserestrichliste = {
         enable = true;
         inherit port;
