@@ -61,7 +61,7 @@ in
               forceSSL = true;
               locations = {
                 "/" = {
-                  proxyPass = "http://[::1]:" + builtins.toString config.services.suckmore-org.port;
+                  proxyPass = "http://[::1]:49321";
                   extraConfig = lib.mkIf cfg.enableCaching ''
                     proxy_cache_key $scheme://$host$uri$is_args$query_string;
                     proxy_cache_valid 200 10m;
