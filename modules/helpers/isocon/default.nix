@@ -88,7 +88,7 @@ in
           type = lib.types.attrsOf lib.types.externalPath;
           default = { };
           example = lib.literalExpression "{ stripe = config.age.secrets.stripe.path; }";
-          description = "Files on the host that the guest gets as systemd credentials, by name. Its units read them with LoadCredential=<name>, or at /run/credentials/@system/<name>. The host's systemd reads the files as root, so they may be root-only.";
+          description = "Files on the host that the guest gets as systemd credentials, by name. Its units read them with LoadCredential=<name>, at /run/credentials/<unit>/<name>. /run/credentials/@system/<name> only works for units without a mount namespace of their own, which PrivateTmp=, ProtectSystem= and the like create. The host's systemd reads the files as root, so they may be root-only.";
         };
         maxDisk = lib.mkOption {
           type = lib.types.nullOr lib.types.ints.positive;

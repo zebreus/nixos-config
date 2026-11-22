@@ -26,11 +26,14 @@ let
     # gVisor's /proc/sys is read-only.
     systemd.suppressedSystemUnits = [ "systemd-sysctl.service" ];
     # gVisor rejects seccomp filters whose action kills the process, which is
-    # what SystemCallFilter= does by default. Blocked calls fail with EPERM instead.
+    # what SystemCallFilter= does by default. Blocked calls fail with EPERM
+    # instead. It also rejects all secure bits but keep-caps and
+    # no-setuid-fixup, so units that set others wouldn't start.
     systemd.packages = [
-      (pkgs.writeTextDir "lib/systemd/system/service.d/gvisor-seccomp.conf" ''
+      (pkgs.writeTextDir "lib/systemd/system/service.d/gvisor.conf" ''
         [Service]
         SystemCallErrorNumber=EPERM
+        SecureBits=
       '')
     ];
     # /etc resets on every start.
