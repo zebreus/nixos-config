@@ -2,9 +2,10 @@
 # own network unit: it creates the container's user and network namespaces and
 # connects them with pasta. pasta turns the guest's TCP and UDP into ordinary
 # sockets of its own, so the host kernel never routes or NATs the guest's
-# packets, and nothing but TCP, UDP and ping leaves, from the host's addresses.
-# pasta may only open connections to public addresses: not to the host itself,
-# private, link-local and VPN ranges, or other containers. The host forwards the
+# packets, and they leave from the host's addresses. pasta may only open
+# connections to the container's `outgoingTcpPorts` and `outgoingUdpPorts`, on
+# the host itself and other containers (local), private, link-local and VPN
+# ranges (internal) or public addresses (global). The host forwards the
 # container's `tcpPorts` and `udpPorts` on loopback, or with mode global on all
 # of its addresses, for each of the port's IP versions, and nothing else.
 { config, lib, pkgs, ... }:
@@ -32,6 +33,15 @@ let
     (container: map (p: p // { protocol = "tcp"; }) container.tcpPorts ++ map (p: p // { protocol = "udp"; }) container.udpPorts)
     (builtins.attrValues cfg));
   redirects = lib.concatMapStrings ({ protocol, port, ... }: "fib daddr type local ${protocol} dport ${toString port} redirect to :${toString (pastaPort port)}\n");
+
+  # The ports that each container may connect to on local, internal or global
+  # addresses, as UID . protocol . port.
+  outgoing = kind: lib.concatLists (lib.mapAttrsToList
+    (name: container:
+      let entries = protocol: ports: map ({ port, ... }: "${toString (uidBase name)} . ${protocol} . ${toString port}") (lib.filter (p: p.${kind}) ports);
+      in entries "tcp" container.outgoingTcpPorts ++ entries "udp" container.outgoingUdpPorts)
+    cfg);
+  elements = list: lib.optionalString (list != [ ]) "elements = { ${lib.concatStringsSep ", " list} }";
 
   passt = pkgs.callPackage ./passt.nix { };
 
@@ -82,6 +92,10 @@ in
       {
         assertion = lib.all ({ ipv4, ipv6, ... }: ipv4 || ipv6) (lib.concatMap (container: container.tcpPorts ++ container.udpPorts) (builtins.attrValues cfg));
         message = "isocon: a forwarded port has neither ipv4 nor ipv6.";
+      }
+      {
+        assertion = lib.all ({ local, internal, global, ... }: local || internal || global) (lib.concatMap (container: container.outgoingTcpPorts ++ container.outgoingUdpPorts) (builtins.attrValues cfg));
+        message = "isocon: an outgoing port has neither local, internal nor global.";
       }
       {
         # Without nftables, the rules below silently do nothing.
@@ -136,15 +150,35 @@ in
           elements = { ${lib.concatMapStringsSep ", " (name: toString (uidBase name)) (builtins.attrNames cfg)} }
         }
 
+        set outgoing-local {
+          typeof meta skuid . meta l4proto . th dport
+          ${elements (outgoing "local")}
+        }
+
+        set outgoing-internal {
+          typeof meta skuid . meta l4proto . th dport
+          ${elements (outgoing "internal")}
+        }
+
+        set outgoing-global {
+          typeof meta skuid . meta l4proto . th dport
+          ${elements (outgoing "global")}
+        }
+
         chain output {
           # pasta connects from the host itself, where the NixOS firewall would
           # let it reach e.g. ssh. Replies to connections from the host (nginx)
           # are fine.
           type filter hook output priority filter; policy accept;
           meta skuid @containers ct state established,related accept
+          meta skuid . meta l4proto . th dport @outgoing-local fib daddr type local accept
           meta skuid @containers fib daddr type local drop
+          meta skuid . meta l4proto . th dport @outgoing-internal ip daddr @private4 accept
+          meta skuid . meta l4proto . th dport @outgoing-internal ip6 daddr @private6 accept
           meta skuid @containers ip daddr @private4 drop
           meta skuid @containers ip6 daddr @private6 drop
+          meta skuid . meta l4proto . th dport @outgoing-global accept
+          meta skuid @containers drop
         }
 
         # Ports below 1024 to pasta's ports for them: global ones from other

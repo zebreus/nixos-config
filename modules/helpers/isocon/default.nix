@@ -39,6 +39,23 @@ let
     example = [{ port = 8080; } { port = 8443; mode = "global"; ipv6 = true; }];
     description = "${protocol} ports of the container that the host forwards at the same port.";
   };
+
+  outgoingPorts = protocol: default: lib.mkOption {
+    type = lib.types.listOf (lib.types.coercedTo lib.types.port (port: { inherit port; }) (lib.types.submodule {
+      options = {
+        port = lib.mkOption {
+          type = lib.types.port;
+          description = "The port.";
+        };
+        local = lib.mkEnableOption "connections to the port on the host itself, which includes other containers";
+        internal = lib.mkEnableOption "connections to the port on private addresses other than the host's, like a VPN's or a LAN's";
+        global = lib.mkEnableOption "connections to the port on public addresses" // { default = true; };
+      };
+    }));
+    inherit default;
+    example = [ 443 { port = 9100; internal = true; global = false; } ];
+    description = "${protocol} ports that the container may connect to. Everything else, including ping, is blocked.";
+  };
 in
 {
   imports = [
@@ -59,6 +76,8 @@ in
         };
         tcpPorts = ports "TCP";
         udpPorts = ports "UDP";
+        outgoingTcpPorts = outgoingPorts "TCP" [ 53 443 ];
+        outgoingUdpPorts = outgoingPorts "UDP" [ 53 ];
         persist = lib.mkOption {
           type = lib.types.listOf (lib.types.strMatching "/.+");
           default = [ ];
