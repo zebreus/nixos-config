@@ -109,6 +109,10 @@ in
         }
 
         protocol babel {
+            # A restarted BIRD starts over with its sequence numbers, so its
+            # peers would reject its routes for minutes. With a new router ID
+            # on every start, they take it for a new router instead.
+            randomize router id yes;
             interface "antibuilding*" {
                 type tunnel;
                 limit 16;
