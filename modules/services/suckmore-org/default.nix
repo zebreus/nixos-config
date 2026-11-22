@@ -37,6 +37,8 @@ in
         port = 49321;
         ipv6 = true;
       }];
+      # deno's module cache
+      persist = [ "/var/lib/suckmore-org" ];
       config = {
         services.suckmore-org = {
           enable = true;
