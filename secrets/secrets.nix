@@ -177,8 +177,8 @@ with import ./public-keys.nix;
   "atuin_session".publicKeys = [ recovery ] ++ workstations;
 
   # Grafana (monitoring host)
-  "grafana_secret_key".publicKeys = [ recovery kashenblade ];
-  "grafana_admin_password".publicKeys = [ recovery kashenblade ] ++ workstations;
+  "grafana_secret_key".publicKeys = [ recovery kashenblade lennart ];
+  "grafana_admin_password".publicKeys = [ recovery kashenblade lennart ] ++ workstations;
 
   # Event keys
   "engelsystem_database_password".publicKeys = [ recovery kashenblade blanderdash sempriaq ];
