@@ -32,10 +32,18 @@ in
   imports = [ ./dns.nix ];
 
   config = lib.mkIf cfg.enable {
-    services.suckmore-org = {
-      enable = true;
-      port = 49321;
-      host = "[::]";
+    isocon.suckmore-org = {
+      tcpPorts = [{
+        port = 49321;
+        ipv6 = true;
+      }];
+      config = {
+        services.suckmore-org = {
+          enable = true;
+          port = 49321;
+          host = "[::]";
+        };
+      };
     };
 
     services.nginx = {
