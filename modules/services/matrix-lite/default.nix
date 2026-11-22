@@ -40,21 +40,25 @@ in
   imports = [ ./dns.nix ];
 
   config = mkIf cfg.enable {
-    containers.matrix-lite = {
-      autoStart = true;
-      privateNetwork = false;
-      bindMounts = {
-        "${config.age.secrets.coturn_static_auth_secret_matrix_config.path}" = {
-          hostPath = "${config.age.secrets.coturn_static_auth_secret_matrix_config.path}";
-          isReadOnly = true;
-        };
-        "${config.age.secrets.coturn_static_auth_secret.path}" = {
-          hostPath = "${config.age.secrets.coturn_static_auth_secret.path}";
-          isReadOnly = true;
-        };
-      };
+    # Synapse, its database and the nginx for element and synapse-admin run in
+    # a gVisor sandbox. The host's nginx proxies to them over IPv6.
+    isocon.matrix-lite = {
+      tcpPorts = map (port: { inherit port; ipv4 = false; ipv6 = true; }) [ 28008 28009 28010 ];
+      # Federation, which defaults to port 8448, also with zebre.us on this
+      # host.
+      outgoingTcpPorts = [{ port = 53; } { port = 443; local = true; } { port = 8448; }];
+      persist = [
+        # The signing key and the media.
+        { path = "/var/lib/matrix-synapse"; backup = true; }
+        { path = "/var/lib/postgresql"; backup = true; }
+      ];
+      duringBackup = "pause";
+      credentials.turn = config.age.secrets.coturn_static_auth_secret_matrix_config.path;
       config = {
+        # Not the host's: it decides the version of postgresql and so of its
+        # data directory.
         system.stateVersion = "26.05";
+        systemd.services.matrix-synapse.serviceConfig.LoadCredential = [ "turn" ];
         services = {
           postgresql = {
             enable = true;
@@ -65,20 +69,18 @@ in
                 LC_COLLATE = "C"
                 LC_CTYPE = "C";
             '';
-            settings.port = 5433;
           };
           matrix-synapse = {
             enable = true;
             settings = {
               server_name = baseDomain;
               public_baseurl = "https://${synapseDomain}";
-              database.args.port = 5433;
               enable_registration = true;
               registration_requires_token = true;
               listeners = [
                 {
                   port = 28008;
-                  bind_addresses = [ "::1" ];
+                  bind_addresses = [ "::" ];
                   type = "http";
                   tls = false;
                   x_forwarded = true;
@@ -94,18 +96,13 @@ in
               turn_user_lifetime = "1h";
             };
             # There is no file option for the coturn static auth secret, so we need to add it via extraConfigFiles
-            extraConfigFiles = [
-              config.age.secrets.coturn_static_auth_secret_matrix_config.path
-            ];
+            extraConfigFiles = [ "/run/credentials/matrix-synapse.service/turn" ];
           };
           nginx = {
             enable = true;
             virtualHosts = {
               ${elementDomain} = {
-                default = true;
-                listen = [{ port = 28009; addr = "[::1]"; }];
-                enableACME = false;
-                forceSSL = false;
+                listen = [{ port = 28009; addr = "[::]"; }];
                 root = branded-element-web;
                 locations = {
                   "= /extra/resources/wirsing.webp" = { alias = ../../../resources/wirsing.webp; };
@@ -119,11 +116,8 @@ in
                   "= /vector-icons/512.7ce350d.png" = { alias = ../../../resources/wirsing/512.7ce350d.png; };
                 };
               };
-              "${adminDomain}" = {
-                default = true;
-                listen = [{ port = 28010; addr = "[::1]"; }];
-                enableACME = false;
-                forceSSL = false;
+              ${adminDomain} = {
+                listen = [{ port = 28010; addr = "[::]"; }];
                 root = synapse-admin;
               };
             };
@@ -174,9 +168,6 @@ in
                 proxyWebsockets = true;
                 recommendedProxySettings = true;
               };
-              # "/".extraConfig = ''
-              #   return 301 $scheme://${elementDomain}$request_uri;
-              # '';
             };
           };
           ${elementDomain} = {
