@@ -5,6 +5,7 @@ let
   cfg = config.meta.self.matrixZebreus;
   inherit (cfg) baseDomain;
   elementDomain = "element.${baseDomain}";
+  adminDomain = "admin.${baseDomain}";
   synapseDomain = "matrix.${baseDomain}";
   clientConfig."m.homeserver".base_url = "https://${synapseDomain}";
   serverConfig."m.server" = "${synapseDomain}:443";
@@ -27,6 +28,11 @@ let
       branding = element-branding;
     };
   };
+  synapse-admin = pkgs.ketesa.withConfig {
+    restrictBaseUrl = [
+      "https://${synapseDomain}"
+    ];
+  };
 in
 {
   imports = [ ./dns.nix ];
@@ -34,10 +40,10 @@ in
   config = mkIf cfg.enable {
     age.secrets.coturn_static_auth_secret = { };
 
-    # Synapse, its database and the nginx for element run in a gVisor sandbox.
-    # The host's nginx proxies to them over IPv6.
+    # Synapse, its database and the nginx for element and synapse-admin run in
+    # a gVisor sandbox. The host's nginx proxies to them over IPv6.
     isocon.matrix-zebreus = {
-      tcpPorts = map (port: { inherit port; ipv4 = false; ipv6 = true; }) [ 18008 18009 ];
+      tcpPorts = map (port: { inherit port; ipv4 = false; ipv6 = true; }) [ 18008 18009 18010 ];
       # Federation goes to whatever port the other server chooses, and to
       # wirs.ing on this host on 443.
       outgoingTcpPorts = [{ port = "1-65535"; } { port = 443; local = true; global = false; }];
@@ -93,12 +99,18 @@ in
             # The host's nginx passes redirects on unchanged, so they can't
             # name the guest's port.
             appendHttpConfig = "absolute_redirect off;";
-            virtualHosts.${elementDomain} = {
-              listen = [{ port = 18009; addr = "[::]"; }];
-              root = branded-element-web;
-              locations = {
-                "= /extra/resources/blobs-dark.webp" = { alias = ../../../resources/blobs-dark.webp; };
-                "= /extra/resources/icon.webp" = { alias = ../../../resources/icon.webp; };
+            virtualHosts = {
+              ${elementDomain} = {
+                listen = [{ port = 18009; addr = "[::]"; }];
+                root = branded-element-web;
+                locations = {
+                  "= /extra/resources/blobs-dark.webp" = { alias = ../../../resources/blobs-dark.webp; };
+                  "= /extra/resources/icon.webp" = { alias = ../../../resources/icon.webp; };
+                };
+              };
+              ${adminDomain} = {
+                listen = [{ port = 18010; addr = "[::]"; }];
+                root = synapse-admin;
               };
             };
           };
@@ -132,9 +144,23 @@ in
             "/_matrix".proxyPass = "http://[::1]:18008";
             # Forward requests for e.g. SSO and password-resets.
             "/_synapse/client".proxyPass = "http://[::1]:18008";
-            "/".extraConfig = ''
-              return 301 $scheme://${elementDomain}$request_uri;
-            '';
+            "/_synapse/admin" = {
+              proxyPass = "http://[::1]:18008";
+              extraConfig = ''
+                allow ::1;
+                allow 127.0.0.1;
+                allow fe80::/64;
+                allow 192.168.178.0/24;
+                allow 2a03:4000:20:19d::/64;
+                allow 159.195.88.96/32;
+                deny all;
+              '';
+            };
+            "/" = {
+              proxyPass = "http://[::1]:18010";
+              proxyWebsockets = true;
+              recommendedProxySettings = true;
+            };
           };
         };
         ${elementDomain} = {

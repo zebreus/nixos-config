@@ -19,17 +19,16 @@ let
     auth_header_logo_url = "/extra/resources/wirsing-logo.webp";
     auth_footer_links = [{ "text" = "Über Wirsing"; "url" = "https://de.wikipedia.org/wiki/Wirsing"; }];
   };
-  branded-element-web = pkgs.element-web.override
-    {
-      conf = {
-        show_labs_settings = true;
-        default_theme = "dark";
-        default_server_config = clientConfig;
-        brand = "wirsing";
-        permalink_prefix = "https://element.wirs.ing";
-        branding = element-branding;
-      };
+  branded-element-web = pkgs.element-web.override {
+    conf = {
+      show_labs_settings = true;
+      default_theme = "dark";
+      default_server_config = clientConfig;
+      brand = "wirsing";
+      permalink_prefix = "https://element.wirs.ing";
+      branding = element-branding;
     };
+  };
   synapse-admin = pkgs.ketesa.withConfig {
     restrictBaseUrl = [
       "https://${synapseDomain}"
@@ -128,59 +127,59 @@ in
         };
       };
     };
-    services = {
-      nginx = {
-        enable = true;
-        virtualHosts = {
-          ${baseDomain} = {
-            enableACME = true;
-            forceSSL = true;
-            locations = {
-              "= /.well-known/matrix/server".extraConfig = mkWellKnown serverConfig;
-              "= /.well-known/matrix/client".extraConfig = mkWellKnown clientConfig;
-              "/.well-known".extraConfig = ''
-                try_files $uri $uri/ =404;
-              '';
-              "/".extraConfig = ''
-                return 301 $scheme://${elementDomain}$request_uri;
+
+    services.nginx = {
+      enable = true;
+      virtualHosts = {
+        ${baseDomain} = {
+          enableACME = true;
+          forceSSL = true;
+          locations = {
+            "= /.well-known/matrix/server".extraConfig = mkWellKnown serverConfig;
+            "= /.well-known/matrix/client".extraConfig = mkWellKnown clientConfig;
+            "/.well-known".extraConfig = ''
+              try_files $uri $uri/ =404;
+            '';
+            "/".extraConfig = ''
+              return 301 $scheme://${elementDomain}$request_uri;
+            '';
+          };
+        };
+        ${synapseDomain} = {
+          enableACME = true;
+          forceSSL = true;
+          # Forward all Matrix API calls to the synapse Matrix homeserver. A trailing slash
+          # *must not* be used here.
+          locations = {
+            "/_matrix".proxyPass = "http://[::1]:28008";
+            # Forward requests for e.g. SSO and password-resets.
+            "/_synapse/client".proxyPass = "http://[::1]:28008";
+            "/_synapse/admin" = {
+              proxyPass = "http://[::1]:28008";
+              extraConfig = ''
+                allow ::1;
+                allow 127.0.0.1;
+                allow fe80::/64;
+                allow 192.168.178.0/24;
+                allow 2a03:4000:20:19d::/64;
+                allow 159.195.88.96/32;
+                deny all;
               '';
             };
-          };
-          ${synapseDomain} = {
-            enableACME = true;
-            forceSSL = true;
-            # Forward all Matrix API calls to the synapse Matrix homeserver. A trailing slash
-            # *must not* be used here.
-            locations = {
-              "/_matrix".proxyPass = "http://[::1]:28008";
-              "/_synapse/client".proxyPass = "http://[::1]:28008";
-              "/_synapse/admin" = {
-                proxyPass = "http://[::1]:28008";
-                extraConfig = ''
-                  allow ::1;
-                  allow 127.0.0.1;
-                  allow fe80::/64;
-                  allow 192.168.178.0/24;
-                  allow 2a03:4000:20:19d::1/64;
-                  allow 159.195.88.96/32;
-                  deny all;
-                '';
-              };
-              "/" = {
-                proxyPass = "http://[::1]:28010";
-                proxyWebsockets = true;
-                recommendedProxySettings = true;
-              };
-            };
-          };
-          ${elementDomain} = {
-            enableACME = true;
-            forceSSL = true;
-            locations."/" = {
-              proxyPass = "http://[::1]:28009";
+            "/" = {
+              proxyPass = "http://[::1]:28010";
               proxyWebsockets = true;
               recommendedProxySettings = true;
             };
+          };
+        };
+        ${elementDomain} = {
+          enableACME = true;
+          forceSSL = true;
+          locations."/" = {
+            proxyPass = "http://[::1]:28009";
+            proxyWebsockets = true;
+            recommendedProxySettings = true;
           };
         };
       };
