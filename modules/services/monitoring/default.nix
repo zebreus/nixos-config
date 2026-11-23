@@ -25,7 +25,7 @@ in
     # the exporters' ports, on the mesh.
     isocon.monitoring = {
       tcpPorts = [{ port = 2342; ipv6 = true; }];
-      outgoingTcpPorts = map (port: { inherit port; local = true; internal = true; global = false; }) [ exporters.node.port exporters.bird.port exporters.postfix.port ];
+      outgoingTcpPorts = map (port: { inherit port; local = true; internal = true; global = false; }) [ exporters.node.port exporters.bird.port exporters.postfix.port 9641 ];
       outgoingUdpPorts = [ ];
       persist = [{ path = "/var/lib/grafana"; } { path = "/var/lib/prometheus2"; }];
       credentials = {
@@ -77,6 +77,7 @@ in
             (mkJob "node" exporters.node.port machines)
             (mkJob "bird" exporters.bird.port machines)
             (mkJob "postfix" exporters.postfix.port (lib.filter (machine: machine.mail.enable) machines))
+            (mkJob "turn" 9641 (lib.filter (machine: machine.turn.enable) machines))
             {
               job_name = "prometheus";
               static_configs = [{ targets = [ "localhost:${toString config.services.prometheus.port}" ]; }];
