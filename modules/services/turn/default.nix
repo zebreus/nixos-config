@@ -25,10 +25,8 @@ in
         services.coturn = {
           enable = true;
           realm = "turn.${cfg.baseDomain}";
-          no-cli = true;
           # Synapse only hands out turn: URIs.
           no-tls = true;
-          no-dtls = true;
           no-tcp-relay = true;
           min-port = relayPorts.from;
           max-port = relayPorts.to;
