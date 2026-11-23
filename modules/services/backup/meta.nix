@@ -59,14 +59,14 @@ in
   options.meta.allBackupRepos = mkOption {
     type = types.listOf (types.submodule backupRepoOpts);
     description = ''
-      Restic backup repositories: one home repo per workstation, plus the
-      ones service modules (matrix, …) and the machine's backed up isocon
-      containers add. sync-restic-secrets collects them from all machines.
+      Restic backup repositories: one home repo per workstation, plus one
+      per backed up isocon container. sync-restic-secrets collects them from
+      all machines.
     '';
     default = [ ];
   };
 
-  # A home repo for every workstation. Service modules merge in their own repos.
+  # A home repo for every workstation. isocon containers merge in their own repos.
   config.meta.allBackupRepos =
     builtins.concatMap
       (m: optional m.workstation.enable { name = "lennart_${m.name}"; machines = [ m.name ]; })

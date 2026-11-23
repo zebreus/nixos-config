@@ -127,7 +127,7 @@ in
       baseDomain = "zebre.us";
     };
 
-    matrix = {
+    matrixZebreus = {
       host = "kashenblade";
       baseDomain = "zebre.us";
     };

@@ -13,7 +13,7 @@
     ./gulasch-sites/meta.nix
     ./homeassistant/meta.nix
     ./mail/meta.nix
-    ./matrix/meta.nix
+    ./matrix-zebreus/meta.nix
     ./matrix-wirsing/meta.nix
     ./turn/meta.nix
     ./monitoring/meta.nix

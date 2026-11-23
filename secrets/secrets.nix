@@ -77,7 +77,7 @@ with import ./public-keys.nix;
   # The bucket and key are provisioned with `nix run .#terraform -- apply`;
   # the secrets below are written by `nix run .#sync-restic-secrets`.
   "shared_restic_environment".publicKeys = [ recovery lennart ] ++ allMachines;
-  "matrix_restic_password".publicKeys = [ recovery kashenblade lennart ];
+  "matrix-zebreus_restic_password".publicKeys = [ recovery kashenblade lennart ];
   "mail_restic_password".publicKeys = [ recovery blanderdash lennart ];
   "lennart_prandtl_restic_password".publicKeys = [ recovery prandtl lennart ];
   "besserestrichliste_restic_password".publicKeys = [ recovery blanderdash lennart ];

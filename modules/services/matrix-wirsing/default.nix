@@ -100,6 +100,9 @@ in
           };
           nginx = {
             enable = true;
+            # The host's nginx passes redirects on unchanged, so they can't
+            # name the guest's port.
+            appendHttpConfig = "absolute_redirect off;";
             virtualHosts = {
               ${elementDomain} = {
                 listen = [{ port = 28009; addr = "[::]"; }];

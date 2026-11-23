@@ -12,7 +12,7 @@ let
 
   # The matrix server is named directly by the service; look its machine up by
   # name. atMostOne ⇒ host may be null (matrix runs nowhere), so guard on that.
-  inherit (config.meta.services.matrix) host baseDomain;
+  inherit (config.meta.services.matrixZebreus) host baseDomain;
   server = config.meta.machines.${host};
 in
 {

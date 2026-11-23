@@ -11,7 +11,7 @@
     ./gulasch-sites
     ./homeassistant
     ./mail
-    ./matrix
+    ./matrix-zebreus
     ./matrix-wirsing
     ./turn
     ./monitoring
