@@ -13,6 +13,7 @@
     ./mail
     ./matrix
     ./matrix-wirsing
+    ./turn
     ./monitoring
     ./n50camp
     ./ollama

@@ -40,6 +40,8 @@ in
   imports = [ ./dns.nix ];
 
   config = mkIf cfg.enable {
+    age.secrets.coturn_static_auth_secret = { };
+
     # Synapse, its database and the nginx for element and synapse-admin run in
     # a gVisor sandbox. The host's nginx proxies to them over IPv6.
     isocon.matrix-wirsing = {
@@ -52,7 +54,7 @@ in
         { path = "/var/lib/matrix-synapse"; backup = true; }
         { path = "/var/lib/postgresql"; backup = true; }
       ];
-      credentials.turn = config.age.secrets.coturn_static_auth_secret_matrix_config.path;
+      credentials.turn = config.age.secrets.coturn_static_auth_secret.path;
       config = {
         # Not the host's: it decides the version of postgresql and so of its
         # data directory.
@@ -91,11 +93,10 @@ in
               ];
               max_upload_size = "500M";
 
-              turn_uris = [ "turn:${config.services.coturn.realm}:3478?transport=udp" "turn:${config.services.coturn.realm}:3478?transport=tcp" ];
+              turn_uris = [ "turn:turn.${config.meta.services.turn.baseDomain}:3478?transport=udp" "turn:turn.${config.meta.services.turn.baseDomain}:3478?transport=tcp" ];
+              turn_shared_secret_path = "/run/credentials/matrix-synapse.service/turn";
               turn_user_lifetime = "1h";
             };
-            # There is no file option for the coturn static auth secret, so we need to add it via extraConfigFiles
-            extraConfigFiles = [ "/run/credentials/matrix-synapse.service/turn" ];
           };
           nginx = {
             enable = true;

@@ -87,10 +87,8 @@ with import ./public-keys.nix;
   # This is secret because it contains information about the infrastructure of other people
   "extra_config".publicKeys = [ recovery ] ++ workstations;
 
-  # Shared secret for coturn.
-  # Matrix does not support a file option, but can load extra config files, so we use a config file that only sets the secret
+  # Shared secret of coturn and the Synapses that hand out its credentials.
   "coturn_static_auth_secret".publicKeys = [ recovery kashenblade ];
-  "coturn_static_auth_secret_matrix_config".publicKeys = [ recovery kashenblade ];
 
   # Mail server password hashes
   # Generate one with `nix-shell -p mkpasswd --run 'mkpasswd -sm bcrypt'`

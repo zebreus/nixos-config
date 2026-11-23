@@ -16,12 +16,15 @@ let
   cfg = config.isocon;
   inherit (import ./names.nix { inherit lib; }) user units;
 
+  # A port, or a range of them like "49000-50000".
+  portOrRange = lib.types.either lib.types.port (lib.types.strMatching "[0-9]+-[0-9]+");
+
   ports = protocol: lib.mkOption {
     type = lib.types.listOf (lib.types.submodule {
       options = {
         port = lib.mkOption {
-          type = lib.types.port;
-          description = "The port, in the container and on the host. For ports below 1024, the host's firewall sees 30000 + port, so open that one.";
+          type = portOrRange;
+          description = "The port, or a range of them from 1024 up like \"49000-50000\", in the container and on the host. For ports below 1024, the host's firewall sees 30000 + port, so open that one.";
         };
         mode = lib.mkOption {
           type = lib.types.enum [ "local" "global" ];
@@ -46,7 +49,7 @@ let
     type = lib.types.listOf (lib.types.submodule {
       options = {
         port = lib.mkOption {
-          type = lib.types.either lib.types.port (lib.types.strMatching "[0-9]+-[0-9]+");
+          type = portOrRange;
           description = "The port, or a range of them like \"1024-65535\". The ranges of one kind (local, internal or global) must not overlap.";
         };
         local = lib.mkEnableOption "connections to the port on the host itself, which includes other containers";

@@ -15,8 +15,13 @@ let
 
   # pasta runs unprivileged in the container's user namespace, so it can't bind
   # ports below 1024. It listens on 30000 + port for them instead, and the
-  # nftables rules below redirect the port there.
-  pastaPort = port: if port < 1024 then 30000 + port else port;
+  # nftables rules below redirect the port there. Ranges start from 1024 up.
+  pastaPort = port: if lib.isInt port && port < 1024 then 30000 + port else port;
+
+  # The ports of a port or a range like "49000-50000", which pasta forwards
+  # with a single rule.
+  portsOf = port: if lib.isInt port then [ port ] else
+  let bounds = map lib.toInt (lib.splitString "-" port); in lib.range (lib.head bounds) (lib.last bounds);
 
   listenAddresses = { mode, ipv4, ipv6, ... }:
     lib.optional ipv4 ({ local = "127.0.0.1"; global = "0.0.0.0"; }.${mode})
@@ -29,7 +34,7 @@ let
     in lib.concatMapStringsSep " " (spec: "--${protocol}-ports ${spec}") (if specs == [ ] then [ "none" ] else specs);
 
   # The ports below 1024 of all containers, with their protocol.
-  lowPorts = lib.filter ({ port, ... }: port < 1024) (lib.concatMap
+  lowPorts = lib.filter ({ port, ... }: lib.isInt port && port < 1024) (lib.concatMap
     (container: map (p: p // { protocol = "tcp"; }) container.tcpPorts ++ map (p: p // { protocol = "udp"; }) container.udpPorts)
     (builtins.attrValues cfg));
   redirects = lib.concatMapStrings ({ protocol, port, ... }: "fib daddr type local ${protocol} dport ${toString port} redirect to :${toString (pastaPort port)}\n");
@@ -82,16 +87,20 @@ in
   config = lib.mkIf (cfg != { }) {
     assertions = [
       {
-        assertion = lib.allUnique (lib.concatMap (container: map ({ port, ... }: pastaPort port) container.tcpPorts) (builtins.attrValues cfg));
+        assertion = lib.allUnique (lib.concatMap (container: lib.concatMap ({ port, ... }: map pastaPort (portsOf port)) container.tcpPorts) (builtins.attrValues cfg));
         message = "isocon: the same TCP port is forwarded twice (ports below 1024 also take 30000 + port).";
       }
       {
-        assertion = lib.allUnique (lib.concatMap (container: map ({ port, ... }: pastaPort port) container.udpPorts) (builtins.attrValues cfg));
+        assertion = lib.allUnique (lib.concatMap (container: lib.concatMap ({ port, ... }: map pastaPort (portsOf port)) container.udpPorts) (builtins.attrValues cfg));
         message = "isocon: the same UDP port is forwarded twice (ports below 1024 also take 30000 + port).";
       }
       {
         assertion = lib.all ({ ipv4, ipv6, ... }: ipv4 || ipv6) (lib.concatMap (container: container.tcpPorts ++ container.udpPorts) (builtins.attrValues cfg));
         message = "isocon: a forwarded port has neither ipv4 nor ipv6.";
+      }
+      {
+        assertion = lib.all ({ port, ... }: lib.isInt port || lib.head (portsOf port) >= 1024) (lib.concatMap (container: container.tcpPorts ++ container.udpPorts) (builtins.attrValues cfg));
+        message = "isocon: a forwarded port range starts below 1024.";
       }
       {
         assertion = lib.all ({ local, internal, global, ... }: local || internal || global) (lib.concatMap (container: container.outgoingTcpPorts ++ container.outgoingUdpPorts) (builtins.attrValues cfg));

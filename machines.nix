@@ -131,6 +131,10 @@ in
       host = "kashenblade";
       baseDomain = "zebre.us";
     };
+    turn = {
+      host = "kashenblade";
+      baseDomain = "zebre.us";
+    };
     matrixWirsing = {
       host = "kashenblade";
       baseDomain = "wirs.ing";

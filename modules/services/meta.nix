@@ -15,6 +15,7 @@
     ./mail/meta.nix
     ./matrix/meta.nix
     ./matrix-wirsing/meta.nix
+    ./turn/meta.nix
     ./monitoring/meta.nix
     ./n50camp/meta.nix
     ./ollama/meta.nix

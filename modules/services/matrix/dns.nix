@@ -22,7 +22,6 @@ in
     '' +
     (staticRecord "@" server) +
     (staticRecord "element" server) +
-    (staticRecord "matrix" server) +
-    (staticRecord "turn" server);
+    (staticRecord "matrix" server);
   };
 }

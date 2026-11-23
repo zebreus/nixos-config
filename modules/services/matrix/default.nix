@@ -4,7 +4,6 @@ with lib;
 let
   cfg = config.meta.self.matrix;
   inherit (cfg) baseDomain;
-  turnDomain = "turn.${baseDomain}";
   elementDomain = "element.${baseDomain}";
   synapseDomain = "matrix.${baseDomain}";
   clientConfig."m.homeserver".base_url = "https://${synapseDomain}";
@@ -58,12 +57,7 @@ in
   config = mkIf cfg.enable {
     # Define the files with the secrets
     age.secrets = {
-      coturn_static_auth_secret = {
-        owner = "turnserver";
-      };
-      coturn_static_auth_secret_matrix_config = {
-        owner = "matrix-synapse";
-      };
+      coturn_static_auth_secret.owner = "matrix-synapse";
     } // lib.optionalAttrs resticSecretsPresent {
       matrix_restic_password = { };
       shared_restic_environment = { };
@@ -71,25 +65,6 @@ in
 
     warnings = lib.optional (!resticSecretsPresent)
       "Matrix backups are disabled because the restic secrets are missing. Run `nix run .#terraform -- apply && nix run .#sync-restic-secrets` and rebuild.";
-
-    # Get certs
-    security.acme = {
-      certs = {
-        ${turnDomain} = {
-          postRun = "systemctl restart coturn.service";
-        };
-      };
-    };
-
-    # open the firewall
-    networking.firewall = {
-      allowedUDPPortRanges = [{
-        from = config.services.coturn.min-port;
-        to = config.services.coturn.max-port;
-      }];
-      allowedUDPPorts = [ 3478 5349 ];
-      allowedTCPPorts = [ 3478 5349 ];
-    };
 
     # # Patch the welcome strings on the login page to say the domain instead of element
     # nixpkgs.overlays = [
@@ -146,18 +121,6 @@ in
               '';
             };
           };
-          ${turnDomain} = {
-            enableACME = true;
-            forceSSL = true;
-            # It's also possible to do a redirect here or something else, this vhost is not
-            # needed for Matrix. It's recommended though to *not put* element
-            # here, see also the section about Element.
-            locations = {
-              "/".extraConfig = ''
-                return 301 $scheme://${elementDomain}$request_uri;
-              '';
-            };
-          };
           ${elementDomain} = {
             enableACME = true;
             forceSSL = true;
@@ -170,48 +133,6 @@ in
             };
           };
         };
-      };
-
-      # enable coturn
-      coturn = {
-        enable = true;
-        no-cli = true;
-        no-tcp-relay = true;
-        min-port = 49000;
-        max-port = 50000;
-        use-auth-secret = true;
-        static-auth-secret-file = config.age.secrets.coturn_static_auth_secret.path;
-        realm = turnDomain;
-        cert = "${config.security.acme.certs.${turnDomain}.directory}/full.pem";
-        pkey = "${config.security.acme.certs.${turnDomain}.directory}/key.pem";
-        extraConfig = ''
-          # for debugging
-          verbose
-          # ban private IP ranges
-          no-multicast-peers
-          denied-peer-ip=0.0.0.0-0.255.255.255
-          denied-peer-ip=10.0.0.0-10.255.255.255
-          denied-peer-ip=100.64.0.0-100.127.255.255
-          denied-peer-ip=127.0.0.0-127.255.255.255
-          denied-peer-ip=169.254.0.0-169.254.255.255
-          denied-peer-ip=172.16.0.0-172.31.255.255
-          denied-peer-ip=192.0.0.0-192.0.0.255
-          denied-peer-ip=192.0.2.0-192.0.2.255
-          denied-peer-ip=192.88.99.0-192.88.99.255
-          denied-peer-ip=192.168.0.0-192.168.255.255
-          denied-peer-ip=198.18.0.0-198.19.255.255
-          denied-peer-ip=198.51.100.0-198.51.100.255
-          denied-peer-ip=203.0.113.0-203.0.113.255
-          denied-peer-ip=240.0.0.0-255.255.255.255
-          denied-peer-ip=::1
-          denied-peer-ip=64:ff9b::-64:ff9b::ffff:ffff
-          denied-peer-ip=::ffff:0.0.0.0-::ffff:255.255.255.255
-          denied-peer-ip=100::-100::ffff:ffff:ffff:ffff
-          denied-peer-ip=2001::-2001:1ff:ffff:ffff:ffff:ffff:ffff:ffff
-          denied-peer-ip=2002::-2002:ffff:ffff:ffff:ffff:ffff:ffff:ffff
-          denied-peer-ip=fc00::-fdff:ffff:ffff:ffff:ffff:ffff:ffff:ffff
-          denied-peer-ip=fe80::-febf:ffff:ffff:ffff:ffff:ffff:ffff:ffff
-        '';
       };
 
       matrix-synapse = {
@@ -238,7 +159,8 @@ in
           ];
           max_upload_size = "500M";
 
-          turn_uris = [ "turn:${config.services.coturn.realm}:3478?transport=udp" "turn:${config.services.coturn.realm}:3478?transport=tcp" ];
+          turn_uris = [ "turn:turn.${config.meta.services.turn.baseDomain}:3478?transport=udp" "turn:turn.${config.meta.services.turn.baseDomain}:3478?transport=tcp" ];
+          turn_shared_secret_path = config.age.secrets.coturn_static_auth_secret.path;
           turn_user_lifetime = "1h";
 
           # log = {
@@ -285,10 +207,6 @@ in
           #   version = 1;
           # };
         };
-        # There is no file option for the coturn static auth secret, so we need to add it via extraConfigFiles
-        extraConfigFiles = [
-          config.age.secrets.coturn_static_auth_secret_matrix_config.path
-        ];
       };
 
       # Create db dump 5 minutes before the restic backup
