@@ -14,10 +14,6 @@ let
     add_header Access-Control-Allow-Origin *;
     return 200 '${builtins.toJSON data}';
   '';
-  element-branding = {
-    welcome_background_url = "/extra/resources/blobs-dark.webp";
-    auth_header_logo_url = "/extra/resources/icon.webp";
-  };
   branded-element-web = pkgs.element-web.override {
     conf = {
       show_labs_settings = true;
@@ -25,7 +21,6 @@ let
       default_server_config = clientConfig;
       brand = "zebre.us";
       permalink_prefix = "https://element.zebre.us";
-      branding = element-branding;
     };
   };
   synapse-admin = pkgs.ketesa.withConfig {
@@ -103,10 +98,6 @@ in
               ${elementDomain} = {
                 listen = [{ port = 18009; addr = "[::]"; }];
                 root = branded-element-web;
-                locations = {
-                  "= /extra/resources/blobs-dark.webp" = { alias = ../../../resources/blobs-dark.webp; };
-                  "= /extra/resources/icon.webp" = { alias = ../../../resources/icon.webp; };
-                };
               };
               ${adminDomain} = {
                 listen = [{ port = 18010; addr = "[::]"; }];
