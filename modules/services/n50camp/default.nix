@@ -1,4 +1,4 @@
-{ lib, config, utils, extraModules, ... }:
+{ lib, config, ... }:
 with lib;
 let
   cfg = config.meta.self.n50camp;
@@ -29,49 +29,41 @@ let
   padDomain = "pad.${primaryBaseDomain}";
   wikiDomain = "wiki.${primaryBaseDomain}";
 
-  # Every service here runs inside a NixOS container with its OWN network
-  # namespace (privateNetwork = true). Isolation is required because the host
-  # runs a parallel darmfest event stack (services/event) on the same default ports
-  # (MariaDB 3306, PostgreSQL 5432, HedgeDoc 23943); a shared namespace collides
-  # on all of them.
-  #
-  # The container's host-side veth is enslaved to a host bridge (hostBridge), so
-  # nixos-containers does no imperative veth addressing — instead the bridge, its
-  # /30 subnet, the container's eth0 and the outbound NAT are all plain
-  # systemd-networkd config (see the `systemd.network.*` blocks). The host nginx
-  # terminates TLS and reverse-proxies each domain to the container's single
-  # internal nginx over the bridge, preserving the Host header so it can route by
-  # server_name. Container outbound (SMTP etc.) is masqueraded by IPMasquerade on
-  # the bridge.
-  containerBridge = "br-n50camp";
-  containerHostAddress = "192.168.207.1"; # bridge address; the container's gateway
-  containerLocalAddress = "192.168.207.2"; # container's eth0 address (nginx upstream)
-  # The container nginx binds all interfaces within its own netns; the host
-  # reaches it at containerLocalAddress:internalPort.
-  internalListenAddr = "0.0.0.0";
+  # The guest's nginx serves every app vhost on this port. The host nginx
+  # terminates TLS and reverse-proxies each domain to it, preserving the Host
+  # header so it can route by server_name.
   internalPort = 28080;
-  internalUrl = "http://${containerLocalAddress}:${toString internalPort}";
   hedgedocPort = 23943;
   # Port of the static n50-camp website server (from the n50-camp flake input),
   # which serves the main site on the primary base domain's apex.
   websitePort = 28011;
 
-  # The geheimnix secrets are decrypted on the host and bind-mounted (read-only)
-  # into the container at the very same paths, so the service config inside the
-  # container can reference them transparently.
-  secretPaths = {
-    himmelMail = config.age.secrets.n50_himmel_mail_password.path;
-    pretalxExtra = config.age.secrets.n50_pretalx_extra_secrets.path;
-    pretalxAdmin = config.age.secrets.n50_pretalx_admin_password.path;
-    mediawiki = config.age.secrets.n50_mediawiki_password.path;
-    n50CampAdmin = config.age.secrets.n50_camp_admin_password.path;
-    n50CampOpenrouter = config.age.secrets.n50_camp_openrouter_key.path;
-  };
-  mkSecretBind = path: { ${path} = { hostPath = path; isReadOnly = true; }; };
+  # They reach the guest as credentials. Services that systemd reads them for
+  # (EnvironmentFile=, LoadCredential= with a path) take them from
+  # /run/credentials/@system, the others get them with LoadCredential=.
+  secrets = [
+    # The himmel@n50.lat mail account password (raw, no newline). Used by
+    # engelsystem and mediawiki for SMTP. pretalx uses the same account but
+    # gets its password via the PRETALX_MAIL_PASSWORD env file below.
+    "n50_himmel_mail_password"
+    # Holds pretalx's secret env vars using the PRETALX_<SECTION>_<KEY>
+    # pattern, e.g. PRETALX_MAIL_PASSWORD=...  Create/edit it with
+    # `geheimnix edit n50_pretalx_extra_secrets`.
+    "n50_pretalx_extra_secrets"
+    # Env file holding PRETALX_ADMIN_PASSWORD for the pretalx admin account
+    # (see the pretalx-create-admin service in the container).
+    "n50_pretalx_admin_password"
+    "n50_mediawiki_password"
+    # CMS admin password (raw, no newline) for the n50-camp site's /admin area.
+    "n50_camp_admin_password"
+    # Default OpenRouter API key (raw, no newline) for the n50-camp editor's AI
+    # assist. Admins can still override it with their own key in-browser.
+    "n50_camp_openrouter_key"
+  ];
 
-  # Reverse-proxy a host vhost to the container's internal nginx.
+  # Reverse-proxy a host vhost to the guest's internal nginx.
   proxyToContainer = {
-    proxyPass = internalUrl;
+    proxyPass = "http://[::1]:${toString internalPort}";
     proxyWebsockets = true;
     recommendedProxySettings = true;
   };
@@ -103,97 +95,36 @@ in
   imports = [ ./dns.nix ];
 
   config = mkIf cfg.enable {
-    # Define the files with the secrets. These are decrypted on the host and then
-    # bind-mounted into the container below.
-    age.secrets = {
-      # The himmel@n50.lat mail account password (raw, no newline). Used by
-      # engelsystem and mediawiki for SMTP. pretalx uses the same account but
-      # gets its password via the PRETALX_MAIL_PASSWORD env file below.
-      n50_himmel_mail_password = {
-        mode = "0444";
-      };
-      # Holds pretalx's secret env vars using the PRETALX_<SECTION>_<KEY>
-      # pattern, e.g. PRETALX_MAIL_PASSWORD=...  Create/edit it with
-      # `geheimnix edit n50_pretalx_extra_secrets`.
-      n50_pretalx_extra_secrets = {
-        mode = "0444";
-      };
-      # Env file holding PRETALX_ADMIN_PASSWORD for the pretalx admin account
-      # (see the pretalx-create-admin service in the container). Only read by
-      # systemd (as root) via EnvironmentFile, so it stays 0400.
-      n50_pretalx_admin_password = {
-        mode = "0400";
-      };
-      n50_mediawiki_password = {
-        mode = "0444";
-      };
-      # CMS admin password (raw, no newline) for the n50-camp site's /admin
-      # area. Bind-mounted into the container and read by the service's
-      # systemd credential loader.
-      n50_camp_admin_password = {
-        mode = "0444";
-      };
-      # Default OpenRouter API key (raw, no newline) for the n50-camp editor's
-      # AI assist. Bind-mounted into the container and read by the service's
-      # systemd credential loader (openrouterKeyFile), exactly like the admin
-      # password. Admins can still override it with their own key in-browser.
-      n50_camp_openrouter_key = {
-        mode = "0444";
-      };
-    };
+    age.secrets = lib.genAttrs secrets (_: { });
 
-    systemd.network.netdevs."40-br-n50camp".netdevConfig = {
-      Name = containerBridge;
-      Kind = "bridge";
-    };
-    systemd.network.networks."40-br-n50camp" = {
-      matchConfig.Name = containerBridge;
-      address = [ "${containerHostAddress}/30" ];
-      networkConfig.IPMasquerade = "ipv4";
-    };
-    systemd.network.networks."45-ve-n50camp" = {
-      matchConfig.Name = "ve-n50camp";
-      networkConfig.Bridge = containerBridge;
-    };
-    systemd.services."container@n50camp" =
-      let dev = "sys-subsystem-net-devices-${utils.escapeSystemdPath containerBridge}.device";
-      in {
-        after = [ dev ];
-        wants = [ dev ];
-      };
-
-    containers.n50camp = {
-      autoStart = true;
-      # Own network namespace; see the addressing/NAT notes in the let block.
-      privateNetwork = true;
-      # Enslave the host-side veth to the bridge defined in networkd below. With
-      # hostBridge set, nixos-containers does NO imperative host-side addressing;
-      # both ends are configured declaratively via systemd-networkd instead.
-      hostBridge = containerBridge;
-      bindMounts = lib.mkMerge [
-        (mkSecretBind secretPaths.himmelMail)
-        (mkSecretBind secretPaths.pretalxExtra)
-        (mkSecretBind secretPaths.pretalxAdmin)
-        (mkSecretBind secretPaths.mediawiki)
-        (mkSecretBind secretPaths.n50CampAdmin)
-        (mkSecretBind secretPaths.n50CampOpenrouter)
+    # The apps run in a gVisor sandbox. Its own network namespace also keeps
+    # their default ports (MariaDB 3306, PostgreSQL 5432, HedgeDoc 23943) apart
+    # from the host's darmfest event stack (services/event).
+    isocon.n50camp = {
+      tcpPorts = [{ port = internalPort; ipv4 = false; ipv6 = true; }];
+      # Mail goes out through mail.stapatum.dev with implicit TLS.
+      outgoingTcpPorts = [{ port = 53; } { port = 443; } { port = 465; }];
+      persist = [
+        # engelsystem's database
+        { path = "/var/lib/mysql"; backup = true; }
+        # pretalx's and mediawiki's databases
+        { path = "/var/lib/postgresql"; backup = true; }
+        # Uploaded media, and Django's secret key in .secret
+        { path = "/var/lib/pretalx"; backup = true; }
+        # Uploads and $wgSecretKey in secret.key
+        { path = "/var/lib/mediawiki"; backup = true; }
+        # SQLite database and uploads
+        { path = "/var/lib/hedgedoc"; backup = true; }
+        # n50-camp's CMS database: DynamicUser= keeps it in /var/lib/private/n50-camp
+        { path = "/var/lib/private"; backup = true; }
+        # Sessions, cache and celery's queue
+        { path = "/var/lib/redis-pretalx"; }
       ];
+      credentials = lib.genAttrs secrets (secret: config.age.secrets.${secret}.path);
       config = { config, pkgs, lib, ... }: {
-        # Among them, the n50-camp flake's services.n50-camp (a hardened, sandboxed
-        # static-web-server serving the built site).
-        imports = extraModules;
-
+        # Not the host's: it decides the versions of postgresql and mariadb and so
+        # of their data directories.
         system.stateVersion = "26.05";
-
-        networking.useNetworkd = true;
-        systemd.network.networks."20-eth0" = {
-          matchConfig.Name = "eth0";
-          address = [ "${containerLocalAddress}/30" ];
-          gateway = [ containerHostAddress ];
-        };
-        networking.useHostResolvConf = lib.mkForce false;
-        networking.nameservers = [ "1.1.1.1" "9.9.9.9" ];
-        networking.firewall.allowedTCPPorts = [ internalPort ];
 
         # Main camp website, served on the primary base domain's apex. It only
         # listens on localhost; the host nginx terminates TLS and proxies to it
@@ -202,13 +133,10 @@ in
           enable = true;
           host = "::1";
           port = websitePort;
-          # The admin password comes from the geheimnix secret that's decrypted
-          # on the host and bind-mounted into the container at the same path.
           # Without it the /admin area fails closed (404).
-          adminPasswordFile = secretPaths.n50CampAdmin;
-          # Default OpenRouter key for the editor's AI assist, provisioned the
-          # same way. Optional — admins can supply their own key in-browser.
-          openrouterKeyFile = secretPaths.n50CampOpenrouter;
+          adminPasswordFile = "/run/credentials/@system/n50_camp_admin_password";
+          # Optional — admins can supply their own key in-browser.
+          openrouterKeyFile = "/run/credentials/@system/n50_camp_openrouter_key";
         };
 
         services.mysql = {
@@ -219,6 +147,7 @@ in
           settings.mysqld.skip-networking = true;
         };
 
+        systemd.services.engelsystem-init.serviceConfig.LoadCredential = [ "n50_himmel_mail_password" ];
         services.engelsystem = {
           enable = true;
           settings = {
@@ -250,7 +179,7 @@ in
               };
               host = "mail.stapatum.dev";
               password = {
-                _secret = secretPaths.himmelMail;
+                _secret = "/run/credentials/engelsystem-init.service/n50_himmel_mail_password";
               };
               port = 465;
               username = "himmel";
@@ -288,7 +217,7 @@ in
           # The mail password (and any other secrets) come from this env file
           # using pretalx's PRETALX_<SECTION>_<KEY> pattern, e.g.
           # PRETALX_MAIL_PASSWORD=...
-          environmentFiles = [ secretPaths.pretalxExtra ];
+          environmentFiles = [ "/run/credentials/@system/n50_pretalx_extra_secrets" ];
           plugins = with config.services.pretalx.package.plugins; [
             pages
           ];
@@ -301,12 +230,11 @@ in
         # rotated by editing the secret). Unlike `init`, this never creates an
         # organiser and is safe to re-run, so no marker guard is needed.
         #
-        # Email comes from environment; the password from the bind-mounted geheimnix
-        # secret as an EnvironmentFile (PRETALX_ADMIN_PASSWORD=...). It MUST run
-        # as the pretalx user: the `pretalx-manage` wrapper drops privileges with
-        # `sudo --preserve-env=PRETALX_CONFIG_FILE`, which would strip these vars
-        # if we started as root. Running as pretalx (systemd sets $USER=pretalx)
-        # takes the wrapper's no-sudo path, preserving them.
+        # Email comes from environment; the password from the credential as an
+        # EnvironmentFile (PRETALX_ADMIN_PASSWORD=...). It runs as root: the
+        # `pretalx-manage` wrapper sources pretalx's environment files and then
+        # drops to pretalx with `runuser --preserve-environment`, which only root
+        # may run.
         systemd.services.pretalx-create-admin = {
           description = "Create/update the pretalx administrator account";
           wantedBy = [ "multi-user.target" ];
@@ -315,9 +243,7 @@ in
           environment.PRETALX_ADMIN_EMAIL = "himmel@n50.lat";
           serviceConfig = {
             Type = "oneshot";
-            User = config.services.pretalx.user;
-            Group = config.services.pretalx.group;
-            EnvironmentFile = secretPaths.pretalxAdmin;
+            EnvironmentFile = "/run/credentials/@system/n50_pretalx_admin_password";
           };
           # `pretalx-manage` is the module's wrapper on the active system's PATH,
           # so it tracks the deployed pretalx version. `shell` executes the
@@ -350,6 +276,11 @@ in
             '';
         };
 
+        systemd.services.mediawiki-init.serviceConfig.LoadCredential = [ "n50_mediawiki_password" ];
+        # php-fpm's workers read it as mediawiki, but php-fpm's own credentials
+        # would be root's.
+        systemd.services.systemd-tmpfiles-setup.serviceConfig.LoadCredential = [ "n50_himmel_mail_password" ];
+        systemd.tmpfiles.rules = [ "f^ /run/mediawiki-smtp-password 0400 mediawiki - - n50_himmel_mail_password" ];
         services.mediawiki = {
           enable = true;
           # Prior to NixOS 24.05, there is a admin name bug that prevents using spaces in the mediawiki name https://github.com/NixOS/nixpkgs/issues/298902
@@ -370,7 +301,7 @@ in
           };
           # Initial admin account is "admin"; its password is the contents of the
           # n50_mediawiki_password secret. Change it after first login.
-          passwordFile = secretPaths.mediawiki;
+          passwordFile = "/run/credentials/mediawiki-init.service/n50_mediawiki_password";
           extraConfig = ''
             # Anonymous users may edit existing pages but not create new ones.
             $wgGroupPermissions['*']['edit'] = true;
@@ -386,7 +317,7 @@ in
                 'port'      => 465,                // Port to use when connecting to the SMTP server
                 'auth'      => true,               // Should we use SMTP authentication (true or false)
                 'username'  => 'himmel',     // Username to use for SMTP authentication (if being used)
-                'password'  => file_get_contents('${secretPaths.himmelMail}')       // Password to use for SMTP authentication (if being used)
+                'password'  => file_get_contents('/run/mediawiki-smtp-password')       // Password to use for SMTP authentication (if being used)
             ];
 
             $wgDefaultSkin = 'citizen';
@@ -470,7 +401,7 @@ in
         # port without TLS, so the host can reverse-proxy by Host header.
         services.nginx = {
           enable = true;
-          defaultListen = [{ addr = internalListenAddr; port = internalPort; }];
+          defaultListen = [{ addr = "[::]"; port = internalPort; }];
           # The host terminates TLS and reverse-proxies here on an internal http
           # port (28080). Without this, nginx turns relative redirects (e.g.
           # MediaWiki's "/" -> "/wiki/") into absolute ones using the internal
