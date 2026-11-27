@@ -73,24 +73,6 @@ in
         @ IN TXT ${quoteTxtEntry "google-site-verification=N11GiQq5grX82UY2Ik0dn4AQ7NpFd4dl_Sg2G2BYrvU"}
       '';
 
-      # Hosts a now defunct and unfinished project for ai generated shirts
-      "generated.fashion" = ''
-        ; generated.fashion on hosted on vercel
-        @	IN A 76.76.21.21
-        www	IN CNAME cname.vercel-dns.com.
-
-        ; google site verification
-        @ IN TXT ${quoteTxtEntry "google-site-verification=6B_Cig2VbMktIY9q13NowVz_5bZ1bQLgSOdFgVqpuzQ"}
-      '';
-
-      # Hosts a broken test of a gunjs based blog
-      "xn--f87c.cc" = ''
-        ; blog test on vercel
-        @	IN A 76.76.21.21
-        www	IN CNAME cname.vercel-dns.com.
-        testing IN NS ns1.vercel-dns.com.
-      '';
-
       "darmfest.de" = ''
         ; github pages
         _github-pages-challenge-hexanefemboy IN TXT ${quoteTxtEntry "12954459b9b36c954bb73a7db6243d"}

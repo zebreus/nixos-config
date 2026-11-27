@@ -10,7 +10,7 @@ let
   # The mail domains, each with the secret of its DKIM key. Every domain needs
   # one: for a domain without, SNM silently signs with a new key that isn't in
   # DNS.
-  dkimKeys = lib.genAttrs [ baseDomain "madmanfred.com" config.meta.domain "darmfest.de" ]
+  dkimKeys = lib.genAttrs [ baseDomain config.meta.domain "darmfest.de" ]
     (domain: "${builtins.replaceStrings [ "." "-" ] [ "_" "_" ] domain}_dkim_rsa")
   // lib.listToAttrs (map (machine: lib.nameValuePair (machineDomain machine) "${machine.name}_dkim_rsa") config.meta.managedMachines);
 
@@ -18,7 +18,7 @@ let
   accounts = {
     "lennart@${baseDomain}" = {
       passwordHash = "lennart_mail_passwordhash";
-      aliases = [ "postmaster@${baseDomain}" "dmarc-reports@${baseDomain}" "abuse@${baseDomain}" "@${baseDomain}" "@madmanfred.com" "@${config.meta.domain}" ];
+      aliases = [ "postmaster@${baseDomain}" "dmarc-reports@${baseDomain}" "abuse@${baseDomain}" "@${baseDomain}" "@${config.meta.domain}" ];
     };
     "himmel@darmfest.de" = {
       passwordHash = "himmel_mail_passwordhash";

@@ -66,21 +66,6 @@ in
         _imaps._tcp IN SRV 0 5 993 mail.zebre.us.
       '';
 
-    # My old email server lived here. Now it's just a redirect to the new one
-    "madmanfred.com" = ''
-      ; Records for mail
-      @ IN TXT ${quoteTxtEntry "v=spf1 a:mail.zebre.us -all"}
-      mail IN TXT ${quoteTxtEntry "v=spf1 a:mail.zebre.us -all"}
-      _dmarc IN TXT ${quoteTxtEntry "v=DMARC1; p=reject; fo=1; adkim=s; aspf=s; ri=86400; rua=mailto:dmarc-reports@zebre.us; ruf=mailto:dmarc-reports@zebre.us"}
-      mail._domainkey IN TXT ${quoteTxtEntry "v=DKIM1; k=rsa; s=email; p=${publicKeys.madmanfred_com_dkim}"}
-      @ IN MX 30 mail.zebre.us.
-      ; Autodiscovery:
-      _submission._tcp IN SRV 0 5 587 mail.zebre.us.
-      _submissions._tcp IN SRV 0 5 465 mail.zebre.us.
-      _imap._tcp IN SRV 0 5 143 mail.zebre.us.
-      _imaps._tcp IN SRV 0 5 993 mail.zebre.us.
-    '';
-
     # An event domain
     "darmfest.de" = ''
       ; Records for mail

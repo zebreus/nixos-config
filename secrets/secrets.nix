@@ -118,8 +118,6 @@ with import ./public-keys.nix;
   "sempriaq_mail_passwordhash".publicKeys = [ recovery sempriaq ] ++ mailServers;
   "zebre_us_dkim_rsa".publicKeys = [ recovery ] ++ mailServers;
   "zebre_us_dkim_rsa_pub".publicKeys = [ recovery ] ++ mailServers;
-  "madmanfred_com_dkim_rsa".publicKeys = [ recovery ] ++ mailServers;
-  "madmanfred_com_dkim_rsa_pub".publicKeys = [ recovery ] ++ mailServers;
   "blanderdash_dkim_rsa".publicKeys = [ recovery ] ++ mailServers;
   "blanderdash_dkim_rsa_pub".publicKeys = [ recovery ] ++ mailServers;
   "blanderdash_mail_password".publicKeys = [ recovery blanderdash ];

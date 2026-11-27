@@ -11,14 +11,8 @@ let
     config.meta.domain
     # Used for my external stuff. Matrix, mail, etc.
     "zebre.us"
-    # My old email server lived here. Now it's just a redirect to the new one
-    "madmanfred.com"
     # I use this domains for hosting random stuff with github pages
     "wirs.ing"
-    # My old matrix server
-    "cicen.net"
-    # I use this domain for testing
-    "del.blue"
     # Hosts a badly drawn picture of a unicorn
     "einhorn.jetzt"
     # Hosts a simplified version of the TU Darmstadt Mensa menu
@@ -29,10 +23,6 @@ let
     "chaosdarmstadt.de"
     # Tracks the state of FPGA tooling in rust, hosted on github pages
     "arewefpgayet.rs"
-    # Hosts a now defunct and unfinished project for ai generated shirts
-    "generated.fashion"
-    # Hosts a broken test of a gunjs based blog
-    "xn--f87c.cc"
     # Maybe I will use this for an url shortener or something. nothing for now
     "zeb.rs"
     # Used for a shitty event that wont happen anyway
