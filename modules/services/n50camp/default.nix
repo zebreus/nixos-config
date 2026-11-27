@@ -138,6 +138,9 @@ in
           # Optional — admins can supply their own key in-browser.
           openrouterKeyFile = "/run/credentials/@system/n50_camp_openrouter_key";
         };
+        # Its RootDirectory= needs mount_setattr(), which gVisor doesn't have.
+        # The rest of the unit's sandbox works.
+        systemd.services.n50-camp.confinement.enable = lib.mkForce false;
 
         services.mysql = {
           enable = true;
